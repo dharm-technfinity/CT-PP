@@ -1,0 +1,428 @@
+<!-- CaratDesk Main Dashboard – Final -->
+<head>
+  <meta charset="UTF-8">
+</head>
+<style>    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap');
+
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    .navbar,.page-header,footer.web-footer,.container>.row>.col-sm-10,.frappe-footer{display:none!important}
+    .web-page-container,.container{padding:0!important;max-width:100%!important}
+    body{overflow-x:hidden}
+    :root{--bg:#F7F6F3;--surface:#FFFFFF;--border:rgba(0,0,0,0.07);--border-strong:rgba(0,0,0,0.12);--text-primary:#1A1A18;--text-secondary:#6B6B65;--text-muted:#A8A8A2;--accent:#1A1A18;--accent-light:#F0EFE9;--nav-hover:#F7F6F3;--nav-active-bg:#EBEBE5;--pill-green-bg:#EAF3DE;--pill-green-txt:#3B6D11;--pill-red-bg:#FCEBEB;--pill-red-txt:#A32D2D;--pill-amber-bg:#FAEEDA;--pill-amber-txt:#854F0B;--shadow-sm:0 2px 12px rgba(0,0,0,0.04),0 0 0 0.5px rgba(0,0,0,0.03)}
+    .dark{--bg:#121212;--surface:#1E1E1E;--border:rgba(255,255,255,0.08);--border-strong:rgba(255,255,255,0.15);--text-primary:#EDEDED;--text-secondary:#A0A0A0;--text-muted:#6E6E6E;--accent:#D4D4D4;--accent-light:#2C2C2C;--nav-hover:#252525;--nav-active-bg:#2D2D2D;--pill-green-bg:#1E3A2E;--pill-green-txt:#9CD45E;--pill-red-bg:#3E1E1E;--pill-red-txt:#F28B82;--pill-amber-bg:#3E2E1E;--pill-amber-txt:#FDBF6B;--shadow-sm:0 2px 12px rgba(0,0,0,0.3),0 0 0 0.5px rgba(255,255,255,0.05)}
+    *{transition:background-color .2s ease,border-color .2s ease,color .2s ease,box-shadow .2s ease}
+    .cd-app{font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);min-height:100vh;display:flex;-webkit-font-smoothing:antialiased;color:var(--text-primary)}
+    .cd-sidebar{width:260px;background:var(--surface);border-right:.5px solid var(--border);display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;z-index:200;transform:translateX(0);transition:transform .3s cubic-bezier(.2,.9,.4,1.1);box-shadow:var(--shadow-sm)}
+    @media(max-width:768px){.cd-sidebar{transform:translateX(-100%)}.cd-sidebar.mobile-open{transform:translateX(0);width:80%;max-width:280px}}
+    .cd-sidebar-logo{display:flex;align-items:center;gap:11px;padding:20px 16px 18px;border-bottom:.5px solid var(--border);text-decoration:none;color:inherit}
+    .cd-sidebar-logo img{width:30px;height:30px;object-fit:contain;border-radius:9px}
+    .cd-logo-name{font-family:'DM Serif Display',Georgia,serif;font-size:17px;color:var(--text-primary);letter-spacing:-.2px}
+    .cd-logo-sub{font-size:10px;color:var(--text-muted);font-weight:300;letter-spacing:.07em;text-transform:uppercase}
+    .cd-nav{flex:1;padding:10px 8px;overflow-y:auto}
+    .cd-nav-section{font-size:10px;font-weight:500;color:var(--text-muted);letter-spacing:.08em;text-transform:uppercase;padding:14px 8px 5px}
+    .cd-nav-item{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:9px;cursor:pointer;margin-bottom:1px;text-decoration:none;color:var(--text-secondary);font-size:13.5px;font-weight:400;transition:background .14s,color .14s}
+    .cd-nav-item:hover{background:var(--nav-hover);color:var(--text-primary)}
+    .cd-nav-item.active{background:var(--nav-active-bg);color:var(--text-primary);font-weight:500}
+    .cd-nav-icon{width:20px;height:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:inherit}
+    .cd-nav-icon svg{width:15px;height:15px;stroke:currentColor;stroke-width:1.75;fill:none;stroke-linecap:round;stroke-linejoin:round}
+    .cd-nav-badge{margin-left:auto;background:var(--text-primary);color:var(--surface);font-size:10px;font-weight:500;border-radius:100px;padding:2px 7px;min-width:18px;text-align:center}
+    .cd-sidebar-bottom{padding:10px 8px;border-top:.5px solid var(--border)}
+    .cd-user-card{display:flex;align-items:center;gap:10px;padding:10px;border-radius:9px;cursor:pointer;transition:background .14s}
+    .cd-user-card:hover{background:var(--nav-hover)}
+    .cd-avatar{width:32px;height:32px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:var(--surface);flex-shrink:0}
+    .cd-user-name{font-size:13px;font-weight:500;color:var(--text-primary)}
+    .cd-user-role{font-size:11px;color:var(--text-muted);font-weight:300}
+    .cd-logout-btn{display:flex;align-items:center;gap:7px;padding:9px 10px;border-radius:9px;cursor:pointer;font-size:13px;color:var(--text-secondary);margin-top:3px;border:none;background:none;font-family:'DM Sans',sans-serif;width:100%;transition:background .14s,color .14s}
+    .cd-logout-btn:hover{background:var(--pill-red-bg);color:var(--pill-red-txt)}
+    .cd-main{margin-left:260px;flex:1;min-height:100vh;display:flex;flex-direction:column;width:100%}
+    @media(max-width:768px){.cd-main{margin-left:0}}
+    .cd-topbar{height:58px;background:var(--surface);border-bottom:.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 20px;position:sticky;top:0;z-index:100}
+    .cd-menu-btn{display:none;background:none;border:none;cursor:pointer;color:var(--text-secondary);margin-right:12px}
+    @media(max-width:768px){.cd-menu-btn{display:flex;align-items:center;justify-content:center}}
+    .cd-topbar-title{font-size:16px;font-weight:500;color:var(--text-primary)}
+    .cd-topbar-right{display:flex;align-items:center;gap:10px}
+    .cd-topbar-date{font-size:12.5px;color:var(--text-muted);font-weight:300}
+    .cd-icon-btn{width:34px;height:34px;border-radius:9px;border:.5px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-secondary);transition:background .14s,color .14s}
+    .cd-icon-btn:hover{background:var(--nav-hover);color:var(--text-primary)}
+    .cd-icon-btn svg{width:15px;height:15px;stroke:currentColor;stroke-width:1.75;fill:none;stroke-linecap:round;stroke-linejoin:round}
+    .cd-content{padding:28px;flex:1}
+    .cd-page-anim{animation:cd-fadeIn .4s cubic-bezier(.16,1,.3,1) both}
+    @keyframes cd-fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+    .cd-quick-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+    @media(max-width:640px){.cd-quick-actions{grid-template-columns:1fr 1fr}}
+    .cd-qa-btn{display:flex;align-items:center;gap:11px;padding:14px 16px;background:var(--surface);border:.5px solid var(--border);border-radius:13px;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--text-primary);transition:box-shadow .2s,transform .1s;text-align:left;text-decoration:none}
+    .cd-qa-btn:hover{box-shadow:0 6px 14px rgba(0,0,0,.08);transform:translateY(-2px)}
+    .cd-qa-btn:active{transform:translateY(0)}
+    .cd-qa-icon{width:34px;height:34px;border-radius:9px;background:var(--accent-light);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .cd-qa-icon svg{width:15px;height:15px;stroke:var(--text-primary);stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round}
+    .cd-qa-label{font-size:13px;font-weight:500;color:var(--text-primary);margin-bottom:1px}
+    .cd-qa-sub{font-size:11px;color:var(--text-muted);font-weight:300}
+    .cd-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+    @media(max-width:640px){.cd-metrics{grid-template-columns:1fr 1fr}}
+    .cd-metric-card{background:var(--surface);border:.5px solid var(--border);border-radius:14px;padding:18px 20px;transition:box-shadow .2s,transform .15s}
+    .cd-metric-card:hover{box-shadow:0 8px 20px rgba(0,0,0,.06);transform:translateY(-2px)}
+    .cd-metric-label{font-size:12px;color:var(--text-muted);margin-bottom:8px}
+    .cd-metric-value{font-size:26px;font-weight:500;letter-spacing:-.6px;margin-bottom:6px}
+    .cd-metric-change{font-size:11.5px;display:flex;align-items:center;gap:3px}
+    .cd-metric-change.up{color:var(--pill-green-txt)}
+    .cd-metric-change.down{color:var(--pill-red-txt)}
+    .cd-metric-change.neutral{color:var(--text-muted)}
+    .cd-bottom-grid{display:grid;grid-template-columns:1.2fr 0.8fr;gap:14px}
+    @media(max-width:768px){.cd-bottom-grid{grid-template-columns:1fr;gap:18px}}
+    .cd-panel{background:var(--surface);border:.5px solid var(--border);border-radius:14px;padding:20px 22px;transition:box-shadow .2s}
+    .cd-panel:hover{box-shadow:var(--shadow-sm)}
+    .cd-panel-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+    .cd-panel-title{font-size:14px;font-weight:500}
+    .cd-panel-link{font-size:12px;color:var(--text-secondary);text-decoration:none;transition:color .14s}
+    .cd-panel-link:hover{color:var(--text-primary)}
+    .cd-tx-table{width:100%;border-collapse:collapse}
+    .cd-tx-table th{font-size:11px;font-weight:500;color:var(--text-muted);text-align:left;padding:0 0 10px;letter-spacing:.04em;text-transform:uppercase}
+    .cd-tx-table td{font-size:13px;padding:9px 0;border-top:.5px solid var(--border)}
+    .cd-tx-id{color:var(--text-muted);font-size:11.5px;margin-top:1px}
+    .cd-pill{display:inline-block;font-size:11px;padding:3px 9px;border-radius:100px}
+    .cd-pill.green{background:var(--pill-green-bg);color:var(--pill-green-txt)}
+    .cd-pill.red{background:var(--pill-red-bg);color:var(--pill-red-txt)}
+    .cd-pill.amber{background:var(--pill-amber-bg);color:var(--pill-amber-txt)}
+    .cd-chart-bars{display:flex;align-items:flex-end;gap:5px;height:80px;margin-bottom:8px}
+    .cd-bar{flex:1;border-radius:4px 4px 0 0;background:var(--accent-light);transition:height .5s cubic-bezier(.16,1,.3,1)}
+    .cd-bar.today{background:var(--text-primary)}
+    .cd-chart-labels{display:flex;gap:5px}
+    .cd-chart-label{flex:1;font-size:10px;color:var(--text-muted);text-align:center}
+    </style>
+    
+    <div class="cd-app" id="cdApp">
+      <!-- ══ SIDEBAR ══ -->
+      <nav class="cd-sidebar" id="cdSidebar">
+        <a class="cd-sidebar-logo" href="/caratdesk">
+          <img src="https://i.postimg.cc/NMgHCKvC/letter-cc-cd-diamond-initial-600nw-2206465849.png" alt="CaratDesk"/>
+          <div><div class="cd-logo-name">PPJ Retail</div><div class="cd-logo-sub">Jewellery POS</div></div>
+        </a>
+        <div class="cd-nav">
+          <div class="cd-nav-section">Main</div>
+          <a href="/caratdesk" class="cd-nav-item active">
+            <span class="cd-nav-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>Dashboard
+          </a>
+          <div class="cd-nav-section">Operations</div>
+          <a href="/caratdesk-selling" class="cd-nav-item">
+            <span class="cd-nav-icon"><svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg></span>Selling
+            <span class="cd-nav-badge" id="navSellBadge" style="display:none">0</span>
+          </a>
+          <a href="/caratdesk-buying" class="cd-nav-item">
+            <span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></span>Buying
+          </a>
+          <a href="/caratdesk-pos" class="cd-nav-item">
+            <span class="cd-nav-icon"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>POS Billing
+          </a>
+          <a href="/caratdesk-stock" class="cd-nav-item">
+            <span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg></span>Stock
+          </a>
+          <a href="/caratdesk-items" class="cd-nav-item">
+            <span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></span>Items
+          </a>
+          <div class="cd-nav-section">Finance</div>
+          <a href="/caratdesk-accounts" class="cd-nav-item">
+            <span class="cd-nav-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></span>Accounts
+          </a>
+          <a href="/caratdesk-reports" class="cd-nav-item">
+            <span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>Reports
+          </a>
+          <div class="cd-nav-section">System</div>
+          <a href="/caratdesk-settings" class="cd-nav-item">
+            <span class="cd-nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M12 2v2M12 20v2M2 12h2M20 12h2M4.93 19.07l1.41-1.41M19.07 19.07l-1.41-1.41"/></svg></span>Settings
+          </a>
+        </div>
+        <div class="cd-sidebar-bottom">
+          <div class="cd-user-card">
+            <div class="cd-avatar" id="cdAvatar">—</div>
+            <div><div class="cd-user-name" id="cdUserName">Loading…</div><div class="cd-user-role">POS Manager</div></div>
+          </div>
+          <button class="cd-logout-btn" id="cdLogoutBtn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+            Sign out
+          </button>
+        </div>
+      </nav>
+    
+      <!-- ══ MAIN ══ -->
+      <div class="cd-main">
+        <div class="cd-topbar">
+          <div style="display:flex;align-items:center">
+            <button class="cd-menu-btn" id="cdMenuToggle">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+            <div class="cd-topbar-title">Dashboard</div>
+          </div>
+          <div class="cd-topbar-right">
+            <div class="cd-topbar-date" id="cdTopDate"></div>
+            <div class="cd-icon-btn" id="cdThemeToggle" title="Dark/Light mode">
+              <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </div>
+            <div class="cd-icon-btn" title="Refresh" onclick="cdLoadDashboard()">
+              <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+            </div>
+          </div>
+        </div>
+    
+        <div class="cd-content cd-page-anim">
+          <!-- Quick Actions -->
+          <div class="cd-quick-actions">
+            <a href="/caratdesk-selling" class="cd-qa-btn">
+              <div class="cd-qa-icon"><svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg></div>
+              <div><div class="cd-qa-label">New Sale</div><div class="cd-qa-sub">Sales invoice</div></div>
+            </a>
+            <a href="/caratdesk-buying" class="cd-qa-btn">
+              <div class="cd-qa-icon"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></div>
+              <div><div class="cd-qa-label">New Purchase</div><div class="cd-qa-sub">Purchase order</div></div>
+            </a>
+            <a href="/caratdesk-items" class="cd-qa-btn">
+              <div class="cd-qa-icon"><svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></div>
+              <div><div class="cd-qa-label">Browse Items</div><div class="cd-qa-sub">Search catalogue</div></div>
+            </a>
+            <a href="/caratdesk-stock" class="cd-qa-btn">
+              <div class="cd-qa-icon"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg></div>
+              <div><div class="cd-qa-label">Stock Entry</div><div class="cd-qa-sub">Transfer / adjust</div></div>
+            </a>
+          </div>
+    
+          <!-- Metrics -->
+          <div class="cd-metrics">
+            <div class="cd-metric-card">
+              <div class="cd-metric-label">Today's Revenue</div>
+              <div class="cd-metric-value" id="cdM1">₹0</div>
+              <div class="cd-metric-change neutral" id="cdM1c">Loading…</div>
+            </div>
+            <div class="cd-metric-card">
+              <div class="cd-metric-label">Orders Today</div>
+              <div class="cd-metric-value" id="cdM2">0</div>
+              <div class="cd-metric-change neutral" id="cdM2c">Loading…</div>
+            </div>
+            <div class="cd-metric-card">
+              <div class="cd-metric-label">Items in Stock</div>
+              <div class="cd-metric-value" id="cdM3">—</div>
+              <div class="cd-metric-change neutral">Across warehouses</div>
+            </div>
+            <div class="cd-metric-card">
+              <div class="cd-metric-label">Pending Purchases</div>
+              <div class="cd-metric-value" id="cdM4">—</div>
+              <div class="cd-metric-change" style="color:var(--pill-amber-txt)">Awaiting receipt</div>
+            </div>
+          </div>
+    
+          <!-- Bottom Grid -->
+          <div class="cd-bottom-grid">
+            <div class="cd-panel">
+              <div class="cd-panel-header">
+                <span class="cd-panel-title">Recent Transactions</span>
+                <a href="/caratdesk-selling" class="cd-panel-link">View all →</a>
+              </div>
+              <table class="cd-tx-table">
+                <thead><tr><th>Customer</th><th>Amount</th><th>Status</th></tr></thead>
+                <tbody id="cdTxBody">
+                  <tr><td colspan="3" style="padding:20px 0;text-align:center;color:var(--text-muted)">Loading…</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="cd-panel">
+              <div class="cd-panel-header">
+                <span class="cd-panel-title">Sales This Week</span>
+                <a href="/caratdesk-reports" class="cd-panel-link">Reports →</a>
+              </div>
+              <div class="cd-chart-bars" id="cdBars">
+                <div class="cd-bar" style="height:40%"></div><div class="cd-bar" style="height:55%"></div>
+                <div class="cd-bar" style="height:42%"></div><div class="cd-bar" style="height:70%"></div>
+                <div class="cd-bar" style="height:60%"></div><div class="cd-bar" style="height:75%"></div>
+                <div class="cd-bar today" style="height:88%"></div>
+              </div>
+              <div class="cd-chart-labels">
+                <div class="cd-chart-label">Mon</div><div class="cd-chart-label">Tue</div>
+                <div class="cd-chart-label">Wed</div><div class="cd-chart-label">Thu</div>
+                <div class="cd-chart-label">Fri</div><div class="cd-chart-label">Sat</div>
+                <div class="cd-chart-label">Sun</div>
+              </div>
+              <div style="margin-top:18px;padding-top:16px;border-top:.5px solid var(--border)">
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                  <div>
+                    <div style="font-size:11px;color:var(--text-muted);margin-bottom:3px">Today's Total</div>
+                    <div style="font-size:22px;font-weight:500;letter-spacing:-.5px" id="cdWeekTotal">₹0</div>
+                  </div>
+                  <div style="text-align:right">
+                    <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px">Orders</div>
+                    <span class="cd-pill green" id="cdWeekChange">0 orders</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <script>
+
+// Override pubGet to use direct API for known proxies
+
+// Override pubGet to use direct API for known proxies
+
+// Override pubGet to use direct API for known proxies
+async function pubGet(script, params = {}) {
+  const proxyMap = {
+    'proxy_get_suppliers': '/api/resource/Supplier?fields=["name","supplier_name","supplier_type","mobile_no","tax_id"]&limit=500',
+    'proxy_get_items': '/api/resource/Item?fields=["item_code","item_name","gst_hsn_code","stock_uom","standard_rate"]&limit=500',
+    'proxy_get_warehouses': '/api/resource/Warehouse?fields=["name"]&limit=200',
+    'proxy_get_tax_templates': '/api/resource/Purchase Taxes and Charges Template?fields=["name"]&limit=200',
+    'proxy_get_purchase_orders': '/api/resource/Purchase Order?fields=["name","supplier","supplier_name","transaction_date","grand_total","status","docstatus"]&limit=500',
+    'proxy_get_purchase_receipts': '/api/resource/Purchase Receipt?fields=["name","supplier","supplier_name","posting_date","grand_total","status","docstatus"]&limit=500',
+    'proxy_get_payment_terms': '/api/resource/Payment Terms Template?fields=["name"]&limit=100',
+  };
+  if (proxyMap[script]) {
+    const url = proxyMap[script];
+    const res = await fetch(url, { credentials: 'same-origin' });
+    if (!res.ok) throw new Error(script + ' failed: ' + res.status);
+    const data = await res.json();
+    return data;
+  }
+  // Fallback to original (if any)
+  const qs = Object.keys(params).length ? '?' + new URLSearchParams(params).toString() : '';
+  const res = await fetch('/api/method/' + script + qs, { credentials: 'same-origin' });
+  if (!res.ok) throw new Error(script + ' HTTP ' + res.status);
+  return await res.json();
+}
+
+    // ══════════════════════════════════════════════════════════════
+    //  THEME
+    // ══════════════════════════════════════════════════════════════
+    const moonSVG = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+    const sunSVG  = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+    
+    function initTheme(){
+      const s = localStorage.getItem('cdTheme');
+      if(s === 'dark'){ document.documentElement.classList.add('dark'); document.getElementById('themeIcon').innerHTML = sunSVG; }
+      else{ document.documentElement.classList.remove('dark'); document.getElementById('themeIcon').innerHTML = moonSVG; }
+    }
+    function toggleTheme(){
+      const dark = document.documentElement.classList.toggle('dark');
+      localStorage.setItem('cdTheme', dark ? 'dark' : 'light');
+      document.getElementById('themeIcon').innerHTML = dark ? sunSVG : moonSVG;
+    }
+    document.getElementById('cdThemeToggle').addEventListener('click', toggleTheme);
+    initTheme();
+    
+    // ══════════════════════════════════════════════════════════════
+    //  SIDEBAR
+    // ══════════════════════════════════════════════════════════════
+    const sidebar = document.getElementById('cdSidebar');
+    document.getElementById('cdMenuToggle').addEventListener('click', () => sidebar.classList.toggle('mobile-open'));
+    document.querySelectorAll('.cd-nav-item').forEach(l => l.addEventListener('click', () => {
+      if(window.innerWidth <= 768) sidebar.classList.remove('mobile-open');
+    }));
+    
+    // ══════════════════════════════════════════════════════════════
+    //  AUTH CHECK — only checks ui1 session
+    //  Token is checked lazily when needed (save/submit)
+    // ══════════════════════════════════════════════════════════════
+    function checkAuth(){
+      const apiKey    = localStorage.getItem('cd_api_key');
+      const apiSecret = localStorage.getItem('cd_api_secret');
+      if(!apiKey || !apiSecret){
+        window.location.replace('/caratdesk-login?logout=1');
+        return false;
+      }
+      const name     = localStorage.getItem('cd_user') || localStorage.getItem('cd_user_email') || 'User';
+      document.getElementById('cdUserName').textContent = name;
+      const initials = name.split('@')[0].split(/[\s.]+/).map(w => w[0]||'').join('').slice(0,2).toUpperCase() || 'U';
+      document.getElementById('cdAvatar').textContent = initials;
+      return true;
+    }
+    
+    // ══════════════════════════════════════════════════════════════
+    //  LOGOUT
+    // ══════════════════════════════════════════════════════════════
+    document.getElementById('cdLogoutBtn').addEventListener('click', async function(){
+      const key = localStorage.getItem('cd_api_key'); const sec = localStorage.getItem('cd_api_secret');
+      try {
+        if(key && sec) await fetch('https://ppj-dev1.m.frappe.cloud/api/method/logout', {
+          method: 'POST', headers: {'Authorization': `token ${key}:${sec}`}
+        });
+      } catch(e){}
+
+      localStorage.removeItem('cd_api_key'); localStorage.removeItem('cd_api_secret');
+      localStorage.removeItem('cd_user'); localStorage.removeItem('cd_user_email');
+      window.location.replace('/caratdesk-login?logout=1');
+    });
+    
+    // ══════════════════════════════════════════════════════════════
+    //  HELPERS
+    // ══════════════════════════════════════════════════════════════
+    function esc(s){ return String(s).replace(/[&<>]/g, m => m==='&'?'&amp;':m==='<'?'&lt;':'&gt;'); }
+    function fmt(n){ return Math.round(n||0).toLocaleString('en-IN'); }
+    
+    // ══════════════════════════════════════════════════════════════
+    //  DASHBOARD DATA LOADER
+    // ══════════════════════════════════════════════════════════════
+    async function cdLoadDashboard(){
+      document.getElementById('cdTopDate').textContent = new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+      const today = new Date().toISOString().slice(0,10);
+    
+      // Today's Sales Invoices
+      try {
+        const res  = await fetch(`/api/resource/Sales Invoice?filters=[["posting_date","=","${today}"],["docstatus","=","1"]]&fields=["name","customer","grand_total","status"]&limit=20`, {credentials:'same-origin'});
+        if(res.ok){
+          const data  = await res.json();
+          const invs  = data.data || [];
+          const total = invs.reduce((s,i) => s+(i.grand_total||0), 0);
+    
+          document.getElementById('cdM1').textContent      = '₹'+fmt(total);
+          document.getElementById('cdM2').textContent      = invs.length;
+          document.getElementById('cdM1c').textContent     = "Today's revenue";
+          document.getElementById('cdM2c').textContent     = invs.length+' invoices';
+          document.getElementById('cdWeekTotal').textContent = '₹'+fmt(total);
+          document.getElementById('cdWeekChange').textContent = invs.length+' orders';
+    
+          const badge = document.getElementById('navSellBadge');
+          if(invs.length){ badge.textContent=invs.length; badge.style.display='inline-block'; }
+          else badge.style.display = 'none';
+    
+          document.getElementById('cdTxBody').innerHTML = invs.length
+            ? invs.slice(0,6).map(inv=>`
+                <tr>
+                  <td><div style="font-weight:500">${esc(inv.customer||'—')}</div><div class="cd-tx-id">${inv.name}</div></td>
+                  <td>₹${fmt(inv.grand_total)}</td>
+                  <td><span class="cd-pill ${inv.status==='Paid'?'green':'amber'}">${inv.status||'—'}</span></td>
+                </tr>`).join('')
+            : '<tr><td colspan="3" style="padding:20px 0;text-align:center;color:var(--text-muted)">No invoices today</td></tr>';
+        }
+      } catch(e){ console.warn('Sales load failed:', e); }
+    
+      // Items in Stock
+      try {
+        const res = await fetch('/api/resource/Bin?filters=[["actual_qty",">",0]]&fields=["item_code"]&limit=5000', {credentials:'same-origin'});
+        if(res.ok){
+          const data   = await res.json();
+          const unique = new Set((data.data||[]).map(b=>b.item_code));
+          document.getElementById('cdM3').textContent = unique.size || '—';
+        }
+      } catch(e){}
+    
+      // Pending Purchase Orders
+      try {
+        const res = await fetch('/api/resource/Purchase Order?filters=[["docstatus","=","1"],["status","in","To Receive and Bill,To Receive"]]&fields=["name"]&limit=500', {credentials:'same-origin'});
+        if(res.ok){
+          const data = await res.json();
+          document.getElementById('cdM4').textContent = (data.data||[]).length;
+        }
+      } catch(e){}
+    }
+    
+    // ══════════════════════════════════════════════════════════════
+    //  INIT
+    // ══════════════════════════════════════════════════════════════
+    (async function init(){
+      const ok = await checkAuth();
+      if(ok){
+        await cdLoadDashboard();
+        setInterval(cdLoadDashboard, 60000); // auto-refresh every 60s
+      }
+    })();
+    </script>

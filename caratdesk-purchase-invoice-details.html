@@ -1,0 +1,494 @@
+<!-- CaratDesk – Purchase Invoice Details -->
+<head>
+  <meta charset="UTF-8">
+</head>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap');
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  .navbar,.page-header,footer.web-footer,.container>.row>.col-sm-10,.frappe-footer{display:none!important}
+  .web-page-container,.container{padding:0!important;max-width:100%!important}
+  body{overflow-x:hidden}
+  :root{--bg:#F7F6F3;--surface:#FFF;--border:rgba(0,0,0,.07);--border-strong:rgba(0,0,0,.12);--text-primary:#1A1A18;--text-secondary:#6B6B65;--text-muted:#A8A8A2;--accent:#1A1A18;--accent-light:#F0EFE9;--nav-hover:#F7F6F3;--nav-active-bg:#EBEBE5;--pill-green-bg:#EAF3DE;--pill-green-txt:#3B6D11;--pill-red-bg:#FCEBEB;--pill-red-txt:#A32D2D;--pill-amber-bg:#FAEEDA;--pill-amber-txt:#854F0B;--pill-blue-bg:#E8F0FD;--pill-blue-txt:#1A4A8A;--shadow-sm:0 2px 12px rgba(0,0,0,.04),0 0 0 .5px rgba(0,0,0,.03)}
+  .dark{--bg:#121212;--surface:#1E1E1E;--border:rgba(255,255,255,.08);--border-strong:rgba(255,255,255,.15);--text-primary:#EDEDED;--text-secondary:#A0A0A0;--text-muted:#6E6E6E;--accent:#D4D4D4;--accent-light:#2C2C2C;--nav-hover:#252525;--nav-active-bg:#2D2D2D;--pill-green-bg:#1E3A2E;--pill-green-txt:#9CD45E;--pill-red-bg:#3E1E1E;--pill-red-txt:#F28B82;--pill-amber-bg:#3E2E1E;--pill-amber-txt:#FDBF6B;--pill-blue-bg:#1A2A3E;--pill-blue-txt:#7AABF0;--shadow-sm:0 2px 12px rgba(0,0,0,.3),0 0 0 .5px rgba(255,255,255,.05)}
+  *{transition:background-color .2s,border-color .2s,color .2s}
+  .cd-app{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);min-height:100vh;display:flex;-webkit-font-smoothing:antialiased;color:var(--text-primary)}
+  .cd-sidebar{width:260px;background:var(--surface);border-right:.5px solid var(--border);display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;z-index:200;box-shadow:var(--shadow-sm);transform:translateX(0);transition:transform .3s cubic-bezier(.2,.9,.4,1.1)}
+  @media(max-width:768px){.cd-sidebar{transform:translateX(-100%)}.cd-sidebar.mobile-open{transform:translateX(0);width:80%;max-width:280px}}
+  .cd-sidebar-logo{display:flex;align-items:center;gap:11px;padding:20px 16px 18px;border-bottom:.5px solid var(--border);text-decoration:none;color:inherit}
+  .cd-sidebar-logo img{width:30px;height:30px;object-fit:contain;border-radius:9px}
+  .cd-logo-name{font-family:'DM Serif Display',serif;font-size:17px;letter-spacing:-.2px}
+  .cd-logo-sub{font-size:10px;color:var(--text-muted);font-weight:300;letter-spacing:.07em;text-transform:uppercase}
+  .cd-nav{flex:1;padding:10px 8px;overflow-y:auto}
+  .cd-nav-section{font-size:10px;font-weight:500;color:var(--text-muted);letter-spacing:.08em;text-transform:uppercase;padding:14px 8px 5px}
+  .cd-nav-item{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:9px;margin-bottom:1px;text-decoration:none;color:var(--text-secondary);font-size:13.5px;transition:background .14s,color .14s}
+  .cd-nav-item:hover{background:var(--nav-hover);color:var(--text-primary)}
+  .cd-nav-item.active{background:var(--nav-active-bg);color:var(--text-primary);font-weight:500}
+  .cd-nav-icon{width:20px;height:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .cd-nav-icon svg{width:15px;height:15px;stroke:currentColor;stroke-width:1.75;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .cd-sidebar-bottom{padding:10px 8px;border-top:.5px solid var(--border)}
+  .cd-user-card{display:flex;align-items:center;gap:10px;padding:10px;border-radius:9px;cursor:pointer;transition:background .14s}
+  .cd-avatar{width:32px;height:32px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:var(--surface);flex-shrink:0}
+  .cd-user-name{font-size:13px;font-weight:500}
+  .cd-user-role{font-size:11px;color:var(--text-muted);font-weight:300}
+  .cd-logout-btn{display:flex;align-items:center;gap:7px;padding:9px 10px;border-radius:9px;cursor:pointer;font-size:13px;color:var(--text-secondary);margin-top:3px;border:none;background:none;font-family:'DM Sans',sans-serif;width:100%;transition:background .14s,color .14s}
+  .cd-logout-btn:hover{background:var(--pill-red-bg);color:var(--pill-red-txt)}
+  .cd-main{margin-left:260px;flex:1;min-height:100vh;display:flex;flex-direction:column}
+  @media(max-width:768px){.cd-main{margin-left:0}}
+  .cd-topbar{height:58px;background:var(--surface);border-bottom:.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 20px;position:sticky;top:0;z-index:100}
+  .cd-menu-btn{display:none;background:none;border:none;cursor:pointer;color:var(--text-secondary);margin-right:12px}
+  @media(max-width:768px){.cd-menu-btn{display:flex;align-items:center;justify-content:center}}
+  .cd-topbar-left{display:flex;align-items:center;gap:10px}
+  .cd-breadcrumb{display:flex;align-items:center;gap:6px;font-size:13.5px}
+  .cd-breadcrumb a{color:var(--text-muted);text-decoration:none;transition:color .14s}
+  .cd-breadcrumb a:hover{color:var(--text-primary)}
+  .cd-breadcrumb-sep{color:var(--text-muted);font-size:12px}
+  .cd-breadcrumb-cur{color:var(--text-primary);font-weight:500}
+  .cd-topbar-right{display:flex;align-items:center;gap:8px}
+  .cd-icon-btn{width:34px;height:34px;border-radius:9px;border:.5px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-secondary);transition:background .14s,color .14s}
+  .cd-icon-btn:hover{background:var(--nav-hover);color:var(--text-primary)}
+  .cd-icon-btn svg{width:15px;height:15px;stroke:currentColor;stroke-width:1.75;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .cd-content{padding:24px 28px;flex:1;animation:fadeIn .35s cubic-bezier(.16,1,.3,1) both}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+  .cd-page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+  .cd-page-title{font-size:20px;font-weight:500;letter-spacing:-.3px}
+  .cd-page-sub{font-size:12.5px;color:var(--text-muted);margin-top:2px;font-weight:300}
+  .cd-btn{font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;padding:8px 16px;border-radius:9px;border:none;cursor:pointer;transition:background .14s,transform .1s;display:inline-flex;align-items:center;gap:7px;text-decoration:none}
+  .cd-btn:active{transform:scale(.98)}
+  .cd-btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .cd-btn-primary{background:var(--text-primary);color:var(--surface)}
+  .cd-btn-primary:hover{opacity:.85}
+  .cd-btn-secondary{background:var(--surface);color:var(--text-primary);border:.5px solid var(--border-strong)}
+  .cd-btn-secondary:hover{background:var(--accent-light)}
+  .cd-btn-danger{background:var(--pill-red-bg);color:var(--pill-red-txt);border:.5px solid rgba(192,57,43,.2)}
+  .cd-btn-danger:hover{opacity:.85}
+  .cd-pill{display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:3px 9px;border-radius:100px;font-weight:500;white-space:nowrap}
+  .cd-pill-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+  .cd-pill.green{background:var(--pill-green-bg);color:var(--pill-green-txt)}.cd-pill.green .cd-pill-dot{background:var(--pill-green-txt)}
+  .cd-pill.red{background:var(--pill-red-bg);color:var(--pill-red-txt)}.cd-pill.red .cd-pill-dot{background:var(--pill-red-txt)}
+  .cd-pill.amber{background:var(--pill-amber-bg);color:var(--pill-amber-txt)}.cd-pill.amber .cd-pill-dot{background:var(--pill-amber-txt)}
+  .cd-pill.blue{background:var(--pill-blue-bg);color:var(--pill-blue-txt)}.cd-pill.blue .cd-pill-dot{background:var(--pill-blue-txt)}
+  .cd-pill.grey{background:var(--accent-light);color:var(--text-secondary)}.cd-pill.grey .cd-pill-dot{background:var(--text-muted)}
+  .cd-table-wrap{background:var(--surface);border:.5px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:var(--shadow-sm)}
+  .cd-table{width:100%;border-collapse:collapse}
+  .cd-table thead{background:var(--bg)}
+  .cd-table th{font-size:11px;font-weight:500;color:var(--text-muted);text-align:left;padding:11px 16px;letter-spacing:.05em;text-transform:uppercase;border-bottom:.5px solid var(--border);white-space:nowrap}
+  .cd-table td{font-size:13px;padding:11px 16px;border-bottom:.5px solid var(--border);vertical-align:middle}
+  .cd-table tr:last-child td{border-bottom:none}
+  .cd-form-input{width:100%;font-family:'DM Sans',sans-serif;font-size:13.5px;font-weight:500;color:var(--text-primary);background:var(--bg);border:.5px solid var(--border-strong);border-radius:9px;padding:9px 13px;outline:none;appearance:none;-webkit-appearance:none;cursor:default}
+  textarea.cd-form-input{resize:none;min-height:72px;line-height:1.5}
+  .cd-field-lbl{font-size:11px;font-weight:500;color:var(--text-muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px}
+  .cd-form-section{background:var(--surface);border:.5px solid var(--border);border-radius:14px;margin-bottom:20px;overflow:hidden;box-shadow:var(--shadow-sm)}
+  .cd-form-section-hd{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:.5px solid var(--border);background:var(--bg);cursor:pointer;user-select:none}
+  .cd-form-section-hd-left{display:flex;align-items:center;gap:9px;font-size:13px;font-weight:500;color:var(--text-secondary)}
+  .cd-form-section-hd-left svg{width:15px;height:15px;stroke:var(--text-muted);fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+  .cd-form-section-chev{width:15px;height:15px;stroke:var(--text-muted);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s}
+  .cd-form-section.collapsed .cd-form-section-chev{transform:rotate(-90deg)}
+  .cd-form-section-body{padding:20px}
+  .cd-form-section-body.hidden{display:none}
+  .cd-field-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px 22px}
+  @media(max-width:560px){.cd-field-grid{grid-template-columns:1fr}}
+  .cd-field-grid .span2{grid-column:span 2}
+  .cd-table td.cd-td-inp{padding:4px 8px}
+  .cd-tbl-inp{font-family:'DM Sans',sans-serif;font-size:12.5px;font-weight:500;color:var(--text-primary);background:var(--bg);border:.5px solid var(--border);border-radius:7px;padding:7px 10px;width:100%;outline:none}
+  .cd-tbl-inp.r{text-align:right;font-variant-numeric:tabular-nums}
+  .cd-totals-strip{border-top:.5px solid var(--border);background:var(--bg);padding:18px 20px;display:flex;flex-direction:column;align-items:flex-end;gap:10px}
+  .cd-totals-row{display:flex;justify-content:space-between;gap:48px;min-width:260px}
+  .cd-totals-row.grand{border-top:.5px solid var(--border);padding-top:12px;margin-top:2px;font-size:17px;font-weight:700}
+  .cd-summary-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:20px}
+  .cd-summary-card{background:var(--surface);border:.5px solid var(--border);border-radius:14px;padding:18px 20px;box-shadow:var(--shadow-sm)}
+  .cd-summary-card-lbl{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+  .cd-summary-card-val{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums}
+  .cd-empty{text-align:center;padding:60px 20px;color:var(--text-muted)}
+  .cd-empty-title{font-size:14px;font-weight:500;color:var(--text-secondary);margin-bottom:5px}
+</style>
+
+<div class="cd-app" id="cdApp">
+  <nav class="cd-sidebar" id="cdSidebar">
+    <a class="cd-sidebar-logo" href="/caratdesk">
+      <img src="https://i.postimg.cc/NMgHCKvC/letter-cc-cd-diamond-initial-600nw-2206465849.png" alt="CaratDesk"/>
+      <div><div class="cd-logo-name">PPJ Retail</div><div class="cd-logo-sub">Jewellery POS</div></div>
+    </a>
+    <div class="cd-nav">
+      <div class="cd-nav-section">Main</div>
+      <a href="/caratdesk" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>Dashboard</a>
+      <div class="cd-nav-section">Operations</div>
+      <a href="/caratdesk-selling" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg></span>Selling</a>
+      <a href="/caratdesk-buying" class="cd-nav-item active"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></span>Buying</a>
+      <a href="/caratdesk-stock" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg></span>Stock</a>
+      <a href="/caratdesk-items" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></span>Items</a>
+      <div class="cd-nav-section">Finance</div>
+      <a href="/caratdesk-accounts" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg></span>Accounts</a>
+      <a href="/caratdesk-reports" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>Reports</a>
+      <div class="cd-nav-section">System</div>
+      <a href="/caratdesk-settings" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M12 2v2M12 20v2M2 12h2M20 12h2M4.93 19.07l1.41-1.41M19.07 19.07l-1.41-1.41"/></svg></span>Settings</a>
+    </div>
+    <div class="cd-sidebar-bottom">
+      <div class="cd-user-card"><div class="cd-avatar" id="cdAvatar">—</div><div><div class="cd-user-name" id="cdUserName">Loading…</div><div class="cd-user-role">POS Manager</div></div></div>
+      <button class="cd-logout-btn" id="cdLogoutBtn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign out</button>
+    </div>
+  </nav>
+
+  <div class="cd-main">
+    <div class="cd-topbar">
+      <div class="cd-topbar-left">
+        <button class="cd-menu-btn" id="cdMenuToggle"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+        <div class="cd-breadcrumb">
+          <a href="/caratdesk-buying">Buying</a>
+          <span class="cd-breadcrumb-sep">›</span>
+          <a href="/caratdesk-purchase-invoice">Purchase Invoices</a>
+          <span class="cd-breadcrumb-sep">›</span>
+          <span class="cd-breadcrumb-cur" id="bcName">—</span>
+        </div>
+      </div>
+      <div class="cd-topbar-right">
+        <div class="cd-icon-btn" id="cdThemeToggle"><svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div>
+      </div>
+    </div>
+
+    <div class="cd-content">
+
+      <!-- PAGE HEADER -->
+      <div class="cd-page-header">
+        <div>
+          <div class="cd-page-title" id="piTitle">Purchase Invoice</div>
+          <div class="cd-page-sub">Purchase Invoice Details</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <div id="piStatus"></div>
+          <button class="cd-btn cd-btn-secondary" onclick="window.location.href='/caratdesk-purchase-invoice'">
+            <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>Back
+          </button>
+          <button class="cd-btn cd-btn-primary" id="submitBtn" style="display:none" onclick="submitInvoice()">
+            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Submit
+          </button>
+          <button class="cd-btn cd-btn-secondary" id="openFrappeBtn">
+            <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            Open in Frappe
+          </button>
+        </div>
+      </div>
+
+      <!-- SUMMARY CARDS -->
+      <div class="cd-summary-cards">
+        <div class="cd-summary-card">
+          <div class="cd-summary-card-lbl">Grand Total</div>
+          <div class="cd-summary-card-val" id="s_grand">—</div>
+        </div>
+        <div class="cd-summary-card">
+          <div class="cd-summary-card-lbl">Outstanding</div>
+          <div class="cd-summary-card-val" id="s_outstanding" style="color:var(--pill-amber-txt)">—</div>
+        </div>
+        <div class="cd-summary-card">
+          <div class="cd-summary-card-lbl">Paid Amount</div>
+          <div class="cd-summary-card-val" id="s_paid" style="color:var(--pill-green-txt)">—</div>
+        </div>
+        <div class="cd-summary-card">
+          <div class="cd-summary-card-lbl">Due Date</div>
+          <div class="cd-summary-card-val" id="s_due" style="font-size:16px;padding-top:4px">—</div>
+        </div>
+      </div>
+
+      <!-- ① INVOICE INFORMATION -->
+      <div class="cd-form-section" id="secInfo">
+        <div class="cd-form-section-hd" onclick="toggleSec('secInfo')">
+          <div class="cd-form-section-hd-left">
+            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            Invoice Information
+          </div>
+          <svg class="cd-form-section-chev" viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
+        </div>
+        <div class="cd-form-section-body" id="bodyInfo">
+          <div class="cd-field-grid">
+            <div>
+              <div class="cd-field-lbl">Company</div>
+              <input class="cd-form-input" id="f_company" readonly/>
+            </div>
+            <div>
+              <div class="cd-field-lbl">Posting Date</div>
+              <input class="cd-form-input" id="f_posting_date" readonly/>
+            </div>
+            <div>
+              <div class="cd-field-lbl">Supplier</div>
+              <input class="cd-form-input" id="f_supplier" readonly/>
+            </div>
+            <div>
+              <div class="cd-field-lbl">Due Date</div>
+              <input class="cd-form-input" id="f_due_date" readonly/>
+            </div>
+            <div>
+              <div class="cd-field-lbl">Bill No</div>
+              <input class="cd-form-input" id="f_bill_no" readonly/>
+            </div>
+            <div>
+              <div class="cd-field-lbl">Bill Date</div>
+              <input class="cd-form-input" id="f_bill_date" readonly/>
+            </div>
+            <div>
+              <div class="cd-field-lbl">Branch</div>
+              <input class="cd-form-input" id="f_branch" readonly/>
+            </div>
+            <div>
+              <div class="cd-field-lbl">Currency</div>
+              <input class="cd-form-input" id="f_currency" readonly/>
+            </div>
+            <div class="span2">
+              <div class="cd-field-lbl">Remarks</div>
+              <textarea class="cd-form-input" id="f_remarks" readonly></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ② ITEMS -->
+      <div class="cd-form-section" id="secItems">
+        <div class="cd-form-section-hd" onclick="toggleSec('secItems')">
+          <div class="cd-form-section-hd-left">
+            <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+            Items
+          </div>
+          <svg class="cd-form-section-chev" viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
+        </div>
+        <div class="cd-form-section-body" id="bodyItems" style="padding:0">
+          <div style="overflow-x:auto">
+            <table class="cd-table" style="min-width:760px">
+              <thead>
+                <tr>
+                  <th style="width:36px">#</th>
+                  <th>Item</th>
+                  <th>Item Code</th>
+                  <th>HSN</th>
+                  <th style="text-align:right">Qty</th>
+                  <th>UOM</th>
+                  <th style="text-align:right">Rate (₹)</th>
+                  <th style="text-align:right">Disc %</th>
+                  <th style="text-align:right">Amount (₹)</th>
+                  <th>Warehouse</th>
+                </tr>
+              </thead>
+              <tbody id="itemsTbody"></tbody>
+            </table>
+          </div>
+          <div class="cd-totals-strip" id="totalsBox"></div>
+        </div>
+      </div>
+
+      <!-- ③ TAXES -->
+      <div class="cd-form-section" id="secTax">
+        <div class="cd-form-section-hd" onclick="toggleSec('secTax')">
+          <div class="cd-form-section-hd-left">
+            <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+            Taxes &amp; Charges
+          </div>
+          <svg class="cd-form-section-chev" viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
+        </div>
+        <div class="cd-form-section-body" id="bodyTax" style="padding:0">
+          <div style="overflow-x:auto">
+            <table class="cd-table" style="min-width:500px">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Account Head</th>
+                  <th>Type</th>
+                  <th style="text-align:right">Rate %</th>
+                  <th style="text-align:right">Tax Amount (₹)</th>
+                  <th style="text-align:right">Total (₹)</th>
+                </tr>
+              </thead>
+              <tbody id="taxTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /cd-content -->
+  </div>
+</div>
+
+<script>
+  const DEV1   = 'https://ppj-dev1.m.frappe.cloud';
+  const piName = new URLSearchParams(window.location.search).get('name');
+
+  // ── Auth ──
+  (function(){
+    const key=localStorage.getItem('cd_api_key'), sec=localStorage.getItem('cd_api_secret');
+    if(!key||!sec){ window.location.replace('/caratdesk-login?logout=1'); return; }
+    const name=localStorage.getItem('cd_user')||localStorage.getItem('cd_user_email')||'User';
+    document.getElementById('cdUserName').textContent=name;
+    document.getElementById('cdAvatar').textContent=name.split('@')[0].split(/[\s.]+/).map(w=>w[0]||'').join('').slice(0,2).toUpperCase()||'U';
+  })();
+
+  // ── Logout ──
+  document.getElementById('cdLogoutBtn').addEventListener('click', async()=>{
+    const key=localStorage.getItem('cd_api_key'), sec=localStorage.getItem('cd_api_secret');
+    try{ if(key&&sec) await fetch(`${DEV1}/api/method/logout`,{method:'POST',headers:{'Authorization':`token ${key}:${sec}`}}); }catch(e){}
+    localStorage.removeItem('cd_api_key'); localStorage.removeItem('cd_api_secret');
+    localStorage.removeItem('cd_user'); localStorage.removeItem('cd_user_email');
+    window.location.replace('/caratdesk-login?logout=1');
+  });
+
+  // ── Theme ──
+  const moonIcon='<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+  const sunIcon='<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>';
+  function initTheme(){const s=localStorage.getItem('cdTheme');if(s==='dark'){document.documentElement.classList.add('dark');document.getElementById('themeIcon').innerHTML=sunIcon;}else{document.documentElement.classList.remove('dark');document.getElementById('themeIcon').innerHTML=moonIcon;}}
+  document.getElementById('cdThemeToggle').addEventListener('click',()=>{const d=document.documentElement.classList.toggle('dark');localStorage.setItem('cdTheme',d?'dark':'light');document.getElementById('themeIcon').innerHTML=d?sunIcon:moonIcon;});
+  initTheme();
+
+  // ── Sidebar mobile ──
+  const sidebar=document.getElementById('cdSidebar');
+  document.getElementById('cdMenuToggle').addEventListener('click',()=>sidebar.classList.toggle('mobile-open'));
+  document.querySelectorAll('.cd-nav-item').forEach(l=>l.addEventListener('click',()=>{if(window.innerWidth<=768)sidebar.classList.remove('mobile-open');}));
+
+  // ── Helpers ──
+  function fmt(v){ return new Intl.NumberFormat('en-IN',{style:'currency',currency:'INR',maximumFractionDigits:2}).format(v||0); }
+  function fmtDate(v){ if(!v) return '—'; return new Date(v).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}); }
+  function setVal(id,val){ const el=document.getElementById(id); if(!el) return; if(el.tagName==='TEXTAREA'||el.tagName==='INPUT') el.value=val||''; else el.textContent=val||''; }
+  function toggleSec(id){ const sec=document.getElementById(id); const body=sec.querySelector('.cd-form-section-body'); const col=sec.classList.toggle('collapsed'); body.classList.toggle('hidden',col); }
+  function pill(status){
+    const map={Draft:'grey',Unpaid:'amber',Paid:'green',Overdue:'red',Cancelled:'red','Return':'blue'};
+    const cls=map[status]||'grey';
+    return `<span class="cd-pill ${cls}"><span class="cd-pill-dot"></span>${status||'—'}</span>`;
+  }
+
+  function devHeaders(){
+    const key=localStorage.getItem('cd_api_key'), sec=localStorage.getItem('cd_api_secret');
+    if(!key||!sec){ window.location.replace('/caratdesk-login?logout=1'); throw new Error('No auth'); }
+    return {'Authorization':`token ${key}:${sec}`,'Accept':'application/json'};
+  }
+  async function devGet(path){
+    const res=await fetch(`${DEV1}${path}`,{headers:devHeaders()});
+    if(res.status===401){ window.location.replace('/caratdesk-login?logout=1'); throw new Error('Session expired'); }
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    return res.json();
+  }
+
+  // ── Load ──
+  async function loadDetails(){
+    if(!piName){
+      document.querySelector('.cd-content').innerHTML='<div class="cd-empty"><div class="cd-empty-title">No invoice name in URL — add ?name=PI-XXXX</div></div>';
+      return;
+    }
+    try{
+      const json = await devGet(`/api/method/caratdesk_get_purchase_invoice?name=${encodeURIComponent(piName)}`);
+      const doc  = json.data || json.message || {};
+      const items = doc.items  || [];
+      const taxes = doc.taxes  || [];
+
+      const grandTotal      = parseFloat(doc.grand_total||0);
+      const netTotal        = parseFloat(doc.net_total||0);
+      const taxAmt          = parseFloat(doc.total_taxes_and_charges||0);
+      const outstanding     = parseFloat(doc.outstanding_amount||0);
+      const paidAmt         = grandTotal - outstanding;
+
+      // Header
+      document.getElementById('piTitle').textContent   = doc.name;
+      document.getElementById('bcName').textContent     = doc.name;
+      document.getElementById('piStatus').innerHTML     = pill(doc.status);
+      document.getElementById('openFrappeBtn').onclick  = ()=>
+        window.open(`${DEV1}/app/purchase-invoice/${doc.name}`,'_blank');
+
+      // Show Submit button only for Draft invoices
+      if(doc.docstatus === 0){
+        document.getElementById('submitBtn').style.display = '';
+      }
+
+      // Summary cards
+      document.getElementById('s_grand').textContent       = fmt(grandTotal);
+      document.getElementById('s_outstanding').textContent = fmt(outstanding);
+      document.getElementById('s_paid').textContent        = fmt(paidAmt);
+      document.getElementById('s_due').textContent         = fmtDate(doc.due_date);
+
+      // Info fields
+      setVal('f_company',      doc.company);
+      setVal('f_posting_date', fmtDate(doc.posting_date));
+      setVal('f_supplier',     doc.supplier_name||doc.supplier);
+      setVal('f_due_date',     fmtDate(doc.due_date));
+      setVal('f_bill_no',      doc.bill_no||'—');
+      setVal('f_bill_date',    fmtDate(doc.bill_date));
+      setVal('f_branch',       doc.custom_branch||'—');
+      setVal('f_currency',     doc.currency||'INR');
+      setVal('f_remarks',      doc.remarks||'');
+
+      // Items table
+      document.getElementById('itemsTbody').innerHTML = items.map((it,i)=>`
+        <tr>
+          <td style="text-align:center;font-size:12px;color:var(--text-muted)">${i+1}</td>
+          <td class="cd-td-inp"><input class="cd-tbl-inp" readonly value="${esc(it.item_name||it.item_code||'')}"/></td>
+          <td class="cd-td-inp"><input class="cd-tbl-inp" readonly value="${esc(it.item_code||'')}"/></td>
+          <td class="cd-td-inp"><input class="cd-tbl-inp" readonly value="${esc(it.gst_hsn_code||'')}"/></td>
+          <td class="cd-td-inp"><input class="cd-tbl-inp r" readonly value="${parseFloat(it.qty||0).toFixed(2)}"/></td>
+          <td class="cd-td-inp"><input class="cd-tbl-inp" readonly value="${esc(it.uom||'')}"/></td>
+          <td class="cd-td-inp"><input class="cd-tbl-inp r" readonly value="${parseFloat(it.rate||0).toFixed(2)}"/></td>
+          <td class="cd-td-inp"><input class="cd-tbl-inp r" readonly value="${parseFloat(it.discount_percentage||0).toFixed(2)}"/></td>
+          <td class="cd-td-inp"><input class="cd-tbl-inp r" readonly value="${parseFloat(it.amount||0).toFixed(2)}"/></td>
+          <td class="cd-td-inp"><input class="cd-tbl-inp" readonly value="${esc(it.warehouse||'')}"/></td>
+        </tr>
+      `).join('');
+
+      // Totals
+      document.getElementById('totalsBox').innerHTML = `
+        <div class="cd-totals-row">
+          <span style="font-size:13px;color:var(--text-secondary)">Net Total</span>
+          <span style="font-size:13px;font-variant-numeric:tabular-nums">${fmt(netTotal)}</span>
+        </div>
+        ${taxAmt ? `<div class="cd-totals-row">
+          <span style="font-size:13px;color:var(--text-secondary)">Taxes &amp; Charges</span>
+          <span style="font-size:13px;font-variant-numeric:tabular-nums">${fmt(taxAmt)}</span>
+        </div>` : ''}
+        <div class="cd-totals-row grand">
+          <span>Grand Total</span>
+          <span>${fmt(grandTotal)}</span>
+        </div>
+      `;
+
+      // Taxes table
+      if(taxes.length){
+        document.getElementById('taxTbody').innerHTML = taxes.map((t,i)=>`
+          <tr>
+            <td style="padding:10px 16px;font-size:12px;color:var(--text-muted)">${i+1}</td>
+            <td style="padding:10px 16px;font-size:13px">${esc(t.account_head||'')}</td>
+            <td style="padding:10px 16px;font-size:12px;color:var(--text-secondary)">${esc(t.charge_type||'')}</td>
+            <td style="padding:10px 16px;text-align:right;font-size:13px">${parseFloat(t.rate||0).toFixed(2)}%</td>
+            <td style="padding:10px 16px;text-align:right;font-size:13px;font-variant-numeric:tabular-nums">${fmt(t.tax_amount||0)}</td>
+            <td style="padding:10px 16px;text-align:right;font-size:13px;font-variant-numeric:tabular-nums">${fmt(t.total||0)}</td>
+          </tr>
+        `).join('');
+      } else {
+        document.getElementById('taxTbody').innerHTML = '<tr><td colspan="6" style="padding:20px;text-align:center;color:var(--text-muted)">No taxes applied</td></tr>';
+      }
+
+    }catch(e){
+      console.error(e);
+      document.querySelector('.cd-content').innerHTML=
+        `<div class="cd-empty"><div class="cd-empty-title">Failed to load Purchase Invoice</div><div>${e.message}</div></div>`;
+    }
+  }
+
+  async function submitInvoice(){
+    if(!piName) return;
+    if(!confirm(`Submit ${piName}? This cannot be undone.`)) return;
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.textContent = 'Submitting…';
+    try{
+      const key = localStorage.getItem('cd_api_key'), sec = localStorage.getItem('cd_api_secret');
+      const res = await fetch(`${DEV1}/api/resource/Purchase Invoice/${encodeURIComponent(piName)}`, {
+        method : 'PUT',
+        headers: {'Authorization':`token ${key}:${sec}`,'Content-Type':'application/json','Accept':'application/json'},
+        body   : JSON.stringify({docstatus: 1}),
+      });
+      if(res.status === 401){ window.location.replace('/caratdesk-login?logout=1'); return; }
+      const d = await res.json();
+      if(!res.ok) throw new Error(d.message || d.exception || 'Submit failed');
+      // Reload page to reflect new status
+      window.location.reload();
+    }catch(e){
+      alert('Submit failed: ' + e.message);
+      btn.disabled = false;
+      btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2"><polyline points="20 6 9 17 4 12"/></svg> Submit';
+    }
+  }
+
+  function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+  loadDetails();
+</script>
