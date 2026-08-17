@@ -1,0 +1,911 @@
+<!-- CaratDesk – New Payment Entry -->
+<head>
+  <meta charset="UTF-8">
+</head>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap');
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  .navbar,.page-header,footer.web-footer,.container>.row>.col-sm-10,.frappe-footer{display:none!important}
+  .web-page-container,.container{padding:0!important;max-width:100%!important}
+  body{overflow-x:hidden}
+  :root{--bg:#F7F6F3;--surface:#FFF;--border:rgba(0,0,0,.07);--border-strong:rgba(0,0,0,.12);--text-primary:#1A1A18;--text-secondary:#6B6B65;--text-muted:#A8A8A2;--accent:#1A1A18;--accent-light:#F0EFE9;--nav-hover:#F7F6F3;--nav-active-bg:#EBEBE5;--pill-green-bg:#EAF3DE;--pill-green-txt:#3B6D11;--pill-red-bg:#FCEBEB;--pill-red-txt:#A32D2D;--pill-amber-bg:#FAEEDA;--pill-amber-txt:#854F0B;--pill-blue-bg:#E8F0FD;--pill-blue-txt:#1A4A8A;--shadow-sm:0 2px 12px rgba(0,0,0,.04),0 0 0 .5px rgba(0,0,0,.03);--shadow-md:0 4px 24px rgba(0,0,0,.08)}
+  .dark{--bg:#121212;--surface:#1E1E1E;--border:rgba(255,255,255,.08);--border-strong:rgba(255,255,255,.15);--text-primary:#EDEDED;--text-secondary:#A0A0A0;--text-muted:#6E6E6E;--accent:#D4D4D4;--accent-light:#2C2C2C;--nav-hover:#252525;--nav-active-bg:#2D2D2D;--pill-green-bg:#1E3A2E;--pill-green-txt:#9CD45E;--pill-red-bg:#3E1E1E;--pill-red-txt:#F28B82;--pill-amber-bg:#3E2E1E;--pill-amber-txt:#FDBF6B;--pill-blue-bg:#1A2A3E;--pill-blue-txt:#7AABF0;--shadow-sm:0 2px 12px rgba(0,0,0,.3),0 0 0 .5px rgba(255,255,255,.05);--shadow-md:0 4px 24px rgba(0,0,0,.3)}
+  html,body{color:var(--text-primary)}
+  *{transition:background-color .2s ease,border-color .2s ease,color .2s ease,box-shadow .2s ease}
+  .cd-app{font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);min-height:100vh;display:flex;-webkit-font-smoothing:antialiased;color:var(--text-primary)}
+  .cd-sidebar{width:260px;background:var(--surface);border-right:.5px solid var(--border);display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;z-index:200;transform:translateX(0);transition:transform .3s cubic-bezier(.2,.9,.4,1.1);box-shadow:var(--shadow-sm)}
+  @media(max-width:768px){.cd-sidebar{transform:translateX(-100%)}.cd-sidebar.mobile-open{transform:translateX(0);width:80%;max-width:280px}}
+  .cd-sidebar-logo{display:flex;align-items:center;gap:11px;padding:20px 16px 18px;border-bottom:.5px solid var(--border);text-decoration:none;color:inherit}
+  .cd-sidebar-logo img{width:30px;height:30px;object-fit:contain;border-radius:9px}
+  .cd-logo-name{font-family:'DM Serif Display',Georgia,serif;font-size:17px;color:var(--text-primary);letter-spacing:-.2px}
+  .cd-logo-sub{font-size:10px;color:var(--text-muted);font-weight:300;letter-spacing:.07em;text-transform:uppercase}
+  .cd-nav{flex:1;padding:10px 8px;overflow-y:auto}
+  .cd-nav-section{font-size:10px;font-weight:500;color:var(--text-muted);letter-spacing:.08em;text-transform:uppercase;padding:14px 8px 5px}
+  .cd-nav-item{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:9px;cursor:pointer;margin-bottom:1px;text-decoration:none;color:var(--text-secondary);font-size:13.5px;font-weight:400;transition:background .14s,color .14s}
+  .cd-nav-item:hover{background:var(--nav-hover);color:var(--text-primary)}
+  .cd-nav-item.active{background:var(--nav-active-bg);color:var(--text-primary);font-weight:500}
+  .cd-nav-icon{width:20px;height:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:inherit}
+  .cd-nav-icon svg{width:15px;height:15px;stroke:currentColor;stroke-width:1.75;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .cd-sidebar-bottom{padding:10px 8px;border-top:.5px solid var(--border)}
+  .cd-user-card{display:flex;align-items:center;gap:10px;padding:10px;border-radius:9px;cursor:pointer;transition:background .14s}
+  .cd-user-card:hover{background:var(--nav-hover)}
+  .cd-avatar{width:32px;height:32px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:var(--surface);flex-shrink:0}
+  .cd-user-name{font-size:13px;font-weight:500;color:var(--text-primary)}
+  .cd-user-role{font-size:11px;color:var(--text-muted);font-weight:300}
+  .cd-logout-btn{display:flex;align-items:center;gap:7px;padding:9px 10px;border-radius:9px;cursor:pointer;font-size:13px;color:var(--text-secondary);margin-top:3px;border:none;background:none;font-family:'DM Sans',sans-serif;width:100%;transition:background .14s,color .14s}
+  .cd-logout-btn:hover{background:var(--pill-red-bg);color:var(--pill-red-txt)}
+  .cd-instance-bar{display:flex;align-items:center;gap:6px;padding:8px 10px 4px}
+  .cd-instance-label{font-size:10px;font-weight:500;color:var(--text-muted);letter-spacing:.07em;text-transform:uppercase;flex:1}
+  .cd-instance-pills{display:flex;gap:4px}
+  .cd-instance-pill{font-size:11px;font-weight:500;padding:3px 10px;border-radius:6px;border:.5px solid var(--border);color:var(--text-secondary);cursor:pointer;transition:background .14s,color .14s,border-color .14s;font-family:'DM Sans',sans-serif;background:none}
+  .cd-instance-pill:hover{background:var(--nav-hover);color:var(--text-primary)}
+  .cd-instance-pill.active{background:var(--accent);color:var(--surface);border-color:var(--accent)}
+  .cd-main{margin-left:260px;flex:1;min-height:100vh;display:flex;flex-direction:column;width:100%}
+  @media(max-width:768px){.cd-main{margin-left:0}}
+  .cd-topbar{height:58px;background:var(--surface);border-bottom:.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 20px;position:sticky;top:0;z-index:100}
+  .cd-menu-btn{display:none;background:none;border:none;cursor:pointer;color:var(--text-secondary);margin-right:12px}
+  @media(max-width:768px){.cd-menu-btn{display:flex;align-items:center;justify-content:center}}
+  .cd-topbar-left{display:flex;align-items:center;gap:10px}
+  .cd-breadcrumb{display:flex;align-items:center;gap:6px;font-size:13.5px}
+  .cd-breadcrumb a{color:var(--text-muted);text-decoration:none;transition:color .14s}
+  .cd-breadcrumb a:hover{color:var(--text-primary)}
+  .cd-breadcrumb-sep{color:var(--text-muted);font-size:12px}
+  .cd-breadcrumb-cur{color:var(--text-primary);font-weight:500}
+  .cd-topbar-right{display:flex;align-items:center;gap:10px}
+  .cd-icon-btn{width:34px;height:34px;border-radius:9px;border:.5px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-secondary);transition:background .14s,color .14s}
+  .cd-icon-btn:hover{background:var(--nav-hover);color:var(--text-primary)}
+  .cd-icon-btn svg{width:15px;height:15px;stroke:currentColor;stroke-width:1.75;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .cd-content{padding:24px 28px 100px;flex:1;animation:fadeIn .35s cubic-bezier(.16,1,.3,1) both;max-width:100%}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+  .cd-page-title{font-size:20px;font-weight:500;letter-spacing:-.3px;margin-bottom:4px}
+  .cd-page-sub{font-size:12.5px;color:var(--text-muted);margin-bottom:20px;font-weight:300}
+  .cd-btn{font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;padding:8px 16px;border-radius:9px;border:none;cursor:pointer;transition:background .14s,transform .1s;display:inline-flex;align-items:center;gap:7px}
+  .cd-btn:active{transform:scale(.98)}
+  .cd-btn:disabled{opacity:.5;cursor:not-allowed}
+  .cd-btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .cd-btn-primary{background:var(--text-primary);color:var(--surface)}
+  .cd-btn-primary:hover{opacity:.85}
+  .cd-btn-secondary{background:var(--surface);color:var(--text-primary);border:.5px solid var(--border-strong)}
+  .cd-btn-secondary:hover{background:var(--accent-light)}
+  .cd-btn-danger{background:var(--pill-red-bg);color:var(--pill-red-txt);border:.5px solid rgba(163,45,45,.15)}
+  .cd-btn-danger:hover{opacity:.85}
+  .cd-section{background:var(--surface);border:.5px solid var(--border);border-radius:14px;margin-bottom:16px;box-shadow:var(--shadow-sm)}
+  .cd-section-header{padding:14px 20px;border-bottom:.5px solid var(--border)}
+  .cd-sec-title{font-size:13px;font-weight:500;display:flex;align-items:center;gap:8px;color:var(--text-primary)}
+  .cd-sec-title svg{width:14px;height:14px;stroke:var(--text-muted);fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+  .cd-section-body{padding:20px}
+  .cd-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .cd-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+  @media(max-width:900px){.cd-grid-3{grid-template-columns:1fr 1fr}}
+  @media(max-width:640px){.cd-grid,.cd-grid-3{grid-template-columns:1fr}}
+  .cd-field{display:flex;flex-direction:column;gap:5px;margin-bottom:16px}
+  .cd-field:last-child{margin-bottom:0}
+  .cd-field.full{grid-column:1/-1}
+  .cd-label{font-size:11.5px;font-weight:500;color:var(--text-secondary);letter-spacing:.01em}
+  .cd-label .req{color:var(--pill-red-txt);margin-left:2px}
+  .cd-input,.cd-select,.cd-textarea{font-family:'DM Sans',sans-serif;font-size:13px;background:var(--bg);border:.5px solid var(--border-strong);border-radius:9px;padding:9px 12px;color:var(--text-primary);outline:none;transition:border-color .14s,box-shadow .14s;width:100%}
+  .cd-input:focus,.cd-select:focus,.cd-textarea:focus{border-color:var(--text-secondary);box-shadow:0 0 0 3px rgba(0,0,0,.05);background:var(--surface)}
+  .cd-input::placeholder,.cd-textarea::placeholder{color:var(--text-muted)}
+  .cd-select{cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23A8A8A2' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:30px}
+  .cd-textarea{resize:vertical;min-height:64px;line-height:1.5}
+  .cd-readonly{background:var(--accent-light)!important;cursor:not-allowed;color:var(--text-secondary)!important}
+  .cd-ac{position:relative}
+  .cd-ac-list{position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--surface);border:.5px solid var(--border-strong);border-radius:10px;box-shadow:var(--shadow-md);z-index:500;max-height:240px;overflow-y:auto;display:none}
+  .cd-ac-list.open{display:block}
+  .cd-ac-item{padding:10px 12px;cursor:pointer;border-bottom:.5px solid var(--border);transition:background .1s}
+  .cd-ac-item:hover{background:var(--nav-hover)}
+  .cd-ac-item:last-child{border-bottom:none}
+  .cd-ac-item .main{font-size:13px;font-weight:500;color:var(--text-primary)}
+  .cd-ac-item .sub{font-size:11px;color:var(--text-muted);margin-top:2px}
+  .cd-ac-empty{font-size:13px;color:var(--text-muted);padding:16px 12px;text-align:center}
+  .cd-type-toggle{display:flex;gap:8px;margin-bottom:16px;max-width:480px}
+  .cd-type-opt{flex:1;text-align:center;padding:10px;border-radius:9px;border:.5px solid var(--border-strong);cursor:pointer;font-size:13px;font-weight:500;color:var(--text-secondary);transition:background .14s,color .14s,border-color .14s}
+  .cd-type-opt.active{background:var(--text-primary);color:var(--surface);border-color:var(--text-primary)}
+  .cd-type-opt.locked{cursor:not-allowed;opacity:.7}
+  .cd-footer{position:fixed;bottom:0;left:260px;right:0;background:var(--surface);border-top:.5px solid var(--border);padding:14px 28px;display:flex;align-items:center;gap:10px;z-index:50;box-shadow:0 -4px 20px rgba(0,0,0,.04)}
+  @media(max-width:768px){.cd-footer{left:0}}
+  .cd-footer-status{font-size:12.5px;color:var(--text-muted);flex:1}
+  .cd-hint{font-size:11.5px;color:var(--text-muted);margin-top:6px}
+</style>
+
+<div class="cd-app" id="cdApp">
+  <nav class="cd-sidebar" id="cdSidebar">
+    <a class="cd-sidebar-logo" href="/caratdesk">
+      <img src="https://i.postimg.cc/NMgHCKvC/letter-cc-cd-diamond-initial-600nw-2206465849.png" alt="CaratDesk"/>
+      <div><div class="cd-logo-name">PPJ Retail</div><div class="cd-logo-sub">Jewellery POS</div></div>
+    </a>
+    <div class="cd-nav">
+      <div class="cd-nav-section">Main</div>
+      <a href="/caratdesk" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>Dashboard</a>
+      <div class="cd-nav-section">Operations</div>
+      <a href="/caratdesk-pos" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>POS Billing</a>
+      <a href="/caratdesk-selling" id="navSelling" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg></span>Selling</a>
+      <a href="/caratdesk-buying" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></span>Buying</a>
+      <a href="/caratdesk-stock" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg></span>Stock</a>
+      <a href="/caratdesk-items" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></span>Items</a>
+      <div class="cd-nav-section">Finance</div>
+      <a href="/caratdesk-finance" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></span>Finance</a>
+      <a href="/caratdesk-accounts" id="navAccounts" class="cd-nav-item active"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg></span>Accounts</a>
+      <div class="cd-nav-section">System</div>
+      <a href="/caratdesk-settings" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M12 2v2M12 20v2M2 12h2M20 12h2M4.93 19.07l1.41-1.41M19.07 19.07l-1.41-1.41"/></svg></span>Settings</a>
+    </div>
+    <div class="cd-sidebar-bottom">
+      <div class="cd-instance-bar" id="cdInstanceBar" style="display:none">
+        <span class="cd-instance-label">Instance</span>
+        <div class="cd-instance-pills">
+          <button class="cd-instance-pill" id="cdInstPP" onclick="cdSwitchInstance('PP')">PP</button>
+          <button class="cd-instance-pill" id="cdInstPC" onclick="cdSwitchInstance('PC')">PC</button>
+        </div>
+      </div>
+      <div class="cd-user-card"><div class="cd-avatar" id="cdAvatar">-</div><div><div class="cd-user-name" id="cdUserName">Loading...</div><div class="cd-user-role" id="cdUserRole">POS Manager</div></div></div>
+      <button class="cd-logout-btn" id="cdLogoutBtn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign out</button>
+    </div>
+  </nav>
+
+  <div class="cd-main">
+    <div class="cd-topbar">
+      <div class="cd-topbar-left">
+        <button class="cd-menu-btn" id="cdMenuToggle"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+        <div class="cd-breadcrumb">
+          <a href="/caratdesk-accounts" id="cdBreadcrumbParent">Accounts</a>
+          <span class="cd-breadcrumb-sep">&rsaquo;</span>
+          <span class="cd-breadcrumb-cur">New Payment Entry</span>
+        </div>
+      </div>
+      <div class="cd-topbar-right">
+        <div class="cd-icon-btn" id="cdThemeToggle"><svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div>
+      </div>
+    </div>
+
+    <div class="cd-content">
+      <div class="cd-page-title">New Payment Entry</div>
+      <div class="cd-page-sub" id="pageSub">Record a receipt from, or a payment to, a customer or supplier</div>
+
+      <div class="cd-type-toggle" id="typeToggle">
+        <div class="cd-type-opt active" id="typeReceive" onclick="setPaymentType('Receive')">Receive</div>
+        <div class="cd-type-opt" id="typePay" onclick="setPaymentType('Pay')">Pay</div>
+      </div>
+
+      <div class="cd-section">
+        <div class="cd-section-header"><div class="cd-sec-title"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>Party &amp; Amount</div></div>
+        <div class="cd-section-body">
+          <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px">
+            <div style="flex:1;min-width:200px;display:flex;flex-direction:column;gap:16px">
+              <div class="cd-field" style="margin-bottom:0">
+                <label class="cd-label">Branch <span class="req">*</span></label>
+                <select class="cd-select" id="peBranch">
+                  <option value="">- Select Branch -</option>
+                </select>
+              </div>
+              <!-- Selling context (?context=selling): party is always a Customer, so instead of
+                   the Receive/Pay toggle, the choice is what the entry is for — an Advance
+                   received from the customer, or a Refund paid back to them. -->
+              <div class="cd-field" id="entryPurposeField" style="display:none;margin-bottom:0">
+                <label class="cd-label">Entry Type <span class="req">*</span></label>
+                <select class="cd-select" id="peEntryPurpose" onchange="setEntryPurpose(this.value)">
+                  <option value="Advance">Advance / Receipt</option>
+                  <option value="Refund">Refund / Payment</option>
+                </select>
+              </div>
+            </div>
+            <div style="flex:1;min-width:200px;display:flex;flex-direction:column;gap:16px">
+              <div class="cd-field" style="margin-bottom:0">
+                <label class="cd-label">Party Type</label>
+                <select class="cd-select" id="pePartyType" onchange="onPartyTypeChange()">
+                  <option value="Customer">Customer</option>
+                  <option value="Supplier">Supplier</option>
+                </select>
+              </div>
+              <div class="cd-field" style="margin-bottom:0">
+                <label class="cd-label">Party <span class="req">*</span></label>
+                <div class="cd-ac">
+                  <input class="cd-input" id="peParty" placeholder="Type customer name..." autocomplete="off"
+                    oninput="acParty(this.value)" onfocus="acParty(this.value)"/>
+                  <div class="cd-ac-list" id="ac-party"></div>
+                </div>
+              </div>
+            </div>
+            <div style="flex:1;min-width:200px;display:flex;flex-direction:column;gap:16px">
+              <div class="cd-field" style="margin-bottom:0">
+                <label class="cd-label">Posting Date <span class="req">*</span></label>
+                <input class="cd-input" type="date" id="pePostingDate"/>
+              </div>
+              <div class="cd-field" style="margin-bottom:0">
+                <label class="cd-label">Mode of Payment</label>
+                <select class="cd-select" id="peMode" onchange="onModeChange()">
+                  <option value="">- Select -</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px">
+            <div class="cd-field">
+              <label class="cd-label">Currency</label>
+              <input class="cd-input cd-readonly" id="peCurrency" placeholder="Auto-filled from Party" readonly/>
+            </div>
+            <div class="cd-field">
+              <label class="cd-label">Amount <span class="req">*</span></label>
+              <input class="cd-input" type="number" min="0" step="0.01" id="peAmount" placeholder="0"/>
+            </div>
+            <div class="cd-field">
+              <label class="cd-label">Cash / Bank Account <span class="req">*</span></label>
+              <div class="cd-ac">
+                <input class="cd-input" id="peAccount" placeholder="Type account name..." autocomplete="off"
+                  oninput="acAccount(this.value)" onfocus="acAccount(this.value)"/>
+                <div class="cd-ac-list" id="ac-account"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cd-section">
+        <div class="cd-section-header"><div class="cd-sec-title"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Reference</div></div>
+        <div class="cd-section-body">
+          <!-- Hidden for Cash — reference info doesn't apply to a cash payment/receipt. -->
+          <div class="cd-grid" id="peRefRow">
+            <div class="cd-field">
+              <label class="cd-label">Reference Date</label>
+              <input class="cd-input" type="date" id="peRefDate"/>
+            </div>
+            <div class="cd-field">
+              <label class="cd-label" id="peRefNoLabel">Reference No.</label>
+              <input class="cd-input" id="peRefNo" placeholder="Cheque / transaction / UTR number"/>
+            </div>
+          </div>
+          <div class="cd-field">
+            <label class="cd-label">Remarks</label>
+            <textarea class="cd-textarea" id="peRemarks" placeholder="Optional notes..."></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="cd-footer">
+  <button class="cd-btn cd-btn-danger" id="cdCancelBtn" onclick="cancelDoc()" style="display:none">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>Cancel
+  </button>
+  <div class="cd-footer-status" id="footerStatus"></div>
+  <button class="cd-btn cd-btn-secondary" onclick="goBack()">Back</button>
+  <button class="cd-btn cd-btn-primary" id="cdMainActionBtn" onclick="saveDraft()">
+    <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Save
+  </button>
+</div>
+
+<script>
+// ══ INSTANCE HELPERS ══
+const DEV1 = 'https://ppj-dev1.m.frappe.cloud';
+const DEV2 = 'https://ppj-dev2.m.frappe.cloud';
+const COMPANY = 'P.P. Jewellers Retail Pvt. Ltd.';
+function cdGetActiveInstance(){ return localStorage.getItem('cd_active_instance')||'PP'; }
+function cdGetAvailableInstances(){ return (localStorage.getItem('cd_available_instances')||'PP').split(',').filter(Boolean); }
+function cdGetInstanceUrl(inst){ return (inst||cdGetActiveInstance())==='PC'?DEV2:DEV1; }
+function cdGetInstanceHeaders(inst){
+  const i=inst||cdGetActiveInstance();
+  const key=i==='PC'?localStorage.getItem('cd_pc_key'):localStorage.getItem('cd_pp_key');
+  const sec=i==='PC'?localStorage.getItem('cd_pc_secret'):localStorage.getItem('cd_pp_secret');
+  if(!key||!sec) return null;
+  return{'Authorization':`token ${key}:${sec}`,'Content-Type':'application/json','Accept':'application/json'};
+}
+function cdSwitchInstance(inst){
+  const available=cdGetAvailableInstances();
+  if(!available.includes(inst)) return;
+  const key=inst==='PC'?localStorage.getItem('cd_pc_key'):localStorage.getItem('cd_pp_key');
+  const sec=inst==='PC'?localStorage.getItem('cd_pc_secret'):localStorage.getItem('cd_pp_secret');
+  localStorage.setItem('cd_active_instance',inst);
+  localStorage.setItem('cd_api_key',key);
+  localStorage.setItem('cd_api_secret',sec);
+  window.location.reload();
+}
+function cdInitInstanceToggle(){
+  const available=cdGetAvailableInstances();
+  const active=cdGetActiveInstance();
+  const bar=document.getElementById('cdInstanceBar');
+  if(!bar) return;
+  if(available.length<2){ bar.style.display='none'; return; }
+  bar.style.display='flex';
+  ['PP','PC'].forEach(inst=>{
+    const btn=document.getElementById('cdInst'+inst);
+    if(!btn) return;
+    btn.classList.toggle('active',inst===active);
+    btn.style.display=available.includes(inst)?'':'none';
+  });
+}
+async function dev1Get(path){
+  const h=cdGetInstanceHeaders();
+  if(!h) throw new Error('No auth');
+  const res=await fetch(cdGetInstanceUrl()+path,{headers:h});
+  if(!res.ok) throw new Error('HTTP '+res.status);
+  return res.json();
+}
+async function dev1Post(path,body){
+  const h=cdGetInstanceHeaders();
+  if(!h) throw new Error('No auth');
+  const res=await fetch(cdGetInstanceUrl()+path,{method:'POST',headers:h,body:JSON.stringify(body)});
+  if(!res.ok){ const t=await res.text(); throw new Error(t||'HTTP '+res.status); }
+  return res.json();
+}
+async function dev1Put(path,body){
+  const h=cdGetInstanceHeaders();
+  if(!h) throw new Error('No auth');
+  const res=await fetch(cdGetInstanceUrl()+path,{method:'PUT',headers:h,body:JSON.stringify(body)});
+  if(!res.ok){ const t=await res.text(); throw new Error(t||'HTTP '+res.status); }
+  return res.json();
+}
+
+// ── HELPERS ──
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function today(){ return new Date().toISOString().slice(0,10); }
+function showToast(msg,type='info'){
+  let t=document.getElementById('cdToast');
+  if(!t){ t=document.createElement('div'); t.id='cdToast'; t.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--text-primary);color:var(--surface);padding:11px 20px;border-radius:10px;font-size:13px;font-weight:500;box-shadow:0 4px 24px rgba(0,0,0,.12);z-index:900;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;white-space:nowrap;'; document.body.appendChild(t); }
+  if(!msg){ t.style.opacity='0'; return; }
+  t.textContent=msg;
+  if(type==='success') t.style.background='#2D6A4F';
+  else if(type==='error') t.style.background='#A32D2D';
+  else t.style.background='#1A4A8A';
+  t.style.opacity='1'; t.style.transform='translateX(-50%) translateY(0)';
+  clearTimeout(t._t); t._t=setTimeout(()=>{ t.style.opacity='0'; t.style.transform='translateX(-50%) translateY(20px)'; },3000);
+}
+
+// ── STATE ──
+let CUSTOMERS = [];
+let SUPPLIERS = [];
+let ACCOUNTS = [];
+let BRANCHES = [];
+let COMPANY_DOC = {};
+let paymentType = 'Receive'; // 'Receive' or 'Pay' — controls cash flow direction only, independent of Party Type
+let locked = false;
+let submitted = false;
+window.currentPEName = null;
+let currentPEPartyCode = ''; // set when an existing entry is loaded, so a re-save doesn't need to re-resolve Party from the (now locked) display text
+const params = new URLSearchParams(window.location.search);
+const returnUrl = params.get('return_url') || '/caratdesk-accounts';
+const ctxAssignment = params.get('assignment') || '';
+const ctxRows = params.get('rows') || '';
+// Selling's Payment Entry card shows Entry Type (Advance/Refund) instead of the generic
+// Receive/Pay toggle used elsewhere (e.g. from Accounts) — Party Type still defaults to
+// Customer here but is freely editable like everywhere else.
+const sellingContext = params.get('context')==='selling';
+
+// Party Type is its own free selector (Customer or Supplier) — independent of Payment Type
+// (Receive/Pay) and Entry Type (Advance/Refund), except in Selling context where the whole
+// card is deliberately Customer-only (see init()).
+function partyType(){ return document.getElementById('pePartyType').value || 'Customer'; }
+function partyList(){ return partyType()==='Supplier' ? SUPPLIERS : CUSTOMERS; }
+
+function onPartyTypeChange(){
+  if(locked) return;
+  const pType=partyType();
+  document.getElementById('peParty').placeholder = 'Type '+pType.toLowerCase()+' name...';
+  document.getElementById('peParty').value='';
+}
+
+function setPaymentType(type){
+  if(locked) return;
+  paymentType = type;
+  document.getElementById('typeReceive').classList.toggle('active', type==='Receive');
+  document.getElementById('typePay').classList.toggle('active', type==='Pay');
+}
+
+function setEntryPurpose(purpose){
+  if(locked) return;
+  paymentType = purpose==='Refund' ? 'Pay' : 'Receive';
+  document.getElementById('peEntryPurpose').value = purpose;
+}
+
+// ── PARTY AUTOCOMPLETE ──
+function acParty(val){
+  const list=document.getElementById('ac-party');
+  const q=(val||'').toLowerCase();
+  const results=partyList().filter(p=>p.display.toLowerCase().includes(q)||p.name.toLowerCase().includes(q)).slice(0,20);
+  list.innerHTML = results.length? results.map(p=>`<div class="cd-ac-item" onclick="selParty('${esc(p.name)}','${esc(p.display)}')"><div class="main">${esc(p.display)}</div>${p.phone?`<div class="sub">${esc(p.phone)}</div>`:''}</div>`).join('') : `<div class="cd-ac-empty">No ${esc(partyType())} found</div>`;
+  list.classList.add('open');
+}
+function selParty(name,display){
+  document.getElementById('peParty').value=display;
+  document.getElementById('ac-party').classList.remove('open');
+  // Currency is fetched from the Party — Customer/Supplier's own default_currency, cached
+  // in CUSTOMERS/SUPPLIERS depending on the selected Party Type.
+  const partyObj=partyList().find(p=>p.name===name);
+  document.getElementById('peCurrency').value = partyObj?.currency || COMPANY_DOC.default_currency || '';
+}
+
+// ── ACCOUNT AUTOCOMPLETE ──
+function acAccount(val){
+  const list=document.getElementById('ac-account');
+  const q=(val||'').toLowerCase();
+  const results=ACCOUNTS.filter(a=>a.name.toLowerCase().includes(q)).slice(0,20);
+  list.innerHTML = results.length? results.map(a=>`<div class="cd-ac-item" onclick="selAccount('${esc(a.name)}')"><div class="main">${esc(a.name)}</div><div class="sub">${esc(a.account_type||'')}</div></div>`).join('') : `<div class="cd-ac-empty">No account found</div>`;
+  list.classList.add('open');
+}
+function selAccount(name){
+  document.getElementById('peAccount').value=name;
+  document.getElementById('ac-account').classList.remove('open');
+}
+document.addEventListener('click', e=>{
+  if(!e.target.closest('#ac-party') && !e.target.closest('#peParty')) document.getElementById('ac-party')?.classList.remove('open');
+  if(!e.target.closest('#ac-account') && !e.target.closest('#peAccount')) document.getElementById('ac-account')?.classList.remove('open');
+});
+
+// Mode of Payment carries its own default Cash/Bank account per company (its "accounts" child
+// table) — same lookup caratdesk-jewellery-scheme.html's resolvePaymentAccount already does.
+// Falls back to any Cash/Bank account on file if this mode has none configured for our company.
+async function resolvePaymentAccount(mode){
+  if(!mode) return '';
+  try{
+    const res = await dev1Get('/api/resource/Mode%20of%20Payment/'+encodeURIComponent(mode));
+    const doc = res.data||res.message||res;
+    const row = (doc.accounts||[]).find(a=>a.company===COMPANY);
+    if(row?.default_account) return row.default_account;
+  }catch(e){ console.warn('Mode of Payment account lookup failed:', mode, e.message); }
+  const fallback = mode.toLowerCase().includes('cash')
+    ? ACCOUNTS.find(a=>a.account_type==='Cash')
+    : ACCOUNTS.find(a=>a.account_type==='Bank');
+  return (fallback || ACCOUNTS[0])?.name || '';
+}
+
+async function onModeChange(){
+  const mode=document.getElementById('peMode').value;
+  const req = mode && mode!=='Cash';
+  document.getElementById('peRefNoLabel').innerHTML = 'Reference No.' + (req? ' <span class="req">*</span>' : '');
+  document.getElementById('peRefRow').style.display = mode==='Cash' ? 'none' : '';
+  if(mode){
+    const account = await resolvePaymentAccount(mode);
+    if(account) document.getElementById('peAccount').value = account;
+  }
+}
+
+function goBack(){ window.location.href = returnUrl; }
+
+// ══════════════════════════════════════════
+//  DOC STATE — Save/Submit/Cancel, same pattern as caratdesk-new-purchase-order.html
+// ══════════════════════════════════════════
+function updatePEDocStatus(status, docName){
+  const cur = document.querySelector('.cd-breadcrumb-cur');
+  if(cur) cur.textContent = docName || 'New Payment Entry';
+  let badge = document.getElementById('cdDocStatus');
+  if(!badge){
+    badge = document.createElement('span');
+    badge.id = 'cdDocStatus';
+    document.querySelector('.cd-breadcrumb').appendChild(badge);
+  }
+  const palette = {
+    'Draft'    : ['var(--pill-amber-bg)',  'var(--pill-amber-txt)'],
+    'Unsaved'  : ['var(--pill-red-bg)',    'var(--pill-red-txt)'],
+    'Submitted': ['var(--pill-green-bg)',  'var(--pill-green-txt)'],
+    'Cancelled': ['var(--accent-light)',   'var(--text-muted)'],
+  };
+  const [bg, color] = palette[status] || palette['Draft'];
+  badge.style.cssText = `display:inline-flex;align-items:center;font-size:11px;font-weight:500;padding:2px 8px;border-radius:5px;margin-left:8px;background:${bg};color:${color}`;
+  badge.textContent = status;
+}
+
+function setPEDocReadOnly(readonly){
+  const content = document.querySelector('.cd-content');
+  if(!content) return;
+  content.querySelectorAll('input:not([type="hidden"]), select, textarea').forEach(el=>{
+    el.readOnly = readonly;
+    el.disabled = readonly;
+    if(readonly) el.style.cursor='not-allowed';
+  });
+  content.querySelectorAll('.cd-type-opt').forEach(opt=>{
+    opt.style.pointerEvents = readonly ? 'none' : '';
+    opt.style.opacity = readonly ? '0.6' : '';
+  });
+}
+
+function hidePEMainActionBtn(){
+  const btn = document.getElementById('cdMainActionBtn');
+  if(btn) btn.style.display = 'none';
+}
+
+// Cancel only applies to a submitted entry — a Draft has nothing to cancel yet.
+function setPECancelBtnVisible(visible){
+  const btn = document.getElementById('cdCancelBtn');
+  if(btn) btn.style.display = visible ? '' : 'none';
+}
+
+function switchToSubmitButton(){
+  const btn = document.getElementById('cdMainActionBtn');
+  if(!btn || btn.dataset.mode === 'submit') return;
+  btn.dataset.mode = 'submit';
+  btn.style.display = '';
+  btn.setAttribute('onclick', 'submitPaymentEntry()');
+  btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><polyline points="20 6 9 17 4 12"/></svg>Submit`;
+}
+
+function switchToSaveButton(){
+  const btn = document.getElementById('cdMainActionBtn');
+  if(!btn || btn.dataset.mode === 'save') return;
+  btn.dataset.mode = 'save';
+  btn.style.display = '';
+  btn.setAttribute('onclick', 'saveDraft()');
+  btn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Save`;
+}
+
+// Submitted entries can't be edited here — just link out to the real record in Frappe.
+function showPEOpenInErpBtn(){
+  const btn = document.getElementById('cdMainActionBtn');
+  if(!btn) return;
+  btn.style.display = '';
+  btn.dataset.mode = 'open';
+  btn.className = 'cd-btn cd-btn-secondary';
+  btn.setAttribute('onclick', `window.open(cdGetInstanceUrl()+'/Payment Entry/'+encodeURIComponent(window.currentPEName||''),'_blank')`);
+  btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Open in ERPNext`;
+}
+
+let _peChangeTrackingActive = false;
+function startChangeTracking(){
+  if(_peChangeTrackingActive) return;
+  _peChangeTrackingActive = true;
+  const content = document.querySelector('.cd-content');
+  if(content){
+    content.addEventListener('input', onPEFormChange);
+    content.addEventListener('change', onPEFormChange);
+  }
+}
+
+function onPEFormChange(){
+  if(!window.currentPEName || submitted) return;
+  updatePEDocStatus('Unsaved', window.currentPEName);
+  switchToSaveButton();
+}
+
+// Locks Party + the type toggle (Receive/Pay or Advance/Refund, whichever is showing) — once
+// an entry exists (even as a Draft), changing who it's against or what kind of entry it is
+// isn't something this simple form should let you silently redo.
+function lockPartyAndType(){
+  locked = true;
+  const partyEl = document.getElementById('peParty');
+  partyEl.classList.add('cd-readonly');
+  partyEl.readOnly = true;
+  document.getElementById('typeReceive')?.classList.add('locked');
+  document.getElementById('typePay')?.classList.add('locked');
+  const purposeEl = document.getElementById('peEntryPurpose');
+  if(purposeEl) purposeEl.disabled = true;
+}
+
+async function cancelDoc(){
+  if(!window.currentPEName){ showToast('No record to cancel','error'); return; }
+  if(!confirm('Cancel this Payment Entry? This cannot be undone.')) return;
+  try{
+    showToast('Cancelling…','info');
+    await dev1Put(`/api/resource/Payment%20Entry/${encodeURIComponent(window.currentPEName)}`, {docstatus:2});
+    submitted = false;
+    updatePEDocStatus('Cancelled', window.currentPEName);
+    setPEDocReadOnly(true);
+    hidePEMainActionBtn();
+    setPECancelBtnVisible(false);
+    showToast(window.currentPEName+' cancelled','success');
+  }catch(e){
+    showToast('Error: '+String(e.message).slice(0,120),'error');
+    console.error('cancelDoc error:', e);
+  }
+}
+
+// ── VALIDATE & SAVE ──
+function validate(){
+  const branch=document.getElementById('peBranch').value;
+  if(!branch){ showToast('Please select a branch','error'); document.getElementById('peBranch').focus(); return false; }
+  const party=document.getElementById('peParty').value.trim();
+  if(!party){ showToast('Please select a party','error'); document.getElementById('peParty').focus(); return false; }
+  const amount=parseFloat(document.getElementById('peAmount').value||0)||0;
+  if(amount<=0){ showToast('Please enter an amount greater than 0','error'); document.getElementById('peAmount').focus(); return false; }
+  const account=document.getElementById('peAccount').value.trim();
+  if(!account){ showToast('Please select a cash/bank account','error'); document.getElementById('peAccount').focus(); return false; }
+  const postingDate=document.getElementById('pePostingDate').value;
+  if(!postingDate){ showToast('Please set a posting date','error'); return false; }
+  if(postingDate < today()){ showToast('Posting date cannot be backdated','error'); return false; }
+  const mode=document.getElementById('peMode').value;
+  if(mode && mode!=='Cash' && !document.getElementById('peRefNo').value.trim()){
+    showToast('Reference No. is required for '+mode,'error'); document.getElementById('peRefNo').focus(); return false;
+  }
+  return true;
+}
+
+function buildPayload(){
+  const list=partyList();
+  const partyInput=document.getElementById('peParty').value.trim();
+  const partyObj=list.find(p=>p.display===partyInput||p.name===partyInput);
+  // Once an existing entry is loaded, Party is locked to display text only (see
+  // lockPartyAndType) — reuse the docname captured at load time instead of re-searching.
+  const party=currentPEPartyCode||partyObj?.name||partyInput;
+  const accountInput=document.getElementById('peAccount').value.trim();
+  const acctObj=ACCOUNTS.find(a=>a.name===accountInput);
+  const account=acctObj?.name||accountInput;
+  const amount=parseFloat(document.getElementById('peAmount').value||0)||0;
+  const pType=partyType();
+  const partyAccount = pType==='Supplier' ? COMPANY_DOC.default_payable_account : COMPANY_DOC.default_receivable_account;
+  const paid_from = paymentType==='Pay' ? account : partyAccount;
+  const paid_to   = paymentType==='Pay' ? partyAccount : account;
+  return {
+    doctype:'Payment Entry',
+    payment_type: paymentType,
+    party_type: pType,
+    party,
+    party_name: partyObj?.display || partyInput,
+    company: COMPANY,
+    branch: document.getElementById('peBranch').value || undefined,
+    custom_currency: document.getElementById('peCurrency').value || undefined,
+    posting_date: document.getElementById('pePostingDate').value || today(),
+    paid_from, paid_to,
+    paid_amount: amount,
+    received_amount: amount,
+    source_exchange_rate: 1,
+    target_exchange_rate: 1,
+    mode_of_payment: document.getElementById('peMode').value || undefined,
+    reference_no: document.getElementById('peRefNo').value.trim() || undefined,
+    reference_date: document.getElementById('peRefDate').value || undefined,
+    remarks: document.getElementById('peRemarks').value.trim() || undefined,
+  };
+}
+
+async function markInstallmentsPaid(assignmentName, rowNames, paymentEntryName){
+  const res = await dev1Get('/api/resource/Jewellery%20Scheme%20Assignment/'+encodeURIComponent(assignmentName));
+  const doc = res.data||res.message||res;
+  const details = (doc.jewellery_scheme_assignment_details||[]).map(r=>
+    rowNames.includes(r.name) ? {...r, status:'Paid', payment_entry:paymentEntryName} : r
+  );
+  await dev1Put('/api/resource/Jewellery%20Scheme%20Assignment/'+encodeURIComponent(assignmentName), {jewellery_scheme_assignment_details: details});
+}
+
+// ══════════════════════════════════════════
+//  SAVE DRAFT — creates as Draft (or updates one already saved), stays on this page
+// ══════════════════════════════════════════
+async function saveDraft(){
+  if(!validate()) return;
+  const btn=document.getElementById('cdMainActionBtn');
+  btn.disabled=true;
+  try{
+    showToast('Saving draft…','info');
+    const payload=buildPayload();
+    let docName;
+    if(window.currentPEName){
+      await dev1Put(`/api/resource/Payment%20Entry/${encodeURIComponent(window.currentPEName)}`, payload);
+      docName = window.currentPEName;
+    } else {
+      const res=await dev1Post('/api/resource/Payment%20Entry', payload);
+      docName = res?.data?.name||res?.name;
+    }
+    if(!docName) throw new Error('Save failed — no name returned');
+    window.currentPEName = docName;
+    currentPEPartyCode = payload.party;
+    showToast('Draft saved: '+docName, 'success');
+    const url = new URL(window.location.href);
+    url.searchParams.set('name', docName);
+    window.history.replaceState({}, '', url.toString());
+    updatePEDocStatus('Draft', docName);
+    lockPartyAndType();
+    switchToSubmitButton();
+    startChangeTracking();
+    setPECancelBtnVisible(false);
+  }catch(e){
+    showToast('Error: '+String(e.message).slice(0,120),'error');
+    console.error('saveDraft error:', e);
+  }finally{
+    btn.disabled=false;
+  }
+}
+
+// ══════════════════════════════════════════
+//  SUBMIT — only reachable once saved as Draft
+// ══════════════════════════════════════════
+async function submitPaymentEntry(){
+  if(!window.currentPEName){ showToast('Please save the draft first','error'); return; }
+  if(submitted){ showToast('Already submitted','info'); return; }
+  if(!confirm('Submit this Payment Entry? This cannot be undone.')) return;
+  const btn=document.getElementById('cdMainActionBtn');
+  btn.disabled=true;
+  try{
+    showToast('Submitting…','info');
+    await dev1Put(`/api/resource/Payment%20Entry/${encodeURIComponent(window.currentPEName)}`, {docstatus:1});
+    submitted = true;
+    if(ctxAssignment && ctxRows){
+      try{ await markInstallmentsPaid(ctxAssignment, ctxRows.split(',').filter(Boolean), window.currentPEName); }
+      catch(markErr){ console.warn('Failed to mark installments paid:', markErr); showToast('Submitted, but could not mark installments as paid: '+String(markErr.message).slice(0,80),'error'); }
+    }
+    showToast(window.currentPEName+' submitted!','success');
+    setTimeout(()=>{ window.location.href = returnUrl + (returnUrl.includes('?')?'&':'?') + 'saved=' + encodeURIComponent(window.currentPEName); }, 1200);
+  }catch(e){
+    showToast('Error: '+String(e.message).slice(0,120),'error');
+    console.error('submitPaymentEntry error:', e);
+    btn.disabled=false;
+  }
+}
+
+// ══════════════════════════════════════════
+//  LOAD EXISTING — reached via ?name=, same pattern as caratdesk-new-purchase-order.html's
+//  loadExistingPO(). Party/Type get restored then immediately locked (see lockPartyAndType).
+// ══════════════════════════════════════════
+async function loadExistingPaymentEntry(name){
+  try{
+    showToast('Loading…','info');
+    const json = await dev1Get(`/api/resource/Payment%20Entry/${encodeURIComponent(name)}`);
+    const doc = json.data || json.message;
+    if(!doc) throw new Error('Payment Entry not found');
+
+    window.currentPEName = doc.name;
+    currentPEPartyCode = doc.party || '';
+    const isSubmitted = doc.docstatus === 1;
+    const isCancelled = doc.docstatus === 2;
+
+    if(sellingContext) setEntryPurpose(doc.payment_type==='Pay' ? 'Refund' : 'Advance');
+    else setPaymentType(doc.payment_type==='Pay' ? 'Pay' : 'Receive');
+    document.getElementById('pePartyType').value = doc.party_type || 'Customer';
+    document.getElementById('peParty').value = doc.party_name || doc.party || '';
+    document.getElementById('peBranch').value = doc.branch || '';
+    document.getElementById('peCurrency').value = doc.custom_currency || '';
+
+    document.getElementById('pePostingDate').value = doc.posting_date || '';
+    document.getElementById('peAmount').value = doc.paid_amount || doc.received_amount || 0;
+    document.getElementById('peRefDate').value = doc.reference_date || '';
+    document.getElementById('peRefNo').value = doc.reference_no || '';
+    document.getElementById('peRemarks').value = doc.remarks || '';
+
+    if(doc.mode_of_payment){
+      document.getElementById('peMode').value = doc.mode_of_payment;
+      await onModeChange();
+    }
+    // The account actually used on this entry wins over whatever resolvePaymentAccount()
+    // (a "default" account for the mode) just auto-filled via onModeChange above.
+    const account = doc.payment_type==='Pay' ? doc.paid_from : doc.paid_to;
+    if(account) document.getElementById('peAccount').value = account;
+
+    lockPartyAndType();
+
+    if(isCancelled){
+      updatePEDocStatus('Cancelled', name);
+      setPEDocReadOnly(true);
+      hidePEMainActionBtn();
+      setPECancelBtnVisible(false);
+    } else if(isSubmitted){
+      submitted = true;
+      updatePEDocStatus('Submitted', name);
+      setPEDocReadOnly(true);
+      showPEOpenInErpBtn();
+      setPECancelBtnVisible(true);
+    } else {
+      updatePEDocStatus('Draft', name);
+      switchToSubmitButton();
+      startChangeTracking();
+      setPECancelBtnVisible(false);
+    }
+
+    showToast(`${name} loaded`, 'success');
+  }catch(e){
+    console.error('loadExistingPaymentEntry error', e);
+    showToast(`Failed to load ${name}: ${e.message}`, 'error');
+  }
+}
+
+// ── INIT ──
+async function init(){
+  const h=cdGetInstanceHeaders();
+  if(!h){ window.location.replace('/caratdesk-login?logout=1'); return; }
+
+  document.getElementById('pePostingDate').value = today();
+  document.getElementById('pePostingDate').min = today();
+  document.getElementById('peRefDate').value = today();
+
+  if(sellingContext){
+    document.getElementById('typeToggle').style.display = 'none';
+    document.getElementById('entryPurposeField').style.display = '';
+    document.getElementById('pageSub').textContent = 'Record an advance received from a customer, or a refund paid back to one';
+    document.getElementById('peParty').placeholder = 'Type customer name...';
+    document.getElementById('pePartyType').value = 'Customer';
+    setEntryPurpose('Advance');
+
+    document.getElementById('navAccounts').classList.remove('active');
+    document.getElementById('navSelling').classList.add('active');
+    const crumb = document.getElementById('cdBreadcrumbParent');
+    crumb.textContent = 'Selling';
+    crumb.href = '/caratdesk-selling';
+  }
+
+  try{
+    const [custRes, supRes, acctRes, companyRes, modeRes, branchRes] = await Promise.allSettled([
+      dev1Get(`/api/resource/Customer?fields=${encodeURIComponent(JSON.stringify(["name","customer_name","mobile_no","default_currency"]))}&limit_page_length=0`),
+      dev1Get(`/api/resource/Supplier?fields=${encodeURIComponent(JSON.stringify(["name","supplier_name","mobile_no","default_currency"]))}&limit_page_length=0`),
+      dev1Get(`/api/resource/Account?filters=${encodeURIComponent(JSON.stringify([["company","=",COMPANY],["is_group","=",0],["account_type","in",["Cash","Bank"]]]))}&fields=${encodeURIComponent(JSON.stringify(["name","account_type"]))}&limit_page_length=0`),
+      dev1Get(`/api/resource/Company/${encodeURIComponent(COMPANY)}`),
+      dev1Get(`/api/resource/Mode%20of%20Payment?fields=${encodeURIComponent(JSON.stringify(["name"]))}&limit_page_length=0`),
+      dev1Get(`/api/resource/Branch?fields=${encodeURIComponent(JSON.stringify(["name"]))}&limit_page_length=100`),
+    ]);
+    if(custRes.status==='fulfilled') CUSTOMERS=(custRes.value.data||custRes.value.message||[]).map(c=>({name:c.name, display:c.customer_name||c.name, phone:c.mobile_no||'', currency:c.default_currency||''}));
+    if(supRes.status==='fulfilled') SUPPLIERS=(supRes.value.data||supRes.value.message||[]).map(s=>({name:s.name, display:s.supplier_name||s.name, phone:s.mobile_no||'', currency:s.default_currency||''}));
+    if(acctRes.status==='fulfilled') ACCOUNTS=(acctRes.value.data||acctRes.value.message||[]).map(a=>({name:a.name, account_type:a.account_type}));
+    if(companyRes.status==='fulfilled') COMPANY_DOC = companyRes.value.data||companyRes.value.message||{};
+    if(branchRes.status==='fulfilled'){
+      BRANCHES=(branchRes.value.data||branchRes.value.message||[]).map(b=>b.name).filter(Boolean);
+      const brSel=document.getElementById('peBranch');
+      BRANCHES.forEach(b=>{ const opt=document.createElement('option'); opt.value=b; opt.textContent=b; brSel.appendChild(opt); });
+    }
+    if(modeRes.status==='fulfilled'){
+      const modes=(modeRes.value.data||modeRes.value.message||[]).map(m=>m.name);
+      const sel=document.getElementById('peMode');
+      modes.forEach(m=>{ const opt=document.createElement('option'); opt.value=m; opt.textContent=m; sel.appendChild(opt); });
+    }
+  }catch(e){ console.warn('Init load error:', e); }
+
+  const peName = params.get('name');
+  if(peName){
+    await loadExistingPaymentEntry(peName);
+    return;
+  }
+
+  // Context from a caller (e.g. Jewellery Scheme Assignment) — only applies to a brand-new entry.
+  const ctxPartyType = params.get('party_type');
+  const ctxParty = params.get('party');
+  const ctxPartyName = params.get('party_name');
+  const ctxAmount = params.get('amount');
+  if(ctxPartyType && ctxParty){
+    locked = true;
+    setPaymentType(ctxPartyType==='Supplier' ? 'Pay' : 'Receive');
+    document.getElementById('pePartyType').value = ctxPartyType==='Supplier' ? 'Supplier' : 'Customer';
+    document.getElementById('pePartyType').disabled = true;
+    document.getElementById('peParty').value = ctxPartyName || ctxParty;
+    document.getElementById('peParty').classList.add('cd-readonly');
+    document.getElementById('peParty').readOnly = true;
+    document.getElementById('typeReceive').classList.add('locked');
+    document.getElementById('typePay').classList.add('locked');
+    if(ctxAmount) document.getElementById('peAmount').value = ctxAmount;
+    const ctxPartyObj=partyList().find(p=>p.name===ctxParty);
+    document.getElementById('peCurrency').value = ctxPartyObj?.currency || COMPANY_DOC.default_currency || '';
+  }
+  const ctxMode = params.get('mode_of_payment');
+  const modeSel = document.getElementById('peMode');
+  if(ctxMode && [...modeSel.options].some(o=>o.value===ctxMode)){ modeSel.value = ctxMode; await onModeChange(); }
+  const ctxRef = params.get('reference_no');
+  if(ctxRef) document.getElementById('peRefNo').value = ctxRef;
+}
+
+// ── THEME ──
+const moonIcon='<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+const sunIcon='<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+function initTheme(){ const s=localStorage.getItem('cdTheme'); if(s==='dark'){ document.documentElement.classList.add('dark'); document.getElementById('themeIcon').innerHTML=sunIcon; } else { document.getElementById('themeIcon').innerHTML=moonIcon; } }
+function toggleTheme(){
+  if(document.documentElement.classList.contains('dark')){
+    document.documentElement.classList.remove('dark'); localStorage.setItem('cdTheme','light'); document.getElementById('themeIcon').innerHTML=moonIcon;
+  } else {
+    document.documentElement.classList.add('dark'); localStorage.setItem('cdTheme','dark'); document.getElementById('themeIcon').innerHTML=sunIcon;
+  }
+}
+document.getElementById('cdThemeToggle').addEventListener('click', toggleTheme);
+initTheme();
+
+// Sidebar toggle
+const sidebar = document.getElementById('cdSidebar');
+document.getElementById('cdMenuToggle').addEventListener('click', () => sidebar.classList.toggle('mobile-open'));
+document.querySelectorAll('.cd-nav-item').forEach(link => {
+  link.addEventListener('click', () => { if (window.innerWidth <= 768) sidebar.classList.remove('mobile-open'); });
+});
+
+// Auth / user
+(function(){
+  const hasSession=localStorage.getItem('cd_pp_key')||localStorage.getItem('cd_pc_key');
+  if(!hasSession){ window.location.replace('/caratdesk-login?logout=1'); return; }
+  const active=cdGetActiveInstance();
+  const key=active==='PC'?localStorage.getItem('cd_pc_key'):localStorage.getItem('cd_pp_key');
+  const sec=active==='PC'?localStorage.getItem('cd_pc_secret'):localStorage.getItem('cd_pp_secret');
+  if(key&&sec){ localStorage.setItem('cd_api_key',key); localStorage.setItem('cd_api_secret',sec); }
+  const name=localStorage.getItem('cd_user')||localStorage.getItem('cd_user_email')||'User';
+  document.getElementById('cdUserName').textContent=name;
+  document.getElementById('cdAvatar').textContent=name.split('@')[0].split(/[\s.]+/).map(w=>w[0]||'').join('').slice(0,2).toUpperCase()||'U';
+  cdInitInstanceToggle();
+})();
+
+document.getElementById('cdLogoutBtn').addEventListener('click',async()=>{
+  const ppK=localStorage.getItem('cd_pp_key'), ppS=localStorage.getItem('cd_pp_secret');
+  const pcK=localStorage.getItem('cd_pc_key'), pcS=localStorage.getItem('cd_pc_secret');
+  try{ if(ppK&&ppS) await fetch(`${DEV1}/api/method/logout`,{method:'POST',headers:{Authorization:`token ${ppK}:${ppS}`}}); }catch(e){}
+  try{ if(pcK&&pcS) await fetch(`${DEV2}/api/method/logout`,{method:'POST',headers:{Authorization:`token ${pcK}:${pcS}`}}); }catch(e){}
+  ['cd_api_key','cd_api_secret','cd_pp_key','cd_pp_secret','cd_pc_key','cd_pc_secret',
+   'cd_user','cd_user_email','cd_active_instance','cd_available_instances'].forEach(k=>localStorage.removeItem(k));
+  window.location.replace('/caratdesk-login?logout=1');
+});
+
+init();
+</script>

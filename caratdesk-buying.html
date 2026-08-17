@@ -48,6 +48,7 @@
       --pill-blue-bg: #1A2A3E;  --pill-blue-txt: #7AABF0;
       --shadow-sm: 0 2px 12px rgba(0,0,0,0.3), 0 0 0 0.5px rgba(255,255,255,0.05);
     }
+    html, body { color: var(--text-primary); }
     * { transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease; }
     
     .cd-app {
@@ -116,7 +117,13 @@
       transition: background 0.14s, color 0.14s;
     }
     .cd-logout-btn:hover { background: var(--pill-red-bg); color: var(--pill-red-txt); }
-    
+    .cd-instance-bar{display:flex;align-items:center;gap:6px;padding:8px 10px 4px}
+    .cd-instance-label{font-size:10px;font-weight:500;color:var(--text-muted);letter-spacing:.07em;text-transform:uppercase;flex:1}
+    .cd-instance-pills{display:flex;gap:4px}
+    .cd-instance-pill{font-size:11px;font-weight:500;padding:3px 10px;border-radius:6px;border:.5px solid var(--border);background:var(--input-bg);color:var(--text-secondary);cursor:pointer;transition:background .14s,color .14s,border-color .14s;font-family:'DM Sans',sans-serif}
+    .cd-instance-pill:hover{background:var(--nav-hover);color:var(--text-primary)}
+    .cd-instance-pill.active{background:var(--accent);color:var(--surface);border-color:var(--accent)}
+
     /* MAIN */
     .cd-main { margin-left: 260px; flex: 1; min-height: 100vh; display: flex; flex-direction: column; width: 100%; }
     @media (max-width: 768px) { .cd-main { margin-left: 0; } }
@@ -150,7 +157,7 @@
     @keyframes cd-fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
     
     /* CARDS & LAYOUT */
-    .cd-quick-actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+    .cd-quick-actions { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 24px; }
     @media (max-width: 640px) { .cd-quick-actions { grid-template-columns: 1fr 1fr; } }
     .cd-qa-btn {
       display: flex; align-items: center; gap: 11px;
@@ -302,6 +309,10 @@
             Dashboard
           </a>
     <div class="cd-nav-section">Operations</div>
+    <a href="/caratdesk-pos" class="cd-nav-item">
+        <span class="cd-nav-icon"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>
+        POS Billing
+      </a>
     <a href="/caratdesk-selling" class="cd-nav-item">
             <span class="cd-nav-icon"><svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg></span>
             Selling
@@ -339,11 +350,18 @@
     
         </div>
         <div class="cd-sidebar-bottom">
+          <div class="cd-instance-bar" id="cdInstanceBar" style="display:none">
+            <span class="cd-instance-label">Instance</span>
+            <div class="cd-instance-pills">
+              <button class="cd-instance-pill" id="cdInstPP" onclick="cdSwitchInstance('PP')">PP</button>
+              <button class="cd-instance-pill" id="cdInstPC" onclick="cdSwitchInstance('PC')">PC</button>
+            </div>
+          </div>
           <div class="cd-user-card">
             <div class="cd-avatar" id="cdAvatar">—</div>
             <div>
               <div class="cd-user-name" id="cdUserName">Loading…</div>
-              <div class="cd-user-role">POS Manager</div>
+              <div class="cd-user-role" id="cdUserRole">POS Manager</div>
             </div>
           </div>
           <button class="cd-logout-btn" id="cdLogoutBtn">
@@ -396,6 +414,10 @@
         </div>
     
     <div class="cd-quick-actions">
+      <a href="#" class="cd-qa-btn">
+        <div class="cd-qa-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/></svg></div>
+        <div><div class="cd-qa-label">Suppliers</div><div class="cd-qa-sub">Manage vendors</div></div>
+      </a>
       <a href="/caratdesk-purchase-order" class="cd-qa-btn">
         <div class="cd-qa-icon"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg></div>
         <div><div class="cd-qa-label">Purchase Order</div><div class="cd-qa-sub">New PO</div></div>
@@ -408,9 +430,9 @@
         <div class="cd-qa-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
         <div><div class="cd-qa-label">Purchase Invoice</div><div class="cd-qa-sub">Supplier bill</div></div>
       </a>
-      <a href="#" class="cd-qa-btn">
-        <div class="cd-qa-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/></svg></div>
-        <div><div class="cd-qa-label">Suppliers</div><div class="cd-qa-sub">Manage vendors</div></div>
+      <a href="/caratdesk-multi-bhav-cut" class="cd-qa-btn">
+        <div class="cd-qa-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg></div>
+        <div><div class="cd-qa-label">Bhav Cut (Multiple)</div><div class="cd-qa-sub">Consolidate across PRs</div></div>
       </a>
     </div>
     
@@ -502,6 +524,46 @@ async function pubGet(script, params = {}) {
   return await res.json();
 }
 
+      // ══ INSTANCE HELPERS ══
+const DEV1 = 'https://ppj-dev1.m.frappe.cloud';
+const DEV2 = 'https://ppj-dev2.m.frappe.cloud';
+function cdGetActiveInstance(){ return localStorage.getItem('cd_active_instance')||'PP'; }
+function cdGetAvailableInstances(){ return (localStorage.getItem('cd_available_instances')||'PP').split(',').filter(Boolean); }
+function cdGetInstanceUrl(inst){ return (inst||cdGetActiveInstance())==='PC'?DEV2:DEV1; }
+function cdGetInstanceHeaders(inst){
+  const i=inst||cdGetActiveInstance();
+  const key=i==='PC'?localStorage.getItem('cd_pc_key'):localStorage.getItem('cd_pp_key');
+  const sec=i==='PC'?localStorage.getItem('cd_pc_secret'):localStorage.getItem('cd_pp_secret');
+  if(!key||!sec) return null;
+  return{'Authorization':`token ${key}:${sec}`,'Content-Type':'application/json','Accept':'application/json'};
+}
+function cdSwitchInstance(inst){
+  const available=cdGetAvailableInstances();
+  if(!available.includes(inst)) return;
+  const key=inst==='PC'?localStorage.getItem('cd_pc_key'):localStorage.getItem('cd_pp_key');
+  const sec=inst==='PC'?localStorage.getItem('cd_pc_secret'):localStorage.getItem('cd_pp_secret');
+  localStorage.setItem('cd_active_instance',inst);
+  localStorage.setItem('cd_api_key',key);
+  localStorage.setItem('cd_api_secret',sec);
+  window.location.reload();
+}
+function cdInitInstanceToggle(){
+  const available=cdGetAvailableInstances();
+  const active=cdGetActiveInstance();
+  const bar=document.getElementById('cdInstanceBar');
+  if(!bar) return;
+  if(available.length<2){ bar.style.display='none'; return; }
+  bar.style.display='flex';
+  ['PP','PC'].forEach(inst=>{
+    const btn=document.getElementById('cdInst'+inst);
+    if(!btn) return;
+    btn.classList.toggle('active',inst===active);
+    btn.style.display=available.includes(inst)?'':'none';
+  });
+  const roleEl=document.getElementById('cdUserRole');
+  if(roleEl) roleEl.textContent='Active: '+active;
+}
+
       // ─── THEME / SIDEBAR (unchanged) ─────────────────────────────────────────
       const moonIcon = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
       const sunIcon  = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
@@ -514,19 +576,27 @@ async function pubGet(script, params = {}) {
       document.getElementById('cdTopDate').textContent = new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
       // ─── AUTH ────────────────────────────────────────────────────────────────
       (function(){
-        const key=localStorage.getItem('cd_api_key'), sec=localStorage.getItem('cd_api_secret');
-        if(!key||!sec){ window.location.replace('/caratdesk-login?logout=1'); return; }
-        const name=localStorage.getItem('cd_user')||localStorage.getItem('cd_user_email')||'User';
-        document.getElementById('cdUserName').textContent=name;
-        document.getElementById('cdAvatar').textContent=name.split('@')[0].split(/[\s.]+/).map(w=>w[0]||'').join('').slice(0,2).toUpperCase()||'U';
-      })();
-      document.getElementById('cdLogoutBtn').addEventListener('click', async function(){
-        const key=localStorage.getItem('cd_api_key'), sec=localStorage.getItem('cd_api_secret');
-        try{ if(key&&sec) await fetch('https://ppj-dev1.m.frappe.cloud/api/method/logout',{method:'POST',headers:{'Authorization':`token ${key}:${sec}`}}); }catch(e){}
-        localStorage.removeItem('cd_api_key'); localStorage.removeItem('cd_api_secret');
-        localStorage.removeItem('cd_user'); localStorage.removeItem('cd_user_email');
-        window.location.replace('/caratdesk-login?logout=1');
-      });
+  const hasSession=localStorage.getItem('cd_pp_key')||localStorage.getItem('cd_pc_key');
+  if(!hasSession){ window.location.replace('/caratdesk-login?logout=1'); return; }
+  const active=cdGetActiveInstance();
+  const key=active==='PC'?localStorage.getItem('cd_pc_key'):localStorage.getItem('cd_pp_key');
+  const sec=active==='PC'?localStorage.getItem('cd_pc_secret'):localStorage.getItem('cd_pp_secret');
+  if(key&&sec){ localStorage.setItem('cd_api_key',key); localStorage.setItem('cd_api_secret',sec); }
+  const name=localStorage.getItem('cd_user')||localStorage.getItem('cd_user_email')||'User';
+  document.getElementById('cdUserName').textContent=name;
+  document.getElementById('cdAvatar').textContent=name.split('@')[0].split(/[\s.]+/).map(w=>w[0]||'').join('').slice(0,2).toUpperCase()||'U';
+  cdInitInstanceToggle();
+})();
+
+document.getElementById('cdLogoutBtn').addEventListener('click',async()=>{
+  const ppK=localStorage.getItem('cd_pp_key'), ppS=localStorage.getItem('cd_pp_secret');
+  const pcK=localStorage.getItem('cd_pc_key'), pcS=localStorage.getItem('cd_pc_secret');
+  try{ if(ppK&&ppS) await fetch(`${DEV1}/api/method/logout`,{method:'POST',headers:{Authorization:`token ${ppK}:${ppS}`}}); }catch(e){}
+  try{ if(pcK&&pcS) await fetch(`${DEV2}/api/method/logout`,{method:'POST',headers:{Authorization:`token ${pcK}:${pcS}`}}); }catch(e){}
+  ['cd_api_key','cd_api_secret','cd_pp_key','cd_pp_secret','cd_pc_key','cd_pc_secret',
+   'cd_user','cd_user_email','cd_active_instance','cd_available_instances'].forEach(k=>localStorage.removeItem(k));
+  window.location.replace('/caratdesk-login?logout=1');
+});
       // ─── HELPERS ─────────────────────────────────────────────────────────────
       function fmt(n){ return '₹'+Math.round(n||0).toLocaleString('en-IN'); }
       function fmtL(n){

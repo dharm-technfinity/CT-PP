@@ -1,0 +1,856 @@
+<!-- CaratDesk – Purity Ledger Report -->
+<head>
+  <meta charset="UTF-8">
+</head>
+<style>    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap');
+
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    .navbar,.page-header,footer.web-footer,.container>.row>.col-sm-10,.frappe-footer{display:none!important}
+    .web-page-container,.container{padding:0!important;max-width:100%!important}
+    body{overflow-x:hidden}
+    :root{--bg:#F7F6F3;--surface:#FFF;--border:rgba(0,0,0,.07);--border-strong:rgba(0,0,0,.12);--text-primary:#1A1A18;--text-secondary:#6B6B65;--text-muted:#A8A8A2;--accent:#1A1A18;--accent-light:#F0EFE9;--nav-hover:#F7F6F3;--nav-active-bg:#EBEBE5;--pill-green-bg:#EAF3DE;--pill-green-txt:#3B6D11;--pill-red-bg:#FCEBEB;--pill-red-txt:#A32D2D;--pill-amber-bg:#FAEEDA;--pill-amber-txt:#854F0B;--pill-blue-bg:#E8F0FD;--pill-blue-txt:#1A4A8A;--shadow-sm:0 2px 12px rgba(0,0,0,.04),0 0 0 .5px rgba(0,0,0,.03);--shadow-md:0 4px 24px rgba(0,0,0,.08)}
+    .dark{--bg:#121212;--surface:#1E1E1E;--border:rgba(255,255,255,.08);--border-strong:rgba(255,255,255,.15);--text-primary:#EDEDED;--text-secondary:#A0A0A0;--text-muted:#6E6E6E;--accent:#D4D4D4;--accent-light:#2C2C2C;--nav-hover:#252525;--nav-active-bg:#2D2D2D;--pill-green-bg:#1E3A2E;--pill-green-txt:#9CD45E;--pill-red-bg:#3E1E1E;--pill-red-txt:#F28B82;--pill-amber-bg:#3E2E1E;--pill-amber-txt:#FDBF6B;--pill-blue-bg:#1A2A3E;--pill-blue-txt:#7AABF0;--shadow-sm:0 2px 12px rgba(0,0,0,.3),0 0 0 .5px rgba(255,255,255,.05);--shadow-md:0 4px 24px rgba(0,0,0,.3)}
+    html,body{color:var(--text-primary)}
+    *{transition:background-color .2s,border-color .2s,color .2s}
+    .cd-app{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);min-height:100vh;display:flex;-webkit-font-smoothing:antialiased;color:var(--text-primary)}
+    .cd-sidebar{width:260px;background:var(--surface);border-right:.5px solid var(--border);display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;z-index:200;box-shadow:var(--shadow-sm);transform:translateX(0);transition:transform .3s cubic-bezier(.2,.9,.4,1.1)}
+    @media(max-width:768px){.cd-sidebar{transform:translateX(-100%)}.cd-sidebar.mobile-open{transform:translateX(0);width:80%;max-width:280px}}
+    .cd-sidebar-logo{display:flex;align-items:center;gap:11px;padding:20px 16px 18px;border-bottom:.5px solid var(--border);text-decoration:none;color:inherit}
+    .cd-sidebar-logo img{width:30px;height:30px;object-fit:contain;border-radius:9px}
+    .cd-logo-name{font-family:'DM Serif Display',serif;font-size:17px;letter-spacing:-.2px}
+    .cd-logo-sub{font-size:10px;color:var(--text-muted);font-weight:300;letter-spacing:.07em;text-transform:uppercase}
+    .cd-nav{flex:1;padding:10px 8px;overflow-y:auto}
+    .cd-nav-section{font-size:10px;font-weight:500;color:var(--text-muted);letter-spacing:.08em;text-transform:uppercase;padding:14px 8px 5px}
+    .cd-nav-item{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:9px;margin-bottom:1px;text-decoration:none;color:var(--text-secondary);font-size:13.5px;transition:background .14s,color .14s}
+    .cd-nav-item:hover{background:var(--nav-hover);color:var(--text-primary)}
+    .cd-nav-item.active{background:var(--nav-active-bg);color:var(--text-primary);font-weight:500}
+    .cd-nav-icon{width:20px;height:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .cd-nav-icon svg{width:15px;height:15px;stroke:currentColor;stroke-width:1.75;fill:none;stroke-linecap:round;stroke-linejoin:round}
+    .cd-sidebar-bottom{padding:10px 8px;border-top:.5px solid var(--border)}
+    .cd-user-card{display:flex;align-items:center;gap:10px;padding:10px;border-radius:9px;cursor:pointer;transition:background .14s}
+    .cd-user-card:hover{background:var(--nav-hover)}
+    .cd-avatar{width:32px;height:32px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:var(--surface);flex-shrink:0}
+    .cd-user-name{font-size:13px;font-weight:500}
+    .cd-user-role{font-size:11px;color:var(--text-muted);font-weight:300}
+    .cd-logout-btn{display:flex;align-items:center;gap:7px;padding:9px 10px;border-radius:9px;cursor:pointer;font-size:13px;color:var(--text-secondary);margin-top:3px;border:none;background:none;font-family:'DM Sans',sans-serif;width:100%;transition:background .14s,color .14s}
+    .cd-logout-btn:hover{background:var(--pill-red-bg);color:var(--pill-red-txt)}
+    .cd-instance-bar{display:flex;align-items:center;gap:6px;padding:8px 10px 4px}
+    .cd-instance-label{font-size:10px;font-weight:500;color:var(--text-muted);letter-spacing:.07em;text-transform:uppercase;flex:1}
+    .cd-instance-pills{display:flex;gap:4px}
+    .cd-instance-pill{font-size:11px;font-weight:500;padding:3px 10px;border-radius:6px;border:.5px solid var(--border);background:var(--input-bg);color:var(--text-secondary);cursor:pointer;transition:background .14s,color .14s,border-color .14s;font-family:'DM Sans',sans-serif}
+    .cd-instance-pill:hover{background:var(--nav-hover);color:var(--text-primary)}
+    .cd-instance-pill.active{background:var(--accent);color:var(--surface);border-color:var(--accent)}
+    .cd-main{margin-left:260px;flex:1;min-height:100vh;display:flex;flex-direction:column}
+    @media(max-width:768px){.cd-main{margin-left:0}}
+    .cd-topbar{height:58px;background:var(--surface);border-bottom:.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 20px;position:sticky;top:0;z-index:100}
+    .cd-menu-btn{display:none;background:none;border:none;cursor:pointer;color:var(--text-secondary);margin-right:12px}
+    @media(max-width:768px){.cd-menu-btn{display:flex;align-items:center;justify-content:center}}
+    .cd-topbar-left{display:flex;align-items:center;gap:10px}
+    .cd-breadcrumb{display:flex;align-items:center;gap:6px;font-size:13.5px}
+    .cd-breadcrumb a{color:var(--text-muted);text-decoration:none;transition:color .14s}
+    .cd-breadcrumb a:hover{color:var(--text-primary)}
+    .cd-breadcrumb-sep{color:var(--text-muted);font-size:12px}
+    .cd-breadcrumb-cur{color:var(--text-primary);font-weight:500}
+    .cd-topbar-right{display:flex;align-items:center;gap:8px}
+    .cd-icon-btn{width:34px;height:34px;border-radius:9px;border:.5px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-secondary);transition:background .14s,color .14s}
+    .cd-icon-btn:hover{background:var(--nav-hover);color:var(--text-primary)}
+    .cd-icon-btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+    .cd-content{padding:24px 28px;flex:1;animation:fadeIn .35s cubic-bezier(.16,1,.3,1) both}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    .cd-page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+    .cd-page-title{font-size:20px;font-weight:500;letter-spacing:-.3px}
+    .cd-page-sub{font-size:12.5px;color:var(--text-muted);margin-top:2px;font-weight:300}
+    .cd-btn{font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;padding:8px 16px;border-radius:9px;border:none;cursor:pointer;transition:background .14s,transform .1s;display:inline-flex;align-items:center;gap:7px;text-decoration:none}
+    .cd-btn:active{transform:scale(.98)}
+    .cd-btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+    .cd-btn-primary{background:var(--text-primary);color:var(--surface)}
+    .cd-btn-primary:hover{opacity:.85}
+    .cd-btn-secondary{background:var(--surface);color:var(--text-primary);border:.5px solid var(--border-strong)}
+    .cd-btn-secondary:hover{background:var(--accent-light)}
+    .cd-toolbar{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+    .cd-search-wrap{position:relative;flex:1;min-width:180px;max-width:280px}
+    .cd-search-wrap svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:14px;height:14px;stroke:var(--text-muted);fill:none;stroke-width:1.8;pointer-events:none}
+    .cd-search-input{width:100%;font-family:'DM Sans',sans-serif;font-size:13px;background:var(--surface);border:.5px solid var(--border-strong);border-radius:9px;padding:8px 12px 8px 34px;color:var(--text-primary);outline:none;transition:border-color .14s,box-shadow .14s}
+    .cd-search-input:focus{border-color:var(--text-secondary);box-shadow:0 0 0 3px rgba(0,0,0,.05)}
+    .cd-search-input::placeholder{color:var(--text-muted)}
+    /* ── Filter pills — field name stays visible as the resting label, replaced by the picked
+       value once one's set, matching ERPNext's own report filter bar (Company/From Date/etc
+       always readable even blank) instead of a control that goes illegible once cleared. */
+    .cd-fpill{position:relative;display:flex;align-items:center;background:var(--bg);border:.5px solid var(--border);border-radius:9px;min-width:130px}
+    .cd-fpill:hover{border-color:var(--border-strong)}
+    .cd-filter-sel{appearance:none;-webkit-appearance:none;font-family:'DM Sans',sans-serif;font-size:12.5px;font-weight:500;background:none;border:none;border-radius:9px;padding:9px 26px 9px 13px;color:var(--text-secondary);outline:none;cursor:pointer;width:100%}
+    .cd-fpill.has-value .cd-filter-sel{color:var(--text-primary)}
+    .cd-fpill::after{content:'';position:absolute;right:11px;top:50%;width:8px;height:8px;border-right:1.6px solid var(--text-muted);border-bottom:1.6px solid var(--text-muted);transform:translateY(-65%) rotate(45deg);pointer-events:none}
+    .cd-fpill-date{padding:0}
+    .cd-fpill-date .cd-filter-date{font-family:'DM Sans',sans-serif;font-size:12.5px;font-weight:500;background:none;border:none;outline:none;color:var(--text-primary);padding:9px 13px;width:100%;cursor:pointer}
+    .cd-fpill-date::after{display:none}
+    .cd-fpill-label{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:12.5px;font-weight:500;color:var(--text-secondary);pointer-events:none}
+    .cd-filter-date.cd-empty::-webkit-datetime-edit,
+    .cd-filter-date.cd-empty::-webkit-datetime-edit-fields-wrapper{color:transparent}
+    .cd-toolbar-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+    .cd-result-count{font-size:12px;color:var(--text-muted);white-space:nowrap}
+    .cd-notice{background:var(--pill-amber-bg);color:var(--pill-amber-txt);font-size:12px;padding:9px 14px;border-radius:10px;margin-bottom:14px;display:none;align-items:center;gap:8px}
+    .cd-notice svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0}
+    .cd-table-wrap{background:var(--surface);border:.5px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:var(--shadow-sm);margin-bottom:18px}
+    .cd-table-wrap+.cd-table-wrap{margin-top:18px}
+    .cd-group-head{display:flex;align-items:center;justify-content:space-between;padding:13px 18px;background:var(--bg);border-bottom:.5px solid var(--border)}
+    .cd-group-title{font-size:13.5px;font-weight:600;display:flex;align-items:center;gap:8px}
+    .cd-group-dot{width:9px;height:9px;border-radius:50%}
+    .cd-group-stat{font-size:11.5px;color:var(--text-muted)}
+    .cd-table{width:100%;border-collapse:collapse}
+    .cd-table thead{background:var(--bg)}
+    .cd-table th{font-size:11px;font-weight:500;color:var(--text-muted);text-align:left;padding:11px 16px;letter-spacing:.05em;text-transform:uppercase;border-bottom:.5px solid var(--border);white-space:nowrap;user-select:none}
+    .cd-table td{font-size:13px;padding:11px 16px;border-bottom:.5px solid var(--border);vertical-align:middle;white-space:nowrap}
+    .cd-table tr:last-child td{border-bottom:none}
+    .cd-table tbody tr:hover{background:var(--nav-hover)}
+    .cd-table td.num{text-align:right;font-variant-numeric:tabular-nums}
+    .cd-table tr.opening td{background:var(--accent-light);font-weight:500}
+    .cd-table tr.closing td{background:var(--accent-light);font-weight:600;border-top:1px solid var(--border-strong)}
+    .cd-pill{display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:3px 9px;border-radius:100px;font-weight:500;white-space:nowrap}
+    .cd-pill-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+    .cd-pill.green{background:var(--pill-green-bg);color:var(--pill-green-txt)}.cd-pill.green .cd-pill-dot{background:var(--pill-green-txt)}
+    .cd-pill.blue{background:var(--pill-blue-bg);color:var(--pill-blue-txt)}.cd-pill.blue .cd-pill-dot{background:var(--pill-blue-txt)}
+    .cd-pill.amber{background:var(--pill-amber-bg);color:var(--pill-amber-txt)}.cd-pill.amber .cd-pill-dot{background:var(--pill-amber-txt)}
+    .cd-pill.grey{background:var(--accent-light);color:var(--text-secondary)}.cd-pill.grey .cd-pill-dot{background:var(--text-muted)}
+    .cd-empty{text-align:center;padding:50px 20px;color:var(--text-muted)}
+    .cd-empty svg{width:40px;height:40px;stroke:var(--text-muted);fill:none;stroke-width:1.2;margin:0 auto 12px;display:block}
+    .cd-empty-title{font-size:13.5px;font-weight:500;color:var(--text-secondary)}
+    .cd-dr{color:var(--pill-red-txt)}
+    .cd-cr{color:var(--pill-green-txt)}
+    .cd-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:900;display:none;align-items:center;justify-content:center;backdrop-filter:blur(3px)}
+    .cd-modal-overlay.open{display:flex}
+    .cd-modal{background:var(--surface);border-radius:16px;border:.5px solid var(--border);box-shadow:var(--shadow-md);width:460px;max-width:94vw;max-height:88vh;overflow-y:auto}
+    .cd-modal-head{padding:18px 22px;border-bottom:.5px solid var(--border)}
+    .cd-modal-title{font-size:15px;font-weight:600}
+    .cd-modal-sub{font-size:12px;color:var(--text-muted);margin-top:3px}
+    .cd-modal-body{padding:18px 22px;display:flex;flex-direction:column;gap:14px}
+    .cd-flabel{font-size:11.5px;font-weight:500;color:var(--text-secondary);margin-bottom:5px;display:block}
+    .cd-finput,.cd-fsel,.cd-ftext{width:100%;font-family:'DM Sans',sans-serif;font-size:13px;background:var(--bg);border:.5px solid var(--border-strong);border-radius:8px;padding:8px 10px;color:var(--text-primary);outline:none}
+    .cd-metal-row{display:grid;grid-template-columns:70px 1fr 1fr;gap:8px;align-items:end}
+    .cd-metal-row+.cd-metal-row{margin-top:8px}
+    .cd-metal-name{font-size:13px;font-weight:500;padding-bottom:9px}
+    .cd-modal-warn{font-size:11.5px;color:var(--pill-amber-txt);background:var(--pill-amber-bg);padding:8px 10px;border-radius:8px;display:none}
+    .cd-modal-actions{padding:14px 22px;border-top:.5px solid var(--border);display:flex;justify-content:flex-end;gap:8px}
+    </style>
+
+    <div class="cd-app" id="cdApp">
+      <nav class="cd-sidebar" id="cdSidebar">
+        <a class="cd-sidebar-logo" href="/caratdesk">
+          <img src="https://i.postimg.cc/NMgHCKvC/letter-cc-cd-diamond-initial-600nw-2206465849.png" alt="CaratDesk"/>
+          <div><div class="cd-logo-name">PPJ Retail</div><div class="cd-logo-sub">Jewellery POS</div></div>
+        </a>
+        <div class="cd-nav">
+          <div class="cd-nav-section">Main</div>
+          <a href="/caratdesk" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>Dashboard</a>
+          <div class="cd-nav-section">Operations</div>
+          <a href="/caratdesk-pos" class="cd-nav-item">
+        <span class="cd-nav-icon"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>
+        POS Billing
+      </a>
+          <a href="/caratdesk-selling" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg></span>Selling</a>
+          <a href="/caratdesk-buying" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></span>Buying</a>
+          <a href="/caratdesk-stock" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg></span>Stock</a>
+          <a href="/caratdesk-items" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></span>Items</a>
+          <div class="cd-nav-section">Finance</div>
+          <a href="/caratdesk-finance" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></span>Finance</a>
+          <a href="/caratdesk-accounts" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg></span>Accounts</a>
+          <a href="/caratdesk-purity-ledger" class="cd-nav-item active"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>Purity Ledger</a>
+          <div class="cd-nav-section">System</div>
+          <a href="/caratdesk-settings" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M12 2v2M12 20v2M2 12h2M20 12h2M4.93 19.07l1.41-1.41M19.07 19.07l-1.41-1.41"/></svg></span>Settings</a>
+        </div>
+        <div class="cd-sidebar-bottom">
+          <div class="cd-instance-bar" id="cdInstanceBar" style="display:none">
+            <span class="cd-instance-label">Instance</span>
+            <div class="cd-instance-pills">
+              <button class="cd-instance-pill" id="cdInstPP" onclick="cdSwitchInstance('PP')">PP</button>
+              <button class="cd-instance-pill" id="cdInstPC" onclick="cdSwitchInstance('PC')">PC</button>
+            </div>
+          </div>
+          <div class="cd-user-card"><div class="cd-avatar" id="cdAvatar">—</div><div><div class="cd-user-name" id="cdUserName">Loading…</div><div class="cd-user-role" id="cdUserRole">POS Manager</div></div></div>
+          <button class="cd-logout-btn" id="cdLogoutBtn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign out</button>
+        </div>
+      </nav>
+
+      <div class="cd-main">
+        <div class="cd-topbar">
+          <div class="cd-topbar-left">
+            <button class="cd-menu-btn" id="cdMenuToggle"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+            <div class="cd-breadcrumb">
+              <a href="/caratdesk-accounts">Accounts</a>
+              <span class="cd-breadcrumb-sep">›</span>
+              <span class="cd-breadcrumb-cur">Purity Ledger</span>
+            </div>
+          </div>
+          <div class="cd-topbar-right">
+            <div class="cd-icon-btn" id="cdThemeToggle"><svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div>
+          </div>
+        </div>
+
+        <div class="cd-content">
+          <div class="cd-page-header">
+            <div>
+              <div class="cd-page-title">Purity Ledger</div>
+              <div class="cd-page-sub" id="plSub">Loading…</div>
+            </div>
+            <div style="display:flex;gap:8px">
+              <button class="cd-btn cd-btn-secondary" id="openingBtn" onclick="openOpeningModal()" style="display:none"><svg viewBox="0 0 24 24"><path d="M12 2v20M2 12h20"/></svg>Post Opening Balance</button>
+              <button class="cd-btn cd-btn-secondary" onclick="exportCSV()"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export</button>
+              <div class="cd-icon-btn" onclick="load()"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></div>
+            </div>
+          </div>
+
+          <div class="cd-notice" id="extraFieldsNotice">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <span>Company / Branch / Amount columns are hidden — add <code>company</code>, <code>branch</code>, <code>posting_date</code>, <code>amount_credit</code>, <code>amount_debit</code> fields to the Purity Ledger Entry doctype in ERPNext to enable them.</span>
+          </div>
+          <div class="cd-notice" id="openingFieldNotice">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <span>"Post Opening Balance" is hidden — add <code>is_opening</code> (Check) and <code>remarks</code> (Small Text) fields to Purity Ledger Entry to enable it.</span>
+          </div>
+
+          <!-- Toolbar -->
+          <div class="cd-toolbar">
+            <div class="cd-search-wrap"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input class="cd-search-input" id="plSearch" placeholder="Search party, voucher no…" oninput="applyFilters()"/></div>
+            <div class="cd-fpill" id="partyFilterWrap">
+              <select class="cd-filter-sel" id="partyFilter" onchange="applyFilters()">
+                <option value="">Party</option>
+              </select>
+            </div>
+            <div class="cd-fpill" id="mtFilterWrap">
+              <select class="cd-filter-sel" id="mtFilter" onchange="applyFilters()">
+                <option value="">Metal Type</option>
+                <option value="Gold">Gold</option>
+                <option value="Silver">Silver</option>
+                <option value="Platinum">Platinum</option>
+              </select>
+            </div>
+            <div class="cd-fpill" id="voucherFilterWrap">
+              <select class="cd-filter-sel" id="voucherFilter" onchange="applyFilters()">
+                <option value="">Voucher Type</option>
+                <option value="Purchase Receipt">Purchase Receipt</option>
+                <option value="Sales Invoice">Sales Invoice</option>
+              </select>
+            </div>
+            <div class="cd-fpill" id="branchFilterWrap" style="display:none">
+              <select class="cd-filter-sel" id="branchFilter" onchange="applyFilters()">
+                <option value="">Branch</option>
+              </select>
+            </div>
+            <div class="cd-fpill" id="companyFilterWrap" style="display:none">
+              <select class="cd-filter-sel" id="companyFilter" onchange="applyFilters()">
+                <option value="">Company</option>
+              </select>
+            </div>
+            <div class="cd-fpill cd-fpill-date">
+              <span class="cd-fpill-label" id="dateFromLabel">From Date</span>
+              <input type="date" class="cd-filter-date cd-empty" id="dateFrom" onchange="applyFilters()">
+            </div>
+            <div class="cd-fpill cd-fpill-date">
+              <span class="cd-fpill-label" id="dateToLabel">To Date</span>
+              <input type="date" class="cd-filter-date cd-empty" id="dateTo" onchange="applyFilters()">
+            </div>
+            <div class="cd-toolbar-right"><span class="cd-result-count" id="plCount"></span></div>
+          </div>
+
+          <div id="reportBody">
+            <div class="cd-table-wrap"><div class="cd-empty"><svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg><div class="cd-empty-title">Loading purity ledger…</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Post Opening Balance modal -->
+    <div class="cd-modal-overlay" id="openingOverlay">
+      <div class="cd-modal">
+        <div class="cd-modal-head">
+          <div class="cd-modal-title">Post Opening Balance</div>
+          <div class="cd-modal-sub">This is a per-party metal balance, not a stock count — use it only for a supplier/customer that already carries a real outstanding gold/silver/platinum balance from before this ledger existed. Posts as a Credit (what the business currently owes that party).</div>
+        </div>
+        <div class="cd-modal-body">
+          <div id="openingWarnBox" class="cd-modal-warn"></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <div>
+              <label class="cd-flabel">Party Type</label>
+              <select class="cd-fsel" id="openingPartyType">
+                <option value="Supplier">Supplier</option>
+                <option value="Customer">Customer</option>
+              </select>
+            </div>
+            <div>
+              <label class="cd-flabel">Party</label>
+              <input type="text" class="cd-finput" id="openingParty" placeholder="Exact name, as in ERPNext">
+            </div>
+          </div>
+          <div>
+            <label class="cd-flabel">Opening Date</label>
+            <input type="date" class="cd-finput" id="openingDate">
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <div>
+              <label class="cd-flabel">Company</label>
+              <input type="text" class="cd-finput" id="openingCompany" value="P.P. Jewellers Retail Pvt. Ltd.">
+            </div>
+            <div>
+              <label class="cd-flabel">Branch</label>
+              <select class="cd-fsel" id="openingBranch"><option value="">Select…</option></select>
+            </div>
+          </div>
+          <div>
+            <div class="cd-metal-row" style="margin-bottom:2px">
+              <span></span><span class="cd-flabel" style="margin:0">Net Wt (g)</span><span class="cd-flabel" style="margin:0">Pure Wt (g)</span>
+            </div>
+            <div class="cd-metal-row"><span class="cd-metal-name">Gold</span><input type="number" step="0.001" class="cd-finput" id="openGoldNet" placeholder="0.000"><input type="number" step="0.001" class="cd-finput" id="openGoldPure" placeholder="0.000"></div>
+            <div class="cd-metal-row"><span class="cd-metal-name">Silver</span><input type="number" step="0.001" class="cd-finput" id="openSilverNet" placeholder="0.000"><input type="number" step="0.001" class="cd-finput" id="openSilverPure" placeholder="0.000"></div>
+            <div class="cd-metal-row"><span class="cd-metal-name">Platinum</span><input type="number" step="0.001" class="cd-finput" id="openPlatinumNet" placeholder="0.000"><input type="number" step="0.001" class="cd-finput" id="openPlatinumPure" placeholder="0.000"></div>
+          </div>
+          <div>
+            <label class="cd-flabel">Remarks</label>
+            <textarea class="cd-ftext" id="openingRemarks" rows="2" placeholder="e.g. Outstanding gold-loan balance carried over from before CaratDesk, per accounts confirmation"></textarea>
+          </div>
+        </div>
+        <div class="cd-modal-actions">
+          <button class="cd-btn cd-btn-secondary" onclick="closeOpeningModal()">Cancel</button>
+          <button class="cd-btn cd-btn-primary" id="openingPostBtn" onclick="postOpeningBalances()">Post</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+// ══ INSTANCE HELPERS ══
+const DEV1 = 'https://ppj-dev1.m.frappe.cloud';
+const DEV2 = 'https://ppj-dev2.m.frappe.cloud';
+function cdGetActiveInstance(){ return localStorage.getItem('cd_active_instance')||'PP'; }
+function cdGetAvailableInstances(){ return (localStorage.getItem('cd_available_instances')||'PP').split(',').filter(Boolean); }
+function cdGetInstanceUrl(inst){ return (inst||cdGetActiveInstance())==='PC'?DEV2:DEV1; }
+function cdSwitchInstance(inst){
+  const available=cdGetAvailableInstances();
+  if(!available.includes(inst)) return;
+  const key=inst==='PC'?localStorage.getItem('cd_pc_key'):localStorage.getItem('cd_pp_key');
+  const sec=inst==='PC'?localStorage.getItem('cd_pc_secret'):localStorage.getItem('cd_pp_secret');
+  localStorage.setItem('cd_active_instance',inst);
+  localStorage.setItem('cd_api_key',key);
+  localStorage.setItem('cd_api_secret',sec);
+  window.location.reload();
+}
+function cdInitInstanceToggle(){
+  const available=cdGetAvailableInstances();
+  const active=cdGetActiveInstance();
+  const bar=document.getElementById('cdInstanceBar');
+  if(!bar) return;
+  if(available.length<2){ bar.style.display='none'; return; }
+  bar.style.display='flex';
+  ['PP','PC'].forEach(inst=>{
+    const btn=document.getElementById('cdInst'+inst);
+    if(!btn) return;
+    btn.classList.toggle('active',inst===active);
+    btn.style.display=available.includes(inst)?'':'none';
+  });
+  const roleEl=document.getElementById('cdUserRole');
+  if(roleEl) roleEl.textContent='Active: '+active;
+}
+
+// ══════════════════════════════════════════
+//  THEME & SIDEBAR
+// ══════════════════════════════════════════
+const moonIcon = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+const sunIcon = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+function initTheme(){ const s=localStorage.getItem('cdTheme'); if(s==='dark'){document.documentElement.classList.add('dark');document.getElementById('themeIcon').innerHTML=sunIcon}else{document.documentElement.classList.remove('dark');document.getElementById('themeIcon').innerHTML=moonIcon} }
+function toggleTheme(){ const d=document.documentElement.classList.toggle('dark'); localStorage.setItem('cdTheme',d?'dark':'light'); document.getElementById('themeIcon').innerHTML=d?sunIcon:moonIcon; }
+document.getElementById('cdThemeToggle').addEventListener('click',toggleTheme); initTheme();
+const sidebar=document.getElementById('cdSidebar');
+document.getElementById('cdMenuToggle').addEventListener('click',()=>sidebar.classList.toggle('mobile-open'));
+document.querySelectorAll('.cd-nav-item').forEach(l=>l.addEventListener('click',()=>{if(window.innerWidth<=768)sidebar.classList.remove('mobile-open');}));
+
+// ══════════════════════════════════════════
+//  AUTH CHECK
+// ══════════════════════════════════════════
+(function(){
+  const hasSession=localStorage.getItem('cd_pp_key')||localStorage.getItem('cd_pc_key');
+  if(!hasSession){ window.location.replace('/caratdesk-login?logout=1'); return; }
+  const active=cdGetActiveInstance();
+  const key=active==='PC'?localStorage.getItem('cd_pc_key'):localStorage.getItem('cd_pp_key');
+  const sec=active==='PC'?localStorage.getItem('cd_pc_secret'):localStorage.getItem('cd_pp_secret');
+  if(key&&sec){ localStorage.setItem('cd_api_key',key); localStorage.setItem('cd_api_secret',sec); }
+  const name=localStorage.getItem('cd_user')||localStorage.getItem('cd_user_email')||'User';
+  document.getElementById('cdUserName').textContent=name;
+  document.getElementById('cdAvatar').textContent=name.split('@')[0].split(/[\s.]+/).map(w=>w[0]||'').join('').slice(0,2).toUpperCase()||'U';
+  cdInitInstanceToggle();
+})();
+
+document.getElementById('cdLogoutBtn').addEventListener('click',async()=>{
+  const ppK=localStorage.getItem('cd_pp_key'), ppS=localStorage.getItem('cd_pp_secret');
+  const pcK=localStorage.getItem('cd_pc_key'), pcS=localStorage.getItem('cd_pc_secret');
+  try{ if(ppK&&ppS) await fetch(`${DEV1}/api/method/logout`,{method:'POST',headers:{Authorization:`token ${ppK}:${ppS}`}}); }catch(e){}
+  try{ if(pcK&&pcS) await fetch(`${DEV2}/api/method/logout`,{method:'POST',headers:{Authorization:`token ${pcK}:${pcS}`}}); }catch(e){}
+  ['cd_api_key','cd_api_secret','cd_pp_key','cd_pp_secret','cd_pc_key','cd_pc_secret',
+   'cd_user','cd_user_email','cd_active_instance','cd_available_instances'].forEach(k=>localStorage.removeItem(k));
+  window.location.replace('/caratdesk-login?logout=1');
+});
+
+// ══════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════
+function esc(s){ return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function fmtDate(d){ if(!d) return '—'; try{ return new Date(d).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}); }catch(e){return d;} }
+function fmtWt(n){ return (Math.abs(n)<1e-9?0:n).toLocaleString('en-IN',{minimumFractionDigits:3,maximumFractionDigits:3}); }
+function fmtAmt(n){ return n?('₹'+Math.round(n).toLocaleString('en-IN')):'—'; }
+function voucherPill(t){
+  const isPurchase = t==='Purchase Receipt';
+  return `<span class="cd-pill ${isPurchase?'blue':'green'}"><span class="cd-pill-dot"></span>${esc(t||'—')}</span>`;
+}
+const METAL_COLORS = { Gold:'#C9A227', Silver:'#9AA0A6', Platinum:'#5B7A8C' };
+
+// ══════════════════════════════════════════
+//  DATA LOADING — degrades gracefully if the newer schema fields
+//  (company/branch/posting_date/amount_credit/amount_debit) don't exist yet.
+// ══════════════════════════════════════════
+const CORE_FIELDS   = ['name','datetime','creation','party_type','party','metal_type','voucher_type','voucher_name','balance','pure_wt_cr','net_wt_cr','pure_wt_dr','net_wt_dr','is_cancel'];
+const FIELDS_TIER1  = ['company','branch','posting_date','amount_credit','amount_debit'];
+const FIELDS_TIER2  = ['is_opening','remarks'];
+let EXTRA_FIELDS_AVAILABLE = true;   // company/branch/posting_date/amounts
+let OPENING_FIELD_AVAILABLE = true;  // is_opening/remarks — added later than the rest, checked separately
+                                      // so a missing is_opening can't regress the fields added in Phase A.
+let PLE_DATA = [];
+
+function mapRows(rows){
+  return rows.map(r => ({
+    name: r.name,
+    datetime: r.datetime || r.creation,
+    postingDate: (r.posting_date || (r.datetime||r.creation||'').slice(0,10)),
+    company: r.company || '',
+    branch: r.branch || '',
+    partyType: r.party_type || '',
+    party: r.party || '',
+    metalType: r.metal_type || '—',
+    voucherType: r.voucher_type || '',
+    voucherName: r.voucher_name || '',
+    pureWtCr: parseFloat(r.pure_wt_cr) || 0,
+    pureWtDr: parseFloat(r.pure_wt_dr) || 0,
+    netWtCr: parseFloat(r.net_wt_cr) || 0,
+    netWtDr: parseFloat(r.net_wt_dr) || 0,
+    amountCr: parseFloat(r.amount_credit) || 0,
+    amountDr: parseFloat(r.amount_debit) || 0,
+    isCancel: r.is_cancel === 1 || r.is_cancel === '1',
+    isOpening: r.is_opening === 1 || r.is_opening === '1',
+    remarks: r.remarks || '',
+  }));
+}
+
+async function fetchInstance(instName){
+  const key = instName==='PC' ? localStorage.getItem('cd_pc_key') : localStorage.getItem('cd_pp_key');
+  const sec = instName==='PC' ? localStorage.getItem('cd_pc_secret') : localStorage.getItem('cd_pp_secret');
+  if(!key||!sec) return [];
+  const baseUrl = cdGetInstanceUrl(instName);
+  const headers = {'Authorization':`token ${key}:${sec}`,'Accept':'application/json'};
+
+  async function tryFetch(fields){
+    const url = `${baseUrl}/api/resource/Purity%20Ledger%20Entry?fields=${encodeURIComponent(JSON.stringify(fields))}&limit_page_length=100000&order_by=creation%20asc`;
+    const res = await fetch(url, {headers});
+    if(!res.ok) throw new Error(`HTTP ${res.status}`);
+    const json = await res.json();
+    return json.data || json.message || [];
+  }
+
+  try{
+    return mapRows(await tryFetch([...CORE_FIELDS, ...FIELDS_TIER1, ...FIELDS_TIER2]));
+  }catch(e){
+    OPENING_FIELD_AVAILABLE = false;
+    try{
+      return mapRows(await tryFetch([...CORE_FIELDS, ...FIELDS_TIER1]));
+    }catch(e2){
+      EXTRA_FIELDS_AVAILABLE = false;
+      return mapRows(await tryFetch(CORE_FIELDS));
+    }
+  }
+}
+
+async function postPLE(instName, payload){
+  const key = instName==='PC' ? localStorage.getItem('cd_pc_key') : localStorage.getItem('cd_pp_key');
+  const sec = instName==='PC' ? localStorage.getItem('cd_pc_secret') : localStorage.getItem('cd_pp_secret');
+  const headers = {'Authorization':`token ${key}:${sec}`,'Accept':'application/json','Content-Type':'application/json'};
+  const res = await fetch(`${cdGetInstanceUrl(instName)}/api/resource/Purity%20Ledger%20Entry`, {method:'POST', headers, body: JSON.stringify(payload)});
+  if(!res.ok){ const t = await res.text().catch(()=> ''); throw new Error(`HTTP ${res.status} ${t.slice(0,200)}`); }
+  return res.json();
+}
+
+async function getTodayMetalRateFor(instName, metalType){
+  try{
+    const key = instName==='PC' ? localStorage.getItem('cd_pc_key') : localStorage.getItem('cd_pp_key');
+    const sec = instName==='PC' ? localStorage.getItem('cd_pc_secret') : localStorage.getItem('cd_pp_secret');
+    const headers = {'Authorization':`token ${key}:${sec}`,'Accept':'application/json'};
+    const fields  = encodeURIComponent(JSON.stringify(['rate']));
+    const filters = encodeURIComponent(JSON.stringify([['metal_type','=',metalType]]));
+    const res = await fetch(`${cdGetInstanceUrl(instName)}/api/resource/Metal%20Price%20List?fields=${fields}&filters=${filters}&order_by=date%20desc&limit_page_length=1`,{headers});
+    if(!res.ok) return 0;
+    const d = await res.json();
+    return parseFloat((d?.data||d?.message||[])[0]?.rate) || 0;
+  }catch(e){ return 0; }
+}
+
+async function load(){
+  document.getElementById('reportBody').innerHTML = `<div class="cd-table-wrap"><div class="cd-empty"><svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg><div class="cd-empty-title">Loading purity ledger…</div></div></div>`;
+  try{
+    const available = cdGetAvailableInstances();
+    if(!available.length){ window.location.replace('/caratdesk-login?logout=1'); return; }
+    const results = await Promise.allSettled(available.map(inst => fetchInstance(inst)));
+    PLE_DATA = [];
+    let anyOk = false;
+    results.forEach((r,i) => {
+      if(r.status==='fulfilled'){ PLE_DATA.push(...r.value); anyOk=true; }
+      else console.warn('Failed to load', available[i], r.reason?.message);
+    });
+    if(!anyOk) throw new Error('All instances failed to load');
+
+    document.getElementById('extraFieldsNotice').style.display = EXTRA_FIELDS_AVAILABLE ? 'none' : 'flex';
+    document.getElementById('branchFilterWrap').style.display = EXTRA_FIELDS_AVAILABLE ? '' : 'none';
+    document.getElementById('companyFilterWrap').style.display = EXTRA_FIELDS_AVAILABLE ? '' : 'none';
+    document.getElementById('openingBtn').style.display = OPENING_FIELD_AVAILABLE ? '' : 'none';
+    document.getElementById('openingFieldNotice').style.display = (EXTRA_FIELDS_AVAILABLE && !OPENING_FIELD_AVAILABLE) ? 'flex' : 'none';
+    if(EXTRA_FIELDS_AVAILABLE) populateDropdowns();
+    populatePartyDropdown();
+
+    applyFilters();
+  }catch(e){
+    console.error('Load Purity Ledger error:', e);
+    document.getElementById('reportBody').innerHTML = `<div class="cd-table-wrap"><div class="cd-empty"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><div class="cd-empty-title">Failed to load</div><div><a href="#" onclick="load()" style="color:var(--pill-blue-txt)">Retry</a></div></div></div>`;
+  }
+}
+
+function populateDropdowns(){
+  const branches = [...new Set(PLE_DATA.map(r=>r.branch).filter(Boolean))].sort();
+  const companies = [...new Set(PLE_DATA.map(r=>r.company).filter(Boolean))].sort();
+  const bSel = document.getElementById('branchFilter');
+  const cSel = document.getElementById('companyFilter');
+  bSel.innerHTML = '<option value="">Branch</option>' + branches.map(b=>`<option value="${esc(b)}">${esc(b)}</option>`).join('');
+  cSel.innerHTML = '<option value="">Company</option>' + companies.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');
+  const obSel = document.getElementById('openingBranch');
+  if(obSel) obSel.innerHTML = '<option value="">Select…</option>' + branches.map(b=>`<option value="${esc(b)}">${esc(b)}</option>`).join('');
+}
+
+function populatePartyDropdown(){
+  const parties = [...new Set(PLE_DATA.map(r=>r.party).filter(Boolean))].sort();
+  const pSel = document.getElementById('partyFilter');
+  const cur = pSel.value;
+  pSel.innerHTML = '<option value="">Party</option>' + parties.map(p=>`<option value="${esc(p)}">${esc(p)}</option>`).join('');
+  if(parties.includes(cur)) pSel.value = cur;
+}
+
+// ══════════════════════════════════════════
+//  POST OPENING BALANCE — one-time seed per metal type so the ledger's running balance
+//  starts from actual physical stock instead of zero. Guarded against double-posting: refuses
+//  to post for a metal type that already has an is_opening=1 row for the same company+branch,
+//  since Purity Ledger Entry is append-only (nothing here ever edits/deletes an existing row).
+// ══════════════════════════════════════════
+function openOpeningModal(){
+  document.getElementById('openingDate').value = new Date().toISOString().slice(0,10);
+  document.getElementById('openingWarnBox').style.display = 'none';
+  ['openGoldNet','openGoldPure','openSilverNet','openSilverPure','openPlatinumNet','openPlatinumPure'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('openingRemarks').value = '';
+  document.getElementById('openingOverlay').classList.add('open');
+}
+function closeOpeningModal(){ document.getElementById('openingOverlay').classList.remove('open'); }
+
+async function postOpeningBalances(){
+  const inst = cdGetActiveInstance();
+  const partyType = document.getElementById('openingPartyType').value;
+  const party = document.getElementById('openingParty').value.trim();
+  const company = document.getElementById('openingCompany').value.trim();
+  const branch = document.getElementById('openingBranch').value;
+  const date = document.getElementById('openingDate').value;
+  const remarks = document.getElementById('openingRemarks').value.trim();
+  const warnBox = document.getElementById('openingWarnBox');
+  warnBox.style.display = 'none';
+
+  if(!party){ alert('Enter the party this balance is owed to (or by).'); return; }
+  if(!date){ alert('Pick an opening date.'); return; }
+
+  const entries = [
+    { metalType:'Gold',     net: parseFloat(document.getElementById('openGoldNet').value)||0,     pure: parseFloat(document.getElementById('openGoldPure').value)||0 },
+    { metalType:'Silver',   net: parseFloat(document.getElementById('openSilverNet').value)||0,    pure: parseFloat(document.getElementById('openSilverPure').value)||0 },
+    { metalType:'Platinum', net: parseFloat(document.getElementById('openPlatinumNet').value)||0,  pure: parseFloat(document.getElementById('openPlatinumPure').value)||0 },
+  ].filter(e => e.net > 0 || e.pure > 0);
+
+  if(!entries.length){ alert('Enter at least one metal type\'s weight.'); return; }
+
+  // Refuse metal types that already have an opening entry for this exact party.
+  const already = entries.filter(e => PLE_DATA.some(r =>
+    r.isOpening && r.metalType === e.metalType && r.party === party && r.company === company && r.branch === branch
+  ));
+  if(already.length){
+    warnBox.textContent = `${party} already has an opening balance for ${already.map(e=>e.metalType).join(', ')} — skipping ${already.length===entries.length?'all of them':'those'}. If this is wrong, fix/reverse the existing entry in ERPNext first rather than posting a second one.`;
+    warnBox.style.display = 'block';
+  }
+  const toPost = entries.filter(e => !already.some(a=>a.metalType===e.metalType));
+  if(!toPost.length) return;
+
+  const btn = document.getElementById('openingPostBtn');
+  btn.disabled = true; btn.textContent = 'Posting…';
+  try{
+    for(const e of toPost){
+      const rate = await getTodayMetalRateFor(inst, e.metalType);
+      await postPLE(inst, {
+        doctype: 'Purity Ledger Entry',
+        datetime: new Date().toISOString().slice(0,19).replace('T',' '),
+        posting_date: date,
+        company, branch,
+        metal_type: e.metalType,
+        pure_wt_cr: e.pure, net_wt_cr: e.net,
+        pure_wt_dr: 0, net_wt_dr: 0,
+        amount_credit: e.pure * rate, amount_debit: 0,
+        voucher_type: '', voucher_name: '',
+        party_type: partyType, party: party,
+        balance: e.pure,
+        is_cancel: 0,
+        is_opening: 1,
+        remarks: remarks || `Opening balance carried over for ${party}, as of ${date}`,
+      });
+    }
+    closeOpeningModal();
+    await load();
+  }catch(e){
+    alert('Failed to post opening balance: ' + e.message);
+  }finally{
+    btn.disabled = false; btn.textContent = 'Post';
+  }
+}
+
+// ══════════════════════════════════════════
+//  REPORT — this ledger tracks a per-PARTY metal balance (how much weight the business
+//  currently owes to, or is owed by, each specific Supplier/Customer — a metal-loan-style
+//  sub-ledger, not a company-wide physical stock count). So balance is grouped by
+//  Party + Metal Type together, same as an Accounts Payable/Receivable report groups by party
+//  rather than netting everyone into one number. Running balance is always recomputed from the
+//  raw Cr/Dr history at query time, never trusted from the stored `balance` column (which is
+//  written client-side per-POST with no locking and can drift under concurrent submissions).
+// ══════════════════════════════════════════
+let LAST_BLOCKS = [];
+let LAST_FLAT_ROWS = [];
+
+// Keeps each filter pill showing its field name (Party/Metal Type/From Date/…) at rest and
+// the picked value once one's set — same convention ERPNext's own report filter bar uses, so
+// a cleared filter never goes back to looking blank/unlabeled.
+function syncFilterPillStates(){
+  ['partyFilter','mtFilter','voucherFilter','branchFilter','companyFilter'].forEach(id=>{
+    const sel = document.getElementById(id);
+    sel.closest('.cd-fpill')?.classList.toggle('has-value', !!sel.value);
+  });
+  ['dateFrom','dateTo'].forEach(id=>{
+    const inp = document.getElementById(id);
+    const hasValue = !!inp.value;
+    inp.classList.toggle('cd-empty', !hasValue);
+    const label = document.getElementById(id === 'dateFrom' ? 'dateFromLabel' : 'dateToLabel');
+    if(label) label.style.display = hasValue ? 'none' : '';
+  });
+}
+
+// No Party selected → just list every matching entry together, newest first, with no running
+// balance (summing Dr/Cr across different parties would be meaningless). Pick a Party in the
+// filter → switch to the grouped, per-party running-balance view instead.
+function applyFilters(){
+  syncFilterPillStates();
+  const q = document.getElementById('plSearch').value.trim().toLowerCase();
+  const partyFilter = document.getElementById('partyFilter').value;
+  const mtFilter = document.getElementById('mtFilter').value;
+  const voucherFilter = document.getElementById('voucherFilter').value;
+  const branchFilter = document.getElementById('branchFilter').value;
+  const companyFilter = document.getElementById('companyFilter').value;
+  const fromDate = document.getElementById('dateFrom').value;
+  const toDate = document.getElementById('dateTo').value;
+
+  let rows = PLE_DATA.filter(r => {
+    if(partyFilter && r.party !== partyFilter) return false;
+    if(mtFilter && r.metalType !== mtFilter) return false;
+    if(voucherFilter && r.voucherType !== voucherFilter) return false;
+    if(branchFilter && r.branch !== branchFilter) return false;
+    if(companyFilter && r.company !== companyFilter) return false;
+    if(q && !((r.party||'').toLowerCase().includes(q) || (r.voucherName||'').toLowerCase().includes(q))) return false;
+    const d = r.postingDate;
+    if(fromDate && d && d < fromDate) return false;
+    if(toDate && d && d > toDate) return false;
+    return true;
+  });
+
+  if(!partyFilter){
+    LAST_BLOCKS = [];
+    LAST_FLAT_ROWS = rows.slice().sort((a,b) => new Date(b.datetime||b.postingDate) - new Date(a.datetime||a.postingDate));
+    renderFlatList(LAST_FLAT_ROWS);
+
+    document.getElementById('plCount').textContent = LAST_FLAT_ROWS.length + ' entries';
+    document.getElementById('plSub').textContent = PLE_DATA.length + ' total entries · select a party to see its running balance';
+    return;
+  }
+
+  const groups = {};
+  rows.forEach(r => {
+    const party = r.party || '— No Party —';
+    const key = party + '||' + r.metalType;
+    (groups[key] = groups[key] || { party, metalType: r.metalType, rows: [] }).rows.push(r);
+  });
+
+  const blocks = Object.keys(groups).sort((a,b)=>groups[a].party.localeCompare(groups[b].party) || groups[a].metalType.localeCompare(groups[b].metalType)).map(key => {
+    const g = groups[key];
+    const all = g.rows.slice().sort((a,b) => new Date(a.datetime||a.postingDate) - new Date(b.datetime||b.postingDate));
+    let opening = 0;
+    const periodRows = [];
+    all.forEach(r => {
+      const d = r.postingDate;
+      const net = r.pureWtCr - r.pureWtDr;
+      if(fromDate && d && d < fromDate){ opening += net; return; }
+      if(toDate && d && d > toDate) return;
+      periodRows.push(r);
+    });
+    let running = opening;
+    const withBalance = periodRows.map(r => { running += (r.pureWtCr - r.pureWtDr); return { ...r, runningBalance: running }; });
+    return { party: g.party, metalType: g.metalType, opening, rows: withBalance, closing: running };
+  });
+
+  LAST_FLAT_ROWS = [];
+  LAST_BLOCKS = blocks;
+  renderReport(blocks);
+
+  const totalRows = blocks.reduce((s,b)=>s+b.rows.length,0);
+  document.getElementById('plCount').textContent = totalRows + ' entries';
+  document.getElementById('plSub').textContent = PLE_DATA.length + ' total entries · ' + blocks.length + ' party/metal balance(s) shown';
+}
+
+function renderFlatList(rows){
+  const wrap = document.getElementById('reportBody');
+  if(!rows.length){
+    wrap.innerHTML = `<div class="cd-table-wrap"><div class="cd-empty"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><div class="cd-empty-title">No ledger entries match these filters</div></div></div>`;
+    return;
+  }
+  const showExtra = EXTRA_FIELDS_AVAILABLE;
+  const rowsHtml = rows.map(r => `
+    <tr>
+      <td>${fmtDate(r.postingDate)}</td>
+      <td>${esc(r.party)||'—'}</td>
+      <td><span class="cd-pill grey"><span class="cd-pill-dot" style="background:${METAL_COLORS[r.metalType]||'#888'}"></span>${esc(r.metalType)}</span></td>
+      <td>${voucherPill(r.voucherType)}</td>
+      <td>${esc(r.voucherName)}</td>
+      <td>${r.isCancel?'<span class="cd-pill amber"><span class="cd-pill-dot"></span>Reversal</span>':''}${r.isOpening?'<span class="cd-pill grey"><span class="cd-pill-dot"></span>Opening</span>':''}${(!r.isCancel&&!r.isOpening)?'—':''}</td>
+      ${showExtra?`<td>${esc(r.branch)||'—'}</td>`:''}
+      <td class="num cd-dr">${r.pureWtDr?fmtWt(r.pureWtDr):'—'}</td>
+      <td class="num cd-cr">${r.pureWtCr?fmtWt(r.pureWtCr):'—'}</td>
+      ${showExtra?`<td class="num cd-dr">${fmtAmt(r.amountDr)}</td>`:''}
+      ${showExtra?`<td class="num cd-cr">${fmtAmt(r.amountCr)}</td>`:''}
+    </tr>`).join('');
+  wrap.innerHTML = `
+    <div class="cd-table-wrap">
+      <table class="cd-table">
+        <thead><tr>
+          <th>Date</th><th>Party</th><th>Metal</th><th>Voucher Type</th><th>Voucher No.</th><th>Tag</th>
+          ${showExtra?'<th>Branch</th>':''}
+          <th style="text-align:right">Pure Wt Dr (g)</th><th style="text-align:right">Pure Wt Cr (g)</th>
+          ${showExtra?'<th style="text-align:right">Amount Dr</th>':''}
+          ${showExtra?'<th style="text-align:right">Amount Cr</th>':''}
+        </tr></thead>
+        <tbody>${rowsHtml}</tbody>
+      </table>
+    </div>`;
+}
+
+function renderReport(blocks){
+  const wrap = document.getElementById('reportBody');
+  if(!blocks.length || blocks.every(b=>!b.rows.length)){
+    wrap.innerHTML = `<div class="cd-table-wrap"><div class="cd-empty"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><div class="cd-empty-title">No ledger entries match these filters</div></div></div>`;
+    return;
+  }
+  const showExtra = EXTRA_FIELDS_AVAILABLE;
+  wrap.innerHTML = blocks.filter(b=>b.rows.length).map(b => {
+    const color = METAL_COLORS[b.metalType] || '#888';
+    const rowsHtml = b.rows.map(r => `
+      <tr>
+        <td>${fmtDate(r.postingDate)}</td>
+        <td>${voucherPill(r.voucherType)}</td>
+        <td>${esc(r.voucherName)}</td>
+        <td>${r.isCancel?'<span class="cd-pill amber"><span class="cd-pill-dot"></span>Reversal</span>':''}${r.isOpening?'<span class="cd-pill grey"><span class="cd-pill-dot"></span>Opening</span>':''}${(!r.isCancel&&!r.isOpening)?'—':''}</td>
+        ${showExtra?`<td>${esc(r.branch)||'—'}</td>`:''}
+        <td class="num cd-dr">${r.pureWtDr?fmtWt(r.pureWtDr):'—'}</td>
+        <td class="num cd-cr">${r.pureWtCr?fmtWt(r.pureWtCr):'—'}</td>
+        ${showExtra?`<td class="num cd-dr">${fmtAmt(r.amountDr)}</td>`:''}
+        ${showExtra?`<td class="num cd-cr">${fmtAmt(r.amountCr)}</td>`:''}
+        <td class="num">${fmtWt(r.runningBalance)}</td>
+      </tr>`).join('');
+    return `
+    <div class="cd-table-wrap">
+      <div class="cd-group-head">
+        <div class="cd-group-title"><span class="cd-group-dot" style="background:${color}"></span>${esc(b.party)}<span style="font-weight:400;color:var(--text-muted);margin-left:6px">· ${esc(b.metalType)}</span></div>
+        <div class="cd-group-stat">Opening ${fmtWt(b.opening)} g · Closing <strong style="color:var(--text-primary)">${fmtWt(b.closing)} g</strong></div>
+      </div>
+      <table class="cd-table">
+        <thead><tr>
+          <th>Date</th><th>Voucher Type</th><th>Voucher No.</th><th>Tag</th>
+          ${showExtra?'<th>Branch</th>':''}
+          <th style="text-align:right">Pure Wt Dr (g)</th><th style="text-align:right">Pure Wt Cr (g)</th>
+          ${showExtra?'<th style="text-align:right">Amount Dr</th>':''}
+          ${showExtra?'<th style="text-align:right">Amount Cr</th>':''}
+          <th style="text-align:right">Balance (g)</th>
+        </tr></thead>
+        <tbody>
+          <tr class="opening"><td colspan="${showExtra?9:6}">Opening Balance</td><td class="num">${fmtWt(b.opening)}</td></tr>
+          ${rowsHtml}
+          <tr class="closing"><td colspan="${showExtra?9:6}">Closing Balance</td><td class="num">${fmtWt(b.closing)}</td></tr>
+        </tbody>
+      </table>
+    </div>`;
+  }).join('');
+}
+
+function exportCSV(){
+  const showExtra = EXTRA_FIELDS_AVAILABLE;
+  const lines = [];
+
+  if(LAST_BLOCKS.length){
+    const header = ['Party','Metal Type','Date','Voucher Type','Voucher No', ...(showExtra?['Branch']:[]), 'Pure Wt Dr','Pure Wt Cr', ...(showExtra?['Amount Dr','Amount Cr']:[]), 'Balance'];
+    lines.push(header.join(','));
+    LAST_BLOCKS.forEach(b => {
+      if(!b.rows.length) return;
+      const partyCsv = `"${b.party.replace(/"/g,'""')}"`;
+      lines.push([partyCsv,b.metalType,'Opening Balance','','', ...(showExtra?['']:[]), '',b.opening.toFixed(3), ...(showExtra?['','']:[]), b.opening.toFixed(3)].join(','));
+      b.rows.forEach(r => {
+        lines.push([
+          partyCsv, b.metalType, r.postingDate, r.voucherType, r.voucherName,
+          ...(showExtra?[r.branch||'']:[]),
+          r.pureWtDr.toFixed(3), r.pureWtCr.toFixed(3),
+          ...(showExtra?[r.amountDr.toFixed(2), r.amountCr.toFixed(2)]:[]),
+          r.runningBalance.toFixed(3)
+        ].join(','));
+      });
+      lines.push([partyCsv,b.metalType,'Closing Balance','','', ...(showExtra?['']:[]), '',b.closing.toFixed(3), ...(showExtra?['','']:[]), b.closing.toFixed(3)].join(','));
+    });
+  } else if(LAST_FLAT_ROWS.length){
+    const header = ['Date','Party','Metal Type','Voucher Type','Voucher No', ...(showExtra?['Branch']:[]), 'Pure Wt Dr','Pure Wt Cr', ...(showExtra?['Amount Dr','Amount Cr']:[])];
+    lines.push(header.join(','));
+    LAST_FLAT_ROWS.forEach(r => {
+      lines.push([
+        r.postingDate, `"${(r.party||'').replace(/"/g,'""')}"`, r.metalType, r.voucherType, r.voucherName,
+        ...(showExtra?[r.branch||'']:[]),
+        r.pureWtDr.toFixed(3), r.pureWtCr.toFixed(3),
+        ...(showExtra?[r.amountDr.toFixed(2), r.amountCr.toFixed(2)]:[]),
+      ].join(','));
+    });
+  } else {
+    return;
+  }
+
+  const blob = new Blob([lines.join('\n')], {type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `purity-ledger-${new Date().toISOString().slice(0,10)}.csv`;
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+}
+
+// Defaults the date range to the trailing month on first load — toLocaleDateString('en-CA')
+// gives a local-timezone YYYY-MM-DD (toISOString() reports UTC, which lands on the wrong day
+// for part of every evening in IST).
+function setDefaultDateRange(){
+  const to = new Date();
+  const from = new Date();
+  from.setMonth(from.getMonth() - 1);
+  document.getElementById('dateFrom').value = from.toLocaleDateString('en-CA');
+  document.getElementById('dateTo').value = to.toLocaleDateString('en-CA');
+}
+setDefaultDateRange();
+load();
+    </script>

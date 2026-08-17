@@ -1,0 +1,511 @@
+<!-- CaratDesk – Accounts Workspace -->
+<head>
+  <meta charset="UTF-8">
+</head>
+<style>    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    .navbar, .page-header, footer.web-footer,
+    .container > .row > .col-sm-10, .frappe-footer { display: none !important; }
+    .web-page-container, .container { padding: 0 !important; max-width: 100% !important; }
+    body { overflow-x: hidden; }
+
+    :root {
+      --bg: #F7F6F3;
+      --surface: #FFFFFF;
+      --border: rgba(0,0,0,0.07);
+      --border-strong: rgba(0,0,0,0.12);
+      --text-primary: #1A1A18;
+      --text-secondary: #6B6B65;
+      --text-muted: #A8A8A2;
+      --accent: #1A1A18;
+      --accent-light: #F0EFE9;
+      --nav-hover: #F7F6F3;
+      --nav-active-bg: #EBEBE5;
+      --pill-green-bg: #EAF3DE; --pill-green-txt: #3B6D11;
+      --pill-red-bg: #FCEBEB;   --pill-red-txt: #A32D2D;
+      --pill-amber-bg: #FAEEDA; --pill-amber-txt: #854F0B;
+      --pill-blue-bg: #E8F0FD;  --pill-blue-txt: #1A4A8A;
+      --shadow-sm: 0 2px 12px rgba(0,0,0,0.04), 0 0 0 0.5px rgba(0,0,0,0.03);
+    }
+    .dark {
+      --bg: #121212;
+      --surface: #1E1E1E;
+      --border: rgba(255,255,255,0.08);
+      --border-strong: rgba(255,255,255,0.15);
+      --text-primary: #EDEDED;
+      --text-secondary: #A0A0A0;
+      --text-muted: #6E6E6E;
+      --accent: #D4D4D4;
+      --accent-light: #2C2C2C;
+      --nav-hover: #252525;
+      --nav-active-bg: #2D2D2D;
+      --pill-green-bg: #1E3A2E; --pill-green-txt: #9CD45E;
+      --pill-red-bg: #3E1E1E;   --pill-red-txt: #F28B82;
+      --pill-amber-bg: #3E2E1E; --pill-amber-txt: #FDBF6B;
+      --pill-blue-bg: #1A2A3E;  --pill-blue-txt: #7AABF0;
+      --shadow-sm: 0 2px 12px rgba(0,0,0,0.3), 0 0 0 0.5px rgba(255,255,255,0.05);
+    }
+    html, body { color: var(--text-primary); }
+    * { transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease; }
+
+    .cd-app {
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      min-height: 100vh;
+      display: flex;
+      -webkit-font-smoothing: antialiased;
+      color: var(--text-primary);
+    }
+
+    /* SIDEBAR */
+    .cd-sidebar {
+      width: 260px;
+      background: var(--surface);
+      border-right: 0.5px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      left: 0; top: 0; bottom: 0;
+      z-index: 200;
+      transform: translateX(0);
+      transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+      box-shadow: var(--shadow-sm);
+    }
+    @media (max-width: 768px) {
+      .cd-sidebar { transform: translateX(-100%); }
+      .cd-sidebar.mobile-open { transform: translateX(0); width: 80%; max-width: 280px; }
+    }
+    .cd-sidebar-logo {
+      display: flex; align-items: center; gap: 11px;
+      padding: 20px 16px 18px;
+      border-bottom: 0.5px solid var(--border);
+      text-decoration: none; color: inherit;
+    }
+    .cd-sidebar-logo img { width: 30px; height: 30px; object-fit: contain; border-radius: 9px; }
+    .cd-logo-name { font-family: 'DM Serif Display', Georgia, serif; font-size: 17px; color: var(--text-primary); letter-spacing: -0.2px; }
+    .cd-logo-sub { font-size: 10px; color: var(--text-muted); font-weight: 300; letter-spacing: 0.07em; text-transform: uppercase; }
+    .cd-nav { flex: 1; padding: 10px 8px; overflow-y: auto; }
+    .cd-nav-section { font-size: 10px; font-weight: 500; color: var(--text-muted); letter-spacing: 0.08em; text-transform: uppercase; padding: 14px 8px 5px; }
+    .cd-nav-item {
+      display: flex; align-items: center; gap: 9px;
+      padding: 9px 10px; border-radius: 9px;
+      cursor: pointer; margin-bottom: 1px;
+      text-decoration: none; color: var(--text-secondary);
+      font-size: 13.5px; font-weight: 400;
+      transition: background 0.14s, color 0.14s;
+    }
+    .cd-nav-item:hover { background: var(--nav-hover); color: var(--text-primary); }
+    .cd-nav-item.active { background: var(--nav-active-bg); color: var(--text-primary); font-weight: 500; }
+    .cd-nav-icon { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: inherit; }
+    .cd-nav-icon svg { width: 15px; height: 15px; stroke: currentColor; stroke-width: 1.75; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .cd-sidebar-bottom { padding: 10px 8px; border-top: 0.5px solid var(--border); }
+    .cd-user-card { display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 9px; cursor: pointer; transition: background 0.14s; }
+    .cd-user-card:hover { background: var(--nav-hover); }
+    .cd-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 500; color: var(--surface); flex-shrink: 0; }
+    .cd-user-name { font-size: 13px; font-weight: 500; color: var(--text-primary); }
+    .cd-user-role { font-size: 11px; color: var(--text-muted); font-weight: 300; }
+    .cd-logout-btn {
+      display: flex; align-items: center; gap: 7px;
+      padding: 9px 10px; border-radius: 9px;
+      cursor: pointer; font-size: 13px; color: var(--text-secondary);
+      margin-top: 3px; border: none; background: none;
+      font-family: 'DM Sans', sans-serif; width: 100%;
+      transition: background 0.14s, color 0.14s;
+    }
+    .cd-logout-btn:hover { background: var(--pill-red-bg); color: var(--pill-red-txt); }
+    .cd-instance-bar{display:flex;align-items:center;gap:6px;padding:8px 10px 4px}
+    .cd-instance-label{font-size:10px;font-weight:500;color:var(--text-muted);letter-spacing:.07em;text-transform:uppercase;flex:1}
+    .cd-instance-pills{display:flex;gap:4px}
+    .cd-instance-pill{font-size:11px;font-weight:500;padding:3px 10px;border-radius:6px;border:.5px solid var(--border);background:var(--input-bg);color:var(--text-secondary);cursor:pointer;transition:background .14s,color .14s,border-color .14s;font-family:'DM Sans',sans-serif}
+    .cd-instance-pill:hover{background:var(--nav-hover);color:var(--text-primary)}
+    .cd-instance-pill.active{background:var(--accent);color:var(--surface);border-color:var(--accent)}
+
+    /* MAIN */
+    .cd-main { margin-left: 260px; flex: 1; min-height: 100vh; display: flex; flex-direction: column; width: 100%; }
+    @media (max-width: 768px) { .cd-main { margin-left: 0; } }
+    .cd-topbar {
+      height: 58px;
+      background: var(--surface);
+      border-bottom: 0.5px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 20px;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .cd-menu-btn { display: none; background: none; border: none; cursor: pointer; color: var(--text-secondary); margin-right: 12px; }
+    @media (max-width: 768px) { .cd-menu-btn { display: flex; align-items: center; justify-content: center; } }
+    .cd-topbar-title { font-size: 16px; font-weight: 500; color: var(--text-primary); }
+    .cd-topbar-right { display: flex; align-items: center; gap: 10px; }
+    .cd-topbar-date { font-size: 12.5px; color: var(--text-muted); font-weight: 300; }
+    .cd-icon-btn {
+      width: 34px; height: 34px; border-radius: 9px;
+      border: 0.5px solid var(--border);
+      background: var(--surface);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; color: var(--text-secondary);
+      transition: background 0.14s, color 0.14s;
+    }
+    .cd-icon-btn:hover { background: var(--nav-hover); color: var(--text-primary); }
+    .cd-icon-btn svg { width: 15px; height: 15px; stroke: currentColor; stroke-width: 1.75; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* CONTENT */
+    .cd-content { padding: 28px; flex: 1; }
+    .cd-page-anim { animation: cd-fadeIn 0.4s cubic-bezier(0.16,1,0.3,1) both; }
+    @keyframes cd-fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+    .cd-page-title { font-size: 20px; font-weight: 500; letter-spacing: -0.3px; margin-bottom: 4px; }
+    .cd-page-sub { font-size: 12.5px; color: var(--text-muted); font-weight: 300; margin-bottom: 22px; }
+
+    /* CARDS & LAYOUT */
+    .cd-quick-actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+    @media (max-width: 640px) { .cd-quick-actions { grid-template-columns: 1fr 1fr; } }
+    .cd-qa-btn {
+      display: flex; align-items: center; gap: 11px;
+      padding: 14px 16px;
+      background: var(--surface);
+      border: 0.5px solid var(--border); border-radius: 13px;
+      cursor: pointer; font-family: 'DM Sans', sans-serif;
+      color: var(--text-primary);
+      transition: box-shadow 0.2s, transform 0.1s;
+      text-align: left; text-decoration: none;
+    }
+    .cd-qa-btn:hover { box-shadow: 0 6px 14px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .cd-qa-btn:active { transform: translateY(0); }
+    .cd-qa-icon { width: 34px; height: 34px; border-radius: 9px; background: var(--accent-light); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .cd-qa-icon svg { width: 15px; height: 15px; stroke: var(--text-primary); stroke-width: 1.8; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .cd-qa-label { font-size: 13px; font-weight: 500; color: var(--text-primary); margin-bottom: 1px; }
+    .cd-qa-sub { font-size: 11px; color: var(--text-muted); font-weight: 300; }
+
+    .cd-panel { background: var(--surface); border: 0.5px solid var(--border); border-radius: 14px; padding: 20px 22px; transition: box-shadow 0.2s; }
+    .cd-panel:hover { box-shadow: var(--shadow-sm); }
+    .cd-panel-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .cd-panel-title { font-size: 14px; font-weight: 500; }
+    .cd-panel-link { font-size: 12px; color: var(--text-secondary); text-decoration: none; transition: color 0.14s; cursor: pointer; }
+    .cd-panel-link:hover { color: var(--text-primary); }
+
+    .cd-tx-table { width: 100%; border-collapse: collapse; }
+    .cd-tx-table th { font-size: 11px; font-weight: 500; color: var(--text-muted); text-align: left; padding: 0 0 10px; letter-spacing: 0.04em; text-transform: uppercase; }
+    .cd-tx-table td { font-size: 13px; padding: 9px 0; border-top: 0.5px solid var(--border); }
+    .cd-tx-id { color: var(--text-muted); font-size: 11.5px; margin-top: 1px; }
+
+    .cd-pill { display: inline-block; font-size: 11px; padding: 3px 9px; border-radius: 100px; }
+    .cd-pill.green { background: var(--pill-green-bg); color: var(--pill-green-txt); }
+    .cd-pill.red { background: var(--pill-red-bg); color: var(--pill-red-txt); }
+    .cd-pill.amber { background: var(--pill-amber-bg); color: var(--pill-amber-txt); }
+    .cd-pill.blue { background: var(--pill-blue-bg); color: var(--pill-blue-txt); }
+    .cd-pill.grey { background: var(--accent-light); color: var(--text-secondary); }
+
+    .cd-empty { text-align: center; padding: 40px 20px; color: var(--text-muted); }
+    .cd-empty-title { font-size: 13px; font-weight: 500; color: var(--text-secondary); }
+    </style>
+
+    <div class="cd-app" id="cdApp">
+      <nav class="cd-sidebar" id="cdSidebar">
+        <a class="cd-sidebar-logo" href="/caratdesk">
+          <img src="https://i.postimg.cc/NMgHCKvC/letter-cc-cd-diamond-initial-600nw-2206465849.png" alt="CaratDesk" />
+          <div>
+            <div class="cd-logo-name">PPJ Retail</div>
+            <div class="cd-logo-sub">Jewellery POS</div>
+          </div>
+        </a>
+        <div class="cd-nav">
+          <div class="cd-nav-section">Main</div>
+    <a href="/caratdesk" class="cd-nav-item">
+            <span class="cd-nav-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>
+            Dashboard
+          </a>
+    <div class="cd-nav-section">Operations</div>
+    <a href="/caratdesk-pos" class="cd-nav-item">
+        <span class="cd-nav-icon"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>
+        POS Billing
+      </a>
+    <a href="/caratdesk-selling" class="cd-nav-item">
+            <span class="cd-nav-icon"><svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg></span>
+            Selling
+          </a>
+    <a href="/caratdesk-buying" class="cd-nav-item">
+            <span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></span>
+            Buying
+          </a>
+    <a href="/caratdesk-stock" class="cd-nav-item">
+            <span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg></span>
+            Stock
+          </a>
+    <a href="/caratdesk-items" class="cd-nav-item">
+            <span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></span>
+            Items
+          </a>
+    <div class="cd-nav-section">Finance</div>
+    <a href="/caratdesk-finance" class="cd-nav-item">
+            <span class="cd-nav-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></span>
+            Finance
+          </a>
+    <a href="/caratdesk-accounts" class="cd-nav-item active">
+            <span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg></span>
+            Accounts
+          </a>
+    <a href="/caratdesk-reports" class="cd-nav-item">
+            <span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>
+            Reports
+          </a>
+    <div class="cd-nav-section">System</div>
+    <a href="/caratdesk-settings" class="cd-nav-item">
+            <span class="cd-nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M12 2v2M12 20v2M2 12h2M20 12h2M4.93 19.07l1.41-1.41M19.07 19.07l-1.41-1.41"/></svg></span>
+            Settings
+          </a>
+
+        </div>
+        <div class="cd-sidebar-bottom">
+          <div class="cd-instance-bar" id="cdInstanceBar" style="display:none">
+            <span class="cd-instance-label">Instance</span>
+            <div class="cd-instance-pills">
+              <button class="cd-instance-pill" id="cdInstPP" onclick="cdSwitchInstance('PP')">PP</button>
+              <button class="cd-instance-pill" id="cdInstPC" onclick="cdSwitchInstance('PC')">PC</button>
+            </div>
+          </div>
+          <div class="cd-user-card">
+            <div class="cd-avatar" id="cdAvatar">—</div>
+            <div>
+              <div class="cd-user-name" id="cdUserName">Loading…</div>
+              <div class="cd-user-role" id="cdUserRole">POS Manager</div>
+            </div>
+          </div>
+          <button class="cd-logout-btn" id="cdLogoutBtn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+            Sign out
+          </button>
+        </div>
+      </nav>
+
+      <div class="cd-main">
+        <div class="cd-topbar">
+          <div style="display:flex;align-items:center;">
+            <button class="cd-menu-btn" id="cdMenuToggle">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+            <div class="cd-topbar-title">Accounts</div>
+          </div>
+          <div class="cd-topbar-right">
+            <div class="cd-topbar-date" id="cdTopDate"></div>
+            <div class="cd-icon-btn" id="cdThemeToggle" title="Toggle theme">
+              <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="cd-content cd-page-anim">
+
+    <div class="cd-page-title">Accounts</div>
+    <div class="cd-page-sub">Record payments and keep track of party balances</div>
+
+    <!-- Quick Actions -->
+    <div class="cd-quick-actions">
+      <a href="/caratdesk-new-payment-entry?return_url=%2Fcaratdesk-accounts" class="cd-qa-btn">
+        <div class="cd-qa-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div>
+        <div><div class="cd-qa-label">Payment Entry</div><div class="cd-qa-sub">Record receipt / payment</div></div>
+      </a>
+      <a href="#" class="cd-qa-btn">
+        <div class="cd-qa-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg></div>
+        <div><div class="cd-qa-label">Journal Entry</div><div class="cd-qa-sub">Manual accounting</div></div>
+      </a>
+      <a href="#" class="cd-qa-btn">
+        <div class="cd-qa-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div>
+        <div><div class="cd-qa-label">Party Ledger</div><div class="cd-qa-sub">Customer &amp; supplier balances</div></div>
+      </a>
+      <a href="#" class="cd-qa-btn">
+        <div class="cd-qa-icon"><svg viewBox="0 0 24 24"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/></svg></div>
+        <div><div class="cd-qa-label">Chart of Accounts</div><div class="cd-qa-sub">View ledger heads</div></div>
+      </a>
+    </div>
+
+    <!-- Recent Payment Entries -->
+    <div class="cd-panel">
+      <div class="cd-panel-header">
+        <span class="cd-panel-title">Recent Payment Entries</span>
+        <a class="cd-panel-link" onclick="loadRecentPayments();return false;">Refresh</a>
+      </div>
+      <table class="cd-tx-table">
+        <thead><tr><th>Party</th><th>Type</th><th>Mode</th><th>Date</th><th style="text-align:right">Amount</th><th>Status</th></tr></thead>
+        <tbody id="peTbody">
+          <tr><td colspan="6"><div class="cd-empty"><div class="cd-empty-title">Loading…</div></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script>
+
+async function pubGet(script, params = {}) {
+  const proxyMap = {
+    'proxy_get_suppliers': '/api/resource/Supplier?fields=["name","supplier_name","supplier_type","mobile_no","tax_id"]&limit=500',
+    'proxy_get_items': '/api/resource/Item?fields=["item_code","item_name","gst_hsn_code","stock_uom","standard_rate"]&limit=500',
+    'proxy_get_warehouses': '/api/resource/Warehouse?fields=["name"]&limit=200',
+    'proxy_get_tax_templates': '/api/resource/Purchase Taxes and Charges Template?fields=["name"]&limit=200',
+    'proxy_get_purchase_orders': '/api/resource/Purchase Order?fields=["name","supplier","supplier_name","transaction_date","grand_total","status","docstatus"]&limit=500',
+    'proxy_get_purchase_receipts': '/api/resource/Purchase Receipt?fields=["name","supplier","supplier_name","posting_date","grand_total","status","docstatus"]&limit=500',
+    'proxy_get_payment_terms': '/api/resource/Payment Terms Template?fields=["name"]&limit=100',
+  };
+  if (proxyMap[script]) {
+    const url = proxyMap[script];
+    const res = await fetch(url, { credentials: 'same-origin' });
+    if (!res.ok) throw new Error(script + ' failed: ' + res.status);
+    const data = await res.json();
+    return data;
+  }
+  const qs = Object.keys(params).length ? '?' + new URLSearchParams(params).toString() : '';
+  const res = await fetch('/api/method/' + script + qs, { credentials: 'same-origin' });
+  if (!res.ok) throw new Error(script + ' HTTP ' + res.status);
+  return await res.json();
+}
+
+      // ══ INSTANCE HELPERS ══
+const DEV1 = 'https://ppj-dev1.m.frappe.cloud';
+const DEV2 = 'https://ppj-dev2.m.frappe.cloud';
+function cdGetActiveInstance(){ return localStorage.getItem('cd_active_instance')||'PP'; }
+function cdGetAvailableInstances(){ return (localStorage.getItem('cd_available_instances')||'PP').split(',').filter(Boolean); }
+function cdGetInstanceUrl(inst){ return (inst||cdGetActiveInstance())==='PC'?DEV2:DEV1; }
+function cdGetInstanceHeaders(inst){
+  const i=inst||cdGetActiveInstance();
+  const key=i==='PC'?localStorage.getItem('cd_pc_key'):localStorage.getItem('cd_pp_key');
+  const sec=i==='PC'?localStorage.getItem('cd_pc_secret'):localStorage.getItem('cd_pp_secret');
+  if(!key||!sec) return null;
+  return{'Authorization':`token ${key}:${sec}`,'Content-Type':'application/json','Accept':'application/json'};
+}
+function cdSwitchInstance(inst){
+  const available=cdGetAvailableInstances();
+  if(!available.includes(inst)) return;
+  const key=inst==='PC'?localStorage.getItem('cd_pc_key'):localStorage.getItem('cd_pp_key');
+  const sec=inst==='PC'?localStorage.getItem('cd_pc_secret'):localStorage.getItem('cd_pp_secret');
+  localStorage.setItem('cd_active_instance',inst);
+  localStorage.setItem('cd_api_key',key);
+  localStorage.setItem('cd_api_secret',sec);
+  window.location.reload();
+}
+function cdInitInstanceToggle(){
+  const available=cdGetAvailableInstances();
+  const active=cdGetActiveInstance();
+  const bar=document.getElementById('cdInstanceBar');
+  if(!bar) return;
+  if(available.length<2){ bar.style.display='none'; return; }
+  bar.style.display='flex';
+  ['PP','PC'].forEach(inst=>{
+    const btn=document.getElementById('cdInst'+inst);
+    if(!btn) return;
+    btn.classList.toggle('active',inst===active);
+    btn.style.display=available.includes(inst)?'':'none';
+  });
+  const roleEl=document.getElementById('cdUserRole');
+  if(roleEl) roleEl.textContent='Active: '+active;
+}
+async function dev1Get(path){
+  const h=cdGetInstanceHeaders();
+  if(!h) throw new Error('No auth');
+  const res=await fetch(cdGetInstanceUrl()+path,{headers:h});
+  if(!res.ok) throw new Error('HTTP '+res.status);
+  return res.json();
+}
+
+function fmt(n){ return '₹'+(Math.round(n||0)).toLocaleString('en-IN'); }
+function fmtDate(d){ if(!d) return '—'; try{ return new Date(d).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}); }catch(e){return d;} }
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+async function loadRecentPayments(){
+  const tbody=document.getElementById('peTbody');
+  tbody.innerHTML = `<tr><td colspan="6"><div class="cd-empty"><div class="cd-empty-title">Loading…</div></div></td></tr>`;
+  try{
+    const h=cdGetInstanceHeaders();
+    if(!h){ window.location.replace('/caratdesk-login?logout=1'); return; }
+    const fields=["name","party","party_name","party_type","payment_type","posting_date","paid_amount","mode_of_payment","docstatus"];
+    const res=await dev1Get(`/api/resource/Payment%20Entry?fields=${encodeURIComponent(JSON.stringify(fields))}&limit_page_length=10&order_by=creation%20desc`);
+    const rows=res.data||res.message||[];
+    if(!rows.length){ tbody.innerHTML = `<tr><td colspan="6"><div class="cd-empty"><div class="cd-empty-title">No payment entries yet</div></div></td></tr>`; return; }
+    tbody.innerHTML = rows.map(r=>{
+      const statusPill = r.docstatus===1 ? '<span class="cd-pill green">Submitted</span>' : r.docstatus===2 ? '<span class="cd-pill red">Cancelled</span>' : '<span class="cd-pill grey">Draft</span>';
+      const typePill = r.payment_type==='Receive' ? '<span class="cd-pill blue">Receive</span>' : '<span class="cd-pill amber">Pay</span>';
+      return `<tr>
+        <td><div style="font-weight:500">${esc(r.party_name||r.party||'—')}</div><div class="cd-tx-id">${esc(r.name)}</div></td>
+        <td>${typePill}</td>
+        <td><span style="color:var(--text-muted);font-size:12px">${esc(r.mode_of_payment||'—')}</span></td>
+        <td>${fmtDate(r.posting_date)}</td>
+        <td style="text-align:right;font-weight:500">${fmt(r.paid_amount)}</td>
+        <td>${statusPill}</td>
+      </tr>`;
+    }).join('');
+  }catch(e){
+    console.error('Load payment entries error:',e);
+    tbody.innerHTML = `<tr><td colspan="6"><div class="cd-empty"><div class="cd-empty-title">Failed to load</div><a href="#" onclick="loadRecentPayments();return false;" style="color:var(--pill-blue-txt)">Retry</a></div></td></tr>`;
+  }
+}
+
+      // Theme toggle
+      function initTheme() {
+        const saved = localStorage.getItem('cdTheme');
+        if (saved === 'dark') {
+          document.documentElement.classList.add('dark');
+          document.getElementById('themeIcon').innerHTML = sunIcon;
+        } else {
+          document.documentElement.classList.remove('dark');
+          document.getElementById('themeIcon').innerHTML = moonIcon;
+        }
+      }
+      const moonIcon = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+      const sunIcon = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+      function toggleTheme() {
+        if (document.documentElement.classList.contains('dark')) {
+          document.documentElement.classList.remove('dark');
+          localStorage.setItem('cdTheme', 'light');
+          document.getElementById('themeIcon').innerHTML = moonIcon;
+        } else {
+          document.documentElement.classList.add('dark');
+          localStorage.setItem('cdTheme', 'dark');
+          document.getElementById('themeIcon').innerHTML = sunIcon;
+        }
+      }
+      document.getElementById('cdThemeToggle').addEventListener('click', toggleTheme);
+      initTheme();
+
+      // Sidebar toggle
+      const sidebar = document.getElementById('cdSidebar');
+      document.getElementById('cdMenuToggle').addEventListener('click', () => sidebar.classList.toggle('mobile-open'));
+      document.querySelectorAll('.cd-nav-item').forEach(link => {
+        link.addEventListener('click', () => { if (window.innerWidth <= 768) sidebar.classList.remove('mobile-open'); });
+      });
+
+      // Date
+      document.getElementById('cdTopDate').textContent = new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+
+      // Auth / user
+      (function(){
+  const hasSession=localStorage.getItem('cd_pp_key')||localStorage.getItem('cd_pc_key');
+  if(!hasSession){ window.location.replace('/caratdesk-login?logout=1'); return; }
+  const active=cdGetActiveInstance();
+  const key=active==='PC'?localStorage.getItem('cd_pc_key'):localStorage.getItem('cd_pp_key');
+  const sec=active==='PC'?localStorage.getItem('cd_pc_secret'):localStorage.getItem('cd_pp_secret');
+  if(key&&sec){ localStorage.setItem('cd_api_key',key); localStorage.setItem('cd_api_secret',sec); }
+  const name=localStorage.getItem('cd_user')||localStorage.getItem('cd_user_email')||'User';
+  document.getElementById('cdUserName').textContent=name;
+  document.getElementById('cdAvatar').textContent=name.split('@')[0].split(/[\s.]+/).map(w=>w[0]||'').join('').slice(0,2).toUpperCase()||'U';
+  cdInitInstanceToggle();
+})();
+
+document.getElementById('cdLogoutBtn').addEventListener('click',async()=>{
+  const ppK=localStorage.getItem('cd_pp_key'), ppS=localStorage.getItem('cd_pp_secret');
+  const pcK=localStorage.getItem('cd_pc_key'), pcS=localStorage.getItem('cd_pc_secret');
+  try{ if(ppK&&ppS) await fetch(`${DEV1}/api/method/logout`,{method:'POST',headers:{Authorization:`token ${ppK}:${ppS}`}}); }catch(e){}
+  try{ if(pcK&&pcS) await fetch(`${DEV2}/api/method/logout`,{method:'POST',headers:{Authorization:`token ${pcK}:${pcS}`}}); }catch(e){}
+  ['cd_api_key','cd_api_secret','cd_pp_key','cd_pp_secret','cd_pc_key','cd_pc_secret',
+   'cd_user','cd_user_email','cd_active_instance','cd_available_instances'].forEach(k=>localStorage.removeItem(k));
+  window.location.replace('/caratdesk-login?logout=1');
+});
+
+const params = new URLSearchParams(window.location.search);
+const savedName = params.get('saved');
+if(savedName){ history.replaceState({},'',window.location.pathname); }
+
+loadRecentPayments();
+
+    </script>

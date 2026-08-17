@@ -1,0 +1,1670 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display:ital@0;1&display=swap');
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg: #f7f6f3;
+  --surface: #ffffff;
+  --border: rgba(0, 0, 0, 0.07);
+  --border-strong: rgba(0, 0, 0, 0.12);
+  --text-primary: #1a1a18;
+  --text-secondary: #6b6b65;
+  --text-muted: #a8a8a2;
+  --accent: #1a1a18;
+  --accent-light: #f0efe9;
+  --nav-hover: #f7f6f3;
+  --nav-active-bg: #ebebe5;
+  --pill-green-bg: #eaf3de;
+  --pill-green-txt: #3b6d11;
+  --pill-red-bg: #fcebeb;
+  --pill-red-txt: #a32d2d;
+  --pill-amber-bg: #faeeda;
+  --pill-amber-txt: #854f0b;
+  --pill-blue-bg: #e8f0fd;
+  --pill-blue-txt: #1a4a8a;
+  --toast-success-bg: #2d6a4f;
+  --toast-info-bg: #1a4a8a;
+  --shadow-sm: 0 2px 12px rgba(0, 0, 0, 0.04), 0 0 0 0.5px rgba(0, 0, 0, 0.03);
+  --shadow-md: 0 4px 24px rgba(0, 0, 0, 0.08);
+}
+
+.dark {
+  --bg: #121212;
+  --surface: #1e1e1e;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.15);
+  --text-primary: #ededed;
+  --text-secondary: #a0a0a0;
+  --text-muted: #6e6e6e;
+  --accent: #d4d4d4;
+  --accent-light: #2c2c2c;
+  --nav-hover: #252525;
+  --nav-active-bg: #2d2d2d;
+  --pill-green-bg: #1e3a2e;
+  --pill-green-txt: #9cd45e;
+  --pill-red-bg: #3e1e1e;
+  --pill-red-txt: #f28b82;
+  --pill-amber-bg: #3e2e1e;
+  --pill-amber-txt: #fdbf6b;
+  --pill-blue-bg: #1a2a3e;
+  --pill-blue-txt: #7aabf0;
+  --toast-success-bg: #1f5f3f;
+  --toast-info-bg: #2a5a9a;
+  --shadow-sm: 0 2px 12px rgba(0, 0, 0, 0.3), 0 0 0 0.5px rgba(255, 255, 255, 0.05);
+  --shadow-md: 0 4px 24px rgba(0, 0, 0, 0.3);
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  /* This app is a fixed, single-screen POS shell (internal regions like .cd-cart-wrap and
+     .cd-idialog-body already scroll on their own) — belt-and-suspenders against the outer
+     page ever scrolling, on top of .cd-pos-app's own overflow:hidden. */
+  overflow: hidden;
+}
+
+body {
+  font-family: 'DM Sans', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+}
+
+.cd-pos-app {
+  display: flex;
+  flex-direction: column;
+  /* zoom + percentage/vh sizing on the same element rendered unpredictably in testing (footer
+     pushed off-screen, header overlapping) — reverted. Fixed, non-scrolling shell as
+     .cd-pos-body's flex:1 / .cd-cart-wrap's own overflow already assumed: no outer page
+     scroll, no zoom, everything fits to screen via real height alone. */
+  height: 100%;
+  overflow: hidden;
+}
+
+.cd-pos-header {
+  height: 52px;
+  background: var(--surface);
+  border-bottom: 0.5px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  flex-shrink: 0;
+}
+
+.cd-pos-header-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.cd-pos-logo {
+  font-family: 'DM Serif Display', Georgia, serif;
+  font-size: 17px;
+  letter-spacing: -0.2px;
+}
+
+.cd-pos-branch {
+  flex-shrink: 0;
+}
+
+/* .cd-pos-context-btn's own clamp(12px,1.5vh,15.5px) !important font-size is scoped to
+   ".cd-pos-context *" — this button lives in the header instead, so that scoped rule never
+   reaches it and it would otherwise fall back to the app-wide ".cd-pos-app * {19px !important}"
+   rule. This re-applies the exact same clamp so it renders at the same size as "Select
+   customer" despite being outside .cd-pos-context. (Its padding already matches automatically
+   — the existing ".cd-pos-context-btn { padding: ... !important }" rule isn't ancestor-scoped.) */
+.cd-pos-branch .cd-pos-context-btn {
+  font-size: clamp(12px, 1.5vh, 15.5px) !important;
+  margin-left: 0;
+}
+
+.cd-pos-branch-list {
+  width: 200px;
+  left: auto;
+}
+
+.cd-pos-branch-list,
+.cd-pos-branch-list * {
+  font-size: 12px !important;
+}
+
+.cd-pos-branch-list .cd-input {
+  margin: 6px;
+  width: calc(100% - 12px);
+  padding: 6px 10px;
+}
+
+.cd-pos-header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.cd-icon-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: 0.5px solid var(--border);
+  background: var(--surface);
+  color: var(--text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.14s, color 0.14s, border-color 0.14s;
+  flex-shrink: 0;
+}
+
+.cd-icon-btn:hover {
+  background: var(--accent-light);
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}
+
+.cd-icon-btn svg {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.cd-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--pill-amber-bg);
+  color: var(--pill-amber-txt);
+  font-size: 11px;
+  padding: 5px 12px;
+  border-radius: 7px;
+}
+
+.cd-chip strong {
+  font-weight: 600;
+}
+
+.cd-pos-body {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 0;
+  min-height: 0;
+}
+
+.cd-pos-body-full { grid-template-columns: 1fr; }
+
+@media (max-width: 960px) {
+  .cd-pos-body {
+    grid-template-columns: 1fr;
+  }
+}
+
+.cd-pos-panel {
+  background: var(--surface);
+  border-right: 0.5px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.cd-pos-main {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.cd-panel-head {
+  padding: 16px 18px 12px;
+  border-bottom: 0.5px solid var(--border);
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.cd-panel-body {
+  padding: 16px 18px;
+  flex: 1;
+  overflow: visible;
+}
+
+.cd-btn {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.14s, transform 0.1s, opacity 0.14s;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  white-space: nowrap;
+}
+
+.cd-btn:active {
+  transform: scale(0.98);
+}
+
+.cd-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.cd-btn-primary {
+  background: var(--text-primary);
+  color: var(--surface);
+}
+
+.cd-btn-primary:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.cd-btn-secondary {
+  background: var(--surface);
+  color: var(--text-primary);
+  border: 0.5px solid var(--border-strong);
+}
+
+.cd-btn-secondary:hover:not(:disabled) {
+  background: var(--accent-light);
+}
+
+.cd-btn-green {
+  background: var(--pill-green-bg);
+  color: var(--pill-green-txt);
+  border: 0.5px solid rgba(59, 109, 17, 0.15);
+}
+
+.cd-btn-green:hover:not(:disabled) {
+  filter: brightness(0.97);
+}
+
+.cd-btn-danger {
+  background: var(--pill-red-bg);
+  color: var(--pill-red-txt);
+  border: 0.5px solid rgba(163, 45, 45, 0.15);
+}
+
+.cd-label {
+  font-size: 10.5px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  letter-spacing: 0.01em;
+  margin-bottom: 5px;
+  display: block;
+}
+
+.cd-label .req {
+  color: var(--pill-red-txt);
+  margin-left: 2px;
+}
+
+.cd-hint {
+  font-size: 10.5px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.cd-input,
+.cd-select,
+.cd-textarea {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  background: var(--bg);
+  border: 0.5px solid var(--border-strong);
+  border-radius: 9px;
+  padding: 9px 12px;
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color 0.14s, box-shadow 0.14s;
+  width: 100%;
+}
+
+.cd-input:focus,
+.cd-select:focus,
+.cd-textarea:focus {
+  border-color: var(--text-secondary);
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
+  background: var(--surface);
+}
+
+.dark .cd-input:focus,
+.dark .cd-select:focus,
+.dark .cd-textarea:focus {
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.06);
+}
+
+.cd-input::placeholder {
+  color: var(--text-muted);
+}
+
+.cd-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 12px;
+}
+
+.cd-ac {
+  position: relative;
+}
+
+.cd-ac-list {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: var(--surface);
+  border: 0.5px solid var(--border-strong);
+  border-radius: 10px;
+  box-shadow: var(--shadow-md);
+  z-index: 500;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.cd-ac-item {
+  padding: 9px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.1s;
+  border-bottom: 0.5px solid var(--border);
+}
+
+.cd-ac-item:last-child {
+  border-bottom: none;
+}
+
+.cd-ac-item:hover {
+  background: var(--nav-hover);
+}
+
+.cd-ac-item .main {
+  font-weight: 500;
+}
+
+.cd-ac-item .sub {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 1px;
+}
+
+.cd-ac-hint {
+  padding: 8px 12px;
+  font-size: 9.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 0.5px solid var(--border);
+}
+
+.cd-ac-empty {
+  padding: 12px;
+  font-size: 11.5px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+/* Customer picker, scoped to CustomerPanel's only current usage: rendered inside a modal
+   dialog rather than a real sidebar. The plain sidebar list looked like a tiny floating
+   dropdown lost in an otherwise-empty dialog, so give it real breathing room, a clear
+   per-customer row (avatar + bold name + prominent mobile number), and a taller inline list
+   instead of a cramped 220px absolute-positioned overlay. */
+.cd-idialog .cd-pos-panel { border-right: none; }
+.cd-idialog .cd-panel-body { padding: 20px 24px 24px; }
+.cd-idialog .cd-ac { position: static; }
+.cd-idialog .cd-ac-list {
+  position: static;
+  margin-top: 10px;
+  max-height: 400px;
+  box-shadow: none;
+  border-radius: 12px;
+}
+.cd-idialog .cd-ac-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+}
+.cd-idialog .cd-ac-avatar {
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--accent-light);
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+}
+.cd-idialog .cd-ac-text { min-width: 0; flex: 1; }
+.cd-idialog .cd-ac-item .main { font-size: 13px; }
+.cd-idialog .cd-ac-item .sub { font-size: 11.5px; margin-top: 2px; }
+.cd-idialog .cd-ac-mobile { font-weight: 500; color: var(--text-secondary); }
+.cd-idialog .cd-ac-hint { padding: 10px 14px; }
+.cd-idialog .cd-ac-empty { padding: 24px 14px; }
+
+.cd-customer-card {
+  background: var(--pill-blue-bg);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-top: 12px;
+}
+
+.cd-customer-card-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--pill-blue-txt);
+}
+
+.cd-customer-card-sub {
+  font-size: 10.5px;
+  color: var(--pill-blue-txt);
+  opacity: 0.85;
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
+.cd-scan-bar {
+  padding: 10px 14px;
+  border-bottom: 0.5px solid var(--border);
+  background: var(--surface);
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.cd-scan-input-wrap {
+  position: relative;
+  flex: 1;
+}
+
+.cd-scan-input-wrap svg {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 14px;
+  height: 14px;
+  stroke: var(--text-muted);
+  fill: none;
+  stroke-width: 2;
+  pointer-events: none;
+}
+
+.cd-scan-input {
+  min-height: 34px;
+  padding: 7px 10px 7px 32px !important;
+  font-size: 12px !important;
+  font-weight: 500;
+  border-radius: 8px;
+}
+
+.cd-cart-wrap {
+  flex: 1;
+  overflow-x: auto;
+  overflow-y: auto;
+  padding: 0 12px 8px;
+}
+
+.cd-pos-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 2030px;
+  table-layout: fixed;
+}
+
+.cd-pos-table th {
+  font-size: 7.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-align: left;
+  padding: 7px 4px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  background: var(--bg);
+  border-bottom: 0.5px solid var(--border);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.cd-pos-table td {
+  padding: 4px;
+  border-bottom: 0.5px solid var(--border);
+  vertical-align: middle;
+  font-size: 9px;
+}
+
+.cd-pos-table tr:hover td {
+  background: var(--nav-hover);
+}
+
+.cd-pos-thumb {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  object-fit: cover;
+  background: var(--accent-light);
+  border: 0.5px solid var(--border);
+  display: block;
+}
+
+.cd-pos-thumb-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: 9px;
+}
+
+.cd-pos-item-cell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.cd-pos-item-media {
+  flex: 0 0 auto;
+}
+
+.cd-pos-item-copy {
+  min-width: 0;
+  flex: 1;
+}
+
+.cd-pos-tag {
+  font-size: 9.5px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cd-pos-desc {
+  font-size: 8px;
+  line-height: 1.25;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cd-pos-warning {
+  color: var(--pill-red-txt);
+  font-size: 9.5px;
+  line-height: 1.25;
+  margin-top: 2px;
+}
+
+.cd-pos-qty-cell {
+  text-align: right;
+}
+
+.cd-pos-qty-cell .cd-num-input {
+  width: 52px;
+}
+
+.cd-pos-weight-cell {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.cd-pos-weight-cell div {
+  display: flex;
+  justify-content: space-between;
+  gap: 5px;
+  line-height: 1.25;
+}
+
+.cd-pos-weight-cell span {
+  color: var(--text-muted);
+  font-size: 9px;
+  font-weight: 600;
+}
+
+.cd-pos-weight-cell strong {
+  color: var(--text-primary);
+  font-size: 9px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.cd-pos-sub-cell {
+  font-variant-numeric: tabular-nums;
+  font-size: 8.5px;
+  font-weight: 500;
+  color: var(--text-primary);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.cd-pos-rate-cell {
+  font-variant-numeric: tabular-nums;
+}
+
+.cd-pos-rate {
+  font-size: 11.5px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.cd-pos-amount-cell {
+  font-variant-numeric: tabular-nums;
+  font-size: 9px;
+  color: var(--text-primary);
+  text-align: right;
+}
+
+.cd-breakup-icon-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 7px;
+  border: 0.5px solid rgba(26, 74, 138, 0.25);
+  background: rgba(26, 74, 138, 0.1);
+  cursor: pointer;
+  color: #1a4a8a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.12s, color 0.12s;
+}
+
+.cd-breakup-icon-btn svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.cd-breakup-icon-btn:hover {
+  background: rgba(26, 74, 138, 0.2);
+  color: #1a4a8a;
+}
+
+.cd-pos-discount-cell .cd-num-input {
+  width: 100%;
+}
+
+.cd-pos-table td.cd-pos-remove-cell {
+  text-align: right;
+  padding-left: 2px;
+  padding-right: 2px;
+}
+
+.cd-del-btn {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.12s, color 0.12s;
+}
+
+.cd-del-btn:hover {
+  background: var(--pill-red-bg);
+  color: var(--pill-red-txt);
+}
+
+.cd-pick-btn {
+  width: 38px;
+  flex-shrink: 0;
+  align-self: stretch;
+  border-radius: 9px;
+  border: 0.5px solid var(--border-strong);
+  background: var(--surface);
+  cursor: pointer;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.12s, color 0.12s;
+}
+
+.cd-pick-btn:hover {
+  background: var(--accent-light);
+  color: var(--text-primary);
+}
+
+.cd-check-lbl {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.cd-check-lbl input {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: var(--text-primary);
+}
+
+.cd-dsec {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 10px;
+  margin-top: 20px;
+  padding-bottom: 8px;
+  border-bottom: 0.5px solid var(--border);
+}
+
+/* Guided variant item picker (Type -> Template -> Attributes) */
+.rm-row { display: flex; align-items: flex-start; gap: 16px; padding: 12px 24px; border-bottom: 0.5px solid var(--border); }
+.rm-row:last-child { border-bottom: none; }
+.rm-row-label { min-width: 100px; font-size: 9.5px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.07em; padding-top: 6px; flex-shrink: 0; }
+.rm-pills { display: flex; flex-wrap: wrap; gap: 6px; flex: 1; }
+.rm-pill { padding: 5px 14px; border-radius: 20px; border: 0.5px solid var(--border-strong); background: var(--bg); color: var(--text-secondary); font-size: 11px; cursor: pointer; transition: all 0.12s; user-select: none; white-space: nowrap; font-family: 'DM Sans', sans-serif; }
+.rm-pill:hover { border-color: var(--text-primary); color: var(--text-primary); background: var(--accent-light); }
+.rm-pill.selected { background: var(--text-primary); border-color: var(--text-primary); color: var(--surface); font-weight: 500; }
+.rm-loading { display: flex; align-items: center; gap: 8px; color: var(--text-muted); font-size: 11px; padding: 4px 0; }
+@keyframes rm-spin { to { transform: rotate(360deg); } }
+.rm-spinner { width: 14px; height: 14px; border: 2px solid var(--border-strong); border-top-color: var(--text-primary); border-radius: 50%; animation: rm-spin 0.7s linear infinite; flex-shrink: 0; }
+.cd-dlg-result { display: flex; align-items: center; gap: 12px; background: var(--pill-green-bg); border: 0.5px solid rgba(59, 109, 17, 0.2); border-radius: 10px; padding: 12px 14px; margin: 12px 24px 0; }
+.cd-dlg-result-icon { width: 32px; height: 32px; border-radius: 8px; background: var(--pill-green-txt); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.cd-dlg-result-code { font-size: 12px; font-weight: 600; color: var(--pill-green-txt); }
+.cd-dlg-result-name { font-size: 11px; color: var(--pill-green-txt); opacity: 0.85; margin-top: 2px; }
+.cd-dlg-error { background: var(--pill-red-bg); color: var(--pill-red-txt); border: 0.5px solid rgba(200, 0, 0, 0.2); border-radius: 10px; padding: 10px 14px; margin: 12px 24px 0; font-size: 11px; }
+
+/* Matched-item card in ItemVariantPicker, extended with an inline Qty/Rate/Amount/Add row
+   (Gold Purchase) — the icon+code+name row keeps .cd-dlg-result's original flex-row styling
+   via .cd-dlg-result-top; .cd-dlg-result-entry stacks that on top of the new entry row. */
+.cd-dlg-result-entry { flex-direction: column; align-items: stretch; gap: 12px; }
+.cd-dlg-result-top { display: flex; align-items: center; gap: 12px; }
+.cd-dlg-result-row { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr auto; gap: 10px; align-items: end; }
+.cd-dlg-result-row .cd-label { color: var(--pill-green-txt); opacity: 0.85; }
+@media (max-width: 640px) {
+  .cd-dlg-result-row { grid-template-columns: 1fr 1fr; }
+  .cd-dlg-result-row button { grid-column: span 2; justify-content: center; }
+}
+
+.cd-breakup {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.cd-pos-adjustments {
+  background: var(--surface);
+  border-top: 0.5px solid var(--border);
+  padding: 8px 14px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.cd-adjustment-control {
+  min-width: 220px;
+}
+
+.cd-adjustment-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cd-adjustment-row .cd-disc-toggle {
+  margin-bottom: 0;
+}
+
+.cd-adjustment-row .cd-num-input {
+  width: 110px;
+}
+
+.cd-adjustment-total {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 130px;
+  text-align: right;
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.cd-adjustment-total strong {
+  color: var(--pill-red-txt);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.cd-settled-schemes {
+  padding: 8px 14px;
+  border-top: 0.5px solid var(--border);
+  background: var(--surface);
+}
+
+.cd-settled-scheme-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.cd-settled-scheme-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--pill-green-bg);
+  color: var(--pill-green-txt);
+  border-radius: 100px;
+  padding: 4px 6px 4px 10px;
+  font-size: 11.5px;
+  font-weight: 500;
+}
+
+.cd-settled-scheme-chip strong {
+  font-variant-numeric: tabular-nums;
+}
+
+.cd-settled-scheme-remove {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0, 0, 0, 0.12);
+  color: inherit;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  line-height: 1;
+  padding: 0;
+}
+
+.cd-settled-scheme-remove:hover {
+  background: rgba(0, 0, 0, 0.22);
+}
+
+.cd-summary-bar {
+  background: var(--surface);
+  border-top: 0.5px solid var(--border);
+  padding: 10px 14px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(104px, 1fr));
+  gap: 8px 14px;
+}
+
+.cd-summary-item label {
+  display: block;
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 2px;
+}
+
+.cd-summary-item span {
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.cd-summary-item.grand span {
+  font-size: 15px;
+  color: var(--pill-green-txt);
+}
+
+.cd-pos-footer {
+  background: var(--surface);
+  border-top: 0.5px solid var(--border);
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 6px 10px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+.cd-pos-footer .cd-btn {
+  padding: 6px 12px;
+  font-size: 11.5px;
+}
+
+.cd-pos-footer-right {
+  margin-left: auto;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+/* Uniform width/alignment across the whole footer button row (Shift Start/End, Discount,
+   Gold Purchase, Jewellery Scheme, Sales Return, Clear, Save Draft, Actions, Pay) so they read
+   as one consistent group instead of each auto-sizing to its own label length. Pay keeps its
+   own green color (cd-btn-green) — that's still the right way to mark it as the primary
+   action — it just no longer sits at a different width than everything beside it. */
+.cd-pos-footer-right .cd-btn {
+  min-width: 108px;
+  justify-content: center;
+  text-align: center;
+}
+
+.cd-pos-footer-right .cd-btn-secondary {
+  background: #D9D7D2;
+  color: #1A1A18;
+  border: 0.5px solid #C8C5BF;
+}
+
+.cd-pos-footer-right .cd-btn-secondary:hover:not(:disabled) {
+  background: #C8C5BF;
+  color: #1A1A18;
+}
+
+.cd-day-summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+  font-size: 13.5px;
+  color: var(--text-secondary);
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.cd-day-summary strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.cd-dropdown-wrap {
+  position: relative;
+}
+
+.cd-dropdown-menu {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  right: 0;
+  background: var(--surface);
+  border: 0.5px solid var(--border-strong);
+  border-radius: 10px;
+  box-shadow: var(--shadow-md);
+  min-width: 180px;
+  z-index: 300;
+  overflow: hidden;
+  padding: 4px;
+}
+
+.cd-dropdown-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 9px 12px;
+  border: none;
+  background: none;
+  font-family: inherit;
+  font-size: 12px;
+  color: var(--text-primary);
+  cursor: pointer;
+  border-radius: 7px;
+}
+
+.cd-dropdown-item:hover {
+  background: var(--nav-hover);
+}
+
+.cd-idialog-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 800;
+  backdrop-filter: blur(3px);
+}
+
+.cd-idialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 520px;
+  max-width: 96vw;
+  max-height: 96vh;
+  background: var(--surface);
+  border-radius: 16px;
+  border: 0.5px solid var(--border);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  z-index: 801;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.cd-idialog > form {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.cd-idialog.wide {
+  width: 640px;
+}
+
+.cd-idialog.xwide {
+  width: 960px;
+}
+
+.cd-idialog.operations-dialog {
+  width: 780px;
+}
+
+.cd-idialog.shift-dialog {
+  width: 800px;
+}
+
+.cd-idialog-header {
+  padding: 18px 24px 14px;
+  border-bottom: 0.5px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cd-idialog-title {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.cd-idialog-close {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  border: 0.5px solid var(--border);
+  background: var(--bg);
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: 17px;
+  line-height: 1;
+}
+
+.cd-idialog-body {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 20px 24px;
+}
+
+.cd-idialog-footer {
+  padding: 14px 24px;
+  border-top: 0.5px solid var(--border);
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.cd-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.cd-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.cd-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.cd-name-row {
+  display: grid;
+  grid-template-columns: 84px minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.cd-name-row .cd-field {
+  margin-bottom: 0;
+}
+
+@media (max-width: 520px) {
+  .cd-grid-2,
+  .cd-grid-3,
+  .cd-grid-4,
+  .cd-name-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 521px) and (max-width: 760px) {
+  .cd-grid-3,
+  .cd-grid-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .cd-name-row {
+    grid-template-columns: 84px minmax(0, 1fr) minmax(0, 1fr);
+  }
+}
+
+.cd-payment-row {
+  display: grid;
+  grid-template-columns: 1fr 120px 1fr auto;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.cd-sales-team-table {
+  margin-bottom: 12px;
+}
+
+.cd-sales-team-row {
+  display: grid;
+  grid-template-columns: 24px 500px 200px 150px 28px;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.cd-sales-team-row.no-amount {
+  grid-template-columns: 24px 500px 200px 28px;
+}
+
+.cd-sales-team-head span {
+  white-space: nowrap;
+}
+
+.cd-sales-team-row > span:first-child {
+  color: var(--text-muted);
+  font-weight: 600;
+  text-align: center;
+}
+
+.cd-sales-team-head {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+
+.cd-sales-team-amount {
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-align: right;
+  padding-right: 4px;
+}
+
+.cd-sales-team-total {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  align-items: center;
+  padding: 10px 4px 0;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.cd-sales-team-total strong {
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+.cd-sales-team-total-warn {
+  color: var(--pill-red-txt) !important;
+}
+
+.cd-payment-totals {
+  background: var(--bg);
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 16px;
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+.cd-payment-totals .row {
+  display: flex;
+  justify-content: space-between;
+}
+
+.cd-payment-totals .grand {
+  font-weight: 700;
+  font-size: 15px;
+  border-top: 0.5px solid var(--border);
+  margin-top: 6px;
+  padding-top: 6px;
+}
+
+.cd-payment-status-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.cd-payment-status-grid div {
+  background: var(--bg);
+  border: 0.5px solid var(--border);
+  border-radius: 9px;
+  padding: 10px 12px;
+}
+
+.cd-payment-status-grid span {
+  display: block;
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+
+.cd-payment-status-grid strong {
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.cd-remaining {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 10px 14px;
+  border-radius: 9px;
+  margin-top: 8px;
+}
+
+.cd-remaining.ok {
+  background: var(--pill-green-bg);
+  color: var(--pill-green-txt);
+}
+
+.cd-remaining.pending {
+  background: var(--pill-amber-bg);
+  color: var(--pill-amber-txt);
+}
+
+.cd-remaining.over {
+  background: var(--pill-red-bg);
+  color: var(--pill-red-txt);
+}
+
+/* Jewellery Scheme multi-select checklist (OperationsModal) — a matured scheme per row, tick
+   to redeem several onto one bill in a single dialog visit instead of reopening it per scheme. */
+.cd-scheme-list {
+  border: 0.5px solid var(--border-strong);
+  border-radius: 10px;
+  max-height: 260px;
+  overflow-y: auto;
+  margin-top: 6px;
+}
+
+.cd-scheme-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  border-bottom: 0.5px solid var(--border);
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.cd-scheme-row:last-child {
+  border-bottom: none;
+}
+
+.cd-scheme-row:hover {
+  background: var(--nav-hover);
+}
+
+.cd-scheme-row input[type='checkbox'] {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.cd-scheme-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.cd-scheme-text .main {
+  font-weight: 500;
+  font-size: 12px;
+}
+
+.cd-scheme-text .sub {
+  font-size: 10.5px;
+  color: var(--text-muted);
+  margin-top: 1px;
+}
+
+.cd-scheme-row strong {
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Gold Purchase dialog (OperationsModal) — a single "+ Add Item" button opens the item picker
+   (ItemVariantPicker), which collects Qty/Rate/Amount/UOM itself; this just holds the staged
+   items table underneath, same shape as Purchase Receipt's own Make BOM dialog. */
+.cd-gold-split {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.cd-gold-add-btn {
+  width: 100%;
+  justify-content: center;
+  height: 34px;
+  white-space: nowrap;
+}
+
+.cd-gold-right {
+  min-width: 0;
+}
+
+.cd-gold-table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 0.5px solid var(--border-strong);
+  border-radius: 10px;
+  overflow: hidden;
+  font-size: 12px;
+}
+
+.cd-gold-table th {
+  text-align: left;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 8px 10px;
+  background: var(--nav-hover);
+  border-bottom: 0.5px solid var(--border);
+}
+
+.cd-gold-table td {
+  padding: 8px 10px;
+  border-bottom: 0.5px solid var(--border);
+  font-variant-numeric: tabular-nums;
+}
+
+.cd-gold-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.cd-gold-table th:nth-child(3),
+.cd-gold-table th:nth-child(4),
+.cd-gold-table th:nth-child(5),
+.cd-gold-table td:nth-child(3),
+.cd-gold-table td:nth-child(4),
+.cd-gold-table td:nth-child(5) {
+  text-align: right;
+}
+
+.cd-gold-table tfoot td {
+  font-weight: 600;
+  border-top: 1px solid var(--border-strong);
+  text-align: right;
+}
+
+.cd-gold-row-remove {
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 15px;
+  line-height: 1;
+  padding: 2px 6px;
+}
+
+.cd-gold-row-remove:hover {
+  color: var(--pill-red-txt);
+}
+
+.cd-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--text-primary);
+  color: var(--surface);
+  padding: 11px 20px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 500;
+  box-shadow: var(--shadow-md);
+  z-index: 900;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s, transform 0.2s;
+  white-space: nowrap;
+}
+
+.cd-toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.cd-toast.success {
+  background: var(--toast-success-bg);
+}
+
+.cd-toast.error {
+  background: var(--pill-red-txt);
+}
+
+.cd-toast.info {
+  background: var(--toast-info-bg);
+}
+
+.cd-spinner-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  color: var(--text-muted);
+  gap: 10px;
+  font-size: 12px;
+}
+
+.cd-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--border-strong);
+  border-top-color: var(--text-secondary);
+  border-radius: 50%;
+  animation: cd-spin 0.6s linear infinite;
+}
+
+@keyframes cd-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.cd-success-banner {
+  background: var(--pill-green-bg);
+  border: 0.5px solid rgba(59, 109, 17, 0.2);
+  border-radius: 10px;
+  padding: 16px;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.cd-success-banner h3 {
+  color: var(--pill-green-txt);
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+
+.cd-num-input {
+  width: 72px;
+  text-align: right;
+  padding: 6px 8px !important;
+  font-size: 11px !important;
+}
+
+.cd-disc-toggle {
+  display: flex;
+  gap: 2px;
+  margin-bottom: 4px;
+}
+
+.cd-disc-toggle button {
+  font-size: 9px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 0.5px solid var(--border-strong);
+  background: var(--bg);
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--text-secondary);
+}
+
+.cd-disc-toggle button.active {
+  background: var(--text-primary);
+  color: var(--surface);
+  border-color: var(--text-primary);
+}
+
+.cd-disc-toggle button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.cd-adjustment-row .cd-num-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.cd-link-back {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 11px;
+}
+
+.cd-link-back:hover {
+  color: var(--text-primary);
+}
+
+.cd-pos-context { display:flex; gap:24px; flex-wrap:wrap; padding:14px 18px; background:var(--surface); border-bottom:.5px solid var(--border); font-size:24px; color:var(--text-secondary); }
+.cd-pos-context span { display:inline-flex; align-items:center; gap:8px; }
+.cd-pos-context strong { color:var(--text-primary); margin-left:4px; font-weight:600; }
+.cd-pos-context-icon { width:22px; height:22px; color:var(--text-muted); flex-shrink:0; }
+.cd-pos-context-btn { font-family:inherit; font-size:21px; font-weight:600; color:var(--text-primary); margin-left:4px; background:var(--accent-light); border:0.5px solid var(--border-strong); border-radius:20px; padding:6px 18px; cursor:pointer; transition:background .14s, border-color .14s; }
+.cd-pos-context-btn:hover { background:var(--nav-hover); border-color:var(--text-primary); }
+.cd-shift-facts { display:flex; justify-content:space-between; gap:16px; padding:12px; margin-bottom:16px; border-radius:9px; background:var(--bg); font-size:12px; }
+.cd-denomination-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px 20px; }
+.cd-denomination-grid label { display:flex; align-items:center; gap:8px; font-size:11px; }
+.cd-denomination-grid label span { width:40px; flex-shrink:0; }
+.cd-denomination-grid label input { width:70px; flex-shrink:0; }
+.cd-denomination-grid label strong { margin-left:auto; text-align:right; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.cd-denomination-grid.compact { grid-template-columns:repeat(2,1fr); gap:10px 24px; }
+.cd-denomination-grid.compact label { display:flex; align-items:center; gap:10px; }
+.cd-denomination-grid.compact label span { width:44px; flex-shrink:0; }
+.cd-denomination-grid.compact label input { width:120px; flex-shrink:0; }
+.cd-denomination-grid.compact label strong { margin-left:auto; text-align:right; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.cd-close-total, .cd-cash-declared { display:flex; justify-content:space-between; margin-top:14px; padding:12px; background:var(--bg); border-radius:8px; }
+.cd-operation-type { padding:10px 12px; border-radius:8px; background:var(--pill-blue-bg); color:var(--pill-blue-txt); margin-bottom:14px; }
+.payment-dialog { width:960px; }
+.cd-payment-entry { padding:10px; margin-bottom:10px; border:1px solid var(--border); border-radius:10px; }
+.cd-payment-entry .cd-payment-row { grid-template-columns:3fr 2fr auto; }
+.cd-card-fields { display:grid; grid-template-columns:1.4fr 1fr 1.4fr; gap:8px; margin-top:8px; }
+.cd-cash-box { margin-top:10px; padding:10px; background:var(--bg); border-radius:8px; }
+.cd-settlement-list { margin:0 0 16px; padding:12px; border-radius:9px; background:var(--pill-green-bg); }
+.cd-settlement-list > div { display:flex; justify-content:space-between; align-items:center; gap:8px; padding:4px 0; }
+.cd-settlement-list .total { border-top:1px solid var(--border); margin-top:4px; padding-top:8px; }
+.cd-pricing-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+.cd-pricing-field { padding:11px; border:1px solid var(--border); border-radius:9px; }
+.cd-pricing-field label { display:block; color:var(--text-muted); font-size:10px; font-weight:600; margin-bottom:6px; }
+.cd-pricing-field strong { font-size:13px; }
+.cd-pricing-field.highlight { background:var(--pill-amber-bg); }
+.cd-pricing-field.total { background:var(--pill-green-bg); grid-column:1 / -1; }
+@media (max-width:960px) { .cd-pricing-grid { grid-template-columns:repeat(2,1fr); } }
+@media (max-width:700px) { .cd-denomination-grid,.cd-denomination-grid.compact,.cd-pricing-grid,.cd-card-fields { grid-template-columns:1fr; } .cd-pos-context { gap:8px 16px; } }
+.cd-payment-launch { display:flex; align-items:center; gap:12px; padding-right:14px; border-right:1px solid var(--border); }
+.cd-payment-launch span { display:flex; flex-direction:column; font-size:11px; }
+.cd-payment-launch small { color:var(--text-muted); white-space:nowrap; }
+.cd-btn-wide { min-width:170px; justify-content:center; }
+
+/* Uniform 20px text across all of POS Billing, overriding component-specific sizes */
+.cd-pos-app * { font-size: 19px !important; }
+
+/* Compact the header/context bar and footer/adjustments/summary chrome so the middle cart
+   area (.cd-cart-wrap, where the serial-no line-item breakup renders) gets more vertical
+   room. Only sizing/padding shrinks here — button and input positions/order are untouched. */
+/* clamp(min, vh-scaled, max): pegs chrome sizing to viewport HEIGHT (the constrained axis on
+   this fixed, non-scrolling shell) instead of fixed px, so a shorter-resolution laptop screen
+   and a taller one both render this chrome at the same relative proportion — no more needing a
+   different fixed px value per machine. */
+.cd-pos-header { height: clamp(40px, 5vh, 52px) !important; }
+.cd-pos-header-right, .cd-pos-header-right * { font-size: clamp(11px, 1.35vh, 14px) !important; }
+.cd-pos-logo { font-size: clamp(14px, 1.7vh, 18px) !important; }
+
+.cd-pos-context { padding: clamp(5px, 0.85vh, 10px) 18px !important; gap: 16px !important; }
+.cd-pos-context, .cd-pos-context * { font-size: clamp(12px, 1.5vh, 15.5px) !important; }
+.cd-pos-context-btn { padding: clamp(4px, 0.55vh, 7px) 14px !important; }
+.cd-pos-context-icon { width: clamp(14px, 1.7vh, 18px) !important; height: clamp(14px, 1.7vh, 18px) !important; }
+
+.cd-scan-bar { padding: clamp(5px, 0.85vh, 9px) 14px !important; }
+.cd-scan-input { min-height: clamp(26px, 3.2vh, 32px) !important; }
+
+.cd-pos-adjustments { padding: clamp(4px, 0.75vh, 8px) 14px !important; gap: 14px !important; }
+.cd-pos-adjustments * { font-size: clamp(10.5px, 1.4vh, 13.5px) !important; }
+.cd-adjustment-total strong { font-size: clamp(11px, 1.4vh, 13.5px) !important; }
+
+.cd-settled-schemes { padding: clamp(4px, 0.75vh, 8px) 14px !important; }
+.cd-settled-schemes * { font-size: clamp(10px, 1.3vh, 12.5px) !important; }
+
+.cd-summary-bar { padding: clamp(8px, 1.3vh, 14px) 14px !important; gap: clamp(6px, 0.85vh, 10px) 14px !important; }
+.cd-summary-bar * { font-size: clamp(13px, 1.9vh, 17px) !important; }
+.cd-summary-item label { font-size: clamp(9.5px, 1.3vh, 12px) !important; }
+.cd-summary-item.grand span { font-size: clamp(14.5px, 2.1vh, 18.5px) !important; }
+
+.cd-pos-footer { padding: clamp(8px, 1.3vh, 14px) 14px !important; }
+.cd-payment-launch * { font-size: clamp(14px, 1.85vh, 18px) !important; }
+.cd-day-summary, .cd-day-summary * { font-size: clamp(12.5px, 1.5vh, 15.5px) !important; }
+.cd-pos-footer .cd-btn, .cd-pos-footer .cd-btn * { font-size: clamp(14.5px, 1.9vh, 18px) !important; padding: clamp(7px, 1.1vh, 11px) 16px !important; }

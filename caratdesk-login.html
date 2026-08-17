@@ -1,136 +1,140 @@
-<!-- CaratDesk Login — authenticates directly to ppj-dev1 -->
+<!-- CaratDesk Login — multi-instance (PP + PC) -->
 <head>
   <meta charset="UTF-8">
 </head>
-<style>    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap');
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap');
 
-    .navbar,.navbar-default,nav.navbar,header,.web-header,footer,.web-footer,.footer,.page-header,.breadcrumb,.page-breadcrumbs,.navbar-fixed-top,#navbar,#header{display:none!important}
-    html,body,.page-container,.web-page-content,.container,.page-content-wrapper,.main-section{height:100%!important;margin:0!important;padding:0!important;background:#F7F6F3!important}
-    body>.container{padding-top:0!important;padding-bottom:0!important}
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    :root{--bg:#F7F6F3;--surface:#FFFFFF;--border:rgba(0,0,0,0.08);--text-primary:#1A1A18;--text-secondary:#6B6B65;--text-muted:#A8A8A2;--accent:#1A1A18;--accent-hover:#2D2D29;--input-bg:#F9F8F6;--input-border:rgba(0,0,0,0.1);--input-focus:rgba(0,0,0,0.18);--error:#C0392B}
-    .cd-login-page{font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);height:100%;display:flex;align-items:center;justify-content:center;-webkit-font-smoothing:antialiased;padding:24px}
-    .cd-login-wrap{width:100%;max-width:420px;animation:cd-fadeUp .6s cubic-bezier(.16,1,.3,1) both}
-    @keyframes cd-fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-    .cd-logo-area{display:flex;flex-direction:column;align-items:center;margin-bottom:40px}
-    .cd-logo-img-wrap{width:60px;height:60px;border-radius:18px;background:var(--surface);border:.5px solid var(--border);display:flex;align-items:center;justify-content:center;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,.06),0 0 0 .5px rgba(0,0,0,.04)}
-    .cd-logo-img-wrap img{width:38px;height:38px;object-fit:contain}
-    .cd-brand-name{font-family:'DM Serif Display',Georgia,serif;font-size:26px;color:var(--text-primary);letter-spacing:-.3px;margin-bottom:4px}
-    .cd-brand-sub{font-size:12.5px;color:var(--text-muted);font-weight:300;letter-spacing:.06em;text-transform:uppercase}
-    .cd-card{background:var(--surface);border-radius:22px;border:.5px solid var(--border);padding:36px 32px;box-shadow:0 2px 20px rgba(0,0,0,.04),0 0 0 .5px rgba(0,0,0,.03)}
-    .cd-card-title{font-size:18px;font-weight:500;color:var(--text-primary);margin-bottom:6px}
-    .cd-card-desc{font-size:13.5px;color:var(--text-secondary);margin-bottom:28px;line-height:1.55;font-weight:300}
-    .cd-field{margin-bottom:16px}
-    .cd-field label{display:block;font-size:12px;font-weight:500;color:var(--text-secondary);margin-bottom:7px;letter-spacing:.01em}
-    .cd-field input{width:100%;height:46px;background:var(--input-bg);border:.5px solid var(--input-border);border-radius:11px;font-family:'DM Sans',sans-serif;font-size:14.5px;color:var(--text-primary);padding:0 14px;outline:none;transition:border-color .18s,box-shadow .18s;-webkit-appearance:none}
-    .cd-field input:focus{border-color:var(--input-focus);box-shadow:0 0 0 3px rgba(0,0,0,.05)}
-    .cd-field input::placeholder{color:var(--text-muted);font-weight:300}
-    .cd-pw-wrap{position:relative}
-    .cd-pw-wrap input{padding-right:46px}
-    .cd-pw-toggle{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-muted);padding:4px;line-height:1;transition:color .15s}
-    .cd-pw-toggle:hover{color:var(--text-primary)}
-    .cd-forgot{display:block;text-align:right;font-size:12px;color:var(--text-secondary);text-decoration:none;margin-top:-8px;margin-bottom:24px;transition:color .15s}
-    .cd-forgot:hover{color:var(--text-primary)}
-    .cd-error-msg{display:none;background:#FEF2F2;border:.5px solid rgba(192,57,43,.18);border-radius:11px;padding:11px 14px;font-size:13px;color:var(--error);margin-bottom:16px;line-height:1.4;align-items:center;gap:8px}
-    .cd-error-msg.show{display:flex}
-    .cd-status-msg{display:none;background:#EAF3DE;border:.5px solid rgba(59,109,17,.2);border-radius:11px;padding:11px 14px;font-size:13px;color:#3B6D11;margin-bottom:16px;line-height:1.4;align-items:center;gap:8px}
-    .cd-status-msg.show{display:flex}
-    .cd-btn-login{width:100%;height:48px;background:var(--accent);color:#fff;border:none;border-radius:13px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;cursor:pointer;letter-spacing:.01em;transition:background .18s,transform .12s,box-shadow .18s;display:flex;align-items:center;justify-content:center;gap:8px}
-    .cd-btn-login:hover{background:var(--accent-hover);box-shadow:0 4px 14px rgba(0,0,0,.18)}
-    .cd-btn-login:active{transform:scale(.985)}
-    .cd-btn-login.loading{pointer-events:none;opacity:.72}
-    .cd-spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:cd-spin .7s linear infinite;display:none}
-    .cd-btn-login.loading .cd-spinner{display:block}
-    .cd-btn-login.loading .cd-btn-text{display:none}
-    @keyframes cd-spin{to{transform:rotate(360deg)}}
-    .cd-footer-note{text-align:center;font-size:12px;color:var(--text-muted);margin-top:22px;font-weight:300;letter-spacing:.01em}
-  </style>
-  
-  <div class="cd-login-page">
-    <div class="cd-login-wrap">
-      <div class="cd-logo-area">
-        <div class="cd-logo-img-wrap">
-          <img src="https://i.postimg.cc/NMgHCKvC/letter-cc-cd-diamond-initial-600nw-2206465849.png" alt="CaratDesk Logo"/>
-        </div>
-        <div class="cd-brand-name">PPJ Retail</div>
-        <div class="cd-brand-sub">Jewellery POS</div>
+  .navbar,.navbar-default,nav.navbar,header,.web-header,footer,.web-footer,.footer,.page-header,.breadcrumb,.page-breadcrumbs,.navbar-fixed-top,#navbar,#header{display:none!important}
+  html,body,.page-container,.web-page-content,.container,.page-content-wrapper,.main-section{height:100%!important;margin:0!important;padding:0!important;background:var(--bg)!important}
+  body>.container{padding-top:0!important;padding-bottom:0!important}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{--bg:#F7F6F3;--surface:#FFFFFF;--border:rgba(0,0,0,0.08);--text-primary:#1A1A18;--text-secondary:#6B6B65;--text-muted:#A8A8A2;--accent:#1A1A18;--accent-hover:#2D2D29;--input-bg:#F9F8F6;--input-border:rgba(0,0,0,0.1);--input-focus:rgba(0,0,0,0.18);--error:#C0392B;--pill-red-bg:#FCEBEB;--pill-red-txt:#A32D2D;--pill-green-bg:#EAF3DE;--pill-green-txt:#3B6D11}
+  .dark{--bg:#121212;--surface:#1E1E1E;--border:rgba(255,255,255,0.08);--text-primary:#EDEDED;--text-secondary:#A0A0A0;--text-muted:#6E6E6E;--accent:#D4D4D4;--accent-hover:#EDEDED;--input-bg:#2C2C2C;--input-border:rgba(255,255,255,0.1);--input-focus:rgba(255,255,255,0.18);--error:#F28B82;--pill-red-bg:#3E1E1E;--pill-red-txt:#F28B82;--pill-green-bg:#1E3A2E;--pill-green-txt:#9CD45E}
+  html,body{color:var(--text-primary)}
+  .cd-login-page{font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);height:100%;display:flex;align-items:center;justify-content:center;-webkit-font-smoothing:antialiased;padding:24px}
+  .cd-login-wrap{width:100%;max-width:420px;animation:cd-fadeUp .6s cubic-bezier(.16,1,.3,1) both}
+  @keyframes cd-fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+  .cd-logo-area{display:flex;flex-direction:column;align-items:center;margin-bottom:40px}
+  .cd-logo-img-wrap{width:60px;height:60px;border-radius:18px;background:var(--surface);border:.5px solid var(--border);display:flex;align-items:center;justify-content:center;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,.06),0 0 0 .5px rgba(0,0,0,.04)}
+  .cd-logo-img-wrap img{width:38px;height:38px;object-fit:contain}
+  .cd-brand-name{font-family:'DM Serif Display',Georgia,serif;font-size:26px;color:var(--text-primary);letter-spacing:-.3px;margin-bottom:4px}
+  .cd-brand-sub{font-size:12.5px;color:var(--text-muted);font-weight:300;letter-spacing:.06em;text-transform:uppercase}
+  .cd-card{background:var(--surface);border-radius:22px;border:.5px solid var(--border);padding:36px 32px;box-shadow:0 2px 20px rgba(0,0,0,.04),0 0 0 .5px rgba(0,0,0,.03)}
+  .cd-card-title{font-size:18px;font-weight:500;color:var(--text-primary);margin-bottom:6px}
+  .cd-card-desc{font-size:13.5px;color:var(--text-secondary);margin-bottom:28px;line-height:1.55;font-weight:300}
+  .cd-field{margin-bottom:16px}
+  .cd-field label{display:block;font-size:12px;font-weight:500;color:var(--text-secondary);margin-bottom:7px;letter-spacing:.01em}
+  .cd-field input{width:100%;height:46px;background:var(--input-bg);border:.5px solid var(--input-border);border-radius:11px;font-family:'DM Sans',sans-serif;font-size:14.5px;color:var(--text-primary);padding:0 14px;outline:none;transition:border-color .18s,box-shadow .18s;-webkit-appearance:none}
+  .cd-field input:focus{border-color:var(--input-focus);box-shadow:0 0 0 3px rgba(0,0,0,.05)}
+  .cd-field input::placeholder{color:var(--text-muted);font-weight:300}
+  .cd-pw-wrap{position:relative}
+  .cd-pw-wrap input{padding-right:46px}
+  .cd-pw-toggle{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-muted);padding:4px;line-height:1;transition:color .15s}
+  .cd-pw-toggle:hover{color:var(--text-primary)}
+  .cd-forgot{display:block;text-align:right;font-size:12px;color:var(--text-secondary);text-decoration:none;margin-top:-8px;margin-bottom:24px;transition:color .15s}
+  .cd-forgot:hover{color:var(--text-primary)}
+  .cd-error-msg{display:none;background:var(--pill-red-bg);border:.5px solid rgba(192,57,43,.18);border-radius:11px;padding:11px 14px;font-size:13px;color:var(--error);margin-bottom:16px;line-height:1.4;align-items:center;gap:8px}
+  .cd-error-msg.show{display:flex}
+  .cd-status-msg{display:none;background:var(--pill-green-bg);border:.5px solid rgba(59,109,17,.2);border-radius:11px;padding:11px 14px;font-size:13px;color:var(--pill-green-txt);margin-bottom:16px;line-height:1.4;align-items:flex-start;gap:8px}
+  .cd-status-msg.show{display:flex}
+  .cd-status-lines{display:flex;flex-direction:column;gap:3px}
+  .cd-btn-login{width:100%;height:48px;background:var(--accent);color:var(--surface);border:none;border-radius:13px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;cursor:pointer;letter-spacing:.01em;transition:background .18s,transform .12s,box-shadow .18s;display:flex;align-items:center;justify-content:center;gap:8px}
+  .cd-btn-login:hover{background:var(--accent-hover);box-shadow:0 4px 14px rgba(0,0,0,.18)}
+  .cd-btn-login:active{transform:scale(.985)}
+  .cd-btn-login.loading{pointer-events:none;opacity:.72}
+  .cd-spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:var(--surface);border-radius:50%;animation:cd-spin .7s linear infinite;display:none}
+  .cd-btn-login.loading .cd-spinner{display:block}
+  .cd-btn-login.loading .cd-btn-text{display:none}
+  @keyframes cd-spin{to{transform:rotate(360deg)}}
+  .cd-footer-note{text-align:center;font-size:12px;color:var(--text-muted);margin-top:22px;font-weight:300;letter-spacing:.01em}
+</style>
+
+<div class="cd-login-page">
+  <div class="cd-login-wrap">
+    <div class="cd-logo-area">
+      <div class="cd-logo-img-wrap">
+        <img src="https://i.postimg.cc/NMgHCKvC/letter-cc-cd-diamond-initial-600nw-2206465849.png" alt="CaratDesk Logo"/>
       </div>
-  
-      <div class="cd-card">
-        <div class="cd-card-title">Welcome back</div>
-        <div class="cd-card-desc">Sign in with your Frappe credentials to access the POS.</div>
-  
-        <div class="cd-error-msg" id="cdErrorMsg">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-          <span id="cdErrorText">Invalid credentials. Please try again.</span>
-        </div>
-  
-        <div class="cd-status-msg" id="cdStatusMsg">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
-          <span id="cdStatusText">Logged in — fetching token…</span>
-        </div>
-  
-        <div class="cd-field">
-          <label for="cdUsr">Email / Username</label>
-          <input type="text" id="cdUsr" placeholder="you@company.com" autocomplete="username"/>
-        </div>
-  
-        <div class="cd-field">
-          <label for="cdPwd">Password</label>
-          <div class="cd-pw-wrap">
-            <input type="password" id="cdPwd" placeholder="••••••••" autocomplete="current-password"/>
-            <button class="cd-pw-toggle" id="cdPwToggle" tabindex="-1" aria-label="Show/hide password">
-              <svg id="cdEyeIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                <circle cx="12" cy="12" r="3"/>
-              </svg>
-            </button>
-          </div>
-        </div>
-  
-        <a href="/update-password" class="cd-forgot">Forgot password?</a>
-  
-        <button class="cd-btn-login" id="cdLoginBtn" onclick="cdDoLogin()">
-          <div class="cd-spinner"></div>
-          <span class="cd-btn-text">Sign In</span>
-        </button>
-      </div>
-  
-      <div class="cd-footer-note">PPJ Retail · CaratDesk v1.0</div>
+      <div class="cd-brand-name">PPJ Retail</div>
+      <div class="cd-brand-sub">Jewellery POS</div>
     </div>
-  </div>
-  
-  <script>
 
+    <div class="cd-card">
+      <div class="cd-card-title">Welcome back</div>
+      <div class="cd-card-desc">Sign in with your Frappe credentials to access the POS.</div>
+
+      <div class="cd-error-msg" id="cdErrorMsg">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span id="cdErrorText">Invalid credentials. Please try again.</span>
+      </div>
+
+      <div class="cd-status-msg" id="cdStatusMsg">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="flex-shrink:0;margin-top:1px"><polyline points="20 6 9 17 4 12"/></svg>
+        <div class="cd-status-lines" id="cdStatusLines"></div>
+      </div>
+
+      <div class="cd-field">
+        <label for="cdUsr">Email / Username</label>
+        <input type="text" id="cdUsr" placeholder="you@company.com" autocomplete="username"/>
+      </div>
+
+      <div class="cd-field">
+        <label for="cdPwd">Password</label>
+        <div class="cd-pw-wrap">
+          <input type="password" id="cdPwd" placeholder="••••••••" autocomplete="current-password"/>
+          <button class="cd-pw-toggle" id="cdPwToggle" tabindex="-1" aria-label="Show/hide password">
+            <svg id="cdEyeIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <a href="/update-password" class="cd-forgot">Forgot password?</a>
+
+      <button class="cd-btn-login" id="cdLoginBtn" onclick="cdDoLogin()">
+        <div class="cd-spinner"></div>
+        <span class="cd-btn-text">Sign In</span>
+      </button>
+    </div>
+
+    <div class="cd-footer-note">PPJ Retail · CaratDesk v1.0</div>
+  </div>
+</div>
+
+<script>
+  const DEV1 = 'https://ppj-dev1.m.frappe.cloud';
+  const DEV2 = 'https://ppj-dev2.m.frappe.cloud';
+
+  // ── Already logged in? ──
   (function(){
-    // Password visibility toggle
-    let showPw = false;
     document.getElementById('cdPwToggle').addEventListener('click', function(e){
       e.preventDefault();
-      showPw = !showPw;
-      document.getElementById('cdPwd').type = showPw ? 'text' : 'password';
-      document.getElementById('cdEyeIcon').innerHTML = showPw
+      const inp = document.getElementById('cdPwd');
+      const show = inp.type === 'password';
+      inp.type = show ? 'text' : 'password';
+      document.getElementById('cdEyeIcon').innerHTML = show
         ? '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>'
         : '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
     });
-  
-    // Enter key submits
-    document.addEventListener('keydown', function(e){ if(e.key === 'Enter') cdDoLogin(); });
-  
-    // Already logged in? redirect — but skip if coming from logout
+    document.addEventListener('keydown', e => { if(e.key === 'Enter') cdDoLogin(); });
+
     const params = new URLSearchParams(window.location.search);
-    if(!params.get('logout') && localStorage.getItem('cd_api_key') && localStorage.getItem('cd_api_secret')){
-      window.location.href = '/caratdesk';
-    }
+    const hasSession = localStorage.getItem('cd_pp_key') || localStorage.getItem('cd_pc_key');
+    if(!params.get('logout') && hasSession) window.location.href = '/caratdesk';
   })();
-  
+
+  // ── Status helpers ──
   function cdShowError(msg){
     document.getElementById('cdErrorText').textContent = msg;
     document.getElementById('cdErrorMsg').classList.add('show');
     document.getElementById('cdStatusMsg').classList.remove('show');
   }
-  function cdShowStatus(msg){
-    document.getElementById('cdStatusText').textContent = msg;
+  function cdShowStatus(lines){
+    const el = document.getElementById('cdStatusLines');
+    el.innerHTML = (Array.isArray(lines) ? lines : [lines]).map(l=>`<span>${l}</span>`).join('');
     document.getElementById('cdStatusMsg').classList.add('show');
     document.getElementById('cdErrorMsg').classList.remove('show');
   }
@@ -138,69 +142,157 @@
     document.getElementById('cdErrorMsg').classList.remove('show');
     document.getElementById('cdStatusMsg').classList.remove('show');
   }
-  
-  const DEV1 = 'https://ppj-dev1.m.frappe.cloud';
+
+  // ── Auth one instance — returns { key, secret, fullName } or null ──
+  async function cdAuthInstance(baseUrl, usr, pwd){
+    try{
+      // Step 1: login with username/password (gets session cookie)
+      const loginRes = await fetch(`${baseUrl}/api/method/login`, {
+        method : 'POST',
+        headers: {'Content-Type':'application/x-www-form-urlencoded','Accept':'application/json'},
+        credentials: 'include',
+        body   : new URLSearchParams({usr, pwd}),
+      });
+      const loginData = await loginRes.json();
+      if(!loginRes.ok || (loginData.message !== 'Logged In' && loginData.message !== 'No App')) return null;
+
+      let key, secret, fullName;
+
+      // Step 2a: try caratdesk_get_user_token (custom server script — DEV1 / PP)
+      try{
+        const tokenRes = await fetch(`${baseUrl}/api/method/caratdesk_get_user_token`, {
+          method : 'POST',
+          headers: {'Content-Type':'application/x-www-form-urlencoded','Accept':'application/json'},
+          credentials: 'include',
+          body   : new URLSearchParams({usr}),
+        });
+        const rawToken = await tokenRes.json();
+        console.log('[CaratDesk] caratdesk_get_user_token response from', baseUrl, ':', rawToken);
+        if(tokenRes.ok){
+          key      = rawToken.api_key    || rawToken.message?.api_key;
+          secret   = rawToken.api_secret || rawToken.message?.api_secret;
+          fullName = rawToken.full_name  || rawToken.message?.full_name;
+        }
+      }catch(e){ console.warn('[CaratDesk] caratdesk_get_user_token failed:', e.message); }
+
+      // Step 2b: generate fresh API keys via Frappe's built-in endpoint.
+      // This always returns a plaintext secret. Frappe v14+ stores api_secret
+      // as a SHA512 hash in the User doctype, so reading it directly (step 2c)
+      // would give a non-working hash — generate_keys avoids that problem.
+      if(!key || !secret){
+        try{
+          console.log('[CaratDesk] Trying generate_keys from', baseUrl);
+          const genRes = await fetch(`${baseUrl}/api/method/frappe.core.doctype.user.user.generate_keys`, {
+            method : 'POST',
+            headers: {'Content-Type':'application/x-www-form-urlencoded','Accept':'application/json'},
+            credentials: 'include',
+            body   : new URLSearchParams({ user: usr }),
+          });
+          if(genRes.ok){
+            const genData = await genRes.json();
+            const msg = genData?.message || genData;
+            key    = msg?.api_key;
+            secret = msg?.api_secret;
+            console.log('[CaratDesk] generate_keys from', baseUrl, '— key:', key ? key.slice(0,8)+'...' : null);
+          }
+        }catch(e){ console.warn('[CaratDesk] generate_keys failed:', e.message); }
+      }
+
+      // Step 2c: last resort — read existing keys from User doctype.
+      // WARNING: on Frappe v14+ api_secret may be a hash and won't work for
+      // token auth unless generate_keys was previously called.
+      if(!key || !secret){
+        console.log('[CaratDesk] Falling back to User doctype for keys from', baseUrl);
+        const fields = encodeURIComponent(JSON.stringify(['api_key','api_secret','full_name']));
+        const userRes = await fetch(
+          `${baseUrl}/api/resource/User/${encodeURIComponent(usr)}?fields=${fields}`,
+          { headers:{'Accept':'application/json'}, credentials:'include' }
+        );
+        const rawUser = userRes.ok ? await userRes.json() : null;
+        console.log('[CaratDesk] User doctype response from', baseUrl, ':', rawUser);
+        if(rawUser){
+          const u  = rawUser?.data || rawUser?.message || {};
+          key      = u.api_key;
+          secret   = u.api_secret;
+          fullName = fullName || u.full_name;
+        }
+      }
+
+      console.log('[CaratDesk] Final keys from', baseUrl, '— key:', key ? key.slice(0,8)+'...' : null, 'secret:', secret ? '***' : null);
+      if(!key || !secret) return null;
+      return { key, secret, fullName: fullName || usr };
+    }catch{ return null; }
+  }
 
   async function cdDoLogin(){
     cdHideMessages();
     const usr = document.getElementById('cdUsr').value.trim();
     const pwd = document.getElementById('cdPwd').value;
-
     if(!usr || !pwd){ cdShowError('Please enter your email and password.'); return; }
 
     const btn = document.getElementById('cdLoginBtn');
     btn.classList.add('loading');
 
-    try {
-      // ══ STEP 1: Login directly to dev1 ══
-      cdShowStatus('Signing in…');
-      const loginRes = await fetch(`${DEV1}/api/method/login`, {
-        method     : 'POST',
-        headers    : {'Content-Type':'application/x-www-form-urlencoded','Accept':'application/json'},
-        credentials: 'include',
-        body       : new URLSearchParams({usr, pwd}),
-      });
-      const loginData = await loginRes.json();
+    try{
+      cdShowStatus('Signing in to PP and PC…');
 
-      if(!loginRes.ok || (loginData.message !== 'Logged In' && loginData.message !== 'No App')){
-        cdShowError(loginData.message || 'Invalid credentials. Please try again.');
+      // Try both instances in parallel
+      const [pp, pc] = await Promise.all([
+        cdAuthInstance(DEV1, usr, pwd),
+        cdAuthInstance(DEV2, usr, pwd),
+      ]);
+
+      if(!pp && !pc){
+        cdShowError('Login failed on both instances. Check your credentials or network.');
         return;
       }
 
-      // ══ STEP 2: Fetch API token from dev1 (Proxy User Test doctype) ══
-      cdShowStatus('Fetching access token…');
-      const tokenRes  = await fetch(`${DEV1}/api/method/caratdesk_get_user_token`, {
-        method     : 'POST',
-        headers    : {'Content-Type':'application/x-www-form-urlencoded','Accept':'application/json'},
-        credentials: 'include',
-        body       : new URLSearchParams({usr}),
-      });
-      const tokenData = await tokenRes.json();
-
-      const apiKey    = tokenData.api_key    || tokenData.message?.api_key;
-      const apiSecret = tokenData.api_secret || tokenData.message?.api_secret;
-      const fullName  = tokenData.full_name  || tokenData.message?.full_name || usr;
-
-      if(!apiKey || !apiSecret){
-        const err = tokenData.error || tokenData.message?.error || 'No token found for this user. Contact admin.';
-        cdShowError(err);
-        console.error('caratdesk_get_user_token response:', tokenData);
-        return;
+      // Store credentials for each live instance
+      if(pp){
+        localStorage.setItem('cd_pp_key',    pp.key);
+        localStorage.setItem('cd_pp_secret', pp.secret);
+      } else {
+        localStorage.removeItem('cd_pp_key');
+        localStorage.removeItem('cd_pp_secret');
       }
 
-      localStorage.setItem('cd_api_key',    apiKey);
-      localStorage.setItem('cd_api_secret', apiSecret);
-      localStorage.setItem('cd_user',       fullName);
+      if(pc){
+        localStorage.setItem('cd_pc_key',    pc.key);
+        localStorage.setItem('cd_pc_secret', pc.secret);
+      } else {
+        localStorage.removeItem('cd_pc_key');
+        localStorage.removeItem('cd_pc_secret');
+      }
+
+      // Track which instances are available
+      const available = [pp ? 'PP' : null, pc ? 'PC' : null].filter(Boolean);
+      localStorage.setItem('cd_available_instances', available.join(','));
+
+      // Default active instance: PP if available, else PC
+      const active = pp ? 'PP' : 'PC';
+      localStorage.setItem('cd_active_instance', active);
+
+      // Keep backward-compat: cd_api_key/secret always point to active instance
+      const activeCreds = pp || pc;
+      localStorage.setItem('cd_api_key',    activeCreds.key);
+      localStorage.setItem('cd_api_secret', activeCreds.secret);
+      localStorage.setItem('cd_user',       activeCreds.fullName);
       localStorage.setItem('cd_user_email', usr);
 
-      cdShowStatus('✓ Signed in — redirecting…');
-      console.log('✅ Token stored for:', usr);
-      setTimeout(()=>{ window.location.href = '/caratdesk'; }, 600);
-  
-    } catch(err){
+      // Show which instances connected
+      const lines = [
+        pp ? '✓ PP connected' : '✗ PP offline — skipped',
+        pc ? '✓ PC connected' : '✗ PC offline — skipped',
+        'Redirecting…',
+      ];
+      cdShowStatus(lines);
+
+      setTimeout(() => { window.location.href = '/caratdesk'; }, 800);
+
+    }catch(err){
       cdShowError('Connection error. Please check your network and try again.');
-    } finally {
+    }finally{
       btn.classList.remove('loading');
     }
   }
-  </script>
+</script>

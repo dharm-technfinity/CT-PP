@@ -1,0 +1,2212 @@
+<!-- CaratDesk – New Job Work -->
+<head>
+  <meta charset="UTF-8">
+</head>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap');
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    .navbar,.page-header,footer.web-footer,.container>.row>.col-sm-10,.frappe-footer{display:none!important}
+    .web-page-container,.container{padding:0!important;max-width:100%!important}
+    body{overflow-x:hidden}
+    :root{
+      --bg:#F7F6F3;--surface:#FFFFFF;--border:rgba(0,0,0,.07);--border-strong:rgba(0,0,0,.12);
+      --text-primary:#1A1A18;--text-secondary:#6B6B65;--text-muted:#A8A8A2;
+      --accent:#1A1A18;--accent-light:#F0EFE9;--nav-hover:#F7F6F3;--nav-active-bg:#EBEBE5;
+      --pill-green-bg:#EAF3DE;--pill-green-txt:#3B6D11;--pill-green-bg-hover:#d8edca;
+      --pill-red-bg:#FCEBEB;--pill-red-txt:#A32D2D;--pill-red-bg-hover:#f8d7d7;
+      --pill-amber-bg:#FAEEDA;--pill-amber-txt:#854F0B;--pill-amber-bg-hover:#f5e4c5;
+      --pill-blue-bg:#E8F0FD;--pill-blue-txt:#1A4A8A;
+      --toast-success-bg:#2D6A4F;--toast-info-bg:#1A4A8A;
+      --shadow-sm:0 2px 12px rgba(0,0,0,.04),0 0 0 .5px rgba(0,0,0,.03);
+      --shadow-md:0 4px 24px rgba(0,0,0,.08)
+    }
+    .dark{--bg:#121212;--surface:#1E1E1E;--border:rgba(255,255,255,.08);--border-strong:rgba(255,255,255,.15);--text-primary:#EDEDED;--text-secondary:#A0A0A0;--text-muted:#6E6E6E;--accent:#D4D4D4;--accent-light:#2C2C2C;--nav-hover:#252525;--nav-active-bg:#2D2D2D;--pill-green-bg:#1E3A2E;--pill-green-txt:#9CD45E;--pill-green-bg-hover:#2a4a3a;--pill-red-bg:#3E1E1E;--pill-red-txt:#F28B82;--pill-red-bg-hover:#4a2626;--pill-amber-bg:#3E2E1E;--pill-amber-txt:#FDBF6B;--pill-amber-bg-hover:#4a3826;--pill-blue-bg:#1A2A3E;--pill-blue-txt:#7AABF0;--toast-success-bg:#1f5f3f;--toast-info-bg:#2a5a9a;--shadow-sm:0 2px 12px rgba(0,0,0,.3),0 0 0 .5px rgba(255,255,255,.05);--shadow-md:0 4px 24px rgba(0,0,0,.3)}
+    html,body{color:var(--text-primary)}
+    *{transition:background-color .2s,border-color .2s,color .2s}
+    .cd-app{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);min-height:100vh;display:flex;-webkit-font-smoothing:antialiased;color:var(--text-primary)}
+    .cd-sidebar{width:260px;background:var(--surface);border-right:.5px solid var(--border);display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;z-index:200;box-shadow:var(--shadow-sm);transform:translateX(0);transition:transform .3s cubic-bezier(.2,.9,.4,1.1)}
+    @media(max-width:768px){.cd-sidebar{transform:translateX(-100%)}.cd-sidebar.mobile-open{transform:translateX(0);width:80%;max-width:280px}}
+    .cd-sidebar-logo{display:flex;align-items:center;gap:11px;padding:20px 16px 18px;border-bottom:.5px solid var(--border);text-decoration:none;color:inherit}
+    .cd-sidebar-logo img{width:30px;height:30px;object-fit:contain;border-radius:9px}
+    .cd-logo-name{font-family:'DM Serif Display',serif;font-size:17px;letter-spacing:-.2px}
+    .cd-logo-sub{font-size:10px;color:var(--text-muted);font-weight:300;letter-spacing:.07em;text-transform:uppercase}
+    .cd-nav{flex:1;padding:10px 8px;overflow-y:auto}
+    .cd-nav-section{font-size:10px;font-weight:500;color:var(--text-muted);letter-spacing:.08em;text-transform:uppercase;padding:14px 8px 5px}
+    .cd-nav-item{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:9px;margin-bottom:1px;text-decoration:none;color:var(--text-secondary);font-size:13.5px;transition:background .14s,color .14s}
+    .cd-nav-item:hover{background:var(--nav-hover);color:var(--text-primary)}
+    .cd-nav-item.active{background:var(--nav-active-bg);color:var(--text-primary);font-weight:500}
+    .cd-nav-icon{width:20px;height:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .cd-nav-icon svg{width:15px;height:15px;stroke:currentColor;stroke-width:1.75;fill:none;stroke-linecap:round;stroke-linejoin:round}
+    .cd-sidebar-bottom{padding:10px 8px;border-top:.5px solid var(--border)}
+    .cd-user-card{display:flex;align-items:center;gap:10px;padding:10px;border-radius:9px;cursor:pointer;transition:background .14s}
+    .cd-user-card:hover{background:var(--nav-hover)}
+    .cd-avatar{width:32px;height:32px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:var(--surface);flex-shrink:0}
+    .cd-user-name{font-size:13px;font-weight:500}
+    .cd-user-role{font-size:11px;color:var(--text-muted);font-weight:300}
+    .cd-logout-btn{display:flex;align-items:center;gap:7px;padding:9px 10px;border-radius:9px;cursor:pointer;font-size:13px;color:var(--text-secondary);margin-top:3px;border:none;background:none;font-family:'DM Sans',sans-serif;width:100%;transition:background .14s,color .14s}
+    .cd-logout-btn:hover{background:var(--pill-red-bg);color:var(--pill-red-txt)}
+    .cd-instance-bar{display:flex;align-items:center;gap:6px;padding:8px 10px 4px}
+    .cd-instance-label{font-size:10px;font-weight:500;color:var(--text-muted);letter-spacing:.07em;text-transform:uppercase;flex:1}
+    .cd-instance-pills{display:flex;gap:4px}
+    .cd-instance-pill{font-size:11px;font-weight:500;padding:3px 10px;border-radius:6px;border:.5px solid var(--border);background:var(--input-bg);color:var(--text-secondary);cursor:pointer;transition:background .14s,color .14s,border-color .14s;font-family:'DM Sans',sans-serif}
+    .cd-instance-pill:hover{background:var(--nav-hover);color:var(--text-primary)}
+    .cd-instance-pill.active{background:var(--accent);color:var(--surface);border-color:var(--accent)}
+    .cd-main{margin-left:260px;flex:1;min-height:100vh;display:flex;flex-direction:column;min-width:0;overflow-x:hidden}
+    @media(max-width:768px){.cd-main{margin-left:0}}
+    .cd-topbar{height:58px;background:var(--surface);border-bottom:.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 20px;position:sticky;top:0;z-index:100}
+    .cd-menu-btn{display:none;background:none;border:none;cursor:pointer;color:var(--text-secondary);margin-right:12px}
+    @media(max-width:768px){.cd-menu-btn{display:flex;align-items:center;justify-content:center}}
+    .cd-topbar-left{display:flex;align-items:center;gap:10px}
+    .cd-breadcrumb{display:flex;align-items:center;gap:6px;font-size:13.5px}
+    .cd-breadcrumb a{color:var(--text-muted);text-decoration:none;transition:color .14s}
+    .cd-breadcrumb a:hover{color:var(--text-primary)}
+    .cd-breadcrumb-sep{color:var(--text-muted);font-size:12px}
+    .cd-breadcrumb-cur{color:var(--text-primary);font-weight:500}
+    .cd-topbar-right{display:flex;align-items:center;gap:8px;min-width:0;overflow:hidden}
+    .cd-icon-btn{width:34px;height:34px;border-radius:9px;border:.5px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-secondary);transition:background .14s,color .14s}
+    .cd-icon-btn:hover{background:var(--nav-hover);color:var(--text-primary)}
+    .cd-icon-btn svg{width:15px;height:15px;stroke:currentColor;stroke-width:1.75;fill:none;stroke-linecap:round;stroke-linejoin:round}
+    .cd-form-content{padding:24px 28px 80px;flex:1;animation:fadeUp .35s cubic-bezier(.16,1,.3,1) both;min-width:0;max-width:100%}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+    .cd-btn{font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;padding:8px 16px;border-radius:9px;border:none;cursor:pointer;transition:background .14s,transform .1s,opacity .14s;display:inline-flex;align-items:center;gap:7px}
+    .cd-btn:active{transform:scale(.98)}
+    .cd-btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+    .cd-btn-primary{background:var(--text-primary);color:var(--surface)}.cd-btn-primary:hover{opacity:.85}
+    .cd-btn-secondary{background:var(--surface);color:var(--text-primary);border:.5px solid var(--border-strong)}.cd-btn-secondary:hover{background:var(--accent-light)}
+    .cd-btn-danger{background:var(--pill-red-bg);color:var(--pill-red-txt);border:.5px solid rgba(163,45,45,.15)}.cd-btn-danger:hover{background:var(--pill-red-bg-hover)}
+    .cd-section{background:var(--surface);border:.5px solid var(--border);border-radius:14px;margin-bottom:16px;overflow:visible;box-shadow:var(--shadow-sm)}
+    .cd-section-header{padding:14px 20px;border-bottom:.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none}
+    .cd-section-header:hover{background:var(--bg)}
+    .cd-sec-title{font-size:13px;font-weight:500;display:flex;align-items:center;gap:8px}
+    .cd-sec-title svg{width:14px;height:14px;stroke:var(--text-muted);fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+    .cd-sec-toggle{width:22px;height:22px;display:flex;align-items:center;justify-content:center;color:var(--text-muted)}
+    .cd-sec-toggle svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;transition:transform .2s}
+    .cd-sec-toggle.collapsed svg{transform:rotate(-90deg)}
+    .cd-section-body{padding:20px}
+    .cd-field{display:flex;flex-direction:column;gap:5px}
+    .cd-field.full{grid-column:1/-1}
+    .cd-label{font-size:11.5px;font-weight:500;color:var(--text-secondary);letter-spacing:.01em;margin-top:10px;margin-bottom:0px}
+    .cd-label .req{color:var(--pill-red-txt);margin-left:2px}
+    .cd-input,.cd-select,.cd-textarea{font-family:'DM Sans',sans-serif;font-size:13px;background:var(--bg);border:0.5px solid var(--border-strong);border-radius:9px;padding:9px 12px;color:var(--text-primary);outline:none;transition:border-color .14s,box-shadow .14s;width:100%}
+    .cd-input:focus,.cd-select:focus,.cd-textarea:focus{border-color:var(--text-secondary);box-shadow:0 0 0 3px rgba(0,0,0,.05);background:var(--surface)}
+    .cd-input::placeholder,.cd-textarea::placeholder{color:var(--text-muted)}
+    .cd-select{cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23A8A8A2' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:30px}
+    .cd-textarea{resize:vertical;min-height:60px;line-height:1.5}
+    .cd-readonly{opacity:.65;cursor:not-allowed;background:var(--accent-light)!important}
+    .cd-ac{position:relative}
+    .cd-ac-list{position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--surface);border:.5px solid var(--border-strong);border-radius:10px;box-shadow:var(--shadow-md);z-index:500;max-height:220px;overflow-y:auto;display:none}
+    .dark .cd-ac-list{box-shadow:0 8px 32px rgba(0,0,0,.5),0 0 0 1px var(--border-strong)}
+    .cd-ac-list.open{display:block}
+    .cd-ac-item{padding:9px 12px;font-size:13px;cursor:pointer;transition:background .1s;border-bottom:.5px solid var(--border)}
+    .cd-ac-item:last-child{border-bottom:none}
+    .cd-ac-item:hover{background:var(--nav-hover)}
+    .cd-ac-item .main{font-weight:500}
+    .cd-ac-item .sub{font-size:11px;color:var(--text-muted);margin-top:1px}
+    .cd-ac-empty{padding:12px;font-size:12.5px;color:var(--text-muted);text-align:center}
+    .cd-items-wrap{overflow-x:auto;border-radius:10px;border:.5px solid var(--border);margin-bottom:14px;width:100%;display:block}
+    .cd-items-tbl{width:100%;border-collapse:collapse;min-width:1100px}
+    .cd-items-tbl td{padding:8px 4px;height:28px;border-bottom:1px solid var(--border);border-right:1px solid var(--border);vertical-align:middle}
+    .cd-items-tbl td input,.cd-items-tbl td select,.cd-items-tbl td textarea{width:100%;height:26px;border:.5px solid var(--border-strong);outline:none;padding:0 6px;font-size:11px;background:var(--bg);color:var(--text-primary);line-height:1;border-radius:7px}
+    .cd-items-tbl td textarea{height:auto;min-height:26px;resize:none;line-height:1.5;padding:3px 6px}
+    .cd-items-tbl td input[readonly]{background:var(--accent-light);cursor:not-allowed}
+    .cd-items-tbl th{font-size:11px;font-weight:500;color:var(--text-muted);text-align:left;padding:10px 12px;letter-spacing:.05em;text-transform:uppercase;background:var(--bg);border-bottom:.5px solid var(--border);white-space:nowrap}
+    .cd-items-tbl td:first-child{font-size:13px;width:40px;text-align:center;font-weight:600;color:var(--text-secondary)}
+    .cd-items-tbl input[type=number]{text-align:right}
+    .cd-items-tbl input[type=number]::-webkit-inner-spin-button,.cd-items-tbl input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+    .cd-items-tbl input[type=number]{-moz-appearance:textfield;appearance:textfield}
+    .cd-items-tbl:not(.show-finished) .se-finished-col{display:none}
+    .cd-items-tbl:not(.show-subbom) .se-subbom-col{display:none}
+    .cd-bom-auto{background:var(--accent-light)!important;color:var(--text-secondary)!important;cursor:not-allowed}
+    .cd-del-btn{width:20px;height:20px;border-radius:7px;border:none;background:none;cursor:pointer;color:var(--text-muted);display:flex;align-items:center;justify-content:center;transition:background .12s,color .12s;flex-shrink:0}
+    .cd-del-btn:hover{background:var(--pill-red-bg);color:var(--pill-red-txt)}
+    .cd-del-btn svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2}
+    .cd-add-row{display:flex;align-items:center;gap:7px;font-family:'DM Sans',sans-serif;font-size:12.5px;font-weight:500;color:var(--text-secondary);background:none;border:none;cursor:pointer;padding:8px 12px;border-radius:8px;transition:background .14s,color .14s}
+    .cd-add-row:hover{background:var(--accent-light);color:var(--text-primary)}
+    .cd-add-row svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2}
+    .cd-footer{position:fixed;bottom:0;left:260px;right:0;background:var(--surface);border-top:.5px solid var(--border);padding:12px 28px;display:flex;align-items:center;gap:10px;z-index:90;box-shadow:0 -4px 20px rgba(0,0,0,.05)}
+    @media(max-width:768px){.cd-footer{left:0;padding:12px 16px}}
+    .cd-footer-right{margin-left:auto;display:flex;gap:8px}
+    .cd-toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--text-primary);color:var(--surface);padding:11px 20px;border-radius:10px;font-size:13px;font-weight:500;box-shadow:var(--shadow-md);z-index:600;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;white-space:nowrap;display:flex;align-items:center;gap:8px}
+    .cd-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+    .cd-toast.success{background:var(--toast-success-bg)}.cd-toast.error{background:var(--pill-red-txt)}.cd-toast.info{background:var(--toast-info-bg)}
+    .cd-idialog-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:800;opacity:0;pointer-events:none;transition:opacity .22s;backdrop-filter:blur(3px)}
+    .cd-idialog-overlay.open{opacity:1;pointer-events:all}
+    .cd-idialog{position:fixed;top:50%;left:50%;transform:translate(-50%,-46%);width:600px;max-width:96vw;max-height:88vh;background:var(--surface);border-radius:16px;border:.5px solid var(--border);box-shadow:0 20px 60px rgba(0,0,0,.2);z-index:801;display:flex;flex-direction:column;opacity:0;pointer-events:none;transition:opacity .22s,transform .22s}
+    .cd-idialog.open{opacity:1;pointer-events:all;transform:translate(-50%,-50%)}
+    .cd-idialog-header{padding:18px 24px 14px;border-bottom:.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+    .cd-idialog-title{font-size:15px;font-weight:600;display:flex;align-items:center;gap:8px}
+    .cd-idialog-title svg{width:15px;height:15px;stroke:var(--text-muted);fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+    .cd-idialog-close{width:28px;height:28px;border-radius:7px;border:.5px solid var(--border);background:var(--bg);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-secondary);transition:background .14s}
+    .cd-idialog-close:hover{background:var(--pill-red-bg);color:var(--pill-red-txt)}
+    .cd-idialog-close svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2}
+    .cd-idialog-body{flex:1;overflow-y:auto;padding:8px 0}
+    .cd-idialog-footer{padding:14px 24px;border-top:.5px solid var(--border);display:flex;gap:8px;flex-shrink:0;align-items:center}
+    .cd-pick-btn{height:24px!important;min-height:24px!important;padding:0 8px!important;font-size:11px!important;border-radius:5px!important;font-family:'DM Sans',sans-serif;font-weight:500;border:.5px solid var(--border-strong);background:var(--surface);color:var(--text-secondary);cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:background .14s,color .14s;white-space:nowrap}
+    .cd-pick-btn:hover{background:var(--accent-light);color:var(--text-primary)}
+    .cd-pick-btn svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+    .rm-row{display:flex;align-items:flex-start;gap:16px;padding:12px 24px;border-bottom:.5px solid var(--border)}
+    .rm-row:last-child{border-bottom:none}
+    .rm-row-label{min-width:120px;font-size:10.5px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.07em;padding-top:6px;flex-shrink:0}
+    .rm-pills{display:flex;flex-wrap:wrap;gap:6px;flex:1}
+    .rm-pill{padding:5px 16px;border-radius:20px;border:.5px solid var(--border-strong);background:var(--bg);color:var(--text-secondary);font-size:12.5px;cursor:pointer;transition:all .12s;user-select:none;white-space:nowrap;font-family:'DM Sans',sans-serif}
+    .rm-pill:hover{border-color:var(--text-primary);color:var(--text-primary);background:var(--accent-light)}
+    .rm-pill.selected{background:var(--text-primary);border-color:var(--text-primary);color:var(--surface);font-weight:500}
+    .rm-loading{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--text-muted);padding-top:4px}
+    .rm-spinner{width:14px;height:14px;border:2px solid var(--border-strong);border-top-color:var(--text-secondary);border-radius:50%;animation:rm-spin .6s linear infinite;flex-shrink:0}
+    @keyframes rm-spin{to{transform:rotate(360deg)}}
+    .cd-dlg-result{display:none;align-items:center;gap:12px;background:var(--pill-green-bg);border:.5px solid rgba(59,109,17,.2);border-radius:10px;padding:12px 14px;margin:0 24px 14px}
+    .cd-dlg-result-icon{width:32px;height:32px;border-radius:8px;background:var(--pill-green-txt);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .cd-dlg-result-icon svg{width:15px;height:15px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+    .cd-dlg-result-code{font-size:13px;font-weight:600;color:var(--pill-green-txt)}
+    .cd-dlg-result-name{font-size:12px;color:var(--pill-green-txt);opacity:.85;margin-top:2px}
+    .cd-dlg-error{display:none;font-size:12.5px;color:var(--pill-red-txt);background:var(--pill-red-bg);border:.5px solid rgba(163,45,45,.15);border-radius:8px;padding:9px 12px;margin:0 24px 10px}
+</style>
+
+<div class="cd-app" id="cdApp">
+  <nav class="cd-sidebar" id="cdSidebar">
+    <a class="cd-sidebar-logo" href="/caratdesk">
+      <img src="https://i.postimg.cc/NMgHCKvC/letter-cc-cd-diamond-initial-600nw-2206465849.png" alt="CaratDesk"/>
+      <div><div class="cd-logo-name">PPJ Retail</div><div class="cd-logo-sub">Jewellery POS</div></div>
+    </a>
+    <div class="cd-nav">
+      <div class="cd-nav-section">Main</div>
+      <a href="/caratdesk" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>Dashboard</a>
+      <div class="cd-nav-section">Operations</div>
+      <a href="/caratdesk-pos" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>POS Billing</a>
+      <a href="/caratdesk-selling" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg></span>Selling</a>
+      <a href="/caratdesk-buying" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></span>Buying</a>
+      <a href="/caratdesk-stock" class="cd-nav-item active"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg></span>Stock</a>
+      <a href="/caratdesk-items" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></span>Items</a>
+      <div class="cd-nav-section">Finance</div>
+      <a href="/caratdesk-finance" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></span>Finance</a>
+      <a href="/caratdesk-accounts" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg></span>Accounts</a>
+      <a href="/caratdesk-reports" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>Reports</a>
+      <div class="cd-nav-section">System</div>
+      <a href="/caratdesk-settings" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M12 2v2M12 20v2M2 12h2M20 12h2M4.93 19.07l1.41-1.41M19.07 19.07l-1.41-1.41"/></svg></span>Settings</a>
+    </div>
+    <div class="cd-sidebar-bottom">
+      <div class="cd-instance-bar" id="cdInstanceBar" style="display:none">
+        <span class="cd-instance-label">Instance</span>
+        <div class="cd-instance-pills">
+          <button class="cd-instance-pill" id="cdInstPP" onclick="cdSwitchInstance('PP')">PP</button>
+          <button class="cd-instance-pill" id="cdInstPC" onclick="cdSwitchInstance('PC')">PC</button>
+        </div>
+      </div>
+      <div class="cd-user-card"><div class="cd-avatar" id="cdAvatar">-</div><div><div class="cd-user-name" id="cdUserName">Loading…</div><div class="cd-user-role" id="cdUserRole">POS Manager</div></div></div>
+      <button class="cd-logout-btn" id="cdLogoutBtn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign out</button>
+    </div>
+  </nav>
+
+  <div class="cd-main">
+    <div class="cd-topbar">
+      <div class="cd-topbar-left">
+        <button class="cd-menu-btn" id="cdMenuToggle"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+        <div class="cd-breadcrumb">
+          <a href="/caratdesk-stock">Stock</a><span class="cd-breadcrumb-sep">></span>
+          <a href="/caratdesk-job-work">Job Work</a><span class="cd-breadcrumb-sep">></span>
+          <span class="cd-breadcrumb-cur">New Job Work</span>
+        </div>
+      </div>
+      <div class="cd-topbar-right">
+        <div class="cd-icon-btn" id="cdThemeToggle"><svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div>
+      </div>
+    </div>
+
+    <div class="cd-form-content">
+
+      <!-- SECTION 1: Entry Details -->
+      <div class="cd-section">
+        <div class="cd-section-header" onclick="toggleSec(this)">
+          <div class="cd-sec-title"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>Entry Details</div>
+          <div class="cd-sec-toggle"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+        </div>
+        <div class="cd-section-body">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px">
+            <div class="cd-field">
+              <label class="cd-label">Company</label>
+              <input class="cd-input cd-readonly" id="companyDisplay" value="P.P. Jewellers Retail Pvt. Ltd." readonly/>
+              <label class="cd-label">Stock Entry Type <span class="req">*</span></label>
+              <select class="cd-select" id="stockEntryType" onchange="onStockEntryTypeChange()">
+                <option value="">— Loading types… —</option>
+              </select>
+              <label class="cd-label">Purpose</label>
+              <input class="cd-input cd-readonly" id="purposeDisplay" readonly placeholder="Auto-filled from Stock Entry Type"/>
+            </div>
+            <div class="cd-field">
+              <label class="cd-label">Posting Date <span class="req">*</span></label>
+              <input class="cd-input" type="date" id="postingDate"/>
+              <label class="cd-label">Posting Time</label>
+              <input class="cd-input" type="time" step="1" id="postingTime"/>
+              <div id="fgQtyField" style="display:none">
+                <label class="cd-label">FG Completed Qty</label>
+                <input class="cd-input" type="number" min="0" step="0.001" id="fgQty" value="1" oninput="recalc()"/>
+              </div>
+            </div>
+            <div class="cd-field">
+              <label class="cd-label" style="margin-top:0">Supplier <span class="req">*</span></label>
+              <div class="cd-ac" id="jobWorkSupplierAcWrap">
+                <input class="cd-input" id="jobWorkSupplier" placeholder="Click to browse or type supplier name" autocomplete="off"
+                  oninput="jwSupplierAc(this.value)" onfocus="jwSupplierAc(this.value,true)" onclick="jwSupplierAc(this.value,true)" onblur="jwSupplierBlur()"/>
+                <div class="cd-ac-list" id="ac-jwSupplier" role="listbox"></div>
+              </div>
+              <div id="fromWhField">
+                <label class="cd-label">Source Warehouse</label>
+                <select class="cd-select" id="fromWarehouse" onchange="onFromWarehouseChange()"><option value="">- Select Warehouse -</option></select>
+              </div>
+              <div id="toWhField">
+                <label class="cd-label">Target Warehouse</label>
+                <select class="cd-select" id="toWarehouse" onchange="onToWarehouseChange()"><option value="">- Select Warehouse -</option></select>
+              </div>
+            </div>
+          </div>
+
+          <div id="bomFieldWrap" style="display:none;margin-bottom:16px">
+            <div style="display:grid;grid-template-columns:2fr 1fr;gap:12px;align-items:end;background:var(--bg);border-radius:10px;border:.5px solid var(--border);padding:14px">
+              <div class="cd-field" style="margin:0">
+                <label class="cd-label" style="margin-top:0">BOM No</label>
+                <input class="cd-input" id="bomNo" placeholder="e.g. BOM-ITEM-001"/>
+              </div>
+              <button type="button" class="cd-btn cd-btn-secondary" onclick="fetchItemsFromBom()" style="height:38px">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+                Get Items from BOM
+              </button>
+            </div>
+          </div>
+
+          <!-- Against Stock Entry — links a "Receive From Subcontractor" entry back to the
+               "Send to Subcontractor" entry it is closing out. The Send entry carries raw
+               materials (e.g. Gold, Diamond) out to the karigar; this entry brings back the
+               finished item, so item codes differ — what carries over is a raw-material pool
+               (issued minus already consumed in prior receipts' BOMs) that pre-seeds the
+               "Make BOM" breakup for whichever finished item row(s) you add below. -->
+          <div id="subBomFieldWrap" style="display:none;margin-bottom:16px">
+            <div style="display:grid;grid-template-columns:2fr 1fr;gap:12px;align-items:end;background:var(--bg);border-radius:10px;border:.5px solid var(--border);padding:14px">
+              <div class="cd-field" style="margin:0">
+                <label class="cd-label" style="margin-top:0">Against Stock Entry (Send to Subcontractor)</label>
+                <select class="cd-select" id="againstStockEntry" onchange="onAgainstStockEntryChange()">
+                  <option value="">- Select Supplier First -</option>
+                </select>
+              </div>
+              <button type="button" class="cd-btn cd-btn-secondary" id="loadAgainstSeBtn" onclick="loadItemsFromAgainstSE()" style="height:38px" disabled>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+                Load Pending Raw Material
+              </button>
+            </div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:6px">Add the finished item row(s) below yourself, then click "BOM" on each row — the breakup will be pre-filled from what's still pending here.</div>
+          </div>
+
+          <div class="cd-field full">
+            <label class="cd-label" style="margin-top:0">Remarks</label>
+            <textarea class="cd-textarea" id="remarks" rows="2" placeholder="Optional notes…"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 2: Items -->
+      <div class="cd-section">
+        <div class="cd-section-header" onclick="toggleSec(this)">
+          <div class="cd-sec-title"><svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>Items</div>
+          <div class="cd-sec-toggle"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+        </div>
+        <div class="cd-section-body">
+          <div class="cd-items-wrap">
+            <table class="cd-items-tbl" id="seItemsTable">
+              <thead><tr>
+                <th style="width:34px">#</th>
+                <th style="width:150px">Item Code</th>
+                <th style="width:160px">Item Name</th>
+                <th style="width:130px">Source Warehouse</th>
+                <th style="width:130px">Target Warehouse</th>
+                <th style="width:85px">Qty <span style="color:var(--pill-red-txt)">*</span></th>
+                <th style="width:70px">UOM</th>
+                <th style="width:100px">Basic Rate</th>
+                <th style="width:110px">Amount</th>
+                <th style="width:110px">Batch No</th>
+                <th style="width:120px">Serial No</th>
+                <th class="se-finished-col" style="width:70px">Finished</th>
+                <th class="se-subbom-col" style="width:90px">Gross Wt</th>
+                <th class="se-subbom-col" style="width:90px">Net Wt</th>
+                <th class="se-subbom-col" style="width:75px">Tounch</th>
+                <th class="se-subbom-col" style="width:80px">Wastage</th>
+                <th class="se-subbom-col" style="width:80px">BOM</th>
+                <th style="width:34px"></th>
+              </tr></thead>
+              <tbody id="itemsTbody"></tbody>
+            </table>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin:8px 4px;flex-wrap:wrap;gap:10px">
+            <button class="cd-add-row" onclick="addRow()"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Item Row</button>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+              <div style="display:flex;gap:18px;font-size:12.5px;color:var(--text-secondary)">
+                <div>Total Outgoing: <strong id="totOutgoing" style="color:var(--text-primary)">0</strong></div>
+                <div>Total Incoming: <strong id="totIncoming" style="color:var(--text-primary)">0</strong></div>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px">
+                <button type="button" class="cd-add-row" onclick="downloadExcel()">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  Download
+                </button>
+                <button type="button" class="cd-add-row" onclick="document.getElementById('excelUpload').click()">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                  Upload
+                </button>
+                <input type="file" id="excelUpload" accept=".csv" onchange="uploadExcel(event)" hidden>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="height:20px"></div>
+    </div>
+
+    <div class="cd-footer">
+      <button class="cd-btn cd-btn-danger" id="cdCancelBtn" style="display:none" onclick="cancelDoc()"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>Cancel</button>
+      <div class="cd-footer-right">
+        <button class="cd-btn cd-btn-primary" id="cdMainActionBtn" onclick="saveDraft()"><svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CSV Map Dialog -->
+<div class="cd-idialog-overlay" id="csvMapOverlay" onclick="closeCsvMapDialog()"></div>
+<div class="cd-idialog" id="csvMapDialog" style="width:600px;max-width:96vw">
+  <div class="cd-idialog-header">
+    <div>
+      <div class="cd-idialog-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>
+        Map CSV Columns
+      </div>
+      <div style="font-size:11px;color:var(--text-muted);margin-top:3px" id="csvMapSubtitle">Map each CSV column to the corresponding table field</div>
+    </div>
+    <div class="cd-idialog-close" onclick="closeCsvMapDialog()">
+      <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </div>
+  </div>
+  <div class="cd-idialog-body" style="padding:0">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;background:var(--bg);border-bottom:.5px solid var(--border);padding:8px 24px">
+      <div style="font-size:10px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">CSV Column</div>
+      <div style="font-size:10px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">Map To Field</div>
+    </div>
+    <div id="csvMapRows" style="max-height:360px;overflow-y:auto"></div>
+  </div>
+  <div style="font-size:11.5px;color:var(--text-muted);padding:8px 24px 0;display:flex;align-items:center;gap:6px">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;flex-shrink:0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <span id="csvMapInfo">0 rows will be imported</span>
+  </div>
+  <div class="cd-idialog-footer">
+    <button class="cd-btn cd-btn-secondary" onclick="closeCsvMapDialog()">Cancel</button>
+    <div style="margin-left:auto">
+      <button class="cd-btn cd-btn-primary" onclick="confirmCsvImport()">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        Import Rows
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Item Picker Dialog -->
+<div class="cd-idialog-overlay" id="itemDialogOverlay" onclick="closeItemDialog()"></div>
+<div class="cd-idialog" id="itemDialog" style="width:1100px;max-width:96vw">
+  <div class="cd-idialog-header">
+    <div class="cd-idialog-title"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>Select Item</div>
+    <div class="cd-idialog-close" onclick="closeItemDialog()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+  </div>
+  <div class="cd-idialog-body" id="rmDialogRoot"></div>
+  <div class="cd-dlg-error" id="dlg-error"></div>
+  <div class="cd-dlg-result" id="dlg-result">
+    <div class="cd-dlg-result-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+    <div><div class="cd-dlg-result-code" id="dlg-result-code">-</div><div class="cd-dlg-result-name" id="dlg-result-name">-</div></div>
+  </div>
+  <div class="cd-idialog-footer">
+    <button class="cd-btn cd-btn-secondary" onclick="closeItemDialog()">Cancel</button>
+    <div style="margin-left:auto"><button class="cd-btn cd-btn-primary" id="dlg-add-btn" onclick="addItemToRow()"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Item</button></div>
+  </div>
+</div>
+
+<!-- Make BOM Dialog — raw-material breakup for a Receive From Subcontractor item row, seeded
+     from the issued BOM (if any) and edited to reflect actual consumption. -->
+<div class="cd-idialog-overlay" id="mkbomDialogOverlay" onclick="closeMakeBomDialog()"></div>
+<div class="cd-idialog" id="mkbomDialog" style="width:1200px;max-width:97vw;max-height:90vh">
+  <div class="cd-idialog-header">
+    <div class="cd-idialog-title">
+      <svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+      Make BOM
+      <span style="font-size:11px;font-weight:400;color:var(--text-muted)" id="mkbom-fg-label"></span>
+    </div>
+    <div class="cd-idialog-close" onclick="closeMakeBomDialog()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+  </div>
+  <div class="cd-idialog-body" id="mkbom-panel" style="padding:0"></div>
+  <div class="cd-idialog-footer">
+    <span style="font-size:12px;color:var(--text-muted)" id="mkbom-status-text">Pick raw materials, then Save.</span>
+    <div style="margin-left:auto;display:flex;gap:8px">
+      <button class="cd-btn cd-btn-secondary" onclick="closeMakeBomDialog()">Cancel</button>
+      <button class="cd-btn cd-btn-primary" id="mkbom-save-btn" onclick="mkbomSave()">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Save BOM
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="cd-toast" id="cdToast"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span id="cdToastMsg"></span></div>
+
+<script>
+// ══════════════════════════════════════════
+//  CONFIG
+// ══════════════════════════════════════════
+const COMPANY = 'P.P. Jewellers Retail Pvt. Ltd.';
+const DEV1    = 'https://ppj-dev1.m.frappe.cloud';
+const DEV2    = 'https://ppj-dev2.m.frappe.cloud';
+
+let WAREHOUSES        = [];
+let WAREHOUSE_RECORDS = []; // [{name, custom_supplier}] — used to derive Target Warehouse from Supplier
+let SUPPLIERS         = [];
+let SE_ITEMS           = [];
+let STOCK_ENTRY_TYPES  = []; // [{name, purpose}]
+let rowCount            = 0;
+let submitted           = false;
+let currentSEName       = null;
+let _changeTrackingActive = false;
+
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function fmt(n){ return ''+Math.round(n||0).toLocaleString('en-IN'); }
+
+// ══════════════════════════════════════════
+//  TOKEN AUTH
+// ══════════════════════════════════════════
+function getDevHeaders(){
+  const key    = localStorage.getItem('cd_api_key');
+  const secret = localStorage.getItem('cd_api_secret');
+  if(!key || !secret) return null;
+  return { 'Authorization': `token ${key}:${secret}`, 'Content-Type':'application/json', 'Accept':'application/json' };
+}
+async function dev1Get(endpoint){
+  const res = await fetch(`${cdGetInstanceUrl()}${endpoint}`, { headers: getDevHeaders() });
+  if(res.status===401){ _handle401(); throw new Error('Session expired'); }
+  const d = await res.json();
+  if(!res.ok){ const msg=d?.exception||d?.message||('HTTP '+res.status); throw new Error(String(msg).split('\n')[0].slice(0,300)); }
+  return d;
+}
+async function dev1Post(endpoint, body){
+  const res = await fetch(`${cdGetInstanceUrl()}${endpoint}`, { method:'POST', headers:getDevHeaders(), body:JSON.stringify(body) });
+  if(res.status===401){ _handle401(); throw new Error('Session expired'); }
+  const d = await res.json();
+  if(!res.ok){ const msg=d?.exception||d?.message||('HTTP '+res.status); throw new Error(String(msg).split('\n')[0].slice(0,300)); }
+  return d;
+}
+async function dev1Put(endpoint, body){
+  const res = await fetch(`${cdGetInstanceUrl()}${endpoint}`, { method:'PUT', headers:getDevHeaders(), body:JSON.stringify(body) });
+  if(res.status===401){ _handle401(); throw new Error('Session expired'); }
+  const d = await res.json();
+  if(!res.ok){ const msg=d?.exception||d?.message||('HTTP '+res.status); throw new Error(String(msg).split('\n')[0].slice(0,300)); }
+  return d;
+}
+function _handle401(){
+  const active = typeof cdGetActiveInstance==='function' ? cdGetActiveInstance() : 'PP';
+  if(active==='PC'){
+    showToast('PC session expired — switching back to PP','error');
+    const ppKey=localStorage.getItem('cd_pp_key'), ppSec=localStorage.getItem('cd_pp_secret');
+    if(ppKey&&ppSec){
+      localStorage.setItem('cd_active_instance','PP');
+      localStorage.setItem('cd_api_key',ppKey);
+      localStorage.setItem('cd_api_secret',ppSec);
+    }
+    setTimeout(()=>window.location.reload(),1800);
+  } else {
+    showToast('Session expired - please log in again','error');
+    setTimeout(()=>window.location.href='/caratdesk-login',1500);
+  }
+}
+
+// Returns fieldnames flagged "In Global Search" on a doctype, so item search can match them too.
+async function getGlobalSearchFields(doctype){
+  try{
+    const filters=encodeURIComponent(JSON.stringify([["parent","=",doctype],["in_global_search","=",1]]));
+    const res=await dev1Get(`/api/resource/DocField?filters=${filters}&fields=${encodeURIComponent('["fieldname"]')}&limit_page_length=0`);
+    return (res.data||res.message||[]).map(d=>d.fieldname).filter(Boolean);
+  }catch(e){ console.warn('getGlobalSearchFields error ('+doctype+'):', e.message); return []; }
+}
+
+// ══════════════════════════════════════════
+//  PURPOSE RULES
+// ══════════════════════════════════════════
+const PURPOSE_RULES = {
+  'Material Issue'                       : { fromWh:true,  toWh:false, needSrcRow:true,  needTgtRow:false, bom:false },
+  'Material Receipt'                     : { fromWh:false, toWh:true,  needSrcRow:false, needTgtRow:true,  bom:false },
+  'Material Transfer'                    : { fromWh:true,  toWh:true,  needSrcRow:true,  needTgtRow:true,  bom:false },
+  'Material Transfer for Manufacture'    : { fromWh:true,  toWh:true,  needSrcRow:true,  needTgtRow:true,  bom:false },
+  'Material Consumption for Manufacture' : { fromWh:true,  toWh:false, needSrcRow:true,  needTgtRow:false, bom:false },
+  'Manufacture'                          : { fromWh:true,  toWh:true,  needSrcRow:true,  needTgtRow:true,  bom:true  },
+  'Repack'                               : { fromWh:true,  toWh:true,  needSrcRow:true,  needTgtRow:true,  bom:true  },
+  'Send to Subcontractor'                : { fromWh:true,  toWh:true,  needSrcRow:true,  needTgtRow:true,  bom:false, supplierResolves:'to'   },
+  'Subcontracting Return'                : { fromWh:true,  toWh:true,  needSrcRow:true,  needTgtRow:true,  bom:false, supplierResolves:'from' },
+  'Receive From Subcontractor'           : { fromWh:true,  toWh:true,  needSrcRow:true,  needTgtRow:true,  bom:false, supplierResolves:'from', pickBatchSerial:true, subBom:true },
+  'Disassemble'                          : { fromWh:true,  toWh:true,  needSrcRow:true,  needTgtRow:true,  bom:false },
+};
+
+function onStockEntryTypeChange(){
+  const typeName = document.getElementById('stockEntryType').value;
+  const typeRec  = STOCK_ENTRY_TYPES.find(t=>t.name===typeName);
+  const purpose  = typeRec?.purpose || typeName || '';
+  document.getElementById('purposeDisplay').value = purpose;
+
+  const rules = currentJobWorkRules();
+
+  document.getElementById('fromWhField').style.display  = rules.fromWh ? '' : 'none';
+  document.getElementById('toWhField').style.display    = rules.toWh   ? '' : 'none';
+  document.getElementById('bomFieldWrap').style.display = rules.bom   ? '' : 'none';
+  document.getElementById('subBomFieldWrap').style.display = rules.subBom ? '' : 'none';
+  document.getElementById('fgQtyField').style.display    = purpose==='Manufacture' ? '' : 'none';
+  document.getElementById('seItemsTable').classList.toggle('show-finished', rules.bom);
+  document.getElementById('seItemsTable').classList.toggle('show-subbom', rules.subBom);
+  document.querySelectorAll('#itemsTbody [id^="addbom-"]').forEach(btn=>{
+    btn.style.opacity      = rules.subBom ? '1' : '.35';
+    btn.style.pointerEvents = rules.subBom ? 'auto' : 'none';
+  });
+  if(rules.subBom) populateAgainstStockEntrySelect();
+
+  updateJobWorkFieldRoles(rules);
+}
+
+// ══════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', async () => {
+  document.getElementById('postingDate').value = new Date().toISOString().slice(0,10);
+  document.getElementById('postingTime').value = new Date().toTimeString().slice(0,8);
+
+  await loadMasterData();
+
+  const params = new URLSearchParams(window.location.search);
+  const seName = params.get('name');
+  if(seName){ await loadExistingSE(seName); return; }
+  onStockEntryTypeChange();
+  addRow();
+});
+
+async function loadMasterData(){
+  try{
+    const whRes = await dev1Get('/api/resource/Warehouse?fields=["name","custom_supplier"]&limit_page_length=500');
+    WAREHOUSE_RECORDS = whRes.data||whRes.message||[];
+    WAREHOUSES = WAREHOUSE_RECORDS.map(w=>w.name);
+    populateWarehouseSelects();
+  }catch(e){ console.warn('Warehouse load failed:', e.message); }
+
+  try{
+    const supRes = await dev1Get('/api/resource/Supplier?fields=["name","supplier_name"]&limit_page_length=500');
+    SUPPLIERS = supRes.data||supRes.message||[];
+  }catch(e){ console.warn('Supplier load failed:', e.message); }
+
+  try{
+    const setRes = await dev1Get('/api/resource/Stock%20Entry%20Type?fields=["name","purpose"]&limit_page_length=100');
+    STOCK_ENTRY_TYPES = (setRes.data||setRes.message||[]);
+    populateStockEntryTypes();
+  }catch(e){ console.warn('Stock Entry Type load failed:', e.message); }
+
+  try{
+    const ITEM_BASE_FIELDS = ["item_code","item_name","stock_uom","standard_rate","item_group"];
+    const gsFields  = await getGlobalSearchFields('Item');
+    const itemFields = [...new Set([...ITEM_BASE_FIELDS, ...gsFields])];
+    const itemRes = await dev1Get(`/api/resource/Item?fields=${encodeURIComponent(JSON.stringify(itemFields))}&limit_page_length=1000`);
+    SE_ITEMS = (itemRes.data||itemRes.message||[]).map(i=>({
+      code: i.item_code, name: i.item_name||i.item_code, uom: i.stock_uom||'Nos', rate: parseFloat(i.standard_rate||0),
+      _search: itemFields.map(f=>String(i[f]||'')).join(' ').toLowerCase()
+    }));
+  }catch(e){ console.warn('Item load failed:', e.message); }
+}
+
+function warehouseOptionsHtml(){
+  return '<option value="">- Select Warehouse -</option>' + WAREHOUSES.map(w=>`<option value="${esc(w)}">${esc(w)}</option>`).join('');
+}
+
+// Fills a manual (non supplier-resolved) warehouse <select> with the full list, keeping
+// its current value selected if still valid.
+function populateWarehouseSelect(sel){
+  if(!sel) return;
+  const cur = sel.value;
+  sel.innerHTML = warehouseOptionsHtml();
+  if(cur) sel.value = cur;
+}
+
+function currentJobWorkRules(){
+  const purpose  = document.getElementById('purposeDisplay')?.value || '';
+  const typeName = document.getElementById('stockEntryType')?.value || '';
+  const base = PURPOSE_RULES[purpose] || { fromWh:true, toWh:true, needSrcRow:false, needTgtRow:false, bom:false };
+  // See JOB_WORK_SUPPLIER_RESOLVES above — the type name is the reliable source for this,
+  // not the master's "purpose" field.
+  const supplierResolves = JOB_WORK_SUPPLIER_RESOLVES[typeName] ?? base.supplierResolves ?? null;
+  return { ...base, supplierResolves };
+}
+
+function populateWarehouseSelects(){
+  const rules = currentJobWorkRules();
+  if(rules.supplierResolves !== 'from') populateWarehouseSelect(document.getElementById('fromWarehouse'));
+  if(rules.supplierResolves !== 'to')   populateWarehouseSelect(document.getElementById('toWarehouse'));
+  document.querySelectorAll('#itemsTbody [data-f="s_warehouse"]').forEach(sel=>{
+    if(rules.supplierResolves !== 'from') populateWarehouseSelect(sel);
+  });
+  document.querySelectorAll('#itemsTbody [data-f="t_warehouse"]').forEach(sel=>{
+    if(rules.supplierResolves !== 'to') populateWarehouseSelect(sel);
+  });
+}
+
+// ── Supplier search (type-ahead against Supplier master, same pattern as the Purchase
+//    Receipt page's Supplier field) — replaces the old plain <select> ──
+function jwSupplierSorted(){
+  return [...SUPPLIERS].sort((a,b)=>(a.supplier_name||a.name).localeCompare(b.supplier_name||b.name,'en',{sensitivity:'base'}));
+}
+function renderJwSupplierAcItem(s){
+  const sub = s.supplier_name && s.supplier_name!==s.name ? s.name : '';
+  return `<div class="cd-ac-item" role="option" data-name="${encodeURIComponent(s.name)}"><div class="main">${esc(s.supplier_name||s.name)}</div>${sub?`<div class="sub">${esc(sub)}</div>`:''}</div>`;
+}
+function jwSupplierAc(q, forceShow){
+  const list = document.getElementById('ac-jwSupplier'); if(!list) return;
+  const query = (q||'').trim().toLowerCase();
+  if(!forceShow && !query){ list.classList.remove('open'); return; }
+  if(!SUPPLIERS.length){ list.innerHTML = '<div class="cd-ac-empty">Loading suppliers…</div>'; list.classList.add('open'); return; }
+  const sorted = jwSupplierSorted();
+  const results = (query
+    ? sorted.filter(s=>(s.supplier_name||s.name).toLowerCase().includes(query) || s.name.toLowerCase().includes(query))
+    : sorted).slice(0,20);
+  list.innerHTML = results.length
+    ? results.map(renderJwSupplierAcItem).join('')
+    : `<div class="cd-ac-empty">No supplier found${query?' for "'+esc(q)+'"':''}</div>`;
+  list.classList.add('open');
+}
+function jwSupplierBlur(){
+  setTimeout(()=>{ document.getElementById('ac-jwSupplier')?.classList.remove('open'); }, 150);
+}
+function jwSelectSupplier(name){
+  const s = SUPPLIERS.find(x=>x.name===name);
+  document.getElementById('jobWorkSupplier').value = s ? (s.supplier_name||s.name) : name;
+  document.getElementById('ac-jwSupplier')?.classList.remove('open');
+  onJobWorkSupplierChange();
+}
+document.getElementById('ac-jwSupplier')?.addEventListener('mousedown', function(e){
+  e.preventDefault();
+  const item = e.target.closest('.cd-ac-item'); if(!item) return;
+  jwSelectSupplier(decodeURIComponent(item.dataset.name));
+});
+// Resolves the input's displayed text (which may be a typed name, not yet matched) back
+// to the actual Supplier docname, the same way Purchase Receipt's getCurrentSupplierName() does.
+function getCurrentJobWorkSupplierName(){
+  const input = document.getElementById('jobWorkSupplier')?.value?.trim() || '';
+  const s = SUPPLIERS.find(x=>x.name===input || x.supplier_name===input);
+  return s?.name || input;
+}
+
+// One of Source/Target Warehouse is driven by the selected Supplier's linked Warehouse
+// (via that Warehouse's "custom_supplier" field) instead of being picked directly — which
+// one depends on the purpose: "Send to Subcontractor" resolves Target (goods land at the
+// karigar's warehouse); "Subcontracting Return" resolves Source (goods come back out
+// of it). The other field stays a normal manual picker. Called whenever the Supplier or the
+// Stock Entry Type changes.
+function updateJobWorkFieldRoles(rules){
+  const fromSel = document.getElementById('fromWarehouse');
+  const toSel   = document.getElementById('toWarehouse');
+  const resolves = rules.supplierResolves || null;
+
+  fromSel.disabled = resolves === 'from';
+  toSel.disabled   = resolves === 'to';
+  fromSel.classList.toggle('cd-readonly', resolves === 'from');
+  toSel.classList.toggle('cd-readonly', resolves === 'to');
+
+  if(resolves !== 'from') populateWarehouseSelect(fromSel);
+  if(resolves !== 'to')   populateWarehouseSelect(toSel);
+
+  onJobWorkSupplierChange();
+}
+
+function onJobWorkSupplierChange(){
+  const rules = currentJobWorkRules();
+  const resolves = rules.supplierResolves;
+  if(!resolves) return;
+
+  const supplier = getCurrentJobWorkSupplierName();
+  const resolvedSel = document.getElementById(resolves==='from' ? 'fromWarehouse' : 'toWarehouse');
+  const notifyRowSync = resolves==='from' ? onFromWarehouseChange : onToWarehouseChange;
+
+  if(!supplier){
+    resolvedSel.innerHTML = '<option value="">- Select Supplier First -</option>';
+    notifyRowSync();
+    return;
+  }
+  const wh = WAREHOUSE_RECORDS.find(w=>w.custom_supplier===supplier);
+  if(!wh){
+    resolvedSel.innerHTML = '<option value="">- No Warehouse linked to this Supplier -</option>';
+    showToast('No Warehouse has "Custom Supplier" set to this Supplier — set it on the Warehouse in ERPNext first.', 'error', 6000);
+    notifyRowSync();
+    return;
+  }
+  resolvedSel.innerHTML = `<option value="${esc(wh.name)}" selected>${esc(wh.name)}</option>`;
+  notifyRowSync();
+
+  if(rules.subBom) populateAgainstStockEntrySelect();
+}
+
+// ══════════════════════════════════════════
+//  AGAINST STOCK ENTRY (Receive From Subcontractor → Send to Subcontractor)
+// ══════════════════════════════════════════
+// Lists open "Send to Subcontractor" entries for the selected supplier so a receive entry
+// can be tied back to what was actually issued — pending qty per item is (issued qty - already
+// received qty across prior receives against the same send entry).
+async function populateAgainstStockEntrySelect(){
+  const sel = document.getElementById('againstStockEntry');
+  const supplier = getCurrentJobWorkSupplierName();
+  if(!supplier){ sel.innerHTML = '<option value="">- Select Supplier First -</option>'; return; }
+  sel.innerHTML = '<option value="">Loading…</option>';
+  try{
+    // Supplier isn't a native Stock Entry field for this purpose — it's resolved via the
+    // warehouse (see updateJobWorkFieldRoles), so filter by the karigar's warehouse instead.
+    const wh = document.getElementById('fromWarehouse')?.value || '';
+    const whFilters = encodeURIComponent(JSON.stringify([
+      ['docstatus','=',1],
+      ['purpose','=','Send to Subcontractor'],
+      ...(wh ? [['to_warehouse','=',wh]] : []),
+    ]));
+    const fields = encodeURIComponent(JSON.stringify(['name','posting_date']));
+    const res = await dev1Get(`/api/resource/Stock Entry?filters=${whFilters}&fields=${fields}&order_by=posting_date desc&limit_page_length=100`);
+    const rows = res.data || res.message || [];
+    if(!rows.length){
+      sel.innerHTML = '<option value="">- No open Send-to-Subcontractor entries -</option>';
+      document.getElementById('loadAgainstSeBtn').disabled = true;
+      return;
+    }
+    sel.innerHTML = '<option value="">- Select -</option>' + rows.map(r=>`<option value="${esc(r.name)}">${esc(r.name)} (${esc(r.posting_date||'')})</option>`).join('');
+  }catch(e){
+    sel.innerHTML = '<option value="">- Failed to load -</option>';
+    console.warn('populateAgainstStockEntrySelect error:', e.message);
+  }
+}
+function onAgainstStockEntryChange(){
+  document.getElementById('loadAgainstSeBtn').disabled = !document.getElementById('againstStockEntry').value;
+}
+
+// A Send entry issues RAW MATERIALS to the karigar (e.g. Gold 22K, Diamond); a Receive entry
+// gets back the FINISHED item — different item codes, so there's no item-to-item "pending qty"
+// match like PO→PR. Instead we track a raw-material pool: what was issued, minus what's already
+// been accounted for in the BOMs of prior Receive entries against this same Send entry. That
+// pool is what pre-seeds the "Make BOM" builder when you build the breakup for a finished item
+// you've added to this receipt — you edit it down to what was actually consumed.
+let PENDING_RM_SEED = []; // [{item_code, item_name, uom, qty}] — mutated as rows claim from it
+let AGAINST_SE_NAME = '';
+
+async function loadItemsFromAgainstSE(){
+  const sendName = document.getElementById('againstStockEntry').value;
+  if(!sendName){ showToast('Select a Send to Subcontractor entry first','error'); return; }
+  try{
+    showToast('Loading issued raw materials…','info');
+    const sendRes = await dev1Get(`/api/resource/Stock Entry/${encodeURIComponent(sendName)}`);
+    const sendItems = (sendRes.data || sendRes.message || {}).items || [];
+
+    const issuedByItem = {};
+    sendItems.forEach(it=>{
+      const code = it.item_code; if(!code) return;
+      if(!issuedByItem[code]) issuedByItem[code] = { item_code: code, item_name: it.item_name||code, uom: it.uom||'Gram', qty: 0 };
+      issuedByItem[code].qty += parseFloat(it.qty)||0;
+    });
+
+    // Subtract raw material already consumed by prior Receive entries against this Send entry,
+    // read off each of their items' linked BOM (custom_bom → BOM Item rows).
+    const recvFilters = encodeURIComponent(JSON.stringify([
+      ['docstatus','!=',2],
+      ['purpose','=','Receive From Subcontractor'],
+      ['custom_against_stock_entry','=', sendName],
+    ]));
+    const recvRes = await dev1Get(`/api/resource/Stock Entry?filters=${recvFilters}&fields=${encodeURIComponent(JSON.stringify(['name']))}&limit_page_length=100`);
+    const recvNames = (recvRes.data||recvRes.message||[]).map(r=>r.name).filter(n=>n!==currentSEName);
+    for(const recvName of recvNames){
+      const d = await dev1Get(`/api/resource/Stock Entry/${encodeURIComponent(recvName)}`);
+      const recvItems = (d.data||d.message||{}).items || [];
+      for(const it of recvItems){
+        if(!it.custom_bom) continue;
+        try{
+          const bomD = await dev1Get(`/api/resource/BOM/${encodeURIComponent(it.custom_bom)}`);
+          ((bomD.data||bomD.message||{}).items||[]).forEach(bi=>{
+            if(issuedByItem[bi.item_code]) issuedByItem[bi.item_code].qty -= parseFloat(bi.qty)||0;
+          });
+        }catch(e){ console.warn('Failed to read consumed BOM', it.custom_bom, e.message); }
+      }
+    }
+
+    PENDING_RM_SEED = Object.values(issuedByItem).map(r=>({...r, qty: Math.max(0, r.qty)})).filter(r=>r.qty > 0);
+    AGAINST_SE_NAME = sendName;
+
+    if(!PENDING_RM_SEED.length){
+      showToast('Nothing pending — all raw material issued on '+sendName+' is already accounted for in BOMs', 'info');
+    } else {
+      const summary = PENDING_RM_SEED.map(r=>`${r.item_code}: ${r.qty.toFixed(3)} ${r.uom}`).join(', ');
+      showToast('Pending raw material ready to seed BOMs: '+summary, 'success', 7000);
+    }
+  }catch(e){
+    showToast('Failed to load Send entry: '+e.message,'error');
+  }
+}
+
+// ══════════════════════════════════════════
+//  MAKE BOM DIALOG — raw-material breakup for one receive row
+//  (Reuses the same template→attribute→variant picker infra as the main Item Picker
+//   dialog above: getAllDescendantGroups / fetchTemplatesByGroups / makePillsWithAbbr /
+//   loadingEl / makeRow, all already defined for openItemDialog.)
+// ══════════════════════════════════════════
+const BOM_RM_ROOT_GROUP = 'Raw Material';
+const BOM_UOMS = ['Gram','Carat','Nos','kg','Pair','Set','Pcs'];
+const UOM_MAP = {
+  'g':'Gram','gm':'Gram','Gm':'Gram','GM':'Gram','gram':'Gram','Gram':'Gram','GRAM':'Gram',
+  'ct':'Carat','Ct':'Carat','CT':'Carat','carat':'Carat','Carat':'Carat','CARAT':'Carat','caret':'Carat','Caret':'Carat',
+  'kg':'kg','KG':'kg','Kg':'kg','kilogram':'kg','Kilogram':'kg',
+  'nos':'Nos','Nos':'Nos','NOS':'Nos','pair':'Pair','Pair':'Pair','set':'Set','Set':'Set','pcs':'Pcs','Pcs':'Pcs','PCS':'Pcs',
+};
+function mapUom(u){ return UOM_MAP[u] || u; }
+
+const PURITY_OPTIONS = [
+  { value:'', label:'- Select -' },
+  { value:'99.9', label:'99.9' }, { value:'92.0', label:'92.0' }, { value:'91.6', label:'91.6' },
+  { value:'83.4', label:'83.4' }, { value:'75.0', label:'75.0' }, { value:'58.5', label:'58.5' },
+];
+function tounchOptions(selected){
+  return PURITY_OPTIONS.map(o=>`<option value="${o.value}"${o.value===selected?' selected':''}>${o.label}</option>`).join('');
+}
+
+let mkbomRowId = null;
+let mkbomStaging = [];               // working list for the currently-open row
+const ROW_BOM_STAGING = {};          // rowId -> staging array, kept across dialog open/close
+let mkbomSel = { type:null, template:null };
+let mkbomAttrVals = {}, mkbomAttrs = [], mkbomMatchedItem = null;
+
+function openBomForRow(rowId){
+  const rules = currentJobWorkRules();
+  if(!rules.subBom) return;
+  const tr = document.getElementById(rowId);
+  const fgCode = tr?.querySelector('[data-f="code"]')?.value?.trim();
+  const fgName = tr?.querySelector('[data-f="item_name"]')?.value?.trim() || fgCode;
+  if(!fgCode){ showToast('Pick the item on this row before adding a BOM','error'); return; }
+
+  mkbomRowId = rowId;
+  // First time opening this row: seed from the pending raw-material pool (if any was loaded
+  // via "Load Pending Items"), and claim those qtys out of the shared pool so a second row
+  // won't also seed the same material.
+  if(!ROW_BOM_STAGING[rowId]){
+    const seeded = [];
+    if(PENDING_RM_SEED.length){
+      PENDING_RM_SEED.forEach(rm=>{
+        if(rm.qty <= 0) return;
+        seeded.push({ itemCode: rm.item_code, itemName: rm.item_name, uom: mapUom(rm.uom), qty: rm.qty, rate: 0, amount: 0, addInNetWt: true,
+          goldColour:'', goldPurity:'', diaType:'', diaShape:'', diaGrade:'', diaSieve:'' });
+        rm.qty = 0; // claimed
+      });
+      PENDING_RM_SEED = PENDING_RM_SEED.filter(rm=>rm.qty > 0);
+    }
+    ROW_BOM_STAGING[rowId] = seeded;
+  }
+  mkbomStaging = ROW_BOM_STAGING[rowId];
+
+  document.getElementById('mkbom-fg-label').textContent = '— ' + fgCode + (fgName && fgName!==fgCode ? ' · '+fgName : '');
+  document.getElementById('mkbom-panel').innerHTML = mkbomPanelHTML();
+  mkbomSel = { type:null, template:null }; mkbomAttrVals = {}; mkbomAttrs = []; mkbomMatchedItem = null;
+  mkbomInitPicker();
+  mkbomRenderStaging();
+  document.getElementById('mkbomDialog').classList.add('open');
+  document.getElementById('mkbomDialogOverlay').classList.add('open');
+}
+function closeMakeBomDialog(){
+  document.getElementById('mkbomDialog').classList.remove('open');
+  document.getElementById('mkbomDialogOverlay').classList.remove('open');
+  mkbomRowId = null;
+}
+
+function mkbomPanelHTML(){
+  return `
+    <div style="display:flex;height:520px">
+      <div style="flex:1;min-width:0;border-right:.5px solid var(--border);display:flex;flex-direction:column">
+        <div style="padding:10px 20px 6px;border-bottom:.5px solid var(--border);background:var(--bg)">
+          <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">Select Raw Material</div>
+        </div>
+        <div id="mkbom-picker" style="flex:1;overflow-y:auto"></div>
+        <div id="mkbom-result" style="display:none;margin:0;padding:8px 20px;background:var(--pill-green-bg);border-top:.5px solid rgba(59,109,17,.15)">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="width:22px;height:22px;border-radius:6px;background:var(--pill-green-txt);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div><div id="mkbom-result-code" style="font-size:12px;font-weight:600;color:var(--pill-green-txt)">-</div>
+            <div id="mkbom-result-name" style="font-size:11px;color:var(--pill-green-txt);opacity:.8">-</div></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr auto;gap:8px;align-items:flex-end;margin-top:10px">
+            <div style="display:flex;flex-direction:column;gap:3px">
+              <label style="font-size:10px;font-weight:500;color:var(--pill-green-txt)">UOM</label>
+              <select id="mkbom-uom" style="font-family:'DM Sans',sans-serif;font-size:11.5px;background:var(--surface);border:.5px solid rgba(59,109,17,.3);border-radius:7px;padding:5px 8px;color:var(--text-primary);outline:none;height:30px">
+                ${BOM_UOMS.map(u=>`<option value="${u}">${u}</option>`).join('')}
+              </select>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:3px">
+              <label style="font-size:10px;font-weight:500;color:var(--pill-green-txt)">Qty <span style="color:var(--pill-red-txt)">*</span></label>
+              <input type="number" id="mkbom-qty" value="1" min="0" step="0.001"
+                style="font-family:'DM Sans',sans-serif;font-size:11.5px;background:var(--surface);border:.5px solid rgba(59,109,17,.3);border-radius:7px;padding:5px 8px;color:var(--text-primary);outline:none;height:30px;text-align:right"
+                oninput="mkbomDlgRecalc()"/>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:3px">
+              <label style="font-size:10px;font-weight:500;color:var(--pill-green-txt)">Rate</label>
+              <input type="number" id="mkbom-rate" value="0" min="0" step="0.01"
+                style="font-family:'DM Sans',sans-serif;font-size:11.5px;background:var(--surface);border:.5px solid rgba(59,109,17,.3);border-radius:7px;padding:5px 8px;color:var(--text-primary);outline:none;height:30px;text-align:right"
+                oninput="mkbomDlgRecalc()"/>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:3px">
+              <label style="font-size:10px;font-weight:500;color:var(--pill-green-txt)">Amount</label>
+              <input type="number" id="mkbom-amt" value="0" min="0" step="0.01" oninput="mkbomDlgRecalcFromAmt()"
+                style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;background:rgba(59,109,17,.12);border:.5px solid rgba(59,109,17,.2);border-radius:7px;padding:5px 10px;height:30px;width:100%;text-align:right;color:var(--pill-green-txt);outline:none;cursor:text"/>
+            </div>
+            <button class="cd-btn cd-btn-green" onclick="mkbomAddToStaging()" style="height:30px;padding:0 12px;font-size:11.5px;white-space:nowrap;align-self:flex-end;background:var(--pill-green-txt);color:#fff">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add
+            </button>
+          </div>
+        </div>
+        <div id="mkbom-error" style="display:none;font-size:12px;color:var(--pill-red-txt);background:var(--pill-red-bg);border-top:.5px solid rgba(163,45,45,.15);padding:8px 20px"></div>
+      </div>
+      <div style="width:440px;flex-shrink:0;display:flex;flex-direction:column;background:var(--bg)">
+        <div style="padding:10px 16px 6px;border-bottom:.5px solid var(--border)">
+          <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">
+            Raw Materials <span id="mkbom-panel-count" style="background:var(--pill-green-bg);color:var(--pill-green-txt);padding:1px 6px;border-radius:10px;font-size:10px;margin-left:4px">0</span>
+          </div>
+        </div>
+        <div style="flex:1;overflow-y:auto;overflow-x:auto;padding:0">
+          <div id="mkbom-staging-empty" style="padding:24px 16px;text-align:center;font-size:12px;color:var(--text-muted)">No raw materials yet.<br/>Select from the left panel.</div>
+          <table style="width:100%;border-collapse:collapse;font-size:11px" id="mkbom-staging-tbl">
+            <thead><tr>
+              <th style="text-align:left;padding:6px 8px;color:var(--text-muted);font-weight:500">Item</th>
+              <th style="text-align:right;padding:6px 8px;color:var(--text-muted);font-weight:500">Qty</th>
+              <th style="text-align:center;padding:6px 4px;color:var(--text-muted);font-weight:500" title="Counts toward this row's Net Weight">Net Wt?</th>
+              <th style="width:24px"></th>
+            </tr></thead>
+            <tbody id="mkbom-staging-tbody"></tbody>
+          </table>
+        </div>
+        <div style="padding:10px 16px;border-top:.5px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:11px;color:var(--text-muted)">Total</span>
+          <span id="mkbom-panel-total" style="font-size:13px;font-weight:700;color:var(--text-primary)">0</span>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+async function mkbomInitPicker(){
+  const picker = document.getElementById('mkbom-picker'); if(!picker) return;
+  picker.innerHTML = '';
+  const loadEl = loadingEl('Loading raw material templates…');
+  picker.appendChild(makeRow('', 'Template', loadEl));
+  try{
+    const descendants = await getAllDescendantGroups(BOM_RM_ROOT_GROUP);
+    const groups = [BOM_RM_ROOT_GROUP, ...descendants].filter(g=>typeof g==='string' && g.trim());
+    const templates = await fetchTemplatesByGroups(groups);
+    if(!templates.length){
+      loadEl.replaceWith(Object.assign(document.createElement('div'),{className:'cd-ac-empty',textContent:'No raw material templates found'}));
+      return;
+    }
+    const entries = templates.map(t=>({ value: t.item_name||t.name, abbr: t.name }));
+    const pills = makePillsWithAbbr(entries, mkbomSel.template, (abbr)=>{
+      mkbomSel.template = abbr; mkbomAttrVals = {}; mkbomAttrs = []; mkbomMatchedItem = null;
+      mkbomHideResult(); mkbomClearError();
+      picker.querySelectorAll('[id^="mkbom-attr-row"]').forEach(r=>r.remove());
+      mkbomLoadAttrRows(picker, abbr);
+    });
+    loadEl.replaceWith(pills);
+  }catch(e){
+    loadEl.replaceWith(Object.assign(document.createElement('div'),{className:'cd-ac-empty',textContent:'Failed to load templates'}));
+  }
+}
+async function mkbomLoadAttrRows(picker, templateItemCode){
+  const loadRow = document.createElement('div'); loadRow.className='rm-row'; loadRow.id='mkbom-attr-row-loading';
+  loadRow.appendChild(loadingEl('Loading attributes…')); picker.appendChild(loadRow);
+  try{
+    const form = new FormData(); form.append('template_name', templateItemCode);
+    const res = await fetch('/api/method/caratdesk_get_template_attributes', { method:'POST', credentials:'same-origin', headers:{'X-Frappe-CSRF-Token':getCsrf()}, body: form });
+    const d = await res.json(); loadRow.remove();
+    const attrs = d.message?.attributes || [];
+    if(!attrs.length){ mkbomAttrs = []; await mkbomAutoSearch(); return; }
+    mkbomAttrs = attrs;
+    attrs.forEach((attr,i)=>{
+      const entries = (attr.values||[]).map(v=>typeof v==='object'?v:{value:v,abbr:v});
+      const pills = makePillsWithAbbr(entries, null, (abbr,value)=>{
+        mkbomAttrVals[attr.attribute] = { abbr, value };
+        mkbomHideResult(); mkbomClearError();
+        if(mkbomAttrs.every(a=>mkbomAttrVals[a.attribute])) mkbomAutoSearch();
+      });
+      picker.appendChild(makeRow('mkbom-attr-row-'+i, attr.label||attr.attribute, pills));
+    });
+  }catch(e){ loadRow.remove(); }
+}
+async function mkbomAutoSearch(){
+  mkbomHideResult(); mkbomClearError();
+  try{
+    const form = new FormData(); form.append('template_item_code', mkbomSel.template);
+    const abbrMap = {};
+    Object.entries(mkbomAttrVals).forEach(([k,v])=>{ abbrMap[k] = typeof v==='object' ? v.abbr : v; });
+    form.append('attributes', JSON.stringify(abbrMap));
+    const res = await fetch('/api/method/caratdesk_find_item_variant', { method:'POST', credentials:'same-origin', headers:{'X-Frappe-CSRF-Token':getCsrf()}, body: form });
+    const d = await res.json();
+    if(!d.message){ mkbomShowError('No item found. Check abbreviations or item setup.'); mkbomMatchedItem = null; }
+    else{ mkbomMatchedItem = d.message; mkbomShowResult(d.message); }
+  }catch(e){ mkbomShowError('Search failed: '+e.message); }
+}
+function mkbomShowResult(item){
+  document.getElementById('mkbom-result-code').textContent = item.item_code;
+  document.getElementById('mkbom-result-name').textContent = item.item_name;
+  document.getElementById('mkbom-result').style.display = 'block';
+  const cached = SE_ITEMS.find(i=>i.code===item.item_code);
+  const uom = mapUom(item.stock_uom || item.uom || cached?.uom || 'Gram');
+  const uomSel = document.getElementById('mkbom-uom');
+  if(uomSel){ let found=false; [...uomSel.options].forEach(o=>{ if(o.value===uom){ o.selected=true; found=true; } }); if(!found){ const op=document.createElement('option'); op.value=uom; op.textContent=uom; op.selected=true; uomSel.appendChild(op); } }
+  document.getElementById('mkbom-qty').value = '1';
+  document.getElementById('mkbom-rate').value = cached?.rate || 0;
+  document.getElementById('mkbom-amt').value = cached?.rate || 0;
+}
+function mkbomHideResult(){ const el=document.getElementById('mkbom-result'); if(el) el.style.display='none'; mkbomMatchedItem=null; }
+function mkbomShowError(msg){ const el=document.getElementById('mkbom-error'); if(el){ el.textContent=msg; el.style.display='block'; } }
+function mkbomClearError(){ const el=document.getElementById('mkbom-error'); if(el){ el.textContent=''; el.style.display='none'; } }
+function mkbomDlgRecalc(){
+  const qty = parseFloat(document.getElementById('mkbom-qty')?.value)||0;
+  const rate = parseFloat(document.getElementById('mkbom-rate')?.value)||0;
+  const amtEl = document.getElementById('mkbom-amt'); if(amtEl) amtEl.value = Math.round(qty*rate*100)/100;
+}
+function mkbomDlgRecalcFromAmt(){
+  const qty = parseFloat(document.getElementById('mkbom-qty')?.value)||0;
+  const amt = parseFloat(document.getElementById('mkbom-amt')?.value)||0;
+  const rateEl = document.getElementById('mkbom-rate'); if(rateEl && qty>0) rateEl.value = Math.round((amt/qty)*100)/100;
+}
+
+function mkbomAddToStaging(){
+  if(!mkbomMatchedItem){ mkbomShowError('Select all attributes — item will be found automatically.'); return; }
+  const qty = parseFloat(document.getElementById('mkbom-qty')?.value)||0;
+  if(qty<=0){ mkbomShowError('Enter a Qty greater than 0.'); return; }
+  const rate = parseFloat(document.getElementById('mkbom-rate')?.value)||0;
+  const amount = parseFloat(document.getElementById('mkbom-amt')?.value)||0;
+  const uom = document.getElementById('mkbom-uom')?.value || 'Gram';
+  const attrVals = {};
+  Object.entries(mkbomAttrVals).forEach(([k,v])=>{ attrVals[k] = typeof v==='object' ? v.value : v; });
+  mkbomStaging.push({
+    itemCode: mkbomMatchedItem.item_code, itemName: mkbomMatchedItem.item_name,
+    uom, qty, rate, amount, addInNetWt: true,
+    goldColour: attrVals['Gold Colour']||attrVals['Colour']||'', goldPurity: attrVals['Gold Purity']||attrVals['Purity']||'',
+    diaType: attrVals['Diamond Type']||'', diaShape: attrVals['Diamond Shape']||attrVals['Shape']||'',
+    diaGrade: attrVals['Diamond Grade']||attrVals['Grade']||'', diaSieve: attrVals['Sieve Size']||attrVals['Diamond Sieve Size']||'',
+  });
+  mkbomHideResult(); mkbomClearError();
+  mkbomRenderStaging();
+}
+function mkbomRemoveFromStaging(idx){ mkbomStaging.splice(idx,1); mkbomRenderStaging(); }
+function mkbomToggleNetWt(idx, checked){ mkbomStaging[idx].addInNetWt = checked; mkbomRenderStaging(); }
+function mkbomRenderStaging(){
+  const tbody = document.getElementById('mkbom-staging-tbody');
+  const empty = document.getElementById('mkbom-staging-empty');
+  const tbl    = document.getElementById('mkbom-staging-tbl');
+  if(!tbody) return;
+  if(!mkbomStaging.length){ empty.style.display='block'; tbl.style.display='none'; }
+  else { empty.style.display='none'; tbl.style.display='table'; }
+  tbody.innerHTML = mkbomStaging.map((r,i)=>`
+    <tr style="border-bottom:.5px solid var(--border)">
+      <td style="padding:6px 8px"><div style="font-weight:500">${esc(r.itemCode)}</div><div style="font-size:10px;color:var(--text-muted)">${esc(r.itemName)}</div></td>
+      <td style="padding:6px 8px;text-align:right">${r.qty.toFixed(3)} ${esc(r.uom)}</td>
+      <td style="padding:6px 4px;text-align:center"><input type="checkbox" ${r.addInNetWt?'checked':''} onchange="mkbomToggleNetWt(${i}, this.checked)"/></td>
+      <td style="padding:6px 4px;text-align:center"><button class="cd-del-btn" onclick="mkbomRemoveFromStaging(${i})"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></td>
+    </tr>
+  `).join('');
+  document.getElementById('mkbom-panel-count').textContent = mkbomStaging.length;
+  const total = mkbomStaging.reduce((s,r)=>s+(r.amount||0),0);
+  document.getElementById('mkbom-panel-total').textContent = total.toLocaleString('en-IN',{maximumFractionDigits:2});
+}
+
+// Saves the staged raw materials as a new BOM doc (never mutates the master/issued BOM — same
+// immutable-snapshot pattern Purchase Receipt uses for custom_bom), links it onto this row via
+// the hidden bom_id field, and recomputes the row's Gross/Net Weight from the breakup.
+async function mkbomSave(){
+  if(!mkbomRowId){ return; }
+  const tr = document.getElementById(mkbomRowId);
+  const fgCode = tr?.querySelector('[data-f="code"]')?.value?.trim();
+  if(!fgCode){ showToast('Item code missing on this row','error'); return; }
+  if(!mkbomStaging.length){ showToast('Add at least one raw material','error'); return; }
+
+  const saveBtn = document.getElementById('mkbom-save-btn');
+  saveBtn.disabled = true; saveBtn.textContent = 'Saving…';
+  try{
+    const items = mkbomStaging.map((row,i)=>({
+      doctype: 'BOM Item', idx: i+1,
+      item_code: row.itemCode, item_name: row.itemName,
+      qty: row.qty, stock_qty: row.qty, uom: mapUom(row.uom), stock_uom: mapUom(row.uom), conversion_factor: 1,
+      rate: row.rate, base_rate: row.rate, amount: row.amount, base_amount: row.amount,
+      include_item_in_manufacturing: 1, sourced_by_supplier: 0,
+      custom_fg_item_code: fgCode, custom_fg_item_name: fgCode,
+      custom_gold_colour: row.goldColour, custom_gold_purity: row.goldPurity, custom_metal_touch: row.goldPurity,
+      custom_diamond_type: row.diaType, custom_diamond_shape: row.diaShape,
+      custom_diamond_grade: row.diaGrade, custom_diamond_sieve_size: row.diaSieve,
+      custom_bom_amt: row.amount, custom_manual_rate: row.rate,
+      custom_add_in_net_wt: row.addInNetWt ? 1 : 0,
+    }));
+    const payload = {
+      doctype: 'BOM', item: fgCode, item_name: fgCode, company: COMPANY,
+      quantity: 1, uom: mapUom(SE_ITEMS.find(i=>i.code===fgCode)?.uom || 'Nos'),
+      is_active: 1, is_default: 0, with_operations: 0,
+      rm_cost_as_per: 'Valuation Rate', currency: 'INR', conversion_rate: 1,
+      items,
+    };
+    const result = await dev1Post('/api/resource/BOM', payload);
+    const bomName = result?.data?.name || result?.name;
+    if(!bomName) throw new Error('No BOM name returned');
+
+    const bomIdInp = tr.querySelector('[data-f="bom_id"]');
+    if(bomIdInp) bomIdInp.value = bomName;
+    const btn = document.getElementById('addbom-'+mkbomRowId);
+    if(btn) btn.title = 'BOM linked: ' + bomName;
+
+    syncBomWeightToRow(mkbomRowId);
+    showToast('BOM saved: '+bomName, 'success');
+    closeMakeBomDialog();
+  }catch(e){
+    showToast('Failed to save BOM: '+String(e.message).slice(0,150), 'error');
+  }finally{
+    saveBtn.disabled = false; saveBtn.textContent = 'Save BOM';
+  }
+}
+
+// Gross Wt = sum of every staged raw-material qty, in grams (Carat ÷ 5). Net Wt = only rows
+// flagged "Net Wt?" — mirrors Purchase Receipt's syncBomWeightToItem exactly.
+function syncBomWeightToRow(rowId){
+  const staging = ROW_BOM_STAGING[rowId] || [];
+  let grossWt = 0, netWt = 0;
+  staging.forEach(row=>{
+    const qtyGrams = String(row.uom).toLowerCase()==='carat' ? row.qty/5 : row.qty;
+    grossWt += qtyGrams;
+    if(row.addInNetWt) netWt += qtyGrams;
+  });
+  const tr = document.getElementById(rowId); if(!tr) return;
+  const gEl = tr.querySelector('[data-f="gross_wt"]'); if(gEl) gEl.value = grossWt ? grossWt.toFixed(3) : '';
+  const nEl = tr.querySelector('[data-f="net_wt"]');   if(nEl) nEl.value = netWt   ? netWt.toFixed(3)   : '';
+}
+
+// A row loaded from a saved document already has a linked BOM — pull its raw materials back
+// into ROW_BOM_STAGING so re-opening "BOM" on that row shows/edits the real breakup instead of
+// starting blank. Saving again creates a fresh BOM snapshot (the old one is left as history).
+async function preloadBomStagingForRow(rowId, bomName){
+  try{
+    const res = await dev1Get(`/api/resource/BOM/${encodeURIComponent(bomName)}`);
+    const bomDoc = res.data || res.message || {};
+    ROW_BOM_STAGING[rowId] = (bomDoc.items||[]).map(bi=>({
+      itemCode: bi.item_code, itemName: bi.item_name||bi.item_code,
+      uom: bi.uom||'Gram', qty: parseFloat(bi.qty)||0, rate: parseFloat(bi.rate)||0, amount: parseFloat(bi.amount)||0,
+      addInNetWt: !!bi.custom_add_in_net_wt,
+      goldColour: bi.custom_gold_colour||'', goldPurity: bi.custom_gold_purity||'',
+      diaType: bi.custom_diamond_type||'', diaShape: bi.custom_diamond_shape||'',
+      diaGrade: bi.custom_diamond_grade||'', diaSieve: bi.custom_diamond_sieve_size||'',
+    }));
+  }catch(e){ console.warn('preloadBomStagingForRow failed for', bomName, e.message); }
+}
+
+// Mirrors a resolved header warehouse value onto a single item row's cell, keeping it a
+// disabled single-option select (never independently editable).
+function syncResolvedWarehouseCell(sel, val){
+  if(!sel) return;
+  sel.innerHTML = val ? `<option value="${esc(val)}" selected>${esc(val)}</option>` : '<option value="">- Select Supplier First -</option>';
+  sel.disabled = true;
+  sel.classList.add('cd-readonly');
+}
+
+// This page is dedicated to Job Work — only these Stock Entry Types apply (sending raw
+// material out to a karigar / job worker, and getting unused material or finished goods
+// back), so the dropdown is restricted to just them rather than every type.
+// "Subcontracting Return" is the standard ERPNext type for the return-of-unused-material
+// leg. "Receive From Subcontractor" is a custom Stock Entry Type (not standard ERPNext —
+// subcontract receipts of finished goods normally go through the separate "Subcontracting
+// Receipt" doctype) created for this business to log finished-goods receipts back from the
+// karigar as a Stock Entry, with Batch No / Serial No picked from what's actually available
+// in the karigar's warehouse.
+const JOB_WORK_ENTRY_TYPES = ['Send to Subcontractor', 'Subcontracting Return', 'Receive From Subcontractor'];
+
+// Which header warehouse field the Supplier resolves into, keyed by the Stock Entry TYPE
+// NAME. The first two are standard ERPNext types whose "purpose" field literally equals
+// their name, so keying off either name or purpose works here — name is used for
+// consistency with JOB_WORK_ENTRY_TYPES above. "Receive From Subcontractor" is a custom
+// type whose purpose is expected to be set to "Material Transfer" or similar in Stock Entry
+// Type master, so it must be keyed by name, not purpose.
+const JOB_WORK_SUPPLIER_RESOLVES = {
+  'Send to Subcontractor'       : 'to',
+  'Subcontracting Return'       : 'from',
+  'Receive From Subcontractor'  : 'from',
+};
+
+function populateStockEntryTypes(){
+  const sel = document.getElementById('stockEntryType');
+  if(!sel || !STOCK_ENTRY_TYPES.length) return;
+  const cur = sel.value;
+  const jobWorkTypes = STOCK_ENTRY_TYPES.filter(t => JOB_WORK_ENTRY_TYPES.includes(t.name));
+  sel.innerHTML = '<option value="">- Select Type -</option>' +
+    jobWorkTypes.map(t=>`<option value="${esc(t.name)}">${esc(t.name)}</option>`).join('');
+  if(cur) sel.value = cur;
+  if(!jobWorkTypes.length){
+    console.warn('Neither "Send to Subcontractor" nor "Subcontracting Return" Stock Entry Type found — create them in Stock Entry Type master.');
+  }
+}
+
+function onFromWarehouseChange(){
+  const rules = currentJobWorkRules();
+  const val = document.getElementById('fromWarehouse').value;
+  document.querySelectorAll('#itemsTbody [data-f="s_warehouse"]').forEach(sel=>{
+    if(rules.supplierResolves === 'from') syncResolvedWarehouseCell(sel, val);
+    else if(!sel.value) sel.value = val;
+  });
+}
+function onToWarehouseChange(){
+  const rules = currentJobWorkRules();
+  const val = document.getElementById('toWarehouse').value;
+  document.querySelectorAll('#itemsTbody [data-f="t_warehouse"]').forEach(sel=>{
+    if(rules.supplierResolves === 'to') syncResolvedWarehouseCell(sel, val);
+    else if(!sel.value) sel.value = val;
+  });
+}
+
+// ══════════════════════════════════════════
+//  ITEMS TABLE
+// ══════════════════════════════════════════
+function addRow(d={}){
+  rowCount++;
+  const id = 'r'+rowCount;
+  const tr = document.createElement('tr'); tr.id = id;
+  const rules = currentJobWorkRules();
+  const whOptsS = '<option value="">- Select -</option>' + WAREHOUSES.map(w=>`<option value="${esc(w)}" ${w===(d.s_warehouse||'')?'selected':''}>${esc(w)}</option>`).join('');
+  const whOptsT = '<option value="">- Select -</option>' + WAREHOUSES.map(w=>`<option value="${esc(w)}" ${w===(d.t_warehouse||'')?'selected':''}>${esc(w)}</option>`).join('');
+  const sCellHtml = rules.supplierResolves === 'from'
+    ? '<select data-f="s_warehouse" disabled class="cd-readonly"><option value="">- Select Supplier First -</option></select>'
+    : `<select data-f="s_warehouse">${whOptsS}</select>`;
+  const tCellHtml = rules.supplierResolves === 'to'
+    ? '<select data-f="t_warehouse" disabled class="cd-readonly"><option value="">- Select Supplier First -</option></select>'
+    : `<select data-f="t_warehouse">${whOptsT}</select>`;
+  tr.innerHTML = `
+    <td>${rowCount}</td>
+    <td>
+      <div style="display:flex;align-items:center;gap:4px">
+        <button class="cd-pick-btn" id="pickbtn-${id}" onclick="openItemDialog('${id}')" style="flex-shrink:0">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </button>
+        <div class="cd-ac" style="min-width:110px;flex:1">
+          <input placeholder="Item Code…" data-f="code" value="${esc(d.item_code||'')}" autocomplete="off"
+            oninput="seItemAc(this,'${id}')" onfocus="seItemAc(this,'${id}')" onblur="seItemBlur(this,'${id}')"/>
+          <div class="cd-ac-list" id="seac-${id}" style="min-width:260px"></div>
+        </div>
+      </div>
+    </td>
+    <td><input data-f="item_name" value="${esc(d.item_name||'')}" readonly style="opacity:.65;font-size:11px"/></td>
+    <td>${sCellHtml}</td>
+    <td>${tCellHtml}</td>
+    <td><input type="number" min="0" step="0.001" value="${d.qty||1}" data-f="qty" oninput="recalcRow('${id}')"/></td>
+    <td><input data-f="uom" value="${esc(d.uom||'Nos')}" style="font-size:11px;text-align:left"/></td>
+    <td><input type="number" min="0" step="0.01" value="${d.rate||0}" data-f="rate" oninput="recalcRow('${id}')"/></td>
+    <td><input type="number" data-f="amt" readonly style="text-align:right;font-weight:600;background:var(--accent-light)"/></td>
+    <td>
+      <div class="cd-ac" style="min-width:100px">
+        <input placeholder="Batch No" data-f="batch_no" value="${esc(d.batch_no||'')}" autocomplete="off" style="font-size:11px"
+          oninput="seBatchAc(this,'${id}')" onfocus="seBatchAc(this,'${id}')" onblur="seBatchBlur('${id}')"/>
+        <div class="cd-ac-list" id="bac-${id}" style="min-width:200px"></div>
+      </div>
+    </td>
+    <td>
+      <div class="cd-ac" style="min-width:110px">
+        <textarea placeholder="Serial No" data-f="serial_no" rows="1"
+          oninput="autoResize(this);seSerialAc(this,'${id}')" onfocus="seSerialAc(this,'${id}')" onblur="seSerialBlur('${id}')">${esc(d.serial_no||'')}</textarea>
+        <div class="cd-ac-list" id="sac-${id}" style="min-width:220px"></div>
+      </div>
+    </td>
+    <td class="se-finished-col" style="text-align:center"><input type="checkbox" data-f="is_finished" style="width:auto;height:auto" ${d.is_finished_item?'checked':''}/></td>
+    <td class="se-subbom-col"><input type="number" min="0" step="0.001" placeholder="0.000" value="${d.gross_weight||''}" data-f="gross_wt" style="text-align:right"/></td>
+    <td class="se-subbom-col"><input type="number" min="0" step="0.001" placeholder="0.000" value="${d.net_weight||''}" data-f="net_wt" style="text-align:right"/></td>
+    <td class="se-subbom-col"><select data-f="tounch" style="width:100%">${tounchOptions(d.tounch||'')}</select></td>
+    <td class="se-subbom-col"><input type="number" min="0" step="0.01" placeholder="0" value="${d.wastage||''}" data-f="wastage" style="text-align:right"/></td>
+    <td class="se-subbom-col" style="text-align:center">
+      <button class="cd-pick-btn" id="addbom-${id}" onclick="openBomForRow('${id}')" style="opacity:${rules.subBom?'1':'.35'};pointer-events:${rules.subBom?'auto':'none'}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        BOM
+      </button>
+      <input type="hidden" data-f="bom_id" value="${esc(d.custom_bom||'')}"/>
+    </td>
+    <td><button class="cd-del-btn" onclick="delRow('${id}')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></td>
+  `;
+  document.getElementById('itemsTbody').appendChild(tr);
+  const fromWh = document.getElementById('fromWarehouse')?.value||'';
+  const toWh   = document.getElementById('toWarehouse')?.value||'';
+  if(rules.supplierResolves === 'from'){
+    syncResolvedWarehouseCell(tr.querySelector('[data-f="s_warehouse"]'), fromWh);
+  } else if(!d.s_warehouse && fromWh){
+    tr.querySelector('[data-f="s_warehouse"]').value = fromWh;
+  }
+  if(rules.supplierResolves === 'to'){
+    syncResolvedWarehouseCell(tr.querySelector('[data-f="t_warehouse"]'), toWh);
+  } else if(!d.t_warehouse && toWh){
+    tr.querySelector('[data-f="t_warehouse"]').value = toWh;
+  }
+  recalcRow(id);
+  if(d.custom_bom) preloadBomStagingForRow(id, d.custom_bom);
+  return tr;
+}
+function delRow(id){ document.getElementById(id)?.remove(); delete ROW_BOM_STAGING[id]; recalc(); }
+
+function recalcRow(id){
+  const tr = document.getElementById(id); if(!tr) return;
+  const qty  = parseFloat(tr.querySelector('[data-f="qty"]')?.value||0)  || 0;
+  const rate = parseFloat(tr.querySelector('[data-f="rate"]')?.value||0) || 0;
+  const amt  = Math.round(qty*rate*100)/100;
+  const amtEl = tr.querySelector('[data-f="amt"]'); if(amtEl) amtEl.value = amt.toFixed(2);
+  recalc();
+}
+function recalc(){
+  let totalIn=0, totalOut=0;
+  document.querySelectorAll('#itemsTbody tr').forEach(tr=>{
+    const amt = parseFloat(tr.querySelector('[data-f="amt"]')?.value||0) || 0;
+    if(tr.querySelector('[data-f="t_warehouse"]')?.value) totalIn  += amt;
+    if(tr.querySelector('[data-f="s_warehouse"]')?.value) totalOut += amt;
+  });
+  const inEl=document.getElementById('totIncoming'); if(inEl) inEl.textContent=fmt(totalIn);
+  const outEl=document.getElementById('totOutgoing'); if(outEl) outEl.textContent=fmt(totalOut);
+}
+function autoResize(el){ el.style.height='auto'; el.style.height=el.scrollHeight+'px'; }
+
+// ── Item search (type-ahead against Item master, matches "In Global Search" fields too) ──
+function seItemAc(inp, rowId){
+  const q = inp.value.toLowerCase();
+  const list = document.getElementById('seac-'+rowId);
+  if(!list) return;
+  if(!q){ list.classList.remove('open'); return; }
+  const r = SE_ITEMS.filter(i=>i.code.toLowerCase().includes(q)||i.name.toLowerCase().includes(q)||(i._search&&i._search.includes(q))).slice(0,10);
+  list.innerHTML = r.length ? r.map(it=>`<div class="cd-ac-item" onmousedown="seSelectItem('${rowId}','${esc(it.code)}')"><div class="main">${esc(it.code)}</div><div class="sub">${esc(it.name)}${it.rate?' · ₹'+it.rate.toLocaleString('en-IN'):''}</div></div>`).join('') : `<div class="cd-ac-empty">No item found</div>`;
+  list.classList.add('open');
+}
+function seItemBlur(inp, rowId){
+  setTimeout(()=>{ document.getElementById('seac-'+rowId)?.classList.remove('open'); }, 150);
+  const code = inp.value.trim(); if(!code) return;
+  const it = SE_ITEMS.find(i=>i.code.toLowerCase()===code.toLowerCase()||i.name.toLowerCase()===code.toLowerCase());
+  if(it) seFillItem(rowId, it);
+}
+function seSelectItem(rowId, code){
+  const it = SE_ITEMS.find(i=>i.code===code);
+  if(it) seFillItem(rowId, it);
+}
+function seFillItem(rowId, it){
+  const tr = document.getElementById(rowId); if(!tr) return;
+  tr.querySelector('[data-f="code"]').value = it.code;
+  tr.querySelector('[data-f="item_name"]').value = it.name;
+  tr.querySelector('[data-f="uom"]').value = it.uom;
+  const rateEl = tr.querySelector('[data-f="rate"]'); if(rateEl && !parseFloat(rateEl.value)) rateEl.value = it.rate||0;
+  recalcRow(rowId);
+  document.getElementById('seac-'+rowId)?.classList.remove('open');
+}
+
+// ── Batch/Serial pickers — scoped to the row's Source Warehouse so job work can only
+//    reference stock that's actually sitting there, and linked to the real Batch/Serial
+//    No records (Batch has no warehouse field of its own, so availability is derived from
+//    Stock Ledger Entry; Serial No carries its current warehouse directly). ──
+const _batchQtyCache = new Map(); // "item|warehouse" -> [{batch_no,qty}]
+const _serialCache   = new Map(); // "item|warehouse" -> [{serial_no,batch_no}]
+
+function rowLookupCtx(tr){
+  return {
+    code: tr?.querySelector('[data-f="code"]')?.value?.trim() || '',
+    wh:   tr?.querySelector('[data-f="s_warehouse"]')?.value || '',
+  };
+}
+async function fetchBatchesInWarehouse(itemCode, warehouse){
+  if(!itemCode || !warehouse) return [];
+  const key = itemCode+'|'+warehouse;
+  if(_batchQtyCache.has(key)) return _batchQtyCache.get(key);
+  try{
+    const filters = encodeURIComponent(JSON.stringify([['item_code','=',itemCode],['warehouse','=',warehouse],['is_cancelled','=',0]]));
+    const fields  = encodeURIComponent(JSON.stringify(['batch_no','actual_qty']));
+    const res = await dev1Get(`/api/resource/Stock Ledger Entry?filters=${filters}&fields=${fields}&limit_page_length=0`);
+    const totals = {};
+    (res.data||res.message||[]).forEach(r=>{ if(!r.batch_no) return; totals[r.batch_no]=(totals[r.batch_no]||0)+parseFloat(r.actual_qty||0); });
+    const out = Object.entries(totals).filter(([,qty])=>qty>0.0001).map(([batch_no,qty])=>({batch_no,qty:Math.round(qty*1000)/1000}));
+    _batchQtyCache.set(key, out);
+    return out;
+  }catch(e){ console.warn('Batch lookup failed:', e.message); return []; }
+}
+async function fetchSerialsInWarehouse(itemCode, warehouse){
+  if(!itemCode || !warehouse) return [];
+  const key = itemCode+'|'+warehouse;
+  if(_serialCache.has(key)) return _serialCache.get(key);
+  try{
+    const filters = encodeURIComponent(JSON.stringify([['item_code','=',itemCode],['warehouse','=',warehouse]]));
+    const fields  = encodeURIComponent(JSON.stringify(['name','batch_no']));
+    const res = await dev1Get(`/api/resource/Serial No?filters=${filters}&fields=${fields}&limit_page_length=500`);
+    const out = (res.data||res.message||[]).map(s=>({serial_no:s.name, batch_no:s.batch_no||''}));
+    _serialCache.set(key, out);
+    return out;
+  }catch(e){ console.warn('Serial lookup failed:', e.message); return []; }
+}
+async function seBatchAc(inp, rowId){
+  const tr = document.getElementById(rowId);
+  const list = document.getElementById('bac-'+rowId); if(!list||!tr) return;
+  const { code, wh } = rowLookupCtx(tr);
+  if(!code || !wh){ list.innerHTML = '<div class="cd-ac-empty">Select Item and Source Warehouse first</div>'; list.classList.add('open'); return; }
+  list.innerHTML = '<div class="cd-ac-empty">Loading…</div>'; list.classList.add('open');
+  const q = inp.value.trim().toLowerCase();
+  const batches = await fetchBatchesInWarehouse(code, wh);
+  const filtered = q ? batches.filter(b=>b.batch_no.toLowerCase().includes(q)) : batches;
+  list.innerHTML = filtered.length
+    ? filtered.map(b=>`<div class="cd-ac-item" onmousedown="seSelectBatch('${rowId}','${esc(b.batch_no)}')"><div class="main">${esc(b.batch_no)}</div><div class="sub">Qty in stock: ${b.qty}</div></div>`).join('')
+    : `<div class="cd-ac-empty">No batch with stock in "${esc(wh)}"</div>`;
+}
+function seBatchBlur(rowId){ setTimeout(()=>{ document.getElementById('bac-'+rowId)?.classList.remove('open'); }, 150); }
+function seSelectBatch(rowId, batchNo){
+  const tr = document.getElementById(rowId); if(!tr) return;
+  tr.querySelector('[data-f="batch_no"]').value = batchNo;
+  document.getElementById('bac-'+rowId)?.classList.remove('open');
+}
+async function seSerialAc(ta, rowId){
+  const tr = document.getElementById(rowId);
+  const list = document.getElementById('sac-'+rowId); if(!list||!tr) return;
+  const { code, wh } = rowLookupCtx(tr);
+  if(!code || !wh){ list.innerHTML = '<div class="cd-ac-empty">Select Item and Source Warehouse first</div>'; list.classList.add('open'); return; }
+  list.innerHTML = '<div class="cd-ac-empty">Loading…</div>'; list.classList.add('open');
+  const lines = ta.value.split('\n');
+  const existing = new Set(lines.slice(0,-1).map(s=>s.trim()).filter(Boolean));
+  const typed = (lines[lines.length-1]||'').trim().toLowerCase();
+  const serials = await fetchSerialsInWarehouse(code, wh);
+  const available = serials.filter(s=>!existing.has(s.serial_no));
+  const filtered = typed ? available.filter(s=>s.serial_no.toLowerCase().includes(typed)) : available;
+  list.innerHTML = filtered.length
+    ? filtered.map(s=>`<div class="cd-ac-item" onmousedown="seSelectSerial('${rowId}','${esc(s.serial_no)}')"><div class="main">${esc(s.serial_no)}</div>${s.batch_no?`<div class="sub">Batch: ${esc(s.batch_no)}</div>`:''}</div>`).join('')
+    : `<div class="cd-ac-empty">No available serial in "${esc(wh)}"</div>`;
+}
+function seSerialBlur(rowId){ setTimeout(()=>{ document.getElementById('sac-'+rowId)?.classList.remove('open'); }, 150); }
+function seSelectSerial(rowId, serialNo){
+  const tr = document.getElementById(rowId); if(!tr) return;
+  const ta = tr.querySelector('[data-f="serial_no"]');
+  const lines = ta.value.split('\n');
+  lines[lines.length-1] = serialNo;
+  ta.value = lines.map(s=>s.trim()).filter(Boolean).join('\n') + '\n';
+  autoResize(ta);
+  ta.focus();
+  seSerialAc(ta, rowId);
+}
+
+// ══════════════════════════════════════════
+//  ITEM PICKER DIALOG (Type → Template → Attributes → auto-match)
+// ══════════════════════════════════════════
+function getCsrf(){ if(typeof frappe!=='undefined'&&frappe.csrf_token)return frappe.csrf_token; const m=document.cookie.match(/csrf_token=([^;]+)/);return m?m[1]:''; }
+
+let _dialogRowId=null, _dlgSelected={type:null,template:null}, _dlgAttrVals={}, _dlgAttrs=[], _matchedItem=null;
+
+function openItemDialog(rowId){
+  _dialogRowId=rowId; _dlgSelected={type:null,template:null}; _dlgAttrVals={}; _dlgAttrs=[]; _matchedItem=null;
+  clearDialogError(); hideDialogResult();
+  document.getElementById('itemDialog').classList.add('open');
+  document.getElementById('itemDialogOverlay').classList.add('open');
+  initDialog();
+}
+function closeItemDialog(){
+  document.getElementById('itemDialog').classList.remove('open');
+  document.getElementById('itemDialogOverlay').classList.remove('open');
+}
+function getRoot(){ return document.getElementById('rmDialogRoot'); }
+function makeRow(id,labelText,content){ const row=document.createElement('div'); row.className='rm-row'; if(id) row.id=id; const label=document.createElement('div'); label.className='rm-row-label'; label.textContent=labelText; row.appendChild(label); row.appendChild(content); return row; }
+function loadingEl(text='Loading…'){ const el=document.createElement('div'); el.className='rm-loading'; el.innerHTML=`<div class="rm-spinner"></div><span>${text}</span>`; return el; }
+function makePillsWithAbbr(entries,selectedAbbr,onSelect){
+  const wrap=document.createElement('div'); wrap.className='rm-pills';
+  entries.forEach(entry=>{
+    const pill=document.createElement('div');
+    pill.className='rm-pill'+(entry.abbr===selectedAbbr?' selected':'');
+    pill.textContent=entry.value; pill.title=entry.abbr;
+    pill.addEventListener('click',()=>{ wrap.querySelectorAll('.rm-pill').forEach(p=>p.classList.remove('selected')); pill.classList.add('selected'); onSelect(entry.abbr,entry.value); });
+    wrap.appendChild(pill);
+  });
+  return wrap;
+}
+function makePills(values,selectedVal,onSelect){ return makePillsWithAbbr(values.map(v=>typeof v==='object'?v:{value:v,abbr:v}),selectedVal,(abbr)=>onSelect(abbr)); }
+
+async function getChildGroups(parentGroup){
+  try{
+    const headers=getDevHeaders(); if(!headers) return [];
+    const fields=encodeURIComponent(JSON.stringify(['name']));
+    const filters=encodeURIComponent(JSON.stringify([['Item Group','parent_item_group','=',parentGroup]]));
+    const res=await fetch(`${cdGetInstanceUrl()}/api/resource/Item Group?fields=${fields}&filters=${filters}&limit_page_length=100`,{headers});
+    if(!res.ok) return [];
+    const d=await res.json(); return (d?.data||d?.message||[]).map(g=>g.name).filter(Boolean);
+  }catch(e){ return []; }
+}
+async function getAllDescendantGroups(parentGroup){
+  const allGroups=[];
+  async function fetchChildren(group){ const children=await getChildGroups(group); await Promise.all(children.map(async child=>{ allGroups.push(child); await fetchChildren(child); })); }
+  await fetchChildren(parentGroup); return allGroups;
+}
+async function fetchTemplatesByGroups(groupNames){
+  if(!groupNames.length) return [];
+  try{
+    const headers=getDevHeaders(); if(!headers) return [];
+    const filters=[['Item','disabled','=',0],['Item','variant_of','=',''],['Item','item_group','in',groupNames]];
+    const fields=['name','item_name','item_group','has_variants'];
+    const url=`${cdGetInstanceUrl()}/api/resource/Item?fields=${encodeURIComponent(JSON.stringify(fields))}&filters=${encodeURIComponent(JSON.stringify(filters))}&limit_page_length=500`;
+    const res=await fetch(url,{headers}); if(!res.ok) return [];
+    const d=await res.json(); return d?.data||d?.message||[];
+  }catch(e){ return []; }
+}
+async function initDialog(){
+  const root=getRoot(); root.innerHTML='';
+  const tc=loadingEl('Loading types…'); root.appendChild(makeRow('rm-row-type','Type',tc));
+  try{
+    const form=new FormData(); form.append('parent_group','All Item Groups');
+    const res=await fetch('/api/method/caratdesk_get_item_group_children',{method:'POST',credentials:'same-origin',headers:{'X-Frappe-CSRF-Token':getCsrf()},body:form});
+    const d=await res.json(); const groups=d.message||[];
+    if(!groups.length){ tc.replaceWith(Object.assign(document.createElement('div'),{className:'cd-ac-empty',textContent:'No item groups found'})); return; }
+    const pills=makePills(groups,_dlgSelected.type,val=>{ _dlgSelected.type=val; _dlgSelected.template=null; _dlgAttrVals={}; _dlgAttrs=[]; _matchedItem=null; hideDialogResult(); clearDialogError(); root.querySelectorAll('.rm-row:not(#rm-row-type)').forEach(r=>r.remove()); loadTemplateRow(root,val); });
+    tc.replaceWith(pills);
+  }catch(e){ tc.replaceWith(Object.assign(document.createElement('div'),{className:'cd-ac-empty',textContent:'Failed to load types'})); }
+}
+async function loadTemplateRow(root,typeGroup){
+  const content=loadingEl('Loading templates…'); root.appendChild(makeRow('rm-row-template','Template',content));
+  try{
+    const descendants=await getAllDescendantGroups(typeGroup);
+    const groupsToSearch=[typeGroup,...descendants].filter(g=>typeof g==='string'&&g.trim());
+    if(!groupsToSearch.length){ content.replaceWith(Object.assign(document.createElement('div'),{className:'cd-ac-empty',textContent:'No sub-groups found under "'+typeGroup+'"'})); return; }
+    const templates=await fetchTemplatesByGroups(groupsToSearch);
+    if(!templates.length){ content.replaceWith(Object.assign(document.createElement('div'),{className:'cd-ac-empty',textContent:'No templates found under "'+typeGroup+'"'})); return; }
+    const templateMeta={};
+    templates.forEach(t=>{ templateMeta[t.name]={item_name:t.item_name||t.name,has_variants:t.has_variants}; });
+    const entries=templates.map(t=>({value:t.item_name||t.name,abbr:t.name}));
+    const pills=makePillsWithAbbr(entries,_dlgSelected.template,(abbr,value)=>{
+      _dlgSelected.template=abbr; _dlgAttrVals={}; _dlgAttrs=[]; _matchedItem=null; hideDialogResult(); clearDialogError();
+      root.querySelectorAll('[id^="rm-row-attr"]').forEach(r=>r.remove());
+      const meta=templateMeta[abbr]||{};
+      if(meta.has_variants){ loadAttrRows(root,abbr); }
+      else{ _matchedItem={item_code:abbr,item_name:meta.item_name||abbr}; showDialogResult(_matchedItem); }
+    });
+    content.replaceWith(pills);
+  }catch(e){ content.replaceWith(Object.assign(document.createElement('div'),{className:'cd-ac-empty',textContent:'Failed to load templates'})); }
+}
+async function loadAttrRows(root,templateItemCode){
+  const loadRow=document.createElement('div'); loadRow.className='rm-row'; loadRow.id='rm-row-attr-loading';
+  loadRow.appendChild(loadingEl('Loading attributes…')); root.appendChild(loadRow);
+  try{
+    const form=new FormData(); form.append('template_name',templateItemCode);
+    const res=await fetch('/api/method/caratdesk_get_template_attributes',{method:'POST',credentials:'same-origin',headers:{'X-Frappe-CSRF-Token':getCsrf()},body:form});
+    const d=await res.json(); loadRow.remove();
+    const attrs=d.message?.attributes||[]; if(!attrs.length) return;
+    _dlgAttrs=attrs;
+    _dlgAttrs.forEach((attr,i)=>{
+      const entries=(attr.values||[]).map(v=>typeof v==='object'?v:{value:v,abbr:v});
+      const pills=makePillsWithAbbr(entries,null,(abbr,value)=>{ _dlgAttrVals[attr.attribute]=abbr; hideDialogResult(); clearDialogError(); if(_dlgAttrs.every(a=>_dlgAttrVals[a.attribute])) autoSearch(); });
+      root.appendChild(makeRow('rm-row-attr-'+i,attr.label||attr.attribute,pills));
+    });
+  }catch(e){ loadRow.remove(); }
+}
+async function autoSearch(){
+  hideDialogResult(); clearDialogError();
+  const btn=document.getElementById('dlg-add-btn'); btn.disabled=true; btn.textContent='Searching…';
+  try{
+    const form=new FormData(); form.append('template_item_code',_dlgSelected.template); form.append('attributes',JSON.stringify(_dlgAttrVals));
+    const res=await fetch('/api/method/caratdesk_find_item_variant',{method:'POST',credentials:'same-origin',headers:{'X-Frappe-CSRF-Token':getCsrf()},body:form});
+    const d=await res.json();
+    if(!d.message){ showDialogError('No item found. Check abbreviations or item setup.'); _matchedItem=null; }
+    else{ _matchedItem=d.message; showDialogResult(d.message); }
+  }catch(e){ showDialogError('Search failed.'); }
+  finally{ btn.disabled=false; btn.textContent='Add Item'; }
+}
+async function addItemToRow(){
+  if(!_matchedItem){ showDialogError('Select all attributes - item will be found automatically.'); return; }
+  if(!_dialogRowId) return;
+  const cached=SE_ITEMS.find(i=>i.code===_matchedItem.item_code);
+  let uom=_matchedItem.stock_uom||_matchedItem.uom||cached?.uom||'';
+  if(!uom){
+    try{
+      const r=await dev1Get(`/api/resource/Item/${encodeURIComponent(_matchedItem.item_code)}`);
+      uom=(r.data||r.message)?.stock_uom||'Nos';
+    }catch(e){ uom='Nos'; }
+  }
+  seFillItem(_dialogRowId, { code:_matchedItem.item_code, name:_matchedItem.item_name, uom, rate: cached?.rate||0 });
+  closeItemDialog();
+  showToast(_matchedItem.item_code+' added','success');
+}
+function showDialogResult(item){ document.getElementById('dlg-result-code').textContent=item.item_code; document.getElementById('dlg-result-name').textContent=item.item_name; document.getElementById('dlg-result').style.display='flex'; }
+function hideDialogResult(){ document.getElementById('dlg-result').style.display='none'; _matchedItem=null; }
+function showDialogError(msg){ const el=document.getElementById('dlg-error'); if(el){el.textContent=msg;el.style.display='block';} }
+function clearDialogError(){ const el=document.getElementById('dlg-error'); if(el){el.textContent='';el.style.display='none';} }
+
+// ══════════════════════════════════════════
+//  GET ITEMS FROM BOM (Manufacture / Repack)
+// ══════════════════════════════════════════
+async function fetchItemsFromBom(){
+  const bomNo = document.getElementById('bomNo').value.trim();
+  if(!bomNo){ showToast('Enter a BOM number first','error'); return; }
+  const fgQty = parseFloat(document.getElementById('fgQty')?.value||1) || 1;
+  try{
+    showToast('Fetching BOM…','info');
+    const res = await dev1Get(`/api/resource/BOM/${encodeURIComponent(bomNo)}`);
+    const bom = res.data||res.message;
+    if(!bom){ showToast('BOM not found','error'); return; }
+    const scale  = fgQty / (parseFloat(bom.quantity)||1);
+    const fromWh = document.getElementById('fromWarehouse').value;
+    const toWh   = document.getElementById('toWarehouse').value;
+    (bom.items||[]).forEach(bi=>{
+      addRow({
+        item_code: bi.item_code, item_name: bi.item_name||bi.item_code,
+        uom: bi.uom||'Nos', qty: Math.round((bi.qty*scale)*1000)/1000, rate: bi.rate||0,
+        s_warehouse: fromWh,
+      });
+    });
+    addRow({
+      item_code: bom.item, item_name: bom.item_name||bom.item,
+      uom: bom.uom||'Nos', qty: fgQty, rate: 0,
+      t_warehouse: toWh, is_finished_item: 1,
+    });
+    showToast('BOM items loaded','success');
+  }catch(e){ showToast('Failed to fetch BOM: '+e.message,'error'); }
+}
+
+// ══════════════════════════════════════════
+//  CSV DOWNLOAD / UPLOAD
+// ══════════════════════════════════════════
+const SE_CSV_COLS = [
+  { label:'Item Code',         field:'code'         },
+  { label:'Item Name',         field:'item_name'    },
+  { label:'Source Warehouse',  field:'s_warehouse'  },
+  { label:'Target Warehouse',  field:'t_warehouse'  },
+  { label:'Qty',                field:'qty'          },
+  { label:'UOM',                field:'uom'          },
+  { label:'Basic Rate',        field:'rate'         },
+  { label:'Amount',             field:'amt'          },
+  { label:'Batch No',           field:'batch_no'     },
+  { label:'Serial No',          field:'serial_no'    },
+];
+function downloadExcel(){
+  downloadCsvGeneric(SE_CSV_COLS, 'itemsTbody', 'data-f', 'stock_entry_items.csv');
+}
+function uploadExcel(event){
+  const file = event.target.files[0]; event.target.value='';
+  readCsvFile(file, parsed => openCsvMapDialog(parsed, SE_CSV_COLS, importSERows));
+}
+function importSERows(rows, mapping){
+  const codeIdx = Object.keys(mapping).find(i => mapping[i]==='code');
+  if(codeIdx===undefined){ showToast('Please map "Item Code" column','error'); return 0; }
+  let imported = 0;
+  rows.forEach(cells => {
+    const itemCode = (cells[codeIdx]||'').trim(); if(!itemCode) return;
+    const cached = SE_ITEMS.find(i => i.code.toLowerCase()===itemCode.toLowerCase());
+    const tr = addRow({ item_code:itemCode, item_name:cached?.name||itemCode, uom:cached?.uom||'Nos', rate:cached?.rate||0 });
+    Object.entries(mapping).forEach(([csvIdx,field]) => {
+      if(field==='code'||field==='item_name') return;
+      const val=(cells[csvIdx]||'').trim(); if(!val) return;
+      const el=tr.querySelector(`[data-f="${field}"]`); if(el) el.value=val;
+    });
+    recalcRow(tr.id);
+    imported++;
+  });
+  return imported;
+}
+
+// ── GENERIC CSV DOWNLOAD / UPLOAD ──
+function csvEscape(val){
+  const s = String(val ?? '');
+  return (s.includes(',') || s.includes('"') || s.includes('\n')) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+function parseCsv(text){
+  const lines = text.replace(/\r\n/g,'\n').replace(/\r/g,'\n').split('\n');
+  function splitLine(line){
+    const cells=[]; let cur='', inQ=false;
+    for(let i=0;i<line.length;i++){
+      const ch=line[i];
+      if(ch==='"'){ if(inQ&&line[i+1]==='"'){cur+='"';i++;} else{inQ=!inQ;} }
+      else if(ch===','&&!inQ){cells.push(cur);cur='';}
+      else cur+=ch;
+    }
+    cells.push(cur);
+    return cells;
+  }
+  const nonEmpty=lines.filter(l=>l.trim());
+  if(!nonEmpty.length) return {headers:[],rows:[]};
+  const headers=splitLine(nonEmpty[0]).map(h=>h.trim());
+  const rows=nonEmpty.slice(1).filter(l=>l.trim()).map(l=>splitLine(l));
+  return {headers,rows};
+}
+function downloadCsvGeneric(cols, tbodyId, attrName, filename){
+  const header = cols.map(c => csvEscape(c.label)).join(',');
+  const dataRows = [];
+  document.querySelectorAll('#' + tbodyId + ' tr').forEach(tr => {
+    const cells = cols.map(c => {
+      if(c.getter) return csvEscape(c.getter(tr));
+      const el = tr.querySelector(`[${attrName}="${c.field}"]`);
+      return csvEscape(el ? el.value : '');
+    });
+    dataRows.push(cells.join(','));
+  });
+  const csv = [header, ...dataRows].join('\r\n');
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href=url; a.download=filename; a.click();
+  URL.revokeObjectURL(url);
+  showToast('Downloaded ' + dataRows.length + ' row(s)', 'success');
+}
+let _csvParsed = {headers:[],rows:[]}, _csvTargetCols = [], _csvImportFn = null;
+function autoMapCol(csvHeader, cols){
+  const h = csvHeader.toLowerCase().replace(/[^a-z0-9]/g,'');
+  for(const c of cols){
+    const l=c.label.toLowerCase().replace(/[^a-z0-9]/g,'');
+    const f=(c.field||'').toLowerCase().replace(/[^a-z0-9]/g,'');
+    if(h===l||h===f) return c.field;
+  }
+  for(const c of cols){
+    const l=c.label.toLowerCase().replace(/[^a-z0-9]/g,'');
+    if(l.includes(h)||h.includes(l.slice(0,5))) return c.field;
+  }
+  return '';
+}
+function openCsvMapDialog(parsed, cols, importFn){
+  _csvParsed=parsed; _csvTargetCols=cols; _csvImportFn=importFn;
+  const {headers, rows} = parsed;
+  const mapRowsHtml = headers.map((h, i) => {
+    const auto = autoMapCol(h, cols);
+    const opts = cols.filter(c => c.field).map(c => `<option value="${c.field}"${c.field===auto?' selected':''}>${esc(c.label)}</option>`).join('');
+    return `
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;padding:9px 24px;border-bottom:.5px solid var(--border);align-items:center">
+        <div style="font-size:12.5px;color:var(--text-primary);font-weight:500;padding-right:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(h)}">${esc(h)}</div>
+        <select data-csv-idx="${i}" style="font-family:'DM Sans',sans-serif;font-size:12px;background:var(--bg);border:.5px solid var(--border-strong);border-radius:7px;padding:5px 8px;color:var(--text-primary);outline:none;width:100%;cursor:pointer">
+          <option value="">-- Skip --</option>${opts}
+        </select>
+      </div>`;
+  }).join('');
+  document.getElementById('csvMapRows').innerHTML = mapRowsHtml;
+  document.getElementById('csvMapSubtitle').textContent = `${headers.length} column(s) detected · map each to a table field`;
+  document.getElementById('csvMapInfo').textContent = `${rows.length} data row(s) will be imported`;
+  document.getElementById('csvMapDialog').classList.add('open');
+  document.getElementById('csvMapOverlay').classList.add('open');
+}
+function closeCsvMapDialog(){
+  document.getElementById('csvMapDialog').classList.remove('open');
+  document.getElementById('csvMapOverlay').classList.remove('open');
+}
+function confirmCsvImport(){
+  const mapping = {};
+  document.querySelectorAll('#csvMapRows select').forEach(sel => { if(sel.value) mapping[parseInt(sel.dataset.csvIdx)] = sel.value; });
+  if(!_csvImportFn){ closeCsvMapDialog(); return; }
+  const imported = _csvImportFn(_csvParsed.rows, mapping);
+  closeCsvMapDialog();
+  showToast(`Imported ${imported} row(s)`, 'success');
+}
+function readCsvFile(file, onParsed){
+  if(!file) return;
+  if(!file.name.endsWith('.csv')){ showToast('Please upload a .csv file','error'); return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    const parsed = parseCsv(e.target.result);
+    if(!parsed.headers.length){ showToast('CSV is empty or invalid','error'); return; }
+    onParsed(parsed);
+  };
+  reader.readAsText(file);
+}
+
+// ══════════════════════════════════════════
+//  VALIDATE
+// ══════════════════════════════════════════
+function validate(){
+  const stockEntryType = document.getElementById('stockEntryType').value;
+  if(!stockEntryType){ showToast('Please select a Stock Entry Type','error'); return false; }
+  if(!document.getElementById('postingDate').value){ showToast('Please enter posting date','error'); return false; }
+
+  const purpose = document.getElementById('purposeDisplay').value;
+  const rules   = currentJobWorkRules();
+  if(rules.supplierResolves === 'to' && !document.getElementById('toWarehouse').value){
+    showToast('Please select a Supplier so the Target Warehouse can be resolved','error'); return false;
+  }
+  if(rules.supplierResolves === 'from' && !document.getElementById('fromWarehouse').value){
+    showToast('Please select a Supplier so the Source Warehouse can be resolved','error'); return false;
+  }
+  const rows    = [...document.querySelectorAll('#itemsTbody tr')];
+  const validRows = rows.filter(tr=>{
+    const c = tr.querySelector('[data-f="code"]')?.value?.trim();
+    const q = parseFloat(tr.querySelector('[data-f="qty"]')?.value||0);
+    return c && q>0;
+  });
+  if(!validRows.length){ showToast('Please add at least one item with qty > 0','error'); return false; }
+
+  if(rules.needSrcRow && validRows.some(tr=>!tr.querySelector('[data-f="s_warehouse"]')?.value)){
+    showToast('Every item needs a Source Warehouse for "'+purpose+'"','error'); return false;
+  }
+  if(rules.needTgtRow && validRows.some(tr=>!tr.querySelector('[data-f="t_warehouse"]')?.value)){
+    showToast('Every item needs a Target Warehouse for "'+purpose+'"','error'); return false;
+  }
+  if(purpose==='Manufacture' && !validRows.some(tr=>tr.querySelector('[data-f="is_finished"]')?.checked)){
+    showToast('Mark at least one row as the Finished Item for Manufacture','error'); return false;
+  }
+  return true;
+}
+
+// ══════════════════════════════════════════
+//  BUILD PAYLOAD
+// ══════════════════════════════════════════
+function buildPayload(docstatus){
+  const stockEntryType = document.getElementById('stockEntryType').value;
+  const purpose         = document.getElementById('purposeDisplay').value;
+  const rules            = PURPOSE_RULES[purpose] || {};
+  const fromWh            = document.getElementById('fromWarehouse').value;
+  const toWh               = document.getElementById('toWarehouse').value;
+
+  const items = [];
+  document.querySelectorAll('#itemsTbody tr').forEach((tr, idx) => {
+    const code = tr.querySelector('[data-f="code"]')?.value?.trim();
+    const qty  = parseFloat(tr.querySelector('[data-f="qty"]')?.value||0) || 0;
+    if(!code || qty<=0) return;
+    const itemName  = tr.querySelector('[data-f="item_name"]')?.value?.trim() || code;
+    const uom       = tr.querySelector('[data-f="uom"]')?.value?.trim() || 'Nos';
+    const rate      = parseFloat(tr.querySelector('[data-f="rate"]')?.value||0) || 0;
+    const amt       = parseFloat(tr.querySelector('[data-f="amt"]')?.value||0) || 0;
+    const sWh       = tr.querySelector('[data-f="s_warehouse"]')?.value || '';
+    const tWh       = tr.querySelector('[data-f="t_warehouse"]')?.value || '';
+    const batchNo   = tr.querySelector('[data-f="batch_no"]')?.value?.trim() || '';
+    const serialNo  = tr.querySelector('[data-f="serial_no"]')?.value?.trim() || '';
+    const isFinished= tr.querySelector('[data-f="is_finished"]')?.checked ? 1 : 0;
+    const grossWt   = parseFloat(tr.querySelector('[data-f="gross_wt"]')?.value||0) || 0;
+    const netWt     = parseFloat(tr.querySelector('[data-f="net_wt"]')?.value||0) || 0;
+    const tounch    = tr.querySelector('[data-f="tounch"]')?.value || '';
+    const wastage   = parseFloat(tr.querySelector('[data-f="wastage"]')?.value||0) || 0;
+    const bomId     = tr.querySelector('[data-f="bom_id"]')?.value?.trim() || '';
+    items.push({
+      doctype: 'Stock Entry Detail', idx: idx+1,
+      item_code: code, item_name: itemName, description: itemName,
+      qty, uom, stock_uom: uom, conversion_factor: 1,
+      basic_rate: rate, basic_amount: amt, amount: amt,
+      ...(sWh ? { s_warehouse: sWh } : {}),
+      ...(tWh ? { t_warehouse: tWh } : {}),
+      ...(batchNo ? { batch_no: batchNo } : {}),
+      ...(serialNo ? { serial_no: serialNo } : {}),
+      ...(rules.bom ? { is_finished_item: isFinished } : {}),
+      ...(rules.subBom ? {
+        custom_gross_weight: grossWt || undefined,
+        custom_net_weight: netWt || undefined,
+        custom_tounch: tounch || undefined,
+        custom_wastage: wastage || undefined,
+        custom_bom: bomId || undefined,
+      } : {}),
+    });
+  });
+
+  return {
+    doctype: 'Stock Entry',
+    docstatus,
+    stock_entry_type: stockEntryType,
+    purpose,
+    company: COMPANY,
+    posting_date: document.getElementById('postingDate').value || '',
+    posting_time: document.getElementById('postingTime').value || '',
+    ...(rules.fromWh && fromWh ? { from_warehouse: fromWh } : {}),
+    ...(rules.toWh   && toWh   ? { to_warehouse: toWh } : {}),
+    ...(rules.bom && document.getElementById('bomNo').value.trim() ? { bom_no: document.getElementById('bomNo').value.trim() } : {}),
+    ...(rules.subBom && document.getElementById('againstStockEntry').value ? { custom_against_stock_entry: document.getElementById('againstStockEntry').value } : {}),
+    ...(purpose==='Manufacture' ? { fg_completed_qty: parseFloat(document.getElementById('fgQty')?.value||0)||0 } : {}),
+    remarks: document.getElementById('remarks')?.value || '',
+    items,
+  };
+}
+
+// ══════════════════════════════════════════
+//  SAVE DRAFT
+// ══════════════════════════════════════════
+async function saveDraft(){
+  if(!validate()) return;
+  let payload;
+  try{ payload = buildPayload(0); }catch(e){ return; }
+  try{
+    showToast('Saving draft…','info');
+    let docName;
+    if(currentSEName){
+      await dev1Put(`/api/resource/Stock Entry/${encodeURIComponent(currentSEName)}`, payload);
+      docName = currentSEName;
+    } else {
+      const d = await dev1Post('/api/resource/Stock Entry', payload);
+      docName = d?.data?.name || d?.name;
+    }
+    if(docName){
+      currentSEName = docName;
+      showToast('Draft saved: '+docName, 'success');
+      const url = new URL(window.location.href);
+      url.searchParams.set('name', docName);
+      window.history.replaceState({}, '', url.toString());
+      updateDocStatus('Draft', docName);
+      switchToSubmitButton();
+      startChangeTracking();
+    } else {
+      showToast('Error: Save failed','error');
+    }
+  }catch(e){ showToast('Error: '+String(e.message).slice(0,120),'error'); }
+}
+
+function switchToSubmitButton(){
+  const btn = document.getElementById('cdMainActionBtn');
+  if(!btn || btn.dataset.mode==='submit') return;
+  btn.dataset.mode='submit';
+  btn.className='cd-btn cd-btn-primary';
+  btn.setAttribute('onclick','submitSE()');
+  btn.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><polyline points="20 6 9 17 4 12"/></svg>Submit`;
+}
+function switchToSaveButton(){
+  const btn = document.getElementById('cdMainActionBtn');
+  if(!btn || btn.dataset.mode==='save') return;
+  btn.dataset.mode='save';
+  btn.className='cd-btn cd-btn-primary';
+  btn.setAttribute('onclick','saveDraft()');
+  btn.innerHTML=`<svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Save`;
+}
+function startChangeTracking(){
+  if(_changeTrackingActive) return;
+  _changeTrackingActive = true;
+  const form = document.querySelector('.cd-form-content');
+  if(form){ form.addEventListener('input', onFormChange); form.addEventListener('change', onFormChange); }
+}
+function onFormChange(){
+  if(!currentSEName || submitted) return;
+  updateDocStatus('Unsaved', currentSEName);
+  switchToSaveButton();
+}
+
+// ══════════════════════════════════════════
+//  SUBMIT / CANCEL
+// ══════════════════════════════════════════
+async function submitSE(){
+  if(!currentSEName){ showToast('Please save the draft first','error'); return; }
+  if(submitted){ showToast('Already submitted','info'); return; }
+  if(!confirm('Submit this Job Work entry? This cannot be undone.')) return;
+  try{
+    showToast('Submitting…','info');
+    await dev1Put(`/api/resource/Stock Entry/${encodeURIComponent(currentSEName)}`, {docstatus:1});
+    submitted = true;
+    updateDocStatus('Submitted', currentSEName);
+    setDocReadOnly(true);
+    showAmendBtn();
+    showToast('Submitted successfully!','success');
+    setTimeout(()=>window.location.href='/caratdesk-job-work',1200);
+  }catch(e){ showToast('Error: '+String(e.message).slice(0,120),'error'); }
+}
+async function cancelDoc(){
+  if(!currentSEName){ showToast('No record to cancel','error'); return; }
+  if(!confirm('Cancel this Job Work entry? This cannot be undone.')) return;
+  try{
+    showToast('Cancelling…','info');
+    await dev1Put(`/api/resource/Stock Entry/${encodeURIComponent(currentSEName)}`, {docstatus:2});
+    submitted = false;
+    updateDocStatus('Cancelled', currentSEName);
+    setDocReadOnly(true);
+    hideMainActionBtn();
+    const btn = document.getElementById('cdCancelBtn'); if(btn){ btn.disabled=true; btn.style.opacity='0.4'; }
+    showToast('Cancelled','success');
+  }catch(e){ showToast('Error: '+String(e.message).slice(0,120),'error'); }
+}
+
+function updateDocStatus(status, docName){
+  const cur = document.querySelector('.cd-breadcrumb-cur');
+  if(cur) cur.textContent = docName || 'New Job Work';
+  let badge = document.getElementById('cdDocStatus');
+  if(!badge){
+    badge = document.createElement('span');
+    badge.id = 'cdDocStatus';
+    document.querySelector('.cd-breadcrumb').appendChild(badge);
+  }
+  const palette = {
+    'Draft'    : ['var(--pill-amber-bg)',  'var(--pill-amber-txt)'],
+    'Unsaved'  : ['var(--pill-red-bg)',    'var(--pill-red-txt)'],
+    'Submitted': ['var(--pill-green-bg)',  'var(--pill-green-txt)'],
+    'Cancelled': ['var(--accent-light)',   'var(--text-muted)'],
+  };
+  const [bg, color] = palette[status] || palette['Draft'];
+  badge.style.cssText = `display:inline-flex;align-items:center;font-size:11px;font-weight:500;padding:2px 8px;border-radius:5px;margin-left:8px;background:${bg};color:${color}`;
+  badge.textContent = status;
+  if(status==='Submitted'){ const cb=document.getElementById('cdCancelBtn'); if(cb) cb.style.display=''; }
+}
+
+function setDocReadOnly(readonly){
+  const form = document.querySelector('.cd-form-content');
+  if(!form) return;
+  form.querySelectorAll('input:not([type="hidden"]), select, textarea').forEach(el=>{
+    el.readOnly = readonly; el.disabled = readonly; if(readonly) el.style.cursor='not-allowed';
+  });
+  form.querySelectorAll('button').forEach(btn=>{
+    btn.disabled = readonly; btn.style.opacity = readonly?'0.5':''; btn.style.pointerEvents = readonly?'none':'';
+  });
+}
+function hideMainActionBtn(){ const btn = document.getElementById('cdMainActionBtn'); if(btn) btn.style.display='none'; }
+function showAmendBtn(){
+  const btn = document.getElementById('cdMainActionBtn'); if(!btn) return;
+  btn.style.display=''; btn.dataset.mode='amend'; btn.className='cd-btn cd-btn-secondary';
+  btn.setAttribute('onclick', `window.open(cdGetInstanceUrl()+'/desk/stock-entry/'+encodeURIComponent(currentSEName||''),'_blank')`);
+  btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Open in ERPNext`;
+}
+
+// ══════════════════════════════════════════
+//  LOAD EXISTING
+// ══════════════════════════════════════════
+async function loadExistingSE(name){
+  showToast('Loading '+name+'…','info');
+  try{
+    const res = await dev1Get(`/api/resource/Stock Entry/${encodeURIComponent(name)}`);
+    const doc = res.data || res.message || {};
+    currentSEName = doc.name;
+    submitted = doc.docstatus === 1;
+    const isCancelled = doc.docstatus === 2;
+
+    document.getElementById('stockEntryType').value = doc.stock_entry_type || '';
+    document.getElementById('purposeDisplay').value = doc.purpose || '';
+    document.getElementById('postingDate').value = doc.posting_date || '';
+    document.getElementById('postingTime').value = (doc.posting_time||'').toString().slice(0,8);
+    const fromWhVal = doc.from_warehouse || '';
+    const toWhVal   = doc.to_warehouse || '';
+    // Both selects still hold the full warehouse list from loadMasterData() at this point
+    // (Stock Entry Type hasn't been set yet), so plain .value assignment works for either
+    // side — onStockEntryTypeChange() below re-derives whichever one Supplier resolves.
+    document.getElementById('fromWarehouse').value = fromWhVal;
+    document.getElementById('toWarehouse').value = toWhVal;
+    const rules = currentJobWorkRules();
+    const resolvedWhVal = rules.supplierResolves === 'from' ? fromWhVal : rules.supplierResolves === 'to' ? toWhVal : '';
+    const linkedWh = WAREHOUSE_RECORDS.find(w=>w.name===resolvedWhVal);
+    const linkedSupplierName = linkedWh?.custom_supplier || '';
+    const linkedSupplier = SUPPLIERS.find(s=>s.name===linkedSupplierName);
+    document.getElementById('jobWorkSupplier').value = linkedSupplier ? (linkedSupplier.supplier_name||linkedSupplier.name) : linkedSupplierName;
+    document.getElementById('bomNo').value = doc.bom_no || '';
+    if(document.getElementById('fgQty')) document.getElementById('fgQty').value = doc.fg_completed_qty || '';
+    document.getElementById('remarks').value = doc.remarks || '';
+    onStockEntryTypeChange();
+    if(rules.subBom && doc.custom_against_stock_entry){
+      await populateAgainstStockEntrySelect();
+      const sel = document.getElementById('againstStockEntry');
+      if(![...sel.options].some(o=>o.value===doc.custom_against_stock_entry)){
+        sel.insertAdjacentHTML('beforeend', `<option value="${esc(doc.custom_against_stock_entry)}">${esc(doc.custom_against_stock_entry)}</option>`);
+      }
+      sel.value = doc.custom_against_stock_entry;
+      onAgainstStockEntryChange();
+    }
+
+    document.getElementById('itemsTbody').innerHTML=''; rowCount=0;
+    (doc.items||[]).forEach(it=>{
+      addRow({
+        item_code: it.item_code, item_name: it.item_name||it.item_code,
+        uom: it.uom||it.stock_uom||'Nos', qty: it.qty||0, rate: it.basic_rate||0,
+        s_warehouse: it.s_warehouse||'', t_warehouse: it.t_warehouse||'',
+        batch_no: it.batch_no||'', serial_no: it.serial_no||'',
+        is_finished_item: it.is_finished_item||0,
+        gross_weight: it.custom_gross_weight||0, net_weight: it.custom_net_weight||0,
+        tounch: it.custom_tounch||'', wastage: it.custom_wastage||0, custom_bom: it.custom_bom||'',
+      });
+    });
+    recalc();
+
+    if(isCancelled){
+      updateDocStatus('Cancelled', name);
+      setDocReadOnly(true);
+      hideMainActionBtn();
+      const cb = document.getElementById('cdCancelBtn'); if(cb){ cb.style.display=''; cb.disabled=true; cb.style.opacity='0.4'; }
+    } else if(submitted){
+      updateDocStatus('Submitted', name);
+      setDocReadOnly(true);
+      showAmendBtn();
+    } else {
+      updateDocStatus('Draft', name);
+      switchToSubmitButton();
+      startChangeTracking();
+    }
+    showToast(name+' loaded','success');
+  }catch(e){ showToast('Failed to load '+name+': '+String(e.message).slice(0,120),'error'); }
+}
+
+// ══════════════════════════════════════════
+//  SECTION TOGGLE
+// ══════════════════════════════════════════
+const sections = document.querySelectorAll('.cd-section');
+let lastScrollTop = 0;
+function collapseSection(section){
+  const body=section.querySelector('.cd-section-body'), toggle=section.querySelector('.cd-sec-toggle');
+  if(body&&body.style.display!=='none'){ body.style.display='none'; toggle?.classList.add('collapsed'); }
+}
+function expandSection(section){
+  const body=section.querySelector('.cd-section-body'), toggle=section.querySelector('.cd-sec-toggle');
+  if(body){ body.style.display=''; toggle?.classList.remove('collapsed'); }
+}
+function toggleSec(h){
+  const section=h.closest('.cd-section'), body=section.querySelector('.cd-section-body');
+  if(body.style.display==='none'){ expandSection(section); } else { collapseSection(section); }
+}
+window.addEventListener('scroll',()=>{
+  const cur=window.pageYOffset||document.documentElement.scrollTop;
+  if(cur>lastScrollTop) sections.forEach(s=>{ if(s.getBoundingClientRect().bottom<100) collapseSection(s); });
+  lastScrollTop=cur<=0?0:cur;
+});
+
+function showToast(msg,type='info',duration=3500){
+  const t=document.getElementById('cdToast');
+  document.getElementById('cdToastMsg').textContent=msg;
+  t.className='cd-toast show '+type;
+  clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),duration);
+}
+
+// ══ INSTANCE HELPERS ══
+function cdGetActiveInstance(){ return localStorage.getItem('cd_active_instance')||'PP'; }
+function cdGetAvailableInstances(){ return (localStorage.getItem('cd_available_instances')||'PP').split(',').filter(Boolean); }
+function cdGetInstanceUrl(inst){ return (inst||cdGetActiveInstance())==='PC'?DEV2:DEV1; }
+function cdGetInstanceHeaders(inst){
+  const i=inst||cdGetActiveInstance();
+  const key=i==='PC'?localStorage.getItem('cd_pc_key'):localStorage.getItem('cd_pp_key');
+  const sec=i==='PC'?localStorage.getItem('cd_pc_secret'):localStorage.getItem('cd_pp_secret');
+  if(!key||!sec) return null;
+  return{'Authorization':`token ${key}:${sec}`,'Content-Type':'application/json','Accept':'application/json'};
+}
+function cdSwitchInstance(inst){
+  const available=cdGetAvailableInstances();
+  if(!available.includes(inst)) return;
+  const key=inst==='PC'?localStorage.getItem('cd_pc_key'):localStorage.getItem('cd_pp_key');
+  const sec=inst==='PC'?localStorage.getItem('cd_pc_secret'):localStorage.getItem('cd_pp_secret');
+  localStorage.setItem('cd_active_instance',inst);
+  localStorage.setItem('cd_api_key',key);
+  localStorage.setItem('cd_api_secret',sec);
+  window.location.reload();
+}
+function cdInitInstanceToggle(){
+  const available=cdGetAvailableInstances();
+  const active=cdGetActiveInstance();
+  const bar=document.getElementById('cdInstanceBar');
+  if(!bar) return;
+  if(available.length<2){ bar.style.display='none'; return; }
+  bar.style.display='flex';
+  ['PP','PC'].forEach(inst=>{
+    const btn=document.getElementById('cdInst'+inst);
+    if(!btn) return;
+    btn.classList.toggle('active',inst===active);
+    btn.style.display=available.includes(inst)?'':'none';
+  });
+  const roleEl=document.getElementById('cdUserRole');
+  if(roleEl) roleEl.textContent='Active: '+active;
+}
+
+// ══ THEME / SIDEBAR ══
+const moonIcon='<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+const sunIcon='<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+function initTheme(){ const s=localStorage.getItem('cdTheme'); if(s==='dark'){document.documentElement.classList.add('dark');document.getElementById('themeIcon').innerHTML=sunIcon}else{document.documentElement.classList.remove('dark');document.getElementById('themeIcon').innerHTML=moonIcon} }
+function toggleTheme(){ const d=document.documentElement.classList.toggle('dark'); localStorage.setItem('cdTheme',d?'dark':'light'); document.getElementById('themeIcon').innerHTML=d?sunIcon:moonIcon; }
+document.getElementById('cdThemeToggle').addEventListener('click',toggleTheme); initTheme();
+const sidebar=document.getElementById('cdSidebar');
+document.getElementById('cdMenuToggle').addEventListener('click',()=>sidebar.classList.toggle('mobile-open'));
+document.querySelectorAll('.cd-nav-item').forEach(l=>l.addEventListener('click',()=>{ if(window.innerWidth<=768) sidebar.classList.remove('mobile-open'); }));
+
+(function(){
+  const hasSession=localStorage.getItem('cd_pp_key')||localStorage.getItem('cd_pc_key');
+  if(!hasSession){ window.location.replace('/caratdesk-login?logout=1'); return; }
+  const active=cdGetActiveInstance();
+  const key=active==='PC'?localStorage.getItem('cd_pc_key'):localStorage.getItem('cd_pp_key');
+  const sec=active==='PC'?localStorage.getItem('cd_pc_secret'):localStorage.getItem('cd_pp_secret');
+  if(key&&sec){ localStorage.setItem('cd_api_key',key); localStorage.setItem('cd_api_secret',sec); }
+  const name=localStorage.getItem('cd_user')||localStorage.getItem('cd_user_email')||'User';
+  document.getElementById('cdUserName').textContent=name;
+  document.getElementById('cdAvatar').textContent=name.split('@')[0].split(/[\s.]+/).map(w=>w[0]||'').join('').slice(0,2).toUpperCase()||'U';
+  cdInitInstanceToggle();
+})();
+
+document.getElementById('cdLogoutBtn').addEventListener('click',async()=>{
+  const ppK=localStorage.getItem('cd_pp_key'), ppS=localStorage.getItem('cd_pp_secret');
+  const pcK=localStorage.getItem('cd_pc_key'), pcS=localStorage.getItem('cd_pc_secret');
+  try{ if(ppK&&ppS) await fetch(`${DEV1}/api/method/logout`,{method:'POST',headers:{Authorization:`token ${ppK}:${ppS}`}}); }catch(e){}
+  try{ if(pcK&&pcS) await fetch(`${DEV2}/api/method/logout`,{method:'POST',headers:{Authorization:`token ${pcK}:${pcS}`}}); }catch(e){}
+  ['cd_api_key','cd_api_secret','cd_pp_key','cd_pp_secret','cd_pc_key','cd_pc_secret',
+   'cd_user','cd_user_email','cd_active_instance','cd_available_instances'].forEach(k=>localStorage.removeItem(k));
+  window.location.replace('/caratdesk-login?logout=1');
+});
+</script>

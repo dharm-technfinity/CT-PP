@@ -1,1094 +1,804 @@
-<!-- CaratDesk – Sales Invoice List View -->
+<!-- CaratDesk – Sales Invoice List -->
 <head>
   <meta charset="UTF-8">
 </head>
-<style>    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap');
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap');
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  .navbar,.page-header,footer.web-footer,.container>.row>.col-sm-10,.frappe-footer{display:none!important}
+  .web-page-container,.container{padding:0!important;max-width:100%!important}
+  body{overflow-x:hidden}
+  :root{--bg:#F7F6F3;--surface:#FFF;--border:rgba(0,0,0,.07);--border-strong:rgba(0,0,0,.12);--text-primary:#1A1A18;--text-secondary:#6B6B65;--text-muted:#A8A8A2;--accent:#1A1A18;--accent-light:#F0EFE9;--nav-hover:#F7F6F3;--nav-active-bg:#EBEBE5;--pill-green-bg:#EAF3DE;--pill-green-txt:#3B6D11;--pill-red-bg:#FCEBEB;--pill-red-txt:#A32D2D;--pill-amber-bg:#FAEEDA;--pill-amber-txt:#854F0B;--pill-blue-bg:#E8F0FD;--pill-blue-txt:#1A4A8A;--shadow-sm:0 2px 12px rgba(0,0,0,.04),0 0 0 .5px rgba(0,0,0,.03);--shadow-md:0 4px 24px rgba(0,0,0,.08)}
+  .dark{--bg:#121212;--surface:#1E1E1E;--border:rgba(255,255,255,.08);--border-strong:rgba(255,255,255,.15);--text-primary:#EDEDED;--text-secondary:#A0A0A0;--text-muted:#6E6E6E;--accent:#D4D4D4;--accent-light:#2C2C2C;--nav-hover:#252525;--nav-active-bg:#2D2D2D;--pill-green-bg:#1E3A2E;--pill-green-txt:#9CD45E;--pill-red-bg:#3E1E1E;--pill-red-txt:#F28B82;--pill-amber-bg:#3E2E1E;--pill-amber-txt:#FDBF6B;--pill-blue-bg:#1A2A3E;--pill-blue-txt:#7AABF0;--shadow-sm:0 2px 12px rgba(0,0,0,.3),0 0 0 .5px rgba(255,255,255,.05);--shadow-md:0 4px 24px rgba(0,0,0,.3)}
+  html,body{color:var(--text-primary)}
+  *{transition:background-color .2s ease,border-color .2s ease,color .2s ease,box-shadow .2s ease}
+  .cd-app{font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);min-height:100vh;display:flex;-webkit-font-smoothing:antialiased;color:var(--text-primary)}
+  .cd-sidebar{width:260px;background:var(--surface);border-right:.5px solid var(--border);display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;z-index:200;transform:translateX(0);transition:transform .3s cubic-bezier(.2,.9,.4,1.1);box-shadow:var(--shadow-sm)}
+  @media(max-width:768px){.cd-sidebar{transform:translateX(-100%)}.cd-sidebar.mobile-open{transform:translateX(0);width:80%;max-width:280px}}
+  .cd-sidebar-logo{display:flex;align-items:center;gap:11px;padding:20px 16px 18px;border-bottom:.5px solid var(--border);text-decoration:none;color:inherit}
+  .cd-sidebar-logo img{width:30px;height:30px;object-fit:contain;border-radius:9px}
+  .cd-logo-name{font-family:'DM Serif Display',Georgia,serif;font-size:17px;color:var(--text-primary);letter-spacing:-.2px}
+  .cd-logo-sub{font-size:10px;color:var(--text-muted);font-weight:300;letter-spacing:.07em;text-transform:uppercase}
+  .cd-nav{flex:1;padding:10px 8px;overflow-y:auto}
+  .cd-nav-section{font-size:10px;font-weight:500;color:var(--text-muted);letter-spacing:.08em;text-transform:uppercase;padding:14px 8px 5px}
+  .cd-nav-item{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:9px;cursor:pointer;margin-bottom:1px;text-decoration:none;color:var(--text-secondary);font-size:13.5px;font-weight:400;transition:background .14s,color .14s}
+  .cd-nav-item:hover{background:var(--nav-hover);color:var(--text-primary)}
+  .cd-nav-item.active{background:var(--nav-active-bg);color:var(--text-primary);font-weight:500}
+  .cd-nav-icon{width:20px;height:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:inherit}
+  .cd-nav-icon svg{width:15px;height:15px;stroke:currentColor;stroke-width:1.75;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .cd-sidebar-bottom{padding:10px 8px;border-top:.5px solid var(--border)}
+  .cd-user-card{display:flex;align-items:center;gap:10px;padding:10px;border-radius:9px;cursor:pointer;transition:background .14s}
+  .cd-user-card:hover{background:var(--nav-hover)}
+  .cd-avatar{width:32px;height:32px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:var(--surface);flex-shrink:0}
+  .cd-user-name{font-size:13px;font-weight:500;color:var(--text-primary)}
+  .cd-user-role{font-size:11px;color:var(--text-muted);font-weight:300}
+  .cd-logout-btn{display:flex;align-items:center;gap:7px;padding:9px 10px;border-radius:9px;cursor:pointer;font-size:13px;color:var(--text-secondary);margin-top:3px;border:none;background:none;font-family:'DM Sans',sans-serif;width:100%;transition:background .14s,color .14s}
+  .cd-logout-btn:hover{background:var(--pill-red-bg);color:var(--pill-red-txt)}
+  .cd-instance-bar{display:flex;align-items:center;gap:6px;padding:8px 10px 4px}
+  .cd-instance-label{font-size:10px;font-weight:500;color:var(--text-muted);letter-spacing:.07em;text-transform:uppercase;flex:1}
+  .cd-instance-pills{display:flex;gap:4px}
+  .cd-instance-pill{font-size:11px;font-weight:500;padding:3px 10px;border-radius:6px;border:.5px solid var(--border);color:var(--text-secondary);cursor:pointer;transition:background .14s,color .14s,border-color .14s;font-family:'DM Sans',sans-serif;background:none}
+  .cd-instance-pill:hover{background:var(--nav-hover);color:var(--text-primary)}
+  .cd-instance-pill.active{background:var(--accent);color:var(--surface);border-color:var(--accent)}
+  .cd-main{margin-left:260px;flex:1;min-height:100vh;display:flex;flex-direction:column;width:100%}
+  @media(max-width:768px){.cd-main{margin-left:0}}
+  .cd-topbar{height:58px;background:var(--surface);border-bottom:.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 20px;position:sticky;top:0;z-index:100}
+  .cd-menu-btn{display:none;background:none;border:none;cursor:pointer;color:var(--text-secondary);margin-right:12px}
+  @media(max-width:768px){.cd-menu-btn{display:flex;align-items:center;justify-content:center}}
+  .cd-topbar-left{display:flex;align-items:center;gap:10px}
+  .cd-breadcrumb{display:flex;align-items:center;gap:6px;font-size:13.5px}
+  .cd-breadcrumb a{color:var(--text-muted);text-decoration:none;transition:color .14s}
+  .cd-breadcrumb a:hover{color:var(--text-primary)}
+  .cd-breadcrumb-sep{color:var(--text-muted);font-size:12px}
+  .cd-breadcrumb-cur{color:var(--text-primary);font-weight:500}
+  .cd-topbar-right{display:flex;align-items:center;gap:10px}
+  .cd-topbar-date{font-size:12.5px;color:var(--text-muted);font-weight:300}
+  .cd-icon-btn{width:34px;height:34px;border-radius:9px;border:.5px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-secondary);transition:background .14s,color .14s}
+  .cd-icon-btn:hover{background:var(--nav-hover);color:var(--text-primary)}
+  .cd-icon-btn svg{width:15px;height:15px;stroke:currentColor;stroke-width:1.75;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .cd-content{padding:24px 28px;flex:1;animation:fadeIn .35s cubic-bezier(.16,1,.3,1) both}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+  .cd-page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+  .cd-page-title{font-size:20px;font-weight:500;letter-spacing:-.3px}
+  .cd-page-sub{font-size:12.5px;color:var(--text-muted);margin-top:2px;font-weight:300}
+  .cd-btn{font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;padding:8px 16px;border-radius:9px;border:none;cursor:pointer;transition:background .14s,transform .1s;display:inline-flex;align-items:center;gap:7px}
+  .cd-btn:active{transform:scale(.98)}
+  .cd-btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .cd-btn-primary{background:var(--text-primary);color:var(--surface)}
+  .cd-btn-primary:hover{opacity:.85}
+  .cd-btn-secondary{background:var(--surface);color:var(--text-primary);border:.5px solid var(--border-strong)}
+  .cd-btn-secondary:hover{background:var(--accent-light)}
+  .cd-summary-bar{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+  .cd-pill-filter{display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:100px;border:.5px solid var(--border);background:var(--surface);font-size:12.5px;cursor:pointer;transition:box-shadow .14s,border-color .14s,background .14s;white-space:nowrap}
+  .cd-pill-filter:hover{box-shadow:0 2px 8px rgba(0,0,0,.06);border-color:var(--border-strong)}
+  .cd-pill-filter.active{background:var(--text-primary);color:var(--surface);border-color:var(--text-primary)}
+  .cd-pill-filter.active .pf-count{background:rgba(255,255,255,.2);color:var(--surface)}
+  .pf-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+  .pf-count{font-size:11px;font-weight:600;background:var(--accent-light);color:var(--text-secondary);padding:2px 7px;border-radius:100px;font-variant-numeric:tabular-nums}
+  .pf-amt{font-size:11px;color:var(--text-muted);font-variant-numeric:tabular-nums}
+  .cd-toolbar{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+  .cd-search-wrap{position:relative;flex:1;min-width:200px;max-width:360px}
+  .cd-search-wrap svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:14px;height:14px;stroke:var(--text-muted);fill:none;stroke-width:1.8;pointer-events:none}
+  .cd-search-input{width:100%;font-family:'DM Sans',sans-serif;font-size:13px;background:var(--surface);border:.5px solid var(--border-strong);border-radius:9px;padding:8px 12px 8px 34px;color:var(--text-primary);outline:none;transition:border-color .14s,box-shadow .14s}
+  .cd-search-input:focus{border-color:var(--text-secondary);box-shadow:0 0 0 3px rgba(0,0,0,.05)}
+  .cd-search-input::placeholder{color:var(--text-muted)}
+  .cd-toolbar-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+  .cd-result-count{font-size:12px;color:var(--text-muted);white-space:nowrap}
+  .cd-table-wrap{background:var(--surface);border:.5px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:var(--shadow-sm)}
+  .cd-table{width:100%;border-collapse:collapse}
+  .cd-table thead{background:var(--bg)}
+  .cd-table th{font-size:11px;font-weight:500;color:var(--text-muted);text-align:left;padding:11px 16px;letter-spacing:.05em;text-transform:uppercase;border-bottom:.5px solid var(--border);white-space:nowrap;cursor:pointer;user-select:none}
+  .cd-table th .thi{display:flex;align-items:center;gap:5px}
+  .cd-table th svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;opacity:.5}
+  .cd-table td{font-size:13px;padding:13px 16px;border-bottom:.5px solid var(--border);vertical-align:middle}
+  .cd-table tr:last-child td{border-bottom:none}
+  .cd-table tbody tr{cursor:pointer;transition:background .1s}
+  .cd-table tbody tr:hover{background:var(--nav-hover)}
+  .cd-table tbody tr.sel{background:var(--accent-light)}
+  .cd-cb{width:16px;height:16px;border-radius:5px;border:1.5px solid var(--border-strong);background:var(--surface);cursor:pointer;appearance:none;-webkit-appearance:none;display:grid;place-items:center;flex-shrink:0;transition:background .14s,border-color .14s}
+  .cd-cb:checked{background:var(--text-primary);border-color:var(--text-primary)}
+  .cd-cb:checked::after{content:'';width:9px;height:5px;border-left:2px solid white;border-bottom:2px solid white;transform:rotate(-45deg) translateY(-1px);display:block}
+  .doc-num{font-weight:500;font-size:13px}
+  .doc-sub{font-size:11px;color:var(--text-muted);margin-top:2px}
+  .cd-pill{display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:3px 9px;border-radius:100px;font-weight:500;white-space:nowrap}
+  .cd-pill-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+  .cd-pill.green{background:var(--pill-green-bg);color:var(--pill-green-txt)}.cd-pill.green .cd-pill-dot{background:var(--pill-green-txt)}
+  .cd-pill.red{background:var(--pill-red-bg);color:var(--pill-red-txt)}.cd-pill.red .cd-pill-dot{background:var(--pill-red-txt)}
+  .cd-pill.amber{background:var(--pill-amber-bg);color:var(--pill-amber-txt)}.cd-pill.amber .cd-pill-dot{background:var(--pill-amber-txt)}
+  .cd-pill.blue{background:var(--pill-blue-bg);color:var(--pill-blue-txt)}.cd-pill.blue .cd-pill-dot{background:var(--pill-blue-txt)}
+  .cd-pill.grey{background:var(--accent-light);color:var(--text-secondary)}.cd-pill.grey .cd-pill-dot{background:var(--text-muted)}
+  .cd-row-actions{display:flex;align-items:center;gap:6px;opacity:0;transition:opacity .14s}
+  .cd-table tbody tr:hover .cd-row-actions{opacity:1}
+  .cd-act-btn{width:28px;height:28px;border-radius:7px;border:.5px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-secondary);transition:background .12s,color .12s}
+  .cd-act-btn:hover{background:var(--nav-active-bg);color:var(--text-primary)}
+  .cd-act-btn svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  .cd-empty{text-align:center;padding:60px 20px;color:var(--text-muted)}
+  .cd-empty svg{width:44px;height:44px;stroke:var(--text-muted);fill:none;stroke-width:1.2;margin:0 auto 14px;display:block}
+  .cd-empty-title{font-size:14px;font-weight:500;color:var(--text-secondary);margin-bottom:5px}
+  .cd-empty-sub{font-size:12.5px}
+  .cd-pagination{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-top:.5px solid var(--border);flex-wrap:wrap;gap:10px}
+  .cd-page-info{font-size:12px;color:var(--text-muted)}
+  .cd-page-btns{display:flex;gap:4px;align-items:center}
+  .cd-page-btn{min-width:30px;height:30px;border-radius:7px;border:.5px solid var(--border);background:var(--surface);font-family:'DM Sans',sans-serif;font-size:12.5px;color:var(--text-secondary);cursor:pointer;padding:0 8px;display:flex;align-items:center;justify-content:center;transition:background .12s,color .12s}
+  .cd-page-btn:hover{background:var(--nav-hover);color:var(--text-primary)}
+  .cd-page-btn.active{background:var(--text-primary);color:var(--surface);border-color:var(--text-primary);font-weight:500}
+  .cd-page-btn:disabled{opacity:.38;cursor:not-allowed}
+  .cd-page-btn svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2}
+  .cd-bulk-bar{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--text-primary);color:var(--surface);border-radius:14px;padding:12px 18px;display:flex;align-items:center;gap:14px;box-shadow:0 8px 32px rgba(0,0,0,.22);z-index:300;transition:transform .3s cubic-bezier(.16,1,.3,1),opacity .3s;opacity:0;pointer-events:none;white-space:nowrap}
+  .cd-bulk-bar.visible{transform:translateX(-50%) translateY(0);opacity:1;pointer-events:all}
+  .cd-bulk-label{font-size:13px;font-weight:500}
+  .cd-bulk-actions{display:flex;gap:8px}
+  .cd-bulk-btn{font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;padding:6px 12px;border-radius:8px;border:none;cursor:pointer;background:rgba(255,255,255,.15);color:var(--surface);transition:background .14s;display:flex;align-items:center;gap:5px}
+  .cd-bulk-btn:hover{background:rgba(255,255,255,.25)}
+  .cd-bulk-btn svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  .cd-bulk-div{width:1px;height:20px;background:rgba(255,255,255,.2)}
+  .cd-overlay{position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:400;opacity:0;pointer-events:none;transition:opacity .25s;backdrop-filter:blur(2px)}
+  .cd-overlay.open{opacity:1;pointer-events:all}
+  .cd-drawer{position:fixed;right:0;top:0;bottom:0;width:480px;max-width:95vw;background:var(--surface);border-left:.5px solid var(--border);z-index:401;transform:translateX(100%);transition:transform .3s cubic-bezier(.16,1,.3,1);display:flex;flex-direction:column;box-shadow:-8px 0 40px rgba(0,0,0,.1)}
+  .cd-drawer.open{transform:translateX(0)}
+  .cd-drawer-header{padding:18px 20px;border-bottom:.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+  .cd-drawer-title{font-size:15px;font-weight:500}
+  .cd-drawer-close{width:30px;height:30px;border-radius:8px;border:.5px solid var(--border);background:var(--bg);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-secondary);transition:background .14s}
+  .cd-drawer-close:hover{background:var(--nav-active-bg)}
+  .cd-drawer-close svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2}
+  .cd-drawer-body{flex:1;overflow-y:auto;padding:20px}
+  .cd-drawer-actions{padding:14px 20px;border-top:.5px solid var(--border);display:flex;gap:8px;flex-shrink:0}
+  .cd-dmeta{background:var(--bg);border-radius:12px;padding:16px;margin-bottom:16px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .cd-dmeta-lbl{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+  .cd-dmeta-val{font-size:13px;font-weight:500}
+  .cd-dsec{font-size:11px;font-weight:500;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;margin-top:18px}
+  .cd-drow{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:.5px solid var(--border)}
+  .cd-drow:last-child{border-bottom:none}
+  .cd-drow-icon{width:32px;height:32px;border-radius:8px;background:var(--accent-light);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .cd-drow-icon svg{width:14px;height:14px;stroke:var(--text-muted);fill:none;stroke-width:1.5}
+  .cd-drow-name{font-size:13px;font-weight:500}
+  .cd-drow-sub{font-size:11px;color:var(--text-muted);margin-top:2px}
+  .cd-drow-right{margin-left:auto;text-align:right}
+  .cd-drow-amt{font-size:13px;font-weight:500;font-variant-numeric:tabular-nums}
+  .cd-drow-qty{font-size:11px;color:var(--text-muted);margin-top:2px}
+  .cd-fchip-wrap{position:relative;display:inline-flex}
+  .cd-fchip{font-family:'DM Sans',sans-serif;font-size:12.5px;font-weight:400;padding:7px 11px;border-radius:9px;border:.5px solid var(--border-strong);background:var(--surface);color:var(--text-secondary);cursor:pointer;display:inline-flex;align-items:center;gap:5px;white-space:nowrap;transition:background .14s,border-color .14s,color .14s;line-height:1}
+  .cd-fchip:hover{background:var(--nav-hover);color:var(--text-primary)}
+  .cd-fchip.active{background:var(--text-primary);color:var(--surface);border-color:var(--text-primary)}
+  .cd-fchip svg.caret{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0;transition:transform .14s}
+  .cd-fchip.open svg.caret{transform:rotate(180deg)}
+  .cd-fpop{position:absolute;top:calc(100% + 6px);left:0;background:var(--surface);border:.5px solid var(--border-strong);border-radius:12px;box-shadow:var(--shadow-md);z-index:600;min-width:210px;padding:14px;display:none}
+  .cd-fpop.open{display:block;animation:fadeIn .15s ease}
+  .cd-fpop-title{font-size:10.5px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px}
+  .cd-fpop label{font-size:12px;color:var(--text-secondary);display:block;margin-bottom:4px}
+  .cd-fpop input[type=date]{width:100%;font-family:'DM Sans',sans-serif;font-size:12.5px;background:var(--bg);border:.5px solid var(--border-strong);border-radius:8px;padding:7px 10px;color:var(--text-primary);outline:none;margin-bottom:10px;transition:border-color .14s}
+  .cd-fpop input[type=date]:focus{border-color:var(--text-secondary)}
+  .cd-fpop-acts{display:flex;gap:6px;justify-content:flex-end;margin-top:2px}
+  .cd-fpop-clear{font-family:'DM Sans',sans-serif;font-size:12px;padding:6px 11px;border-radius:7px;border:.5px solid var(--border-strong);background:none;color:var(--text-secondary);cursor:pointer;transition:background .14s}
+  .cd-fpop-clear:hover{background:var(--nav-hover)}
+  .cd-fpop-apply{font-family:'DM Sans',sans-serif;font-size:12px;padding:6px 11px;border-radius:7px;border:none;background:var(--text-primary);color:var(--surface);cursor:pointer;font-weight:500;transition:opacity .14s}
+  .cd-fpop-apply:hover{opacity:.85}
+  .cd-sc-wrap{position:relative;display:inline-flex;align-items:center;gap:3px}
+  .cd-sc{display:inline-flex;align-items:center;border-radius:9px;border:.5px solid var(--border-strong);background:var(--surface);overflow:hidden;transition:border-color .14s}
+  .cd-sc:hover{border-color:var(--text-secondary)}
+  .cd-sc-dir{padding:6px 9px;border-right:.5px solid var(--border);cursor:pointer;display:flex;align-items:center;color:var(--text-secondary);background:none;border-top:none;border-bottom:none;border-left:none;transition:background .14s,color .14s;font-family:'DM Sans',sans-serif}
+  .cd-sc-dir:hover{background:var(--nav-hover);color:var(--text-primary)}
+  .cd-sc-dir svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8;display:block}
+  .cd-sc-lbl{padding:6px 10px 6px 8px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12.5px;color:var(--text-secondary);display:inline-flex;align-items:center;gap:5px;background:none;border:none;transition:background .14s,color .14s;white-space:nowrap;line-height:1}
+  .cd-sc-lbl:hover{background:var(--nav-hover);color:var(--text-primary)}
+  .cd-sc-lbl svg.caret{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2;transition:transform .14s;flex-shrink:0}
+  .cd-sc-lbl.open svg.caret{transform:rotate(180deg)}
+  .cd-sc-pop{position:absolute;top:calc(100% + 6px);left:0;background:var(--surface);border:.5px solid var(--border-strong);border-radius:10px;box-shadow:var(--shadow-md);z-index:600;min-width:170px;padding:4px;display:none}
+  .cd-sc-pop.open{display:block;animation:fadeIn .15s ease}
+  .cd-sc-opt{font-family:'DM Sans',sans-serif;font-size:13px;padding:8px 12px;border-radius:7px;cursor:pointer;color:var(--text-secondary);transition:background .12s,color .12s;display:flex;align-items:center;gap:8px}
+  .cd-sc-opt:hover{background:var(--nav-hover);color:var(--text-primary)}
+  .cd-sc-opt.active{color:var(--text-primary);font-weight:500}
+  .cd-sc-opt::before{content:'';width:6px;height:6px;border-radius:50%;flex-shrink:0;background:transparent}
+  .cd-sc-opt.active::before{background:var(--text-primary)}
+</style>
 
-
-    
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    .navbar, .page-header, footer.web-footer,
-    .container > .row > .col-sm-10, .frappe-footer { display: none !important; }
-    .web-page-container, .container { padding: 0 !important; max-width: 100% !important; }
-    body { overflow-x: hidden; }
-    
-    :root {
-      --bg: #F7F6F3;
-      --surface: #FFFFFF;
-      --border: rgba(0,0,0,0.07);
-      --border-strong: rgba(0,0,0,0.12);
-      --text-primary: #1A1A18;
-      --text-secondary: #6B6B65;
-      --text-muted: #A8A8A2;
-      --accent: #1A1A18;
-      --accent-light: #F0EFE9;
-      --nav-hover: #F7F6F3;
-      --nav-active-bg: #EBEBE5;
-      --pill-green-bg: #EAF3DE; --pill-green-txt: #3B6D11;
-      --pill-red-bg: #FCEBEB;   --pill-red-txt: #A32D2D;
-      --pill-amber-bg: #FAEEDA; --pill-amber-txt: #854F0B;
-      --pill-blue-bg: #E8F0FD;  --pill-blue-txt: #1A4A8A;
-      --shadow-sm: 0 2px 12px rgba(0,0,0,0.04), 0 0 0 0.5px rgba(0,0,0,0.03);
-    }
-    .dark {
-      --bg: #121212;
-      --surface: #1E1E1E;
-      --border: rgba(255,255,255,0.08);
-      --border-strong: rgba(255,255,255,0.15);
-      --text-primary: #EDEDED;
-      --text-secondary: #A0A0A0;
-      --text-muted: #6E6E6E;
-      --accent: #D4D4D4;
-      --accent-light: #2C2C2C;
-      --nav-hover: #252525;
-      --nav-active-bg: #2D2D2D;
-      --pill-green-bg: #1E3A2E; --pill-green-txt: #9CD45E;
-      --pill-red-bg: #3E1E1E;   --pill-red-txt: #F28B82;
-      --pill-amber-bg: #3E2E1E; --pill-amber-txt: #FDBF6B;
-      --pill-blue-bg: #1A2A3E;  --pill-blue-txt: #7AABF0;
-      --shadow-sm: 0 2px 12px rgba(0,0,0,0.3), 0 0 0 0.5px rgba(255,255,255,0.05);
-    }
-    * { transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease; }
-    
-    .cd-app {
-      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: var(--bg);
-      min-height: 100vh;
-      display: flex;
-      -webkit-font-smoothing: antialiased;
-      color: var(--text-primary);
-    }
-    
-    /* SIDEBAR */
-    .cd-sidebar {
-      width: 260px;
-      background: var(--surface);
-      border-right: 0.5px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      position: fixed;
-      left: 0; top: 0; bottom: 0;
-      z-index: 200;
-      transform: translateX(0);
-      transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-      box-shadow: var(--shadow-sm);
-    }
-    @media (max-width: 768px) {
-      .cd-sidebar { transform: translateX(-100%); }
-      .cd-sidebar.mobile-open { transform: translateX(0); width: 80%; max-width: 280px; }
-    }
-    .cd-sidebar-logo {
-      display: flex; align-items: center; gap: 11px;
-      padding: 20px 16px 18px;
-      border-bottom: 0.5px solid var(--border);
-      text-decoration: none; color: inherit;
-    }
-    .cd-sidebar-logo img { width: 30px; height: 30px; object-fit: contain; border-radius: 9px; }
-    .cd-logo-name { font-family: 'DM Serif Display', Georgia, serif; font-size: 17px; color: var(--text-primary); letter-spacing: -0.2px; }
-    .cd-logo-sub { font-size: 10px; color: var(--text-muted); font-weight: 300; letter-spacing: 0.07em; text-transform: uppercase; }
-    .cd-nav { flex: 1; padding: 10px 8px; overflow-y: auto; }
-    .cd-nav-section { font-size: 10px; font-weight: 500; color: var(--text-muted); letter-spacing: 0.08em; text-transform: uppercase; padding: 14px 8px 5px; }
-    .cd-nav-item {
-      display: flex; align-items: center; gap: 9px;
-      padding: 9px 10px; border-radius: 9px;
-      cursor: pointer; margin-bottom: 1px;
-      text-decoration: none; color: var(--text-secondary);
-      font-size: 13.5px; font-weight: 400;
-      transition: background 0.14s, color 0.14s;
-    }
-    .cd-nav-item:hover { background: var(--nav-hover); color: var(--text-primary); }
-    .cd-nav-item.active { background: var(--nav-active-bg); color: var(--text-primary); font-weight: 500; }
-    .cd-nav-icon { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: inherit; }
-    .cd-nav-icon svg { width: 15px; height: 15px; stroke: currentColor; stroke-width: 1.75; fill: none; stroke-linecap: round; stroke-linejoin: round; }
-    .cd-sidebar-bottom { padding: 10px 8px; border-top: 0.5px solid var(--border); }
-    .cd-user-card { display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 9px; cursor: pointer; transition: background 0.14s; }
-    .cd-user-card:hover { background: var(--nav-hover); }
-    .cd-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 500; color: var(--surface); flex-shrink: 0; }
-    .cd-user-name { font-size: 13px; font-weight: 500; color: var(--text-primary); }
-    .cd-user-role { font-size: 11px; color: var(--text-muted); font-weight: 300; }
-    .cd-logout-btn {
-      display: flex; align-items: center; gap: 7px;
-      padding: 9px 10px; border-radius: 9px;
-      cursor: pointer; font-size: 13px; color: var(--text-secondary);
-      margin-top: 3px; border: none; background: none;
-      font-family: 'DM Sans', sans-serif; width: 100%;
-      transition: background 0.14s, color 0.14s;
-    }
-    .cd-logout-btn:hover { background: var(--pill-red-bg); color: var(--pill-red-txt); }
-    
-    /* MAIN */
-    .cd-main { margin-left: 260px; flex: 1; min-height: 100vh; display: flex; flex-direction: column; width: 100%; }
-    @media (max-width: 768px) { .cd-main { margin-left: 0; } }
-    .cd-topbar {
-      height: 58px;
-      background: var(--surface);
-      border-bottom: 0.5px solid var(--border);
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0 20px;
-      position: sticky; top: 0; z-index: 100;
-    }
-    .cd-menu-btn { display: none; background: none; border: none; cursor: pointer; color: var(--text-secondary); margin-right: 12px; }
-    @media (max-width: 768px) { .cd-menu-btn { display: flex; align-items: center; justify-content: center; } }
-    .cd-topbar-left { display: flex; align-items: center; gap: 10px; }
-    .cd-breadcrumb { display: flex; align-items: center; gap: 6px; font-size: 13.5px; }
-    .cd-breadcrumb a { color: var(--text-muted); text-decoration: none; transition: color 0.14s; }
-    .cd-breadcrumb a:hover { color: var(--text-primary); }
-    .cd-breadcrumb-sep { color: var(--text-muted); font-size: 12px; }
-    .cd-breadcrumb-cur { color: var(--text-primary); font-weight: 500; }
-    .cd-topbar-right { display: flex; align-items: center; gap: 10px; }
-    .cd-topbar-date { font-size: 12.5px; color: var(--text-muted); font-weight: 300; }
-    .cd-icon-btn {
-      width: 34px; height: 34px; border-radius: 9px;
-      border: 0.5px solid var(--border);
-      background: var(--surface);
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer; color: var(--text-secondary);
-      transition: background 0.14s, color 0.14s;
-    }
-    .cd-icon-btn:hover { background: var(--nav-hover); color: var(--text-primary); }
-    .cd-icon-btn svg { width: 15px; height: 15px; stroke: currentColor; stroke-width: 1.75; fill: none; stroke-linecap: round; stroke-linejoin: round; }
-    
-    /* CONTENT */
-    .cd-content { padding: 24px 28px; flex: 1; }
-    .cd-page-anim { animation: cd-fadeIn 0.35s cubic-bezier(0.16,1,0.3,1) both; }
-    @keyframes cd-fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    
-    /* PAGE HEADER */
-    .cd-sinv-header {
-      display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 20px; flex-wrap: wrap; gap: 12px;
-    }
-    .cd-sinv-title { font-size: 20px; font-weight: 500; letter-spacing: -0.3px; }
-    .cd-sinv-title-sub { font-size: 12.5px; color: var(--text-muted); margin-top: 2px; font-weight: 300; }
-    .cd-btn { font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; padding: 8px 16px; border-radius: 9px; border: none; cursor: pointer; transition: background 0.14s, transform 0.1s; display: inline-flex; align-items: center; gap: 7px; }
-    .cd-btn:active { transform: scale(0.98); }
-    .cd-btn-primary { background: var(--text-primary); color: var(--surface); }
-    .cd-btn-primary:hover { opacity: 0.85; }
-    .cd-btn-primary svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; }
-    .cd-btn-secondary { background: var(--surface); color: var(--text-primary); border: 0.5px solid var(--border-strong); }
-    .cd-btn-secondary:hover { background: var(--accent-light); }
-    .cd-btn-secondary svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
-    
-    /* SUMMARY PILLS */
-    .cd-sinv-summary {
-      display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;
-    }
-    .cd-summary-pill {
-      display: flex; align-items: center; gap: 8px;
-      padding: 8px 14px; border-radius: 100px;
-      border: 0.5px solid var(--border);
-      background: var(--surface);
-      font-size: 12.5px; cursor: pointer;
-      transition: box-shadow 0.14s, border-color 0.14s, background 0.14s;
-      white-space: nowrap;
-    }
-    .cd-summary-pill:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-color: var(--border-strong); }
-    .cd-summary-pill.active { background: var(--text-primary); color: var(--surface); border-color: var(--text-primary); }
-    .cd-summary-pill.active .cd-sp-count { background: rgba(255,255,255,0.2); color: var(--surface); }
-    .cd-sp-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-    .cd-sp-label { color: inherit; font-weight: 400; }
-    .cd-sp-count { font-size: 11px; font-weight: 600; background: var(--accent-light); color: var(--text-secondary); padding: 2px 7px; border-radius: 100px; font-variant-numeric: tabular-nums; }
-    .cd-sp-amount { font-size: 11px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
-    
-    /* TOOLBAR */
-    .cd-sinv-toolbar {
-      display: flex; align-items: center; gap: 10px;
-      margin-bottom: 14px; flex-wrap: wrap;
-    }
-    .cd-search-wrap { position: relative; flex: 1; min-width: 200px; max-width: 360px; }
-    .cd-search-wrap svg { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; stroke: var(--text-muted); fill: none; stroke-width: 1.8; pointer-events: none; }
-    .cd-search-input {
-      width: 100%; font-family: 'DM Sans', sans-serif; font-size: 13px;
-      background: var(--surface); border: 0.5px solid var(--border-strong);
-      border-radius: 9px; padding: 8px 12px 8px 34px;
-      color: var(--text-primary); outline: none;
-      transition: border-color 0.14s, box-shadow 0.14s;
-    }
-    .cd-search-input:focus { border-color: var(--text-secondary); box-shadow: 0 0 0 3px rgba(0,0,0,0.05); }
-    .cd-search-input::placeholder { color: var(--text-muted); }
-    .cd-filter-select {
-      font-family: 'DM Sans', sans-serif; font-size: 12.5px;
-      background: var(--surface); border: 0.5px solid var(--border-strong);
-      border-radius: 9px; padding: 8px 12px;
-      color: var(--text-secondary); outline: none; cursor: pointer;
-    }
-    .cd-toolbar-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
-    .cd-result-count { font-size: 12px; color: var(--text-muted); white-space: nowrap; }
-    
-    /* TABLE */
-    .cd-sinv-table-wrap {
-      background: var(--surface);
-      border: 0.5px solid var(--border);
-      border-radius: 14px;
-      overflow: hidden;
-      box-shadow: var(--shadow-sm);
-    }
-    .cd-sinv-table { width: 100%; border-collapse: collapse; }
-    .cd-sinv-table thead { background: var(--bg); }
-    .cd-sinv-table th {
-      font-size: 11px; font-weight: 500; color: var(--text-muted);
-      text-align: left; padding: 11px 16px;
-      letter-spacing: 0.05em; text-transform: uppercase;
-      border-bottom: 0.5px solid var(--border);
-      white-space: nowrap;
-      cursor: pointer; user-select: none;
-      transition: color 0.14s;
-    }
-    .cd-sinv-table th:hover { color: var(--text-primary); }
-    .cd-sinv-table th .th-inner { display: flex; align-items: center; gap: 5px; }
-    .cd-sinv-table th svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2; opacity: 0.5; }
-    .cd-sinv-table th.sorted svg { opacity: 1; color: var(--text-primary); }
-    .cd-sinv-table td {
-      font-size: 13px; padding: 13px 16px;
-      border-bottom: 0.5px solid var(--border);
-      vertical-align: middle;
-    }
-    .cd-sinv-table tr:last-child td { border-bottom: none; }
-    .cd-sinv-table tbody tr {
-      cursor: pointer;
-      transition: background 0.1s;
-    }
-    .cd-sinv-table tbody tr:hover { background: var(--nav-hover); }
-    .cd-sinv-table tbody tr.selected { background: var(--accent-light); }
-    
-    /* Checkbox */
-    .cd-cb { width: 16px; height: 16px; border-radius: 5px; border: 1.5px solid var(--border-strong); background: var(--surface); cursor: pointer; appearance: none; -webkit-appearance: none; display: grid; place-items: center; flex-shrink: 0; transition: background 0.14s, border-color 0.14s; }
-    .cd-cb:checked { background: var(--text-primary); border-color: var(--text-primary); }
-    .cd-cb:checked::after { content: ''; width: 9px; height: 5px; border-left: 2px solid white; border-bottom: 2px solid white; transform: rotate(-45deg) translateY(-1px); display: block; }
-    
-    /* Invoice number cell */
-    .cd-inv-num { font-weight: 500; font-size: 13px; color: var(--text-primary); }
-    .cd-inv-date { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
-    
-    /* Customer cell */
-    .cd-cust-name { font-weight: 500; font-size: 13px; }
-    .cd-cust-contact { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
-    
-    /* Amount cell */
-    .cd-amount { font-variant-numeric: tabular-nums; font-weight: 500; font-size: 13.5px; }
-    .cd-amount-sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; font-weight: 300; }
-    
-    /* Status pills */
-    .cd-pill { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; padding: 3px 9px; border-radius: 100px; font-weight: 500; white-space: nowrap; }
-    .cd-pill-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
-    .cd-pill.green { background: var(--pill-green-bg); color: var(--pill-green-txt); }
-    .cd-pill.green .cd-pill-dot { background: var(--pill-green-txt); }
-    .cd-pill.red { background: var(--pill-red-bg); color: var(--pill-red-txt); }
-    .cd-pill.red .cd-pill-dot { background: var(--pill-red-txt); }
-    .cd-pill.amber { background: var(--pill-amber-bg); color: var(--pill-amber-txt); }
-    .cd-pill.amber .cd-pill-dot { background: var(--pill-amber-txt); }
-    .cd-pill.blue { background: var(--pill-blue-bg); color: var(--pill-blue-txt); }
-    .cd-pill.blue .cd-pill-dot { background: var(--pill-blue-txt); }
-    .cd-pill.grey { background: var(--accent-light); color: var(--text-secondary); }
-    .cd-pill.grey .cd-pill-dot { background: var(--text-muted); }
-    
-    /* Actions cell */
-    .cd-row-actions { display: flex; align-items: center; gap: 6px; opacity: 0; transition: opacity 0.14s; }
-    .cd-sinv-table tbody tr:hover .cd-row-actions { opacity: 1; }
-    .cd-action-btn {
-      width: 28px; height: 28px; border-radius: 7px; border: 0.5px solid var(--border);
-      background: var(--surface); display: flex; align-items: center; justify-content: center;
-      cursor: pointer; color: var(--text-secondary); transition: background 0.12s, color 0.12s;
-    }
-    .cd-action-btn:hover { background: var(--nav-active-bg); color: var(--text-primary); }
-    .cd-action-btn svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-    
-    /* Empty state */
-    .cd-empty-state {
-      text-align: center; padding: 60px 20px;
-      color: var(--text-muted);
-    }
-    .cd-empty-icon { width: 44px; height: 44px; stroke: var(--text-muted); fill: none; stroke-width: 1.2; margin: 0 auto 14px; display: block; }
-    .cd-empty-title { font-size: 14px; font-weight: 500; color: var(--text-secondary); margin-bottom: 5px; }
-    .cd-empty-sub { font-size: 12.5px; }
-    
-    /* Pagination */
-    .cd-pagination {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 14px 16px; border-top: 0.5px solid var(--border);
-      flex-wrap: wrap; gap: 10px;
-    }
-    .cd-page-info { font-size: 12px; color: var(--text-muted); }
-    .cd-page-btns { display: flex; gap: 4px; align-items: center; }
-    .cd-page-btn {
-      min-width: 30px; height: 30px; border-radius: 7px; border: 0.5px solid var(--border);
-      background: var(--surface); font-family: 'DM Sans', sans-serif; font-size: 12.5px;
-      font-weight: 400; color: var(--text-secondary); cursor: pointer; padding: 0 8px;
-      display: flex; align-items: center; justify-content: center;
-      transition: background 0.12s, color 0.12s, border-color 0.12s;
-    }
-    .cd-page-btn:hover { background: var(--nav-hover); color: var(--text-primary); }
-    .cd-page-btn.active { background: var(--text-primary); color: var(--surface); border-color: var(--text-primary); font-weight: 500; }
-    .cd-page-btn:disabled { opacity: 0.38; cursor: not-allowed; }
-    .cd-page-btn svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2; }
-    
-    /* Bulk action bar */
-    .cd-bulk-bar {
-      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
-      background: var(--text-primary); color: var(--surface);
-      border-radius: 14px; padding: 12px 18px;
-      display: flex; align-items: center; gap: 14px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.22);
-      z-index: 300;
-      transition: transform 0.3s cubic-bezier(0.16,1,0.3,1), opacity 0.3s;
-      opacity: 0; pointer-events: none;
-      white-space: nowrap;
-    }
-    .cd-bulk-bar.visible { transform: translateX(-50%) translateY(0); opacity: 1; pointer-events: all; }
-    .cd-bulk-label { font-size: 13px; font-weight: 500; }
-    .cd-bulk-actions { display: flex; gap: 8px; }
-    .cd-bulk-btn {
-      font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500;
-      padding: 6px 12px; border-radius: 8px; border: none; cursor: pointer;
-      background: rgba(255,255,255,0.15); color: var(--surface);
-      transition: background 0.14s;
-      display: flex; align-items: center; gap: 5px;
-    }
-    .cd-bulk-btn:hover { background: rgba(255,255,255,0.25); }
-    .cd-bulk-btn svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-    .cd-bulk-divider { width: 1px; height: 20px; background: rgba(255,255,255,0.2); }
-    
-    /* Detail Drawer */
-    .cd-drawer-overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.3);
-      z-index: 400; opacity: 0; pointer-events: none;
-      transition: opacity 0.25s; backdrop-filter: blur(2px);
-    }
-    .cd-drawer-overlay.open { opacity: 1; pointer-events: all; }
-    .cd-drawer {
-      position: fixed; right: 0; top: 0; bottom: 0;
-      width: 480px; max-width: 95vw;
-      background: var(--surface); border-left: 0.5px solid var(--border);
-      z-index: 401;
-      transform: translateX(100%);
-      transition: transform 0.3s cubic-bezier(0.16,1,0.3,1);
-      display: flex; flex-direction: column;
-      box-shadow: -8px 0 40px rgba(0,0,0,0.1);
-    }
-    .cd-drawer.open { transform: translateX(0); }
-    .cd-drawer-header {
-      padding: 18px 20px;
-      border-bottom: 0.5px solid var(--border);
-      display: flex; align-items: center; justify-content: space-between;
-      flex-shrink: 0;
-    }
-    .cd-drawer-title { font-size: 15px; font-weight: 500; }
-    .cd-drawer-close { width: 30px; height: 30px; border-radius: 8px; border: 0.5px solid var(--border); background: var(--bg); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-secondary); transition: background 0.14s; }
-    .cd-drawer-close:hover { background: var(--nav-active-bg); color: var(--text-primary); }
-    .cd-drawer-close svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; }
-    .cd-drawer-body { flex: 1; overflow-y: auto; padding: 20px; }
-    .cd-drawer-actions { padding: 14px 20px; border-top: 0.5px solid var(--border); display: flex; gap: 8px; flex-shrink: 0; }
-    
-    .cd-drawer-inv-meta {
-      background: var(--bg); border-radius: 12px; padding: 16px;
-      margin-bottom: 16px;
-      display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
-    }
-    .cd-dmeta-item { }
-    .cd-dmeta-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
-    .cd-dmeta-value { font-size: 13px; font-weight: 500; }
-    .cd-drawer-section-title { font-size: 11px; font-weight: 500; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; margin-top: 18px; }
-    .cd-drawer-item-row {
-      display: flex; align-items: center; gap: 12px;
-      padding: 10px 0; border-bottom: 0.5px solid var(--border);
-    }
-    .cd-drawer-item-row:last-child { border-bottom: none; }
-    .cd-di-icon { width: 32px; height: 32px; border-radius: 8px; background: var(--accent-light); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .cd-di-icon svg { width: 14px; height: 14px; stroke: var(--text-muted); fill: none; stroke-width: 1.5; }
-    .cd-di-name { font-size: 13px; font-weight: 500; }
-    .cd-di-qty { font-size: 11.5px; color: var(--text-muted); margin-top: 2px; }
-    .cd-di-amount { font-size: 13.5px; font-weight: 500; margin-left: auto; font-variant-numeric: tabular-nums; }
-    
-    .cd-drawer-total-block { background: var(--bg); border-radius: 12px; padding: 14px 16px; margin-top: 14px; }
-    .cd-dt-row { display: flex; justify-content: space-between; font-size: 12.5px; margin-bottom: 7px; }
-    .cd-dt-row .l { color: var(--text-secondary); }
-    .cd-dt-row .r { font-variant-numeric: tabular-nums; }
-    .cd-dt-grand { display: flex; justify-content: space-between; font-size: 15px; font-weight: 600; padding-top: 10px; border-top: 0.5px solid var(--border); margin-top: 4px; letter-spacing: -0.2px; }
-    
-    .cd-timeline { margin-top: 4px; }
-    .cd-tl-item { display: flex; gap: 12px; padding-bottom: 16px; position: relative; }
-    .cd-tl-item:not(:last-child)::before { content: ''; position: absolute; left: 11px; top: 22px; bottom: 0; width: 1px; background: var(--border); }
-    .cd-tl-dot { width: 23px; height: 23px; border-radius: 50%; background: var(--accent-light); border: 0.5px solid var(--border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .cd-tl-dot.active { background: var(--text-primary); border-color: var(--text-primary); }
-    .cd-tl-dot svg { width: 10px; height: 10px; stroke: var(--text-muted); fill: none; stroke-width: 2.5; }
-    .cd-tl-dot.active svg { stroke: var(--surface); }
-    .cd-tl-label { font-size: 12.5px; font-weight: 500; color: var(--text-primary); padding-top: 2px; }
-    .cd-tl-sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
-    
-    </style>
-    
-    <div class="cd-app" id="cdApp">
-      <!-- Sidebar -->
-      <nav class="cd-sidebar" id="cdSidebar">
-        <a class="cd-sidebar-logo" href="/caratdesk">
-          <img src="https://i.postimg.cc/NMgHCKvC/letter-cc-cd-diamond-initial-600nw-2206465849.png" alt="CaratDesk" />
-          <div>
-            <div class="cd-logo-name">PPJ Retail</div>
-            <div class="cd-logo-sub">Jewellery POS</div>
-          </div>
-        </a>
-        <div class="cd-nav">
-          <div class="cd-nav-section">Main</div>
-          <a href="/caratdesk" class="cd-nav-item">
-            <span class="cd-nav-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>
-            Dashboard
-          </a>
-          <div class="cd-nav-section">Operations</div>
-          <a href="/caratdesk-selling" class="cd-nav-item active">
-            <span class="cd-nav-icon"><svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg></span>
-            Selling
-          </a>
-          <a href="/caratdesk-buying" class="cd-nav-item">
-            <span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></span>
-            Buying
-          </a>
-          <a href="/caratdesk-stock" class="cd-nav-item">
-            <span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg></span>
-            Stock
-          </a>
-          <a href="/caratdesk-items" class="cd-nav-item">
-            <span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></span>
-            Items
-          </a>
-          <div class="cd-nav-section">Finance</div>
-          <a href="/caratdesk-finance" class="cd-nav-item">
-            <span class="cd-nav-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></span>
-            Finance
-          </a>
-          <a href="/caratdesk-accounts" class="cd-nav-item">
-            <span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg></span>
-            Accounts
-          </a>
-          <a href="/caratdesk-reports" class="cd-nav-item">
-            <span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>
-            Reports
-          </a>
-          <div class="cd-nav-section">System</div>
-          <a href="/caratdesk-settings" class="cd-nav-item">
-            <span class="cd-nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M12 2v2M12 20v2M2 12h2M20 12h2M4.93 19.07l1.41-1.41M19.07 19.07l-1.41-1.41"/></svg></span>
-            Settings
-          </a>
-        </div>
-        <div class="cd-sidebar-bottom">
-          <div class="cd-user-card">
-            <div class="cd-avatar" id="cdAvatar">—</div>
-            <div>
-              <div class="cd-user-name" id="cdUserName">Loading…</div>
-              <div class="cd-user-role">POS Manager</div>
-            </div>
-          </div>
-          <button class="cd-logout-btn" id="cdLogoutBtn">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
-            </svg>
-            Sign out
-          </button>
-        </div>
-      </nav>
-    
-      <div class="cd-main">
-        <!-- Topbar -->
-        <div class="cd-topbar">
-          <div class="cd-topbar-left">
-            <button class="cd-menu-btn" id="cdMenuToggle">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-            </button>
-            <div class="cd-breadcrumb">
-              <a href="/caratdesk-selling">Selling</a>
-              <span class="cd-breadcrumb-sep">›</span>
-              <span class="cd-breadcrumb-cur">Sales Invoices</span>
-            </div>
-          </div>
-          <div class="cd-topbar-right">
-            <div class="cd-topbar-date" id="cdTopDate"></div>
-            <div class="cd-icon-btn" id="cdThemeToggle" title="Toggle theme">
-              <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-            </div>
-          </div>
-        </div>
-    
-        <!-- Content -->
-        <div class="cd-content cd-page-anim">
-    
-          <!-- Page Header -->
-          <div class="cd-sinv-header">
-            <div>
-              <div class="cd-sinv-title">Sales Invoices</div>
-              <div class="cd-sinv-title-sub" id="sinvSubtitle">Loading invoices…</div>
-            </div>
-            <div style="display:flex;gap:8px;align-items:center;">
-              <button class="cd-btn cd-btn-secondary" onclick="exportCSV()">
-                <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                Export
-              </button>
-              <!--<button class="cd-btn cd-btn-primary" onclick="newInvoice()">-->
-              <!--  <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>-->
-              <!--  New Invoice-->
-              <!--</button>-->
-              <a href="/caratdesk-new-sales-invoice" class="cd-btn cd-btn-primary">
-              <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-              New Invoice
-            </a>
-            </div>
-          </div>
-    
-          <!-- Status filter pills -->
-          <div class="cd-sinv-summary" id="sinvSummary">
-            <div class="cd-summary-pill active" onclick="filterByStatus('all', this)">
-              <span class="cd-sp-dot" style="background:var(--text-muted)"></span>
-              <span class="cd-sp-label">All</span>
-              <span class="cd-sp-count" id="pill-count-all">0</span>
-            </div>
-            <div class="cd-summary-pill" onclick="filterByStatus('paid', this)">
-              <span class="cd-sp-dot" style="background:var(--pill-green-txt)"></span>
-              <span class="cd-sp-label">Paid</span>
-              <span class="cd-sp-count" id="pill-count-paid">0</span>
-              <span class="cd-sp-amount" id="pill-amt-paid"></span>
-            </div>
-            <div class="cd-summary-pill" onclick="filterByStatus('unpaid', this)">
-              <span class="cd-sp-dot" style="background:var(--pill-amber-txt)"></span>
-              <span class="cd-sp-label">Unpaid</span>
-              <span class="cd-sp-count" id="pill-count-unpaid">0</span>
-              <span class="cd-sp-amount" id="pill-amt-unpaid"></span>
-            </div>
-            <div class="cd-summary-pill" onclick="filterByStatus('overdue', this)">
-              <span class="cd-sp-dot" style="background:var(--pill-red-txt)"></span>
-              <span class="cd-sp-label">Overdue</span>
-              <span class="cd-sp-count" id="pill-count-overdue">0</span>
-              <span class="cd-sp-amount" id="pill-amt-overdue"></span>
-            </div>
-            <div class="cd-summary-pill" onclick="filterByStatus('draft', this)">
-              <span class="cd-sp-dot" style="background:var(--text-muted)"></span>
-              <span class="cd-sp-label">Draft</span>
-              <span class="cd-sp-count" id="pill-count-draft">0</span>
-            </div>
-          </div>
-    
-          <!-- Toolbar -->
-          <div class="cd-sinv-toolbar">
-            <div class="cd-search-wrap">
-              <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-              <input class="cd-search-input" id="sinvSearch" placeholder="Search invoice, customer, amount…" oninput="applyFilters()" />
-            </div>
-            <select class="cd-filter-select" id="sinvDateFilter" onchange="applyFilters()">
-              <option value="all">All Dates</option>
-              <option value="today">Today</option>
-              <option value="week">This Week</option>
-              <option value="month" selected>This Month</option>
-              <option value="quarter">This Quarter</option>
-            </select>
-            <select class="cd-filter-select" id="sinvSortFilter" onchange="applyFilters()">
-              <option value="date_desc">Newest First</option>
-              <option value="date_asc">Oldest First</option>
-              <option value="amount_desc">Highest Amount</option>
-              <option value="amount_asc">Lowest Amount</option>
-            </select>
-            <div class="cd-toolbar-right">
-              <span class="cd-result-count" id="sinvResultCount"></span>
-              <div class="cd-icon-btn" title="Refresh" onclick="loadInvoices()">
-                <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
-              </div>
-            </div>
-          </div>
-    
-          <!-- Table -->
-          <div class="cd-sinv-table-wrap">
-            <table class="cd-sinv-table" id="sinvTable">
-              <thead>
-                <tr>
-                  <th style="width:40px;padding-left:16px;">
-                    <input type="checkbox" class="cd-cb" id="sinvSelectAll" onchange="toggleSelectAll(this)" />
-                  </th>
-                  <th onclick="sortBy('name')" class="sorted" id="th-name">
-                    <div class="th-inner">Invoice <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
-                  </th>
-                  <th onclick="sortBy('customer')">
-                    <div class="th-inner">Customer <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
-                  </th>
-                  <th onclick="sortBy('date')">
-                    <div class="th-inner">Date <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
-                  </th>
-                  <th onclick="sortBy('due_date')">
-                    <div class="th-inner">Due Date <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
-                  </th>
-                  <th onclick="sortBy('amount')" style="text-align:right;">
-                    <div class="th-inner" style="justify-content:flex-end;">Amount <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
-                  </th>
-                  <th>Status</th>
-                  <th style="width:90px;"></th>
-                </tr>
-              </thead>
-              <tbody id="sinvTbody">
-                <tr><td colspan="8"><div class="cd-empty-state">
-                  <svg class="cd-empty-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                  <div class="cd-empty-title">Loading invoices…</div>
-                </div></td></tr>
-              </tbody>
-            </table>
-            <div class="cd-pagination" id="sinvPagination" style="display:none">
-              <span class="cd-page-info" id="sinvPageInfo"></span>
-              <div class="cd-page-btns" id="sinvPageBtns"></div>
-            </div>
-          </div>
-    
+<div class="cd-app" id="cdApp">
+  <nav class="cd-sidebar" id="cdSidebar">
+    <a class="cd-sidebar-logo" href="/caratdesk">
+      <img src="https://i.postimg.cc/NMgHCKvC/letter-cc-cd-diamond-initial-600nw-2206465849.png" alt="CaratDesk"/>
+      <div><div class="cd-logo-name">PPJ Retail</div><div class="cd-logo-sub">Jewellery POS</div></div>
+    </a>
+    <div class="cd-nav">
+      <div class="cd-nav-section">Main</div>
+      <a href="/caratdesk" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>Dashboard</a>
+      <div class="cd-nav-section">Operations</div>
+      <a href="/caratdesk-pos" class="cd-nav-item">
+        <span class="cd-nav-icon"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>
+        POS Billing
+      </a>
+      <a href="/caratdesk-selling" class="cd-nav-item active"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg></span>Selling</a>
+      <a href="/caratdesk-buying" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></span>Buying</a>
+      <a href="/caratdesk-stock" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg></span>Stock</a>
+      <a href="/caratdesk-items" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></span>Items</a>
+      <div class="cd-nav-section">Finance</div>
+      <a href="/caratdesk-finance" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></span>Finance</a>
+      <a href="/caratdesk-accounts" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg></span>Accounts</a>
+      <a href="/caratdesk-reports" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>Reports</a>
+      <div class="cd-nav-section">System</div>
+      <a href="/caratdesk-settings" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M12 2v2M12 20v2M2 12h2M20 12h2M4.93 19.07l1.41-1.41M19.07 19.07l-1.41-1.41"/></svg></span>Settings</a>
+    </div>
+    <div class="cd-sidebar-bottom">
+      <div class="cd-instance-bar" id="cdInstanceBar" style="display:none">
+        <span class="cd-instance-label">Instance</span>
+        <div class="cd-instance-pills">
+          <button class="cd-instance-pill" id="cdInstPP" onclick="cdSwitchInstance('PP')">PP</button>
+          <button class="cd-instance-pill" id="cdInstPC" onclick="cdSwitchInstance('PC')">PC</button>
         </div>
       </div>
+      <div class="cd-user-card"><div class="cd-avatar" id="cdAvatar">-</div><div><div class="cd-user-name" id="cdUserName">Loading...</div><div class="cd-user-role" id="cdUserRole">POS Manager</div></div></div>
+      <button class="cd-logout-btn" id="cdLogoutBtn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign out</button>
     </div>
-    
-    <!-- Bulk action bar -->
-    <div class="cd-bulk-bar" id="bulkBar">
-      <span class="cd-bulk-label" id="bulkLabel">0 selected</span>
-      <div class="cd-bulk-divider"></div>
-      <div class="cd-bulk-actions">
-        <button class="cd-bulk-btn">
-          <svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
-          Mark Paid
-        </button>
-        <button class="cd-bulk-btn">
-          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          Export
-        </button>
-        <button class="cd-bulk-btn">
-          <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-          Send Reminder
-        </button>
-        <div class="cd-bulk-divider"></div>
-        <button class="cd-bulk-btn" onclick="clearSelection()" style="background:rgba(255,100,100,0.15)">
-          <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-          Clear
-        </button>
+  </nav>
+
+  <div class="cd-main">
+    <div class="cd-topbar">
+      <div class="cd-topbar-left">
+        <button class="cd-menu-btn" id="cdMenuToggle"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+        <div class="cd-breadcrumb">
+          <a href="/caratdesk-selling">Selling</a>
+          <span class="cd-breadcrumb-sep">›</span>
+          <span class="cd-breadcrumb-cur">Sales Invoices</span>
+        </div>
+      </div>
+      <div class="cd-topbar-right">
+        <div class="cd-topbar-date" id="cdTopDate"></div>
+        <div class="cd-icon-btn" id="cdThemeToggle"><svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div>
       </div>
     </div>
-    
-    <!-- Detail Drawer -->
-    <div class="cd-drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
-    <div class="cd-drawer" id="drawer">
-      <div class="cd-drawer-header">
+
+    <div class="cd-content">
+      <div class="cd-page-header">
         <div>
-          <div class="cd-drawer-title" id="drawerInvNum">SINV-2025-0342</div>
-          <div style="margin-top:3px;" id="drawerStatus"></div>
+          <div class="cd-page-title">Sales Invoices</div>
+          <div class="cd-page-sub" id="siSub">Loading...</div>
         </div>
-        <div class="cd-drawer-close" onclick="closeDrawer()">
-          <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        <div style="display:flex;gap:8px">
+          <div style="position:relative;display:inline-block">
+            <button class="cd-btn cd-btn-primary" id="newSIBtn" onclick="toggleNewSIPicker(event)">
+              <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>New Invoice
+              <svg viewBox="0 0 24 24" style="width:11px;height:11px;margin-left:2px"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div id="newSIPicker" style="display:none;position:absolute;right:0;top:calc(100% + 6px);background:var(--surface);border:.5px solid var(--border-strong);border-radius:10px;box-shadow:var(--shadow-md);min-width:150px;z-index:500;overflow:hidden;padding:4px">
+              <button onclick="goNewSI('PP')" style="width:100%;display:flex;align-items:center;gap:8px;padding:9px 12px;border:none;background:none;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text-primary);cursor:pointer;border-radius:7px;text-align:left" onmouseover="this.style.background='var(--nav-hover)'" onmouseout="this.style.background='none'"><span style="font-size:11px;font-weight:600;padding:2px 7px;border-radius:5px;background:var(--pill-blue-bg);color:var(--pill-blue-txt)">PP</span>PP Instance</button>
+              <button id="newSIPCBtn" onclick="goNewSI('PC')" style="width:100%;display:flex;align-items:center;gap:8px;padding:9px 12px;border:none;background:none;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text-primary);cursor:pointer;border-radius:7px;text-align:left" onmouseover="this.style.background='var(--nav-hover)'" onmouseout="this.style.background='none'"><span style="font-size:11px;font-weight:600;padding:2px 7px;border-radius:5px;background:var(--pill-amber-bg);color:var(--pill-amber-txt)">PC</span>PC Instance</button>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="cd-drawer-body" id="drawerBody"></div>
-      <div class="cd-drawer-actions">
-        <button class="cd-btn cd-btn-primary" style="flex:1;" onclick="openInFrappe()">
-          <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-          Open in Frappe
-        </button>
-        <button class="cd-btn cd-btn-secondary" onclick="printInvoice()">
-          <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-          Print
-        </button>
-        <button class="cd-btn cd-btn-secondary" onclick="sendWhatsApp()">
-          <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-          Send
-        </button>
+
+      <!-- Status Pills -->
+      <div class="cd-summary-bar">
+        <div class="cd-pill-filter active" onclick="filterSt('all',this)"><span class="pf-dot" style="background:var(--text-muted)"></span>All<span class="pf-count" id="pc-all">0</span></div>
+        <div class="cd-pill-filter" onclick="filterSt('paid',this)"><span class="pf-dot" style="background:var(--pill-green-txt)"></span>Paid<span class="pf-count" id="pc-paid">0</span><span class="pf-amt" id="pa-paid"></span></div>
+        <div class="cd-pill-filter" onclick="filterSt('unpaid',this)"><span class="pf-dot" style="background:var(--pill-amber-txt)"></span>Unpaid<span class="pf-count" id="pc-unpaid">0</span><span class="pf-amt" id="pa-unpaid"></span></div>
+        <div class="cd-pill-filter" onclick="filterSt('overdue',this)"><span class="pf-dot" style="background:var(--pill-red-txt)"></span>Overdue<span class="pf-count" id="pc-overdue">0</span><span class="pf-amt" id="pa-overdue"></span></div>
+        <div class="cd-pill-filter" onclick="filterSt('partly_paid',this)"><span class="pf-dot" style="background:#1A4A8A"></span>Partly Paid<span class="pf-count" id="pc-partly_paid">0</span></div>
+        <div class="cd-pill-filter" onclick="filterSt('return',this)"><span class="pf-dot" style="background:#7C3AED"></span>Return<span class="pf-count" id="pc-return">0</span></div>
+        <div class="cd-pill-filter" onclick="filterSt('draft',this)"><span class="pf-dot" style="background:var(--text-muted)"></span>Draft<span class="pf-count" id="pc-draft">0</span></div>
+        <div class="cd-pill-filter" onclick="filterSt('cancelled',this)"><span class="pf-dot" style="background:var(--pill-red-txt)"></span>Cancelled<span class="pf-count" id="pc-cancelled">0</span></div>
+      </div>
+
+      <!-- Toolbar -->
+      <div class="cd-toolbar">
+        <div class="cd-search-wrap"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input class="cd-search-input" id="siSearch" placeholder="Search invoice number, customer..." oninput="applyFilters()"/></div>
+        <div class="cd-fchip-wrap">
+          <button class="cd-fchip" id="createdOnChip" onclick="toggleFPop('createdOn',event)">
+            <svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <span id="createdOnLabel">Created On</span>
+            <svg class="caret" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="cd-fpop" id="createdOnPop">
+            <div class="cd-fpop-title">Created On</div>
+            <label>From</label><input type="date" id="createdFrom"/>
+            <label>To</label><input type="date" id="createdTo"/>
+            <div class="cd-fpop-acts">
+              <button class="cd-fpop-clear" onclick="clearFPop('createdOn')">Clear</button>
+              <button class="cd-fpop-apply" onclick="applyFPop('createdOn')">Apply</button>
+            </div>
+          </div>
+        </div>
+        <div class="cd-sc-wrap" id="scWrap">
+          <div class="cd-sc">
+            <button class="cd-sc-dir" id="scDirBtn" onclick="toggleSortDir(event)">
+              <svg id="scDirIcon" viewBox="0 0 16 16"><line x1="1" y1="4" x2="9" y2="4"/><line x1="1" y1="8" x2="7" y2="8"/><line x1="1" y1="12" x2="5" y2="12"/><line x1="13" y1="2" x2="13" y2="14"/><polyline points="10 11 13 14 16 11"/></svg>
+            </button>
+            <button class="cd-sc-lbl" id="scLblBtn" onclick="toggleScPop(event)">
+              <span id="scLbl">Created On</span>
+              <svg class="caret" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+          </div>
+          <div class="cd-sc-pop" id="scPop">
+            <div class="cd-sc-opt active" data-field="created" onclick="setSortField('created',event)">Created On</div>
+            <div class="cd-sc-opt" data-field="updated" onclick="setSortField('updated',event)">Last Updated</div>
+            <div class="cd-sc-opt" data-field="id" onclick="setSortField('id',event)">ID</div>
+          </div>
+        </div>
+        <div class="cd-toolbar-right"><span class="cd-result-count" id="siCount"></span><div class="cd-icon-btn" onclick="load()"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></div></div>
+      </div>
+
+      <!-- Table -->
+      <div class="cd-table-wrap">
+        <table class="cd-table">
+          <thead><tr>
+            <th style="width:40px;padding-left:16px"><input type="checkbox" class="cd-cb" id="selAll" onchange="toggleAll(this)"/></th>
+            <th><div class="thi">Invoice No.</div></th>
+            <th><div class="thi">Customer</div></th>
+            <th><div class="thi">Date</div></th>
+            <th><div class="thi">Due Date</div></th>
+            <th><div class="thi" style="justify-content:flex-end">Amount</div></th>
+            <th>Status</th>
+            <th style="width:90px"></th>
+          </tr></thead>
+          <tbody id="siTbody"><tr><td colspan="8"><div class="cd-empty"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><div class="cd-empty-title">Loading...</div></div></td></tr></tbody>
+        </table>
+        <div class="cd-pagination" id="siPag" style="display:none"><span class="cd-page-info" id="siPagInfo"></span><div class="cd-page-btns" id="siPagBtns"></div></div>
       </div>
     </div>
-    
-    <script>
+  </div>
+</div>
 
-// Override pubGet to use direct API for known proxies
+<!-- Bulk Bar -->
+<div class="cd-bulk-bar" id="bulkBar">
+  <span class="cd-bulk-label" id="bulkLabel">0 selected</span>
+  <div class="cd-bulk-div"></div>
+  <div class="cd-bulk-actions">
+    <button class="cd-bulk-btn"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export</button>
+    <div class="cd-bulk-div"></div>
+    <button class="cd-bulk-btn" onclick="clearSel()" style="background:rgba(255,100,100,.15)"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Clear</button>
+  </div>
+</div>
 
-// Override pubGet to use direct API for known proxies
+<!-- Drawer -->
+<div class="cd-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+<div class="cd-drawer" id="drawer">
+  <div class="cd-drawer-header">
+    <div><div class="cd-drawer-title" id="drawerTitle">SINV-2025-0001</div><div style="margin-top:4px" id="drawerStatus"></div></div>
+    <div class="cd-drawer-close" onclick="closeDrawer()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+  </div>
+  <div class="cd-drawer-body" id="drawerBody"></div>
+  <div class="cd-drawer-actions">
+    <button class="cd-btn cd-btn-primary" style="flex:1" id="drawerEditBtn" onclick="openSIDoc(drawerSIName, drawerSIInst)"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit / View</button>
+    <button class="cd-btn cd-btn-secondary" onclick="openInFrappe()"><svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Frappe</button>
+  </div>
+</div>
 
-// Override pubGet to use direct API for known proxies
-async function pubGet(script, params = {}) {
-  const proxyMap = {
-    'proxy_get_suppliers': '/api/resource/Supplier?fields=["name","supplier_name","supplier_type","mobile_no","tax_id"]&limit=500',
-    'proxy_get_items': '/api/resource/Item?fields=["item_code","item_name","gst_hsn_code","stock_uom","standard_rate"]&limit=500',
-    'proxy_get_warehouses': '/api/resource/Warehouse?fields=["name"]&limit=200',
-    'proxy_get_tax_templates': '/api/resource/Purchase Taxes and Charges Template?fields=["name"]&limit=200',
-    'proxy_get_purchase_orders': '/api/resource/Purchase Order?fields=["name","supplier","supplier_name","transaction_date","grand_total","status","docstatus"]&limit=500',
-    'proxy_get_purchase_receipts': '/api/resource/Purchase Receipt?fields=["name","supplier","supplier_name","posting_date","grand_total","status","docstatus"]&limit=500',
-    'proxy_get_payment_terms': '/api/resource/Payment Terms Template?fields=["name"]&limit=100',
-  };
-  if (proxyMap[script]) {
-    const url = proxyMap[script];
-    const res = await fetch(url, { credentials: 'same-origin' });
-    if (!res.ok) throw new Error(script + ' failed: ' + res.status);
-    const data = await res.json();
-    return data;
-  }
-  // Fallback to original (if any)
-  const qs = Object.keys(params).length ? '?' + new URLSearchParams(params).toString() : '';
-  const res = await fetch('/api/method/' + script + qs, { credentials: 'same-origin' });
-  if (!res.ok) throw new Error(script + ' HTTP ' + res.status);
-  return await res.json();
+<script>
+const DEV1 = 'https://ppj-dev1.m.frappe.cloud';
+const DEV2 = 'https://ppj-dev2.m.frappe.cloud';
+function cdGetActiveInstance(){ return localStorage.getItem('cd_active_instance')||'PP'; }
+function cdGetAvailableInstances(){ return (localStorage.getItem('cd_available_instances')||'PP').split(',').filter(Boolean); }
+function cdGetInstanceUrl(inst){ return (inst||cdGetActiveInstance())==='PC'?DEV2:DEV1; }
+function cdGetInstanceHeaders(inst){
+  const i=inst||cdGetActiveInstance();
+  const key=i==='PC'?localStorage.getItem('cd_pc_key'):localStorage.getItem('cd_pp_key');
+  const sec=i==='PC'?localStorage.getItem('cd_pc_secret'):localStorage.getItem('cd_pp_secret');
+  if(!key||!sec) return null;
+  return{'Authorization':`token ${key}:${sec}`,'Content-Type':'application/json','Accept':'application/json'};
+}
+function cdSwitchInstance(inst){
+  const available=cdGetAvailableInstances();
+  if(!available.includes(inst)) return;
+  const key=inst==='PC'?localStorage.getItem('cd_pc_key'):localStorage.getItem('cd_pp_key');
+  const sec=inst==='PC'?localStorage.getItem('cd_pc_secret'):localStorage.getItem('cd_pp_secret');
+  localStorage.setItem('cd_active_instance',inst);
+  localStorage.setItem('cd_api_key',key);
+  localStorage.setItem('cd_api_secret',sec);
+  window.location.reload();
+}
+function cdInitInstanceToggle(){
+  const available=cdGetAvailableInstances();
+  const active=cdGetActiveInstance();
+  const bar=document.getElementById('cdInstanceBar');
+  if(!bar) return;
+  if(available.length<2){ bar.style.display='none'; return; }
+  bar.style.display='flex';
+  ['PP','PC'].forEach(inst=>{
+    const btn=document.getElementById('cdInst'+inst);
+    if(!btn) return;
+    btn.classList.toggle('active',inst===active);
+    btn.style.display=available.includes(inst)?'':'none';
+  });
+  const roleEl=document.getElementById('cdUserRole');
+  if(roleEl) roleEl.textContent='Active: '+active;
 }
 
-    // ===================== DATA =====================
-    const DUMMY_INVOICES = [
-      { name:'SINV-2025-0342', customer:'Radhika Jewellers', contact:'9876543210', date:'2026-05-11', due_date:'2026-05-18', amount:42500, tax:1275, discount:0, status:'paid', items:[{n:'22K Gold Ring – Floral',sku:'GR-0124',qty:3,rate:14000,amount:42000},{n:'Gift Box',sku:'GB-001',qty:3,rate:167,amount:501}] },
-      { name:'SINV-2025-0341', customer:'Girnar Diamonds', contact:'9812345678', date:'2026-05-11', due_date:'2026-05-14', amount:124000, tax:3720, discount:2000, status:'unpaid', items:[{n:'Solitaire Diamond Pendant',sku:'DP-0031',qty:1,rate:44000,amount:44000},{n:'Diamond Stud Earrings',sku:'DE-0019',qty:1,rate:38500,amount:38500},{n:'Diamond Tennis Bracelet',sku:'DT-0007',qty:1,rate:39500,amount:39500}] },
-      { name:'SINV-2025-0340', customer:'Shree Ganesh Gems', contact:'9998887770', date:'2026-05-10', due_date:'2026-05-17', amount:88200, tax:2646, discount:0, status:'paid', items:[{n:'Ruby Gold Necklace Set',sku:'RN-0022',qty:2,rate:39000,amount:78000},{n:'Matching Earrings',sku:'ME-0011',qty:2,rate:5100,amount:10200}] },
-      { name:'SINV-2025-0339', customer:'Arihant Gold House', contact:'9111222333', date:'2026-05-10', due_date:'2026-05-10', amount:23400, tax:702, discount:500, status:'paid', items:[{n:'22K Gold Bangles',sku:'GB-0055',qty:6,rate:3800,amount:22800},{n:'Jewellery Box',sku:'JB-001',qty:1,rate:600,amount:600}] },
-      { name:'SINV-2025-0338', customer:'Rajesh Jewels Pvt', contact:'9444555666', date:'2026-05-08', due_date:'2026-05-08', amount:17600, tax:528, discount:0, status:'overdue', items:[{n:'Gold Earrings Jhumki',sku:'GE-0041',qty:4,rate:4000,amount:16000},{n:'Polishing',sku:'SVC-01',qty:4,rate:400,amount:1600}] },
-      { name:'SINV-2025-0337', customer:'Patel Ornaments', contact:'9222333444', date:'2026-05-07', due_date:'2026-05-21', amount:56000, tax:1680, discount:1000, status:'unpaid', items:[{n:'Meenakari Gold Necklace',sku:'MN-0033',qty:1,rate:52000,amount:52000},{n:'Matching Earrings',sku:'ME-0033',qty:1,rate:4000,amount:4000}] },
-      { name:'SINV-2025-0336', customer:'Kumar Gold Mart', contact:'9555666777', date:'2026-05-06', due_date:'2026-05-06', amount:9800, tax:294, discount:0, status:'overdue', items:[{n:'18K Gold Nose Pin',sku:'GN-0092',qty:5,rate:1800,amount:9000},{n:'Chain',sku:'CH-001',qty:2,rate:400,amount:800}] },
-      { name:'SINV-2025-0335', customer:'Sunita Fashions', contact:'9777888999', date:'2026-05-05', due_date:'2026-05-12', amount:34200, tax:1026, discount:0, status:'paid', items:[{n:'Silver Necklace Set',sku:'SN-0031',qty:3,rate:4800,amount:14400},{n:'Silver Oxidised Bangles',sku:'SB-0088',qty:33,rate:600,amount:19800}] },
-      { name:'SINV-2025-0334', customer:'Mehta Jewellers', contact:'9888000111', date:'2026-05-04', due_date:'2026-05-18', amount:195000, tax:5850, discount:5000, status:'unpaid', items:[{n:'Diamond Bridal Set',sku:'DB-0019',qty:1,rate:240000,amount:240000}] },
-      { name:'SINV-2025-0333', customer:'Walk-in Customer', contact:'—', date:'2026-05-03', due_date:'2026-05-03', amount:4800, tax:144, discount:0, status:'paid', items:[{n:'Silver Anklet Pair',sku:'SA-0042',qty:4,rate:1200,amount:4800}] },
-      { name:'SINV-2025-0332', customer:'Nakoda Gems', contact:'9333444555', date:'2026-05-02', due_date:'2026-05-09', amount:78000, tax:2340, discount:0, status:'paid', items:[{n:'Polki Bridal Choker',sku:'PB-0011',qty:1,rate:78000,amount:78000}] },
-      { name:'SINV-2025-0331', customer:'Fancy Ornaments Co.', contact:'9666777888', date:'2026-05-01', due_date:'2026-05-01', amount:12600, tax:378, discount:0, status:'overdue', items:[{n:'22K Gold Chain 18"',sku:'GC-0088',qty:1,rate:28200,amount:28200}] },
-      { name:'SINV-2025-0330', customer:'Draft – Raj Traders', contact:'', date:'2026-05-11', due_date:'', amount:65000, tax:0, discount:0, status:'draft', items:[] },
-      { name:'SINV-2025-0329', customer:'Draft – Gems Palace', contact:'', date:'2026-05-10', due_date:'', amount:32000, tax:0, discount:0, status:'draft', items:[] },
-    ];
-    
-    // ===================== STATE =====================
-    let allInvoices = [...DUMMY_INVOICES];
-    let filtered = [...DUMMY_INVOICES];
-    let activeStatus = 'all';
-    let currentSort = { col: 'date', dir: 'desc' };
-    let selected = new Set();
-    let currentPage = 1;
-    const PAGE_SIZE = 10;
-    let openInvoice = null;
-    
-    // ===================== HELPERS =====================
-    function fmt(n){ return '₹' + Math.round(n).toLocaleString('en-IN'); }
-    function fmtDate(d){ if(!d) return '—'; const dt=new Date(d); return dt.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}); }
-    function isOverdue(inv){ if(inv.status==='paid'||inv.status==='draft') return false; if(!inv.due_date) return false; return new Date(inv.due_date) < new Date(); }
-    
-    function statusPill(status){
-      const map = { paid:'green', unpaid:'amber', overdue:'red', draft:'grey' };
-      const labels = { paid:'Paid', unpaid:'Unpaid', overdue:'Overdue', draft:'Draft' };
-      const cls = map[status]||'grey';
-      return `<span class="cd-pill ${cls}"><span class="cd-pill-dot"></span>${labels[status]||status}</span>`;
+// ── STATE ──
+let SI_DATA = [];
+let filtered = [], activeStatus = 'all', selected = new Set(), currentPage = 1;
+let sortDir = 'desc', sortField = 'created';
+let createdOnFrom = '', createdOnTo = '';
+const PAGE_SIZE = 20;
+let drawerSIName = '', drawerSIInst = 'PP';
+
+const ST_MAP = {
+  'Paid':                {key:'paid',         cls:'green', lbl:'Paid'},
+  'Unpaid':              {key:'unpaid',        cls:'amber', lbl:'Unpaid'},
+  'Overdue':             {key:'overdue',       cls:'red',   lbl:'Overdue'},
+  'Partly Paid':         {key:'partly_paid',   cls:'blue',  lbl:'Partly Paid'},
+  'Unpaid and Discounted':      {key:'unpaid',      cls:'amber', lbl:'Unpaid'},
+  'Overdue and Discounted':     {key:'overdue',     cls:'red',   lbl:'Overdue'},
+  'Partly Paid and Discounted': {key:'partly_paid', cls:'blue',  lbl:'Partly Paid'},
+  'Return':              {key:'return',        cls:'grey',  lbl:'Return'},
+  'Credit Note Issued':  {key:'return',        cls:'grey',  lbl:'Credit Note'},
+  'Draft':               {key:'draft',         cls:'grey',  lbl:'Draft'},
+  'Submitted':           {key:'unpaid',        cls:'amber', lbl:'Unpaid'},
+  'Cancelled':           {key:'cancelled',     cls:'red',   lbl:'Cancelled'},
+};
+
+function fmt(n){ return '₹'+(Math.round(n||0)).toLocaleString('en-IN'); }
+function fmtDate(d){ if(!d||d==='—') return '—'; try{ return new Date(d).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}); }catch(e){return d;} }
+function statusKey(s){ return ST_MAP[s]?.key || s?.toLowerCase().replace(/\s+/g,'_') || 'draft'; }
+function pill(rawStatus){
+  const s = ST_MAP[rawStatus] || {cls:'grey', lbl: rawStatus || 'Unknown'};
+  return `<span class="cd-pill ${s.cls}"><span class="cd-pill-dot"></span>${s.lbl}</span>`;
+}
+
+async function fetchInstanceSI(instName){
+  const key = instName==='PC' ? localStorage.getItem('cd_pc_key') : localStorage.getItem('cd_pp_key');
+  const sec = instName==='PC' ? localStorage.getItem('cd_pc_secret') : localStorage.getItem('cd_pp_secret');
+  if(!key||!sec) return [];
+  const base = instName==='PC' ? DEV2 : DEV1;
+  const fields = ['name','customer','customer_name','posting_date','due_date','creation','modified','grand_total','outstanding_amount','status','docstatus','currency','is_return'];
+  const res = await fetch(`${base}/api/resource/Sales%20Invoice?fields=${encodeURIComponent(JSON.stringify(fields))}&limit=500&order_by=creation%20desc`,
+    {headers:{'Authorization':`token ${key}:${sec}`,'Accept':'application/json'}});
+  if(!res.ok) throw new Error(`HTTP ${res.status} (${instName})`);
+  const json = await res.json();
+  return (json.data||json.message||[]).map(r=>({
+    name:r.name, instance:instName,
+    customer:r.customer_name||r.customer, custId:r.customer,
+    date:r.posting_date, due_date:r.due_date,
+    creation:r.creation, modified:r.modified,
+    amount:r.grand_total||0, outstanding:r.outstanding_amount||0,
+    status:r.status||'Draft', is_return:r.is_return||0,
+    currency:r.currency||'INR',
+  }));
+}
+
+async function load(){
+  document.getElementById('siTbody').innerHTML =
+    `<tr><td colspan="8"><div class="cd-empty"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><div class="cd-empty-title">Loading invoices...</div></div></td></tr>`;
+  try {
+    const available = (localStorage.getItem('cd_available_instances')||'PP').split(',').filter(Boolean);
+    if(!available.length){ window.location.replace('/caratdesk-login?logout=1'); return; }
+    const results = await Promise.allSettled(available.map(inst => fetchInstanceSI(inst)));
+    SI_DATA = [];
+    let anyOk = false;
+    results.forEach((r,i)=>{ if(r.status==='fulfilled'){ SI_DATA.push(...r.value); anyOk=true; } else console.warn('Failed',available[i],r.reason?.message); });
+    if(!anyOk) throw new Error('All instances failed');
+    SI_DATA.sort((a,b)=>new Date(b.creation||b.date)-new Date(a.creation||a.date));
+    filtered = [...SI_DATA];
+    updateCounts();
+    applyFilters();
+    const params = new URLSearchParams(window.location.search);
+    const savedName = params.get('saved');
+    if(savedName){ showToast(savedName+' saved successfully!','success'); history.replaceState({},'',window.location.pathname); }
+  } catch(e){
+    console.error('Load SI error:', e);
+    document.getElementById('siTbody').innerHTML =
+      `<tr><td colspan="8"><div class="cd-empty"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><div class="cd-empty-title">Failed to load data</div><div class="cd-empty-sub"><a href="#" onclick="load()" style="color:var(--pill-blue-txt)">Retry</a></div></div></td></tr>`;
+  }
+}
+
+function updateCounts(){
+  const c = {all:0,paid:0,unpaid:0,overdue:0,partly_paid:0,return:0,draft:0,cancelled:0};
+  const a = {paid:0,unpaid:0,overdue:0};
+  SI_DATA.forEach(d=>{
+    c.all++;
+    const k = statusKey(d.status);
+    if(c[k]!==undefined) c[k]++;
+    if(a[k]!==undefined) a[k]+=d.outstanding||d.amount;
+  });
+  Object.keys(c).forEach(k=>{ const el=document.getElementById('pc-'+k); if(el) el.textContent=c[k]; });
+  Object.keys(a).forEach(k=>{ const el=document.getElementById('pa-'+k); if(el) el.textContent=a[k]?fmt(a[k]):''; });
+  const total = SI_DATA.reduce((s,d)=>s+d.amount,0);
+  document.getElementById('siSub').textContent = SI_DATA.length+' invoices · '+fmt(total)+' total value';
+}
+
+function filterSt(s,el){
+  activeStatus=s;
+  document.querySelectorAll('.cd-pill-filter').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  currentPage=1; applyFilters();
+}
+
+function applyFilters(){
+  const q = document.getElementById('siSearch').value.toLowerCase();
+  filtered = SI_DATA.filter(d=>{
+    const k = statusKey(d.status);
+    const ms = activeStatus==='all' || k===activeStatus;
+    const mq = !q || d.name.toLowerCase().includes(q) || d.customer.toLowerCase().includes(q);
+    let mc = true;
+    if(createdOnFrom||createdOnTo){
+      const cd = new Date((d.creation||d.date||'').slice(0,10));
+      if(createdOnFrom && cd < new Date(createdOnFrom)) mc=false;
+      if(createdOnTo   && cd > new Date(createdOnTo))   mc=false;
     }
-    
-    // ===================== FILTER / SORT =====================
-    function filterByStatus(status, el){
-      activeStatus = status;
-      document.querySelectorAll('.cd-summary-pill').forEach(p=>p.classList.remove('active'));
-      el.classList.add('active');
-      currentPage = 1;
-      applyFilters();
-    }
-    
-    function applyFilters(){
-      const q = document.getElementById('sinvSearch').value.toLowerCase();
-      const sort = document.getElementById('sinvSortFilter').value;
-    
-      filtered = allInvoices.filter(inv => {
-        const matchStatus = activeStatus==='all' || inv.status===activeStatus;
-        const matchQ = !q || inv.name.toLowerCase().includes(q) || inv.customer.toLowerCase().includes(q) || String(inv.amount).includes(q);
-        return matchStatus && matchQ;
-      });
-    
-      // Sort
-      filtered.sort((a,b)=>{
-        if(sort==='date_desc') return new Date(b.date)-new Date(a.date);
-        if(sort==='date_asc') return new Date(a.date)-new Date(b.date);
-        if(sort==='amount_desc') return b.amount-a.amount;
-        if(sort==='amount_asc') return a.amount-b.amount;
-        return 0;
-      });
-    
-      renderTable();
-      renderPagination();
-    }
-    
-    function sortBy(col){
-      if(currentSort.col===col) currentSort.dir = currentSort.dir==='asc'?'desc':'asc';
-      else { currentSort.col=col; currentSort.dir='desc'; }
-      applyFilters();
-    }
-    
-    // ===================== RENDER =====================
-    function renderSummaryPills(){
-      const counts = {all:0,paid:0,unpaid:0,overdue:0,draft:0};
-      const amounts = {paid:0,unpaid:0,overdue:0};
-      allInvoices.forEach(inv=>{
-        counts.all++;
-        counts[inv.status]=(counts[inv.status]||0)+1;
-        if(amounts[inv.status]!==undefined) amounts[inv.status]+=inv.amount;
-      });
-      ['all','paid','unpaid','overdue','draft'].forEach(s=>{
-        const el = document.getElementById('pill-count-'+s);
-        if(el) el.textContent = counts[s]||0;
-      });
-      ['paid','unpaid','overdue'].forEach(s=>{
-        const el = document.getElementById('pill-amt-'+s);
-        if(el) el.textContent = amounts[s] ? fmt(amounts[s]) : '';
-      });
-      document.getElementById('sinvSubtitle').textContent =
-        allInvoices.length + ' invoices · ' + fmt(allInvoices.filter(i=>i.status==='paid').reduce((s,i)=>s+i.amount,0)) + ' collected';
-    }
-    
-    function renderTable(){
-      const tbody = document.getElementById('sinvTbody');
-      const start = (currentPage-1)*PAGE_SIZE;
-      const page = filtered.slice(start, start+PAGE_SIZE);
-    
-      document.getElementById('sinvResultCount').textContent =
-        filtered.length + ' result' + (filtered.length!==1?'s':'');
-    
-      if(!page.length){
-        tbody.innerHTML = `<tr><td colspan="8"><div class="cd-empty-state">
-          <svg class="cd-empty-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-          <div class="cd-empty-title">No invoices found</div>
-          <div class="cd-empty-sub">Try changing your search or filter</div>
-        </div></td></tr>`;
-        return;
-      }
-    
-      tbody.innerHTML = page.map(inv => {
-        const isSel = selected.has(inv.name);
-        const dueTxt = inv.due_date
-          ? (inv.status==='overdue' ? `<span style="color:var(--pill-red-txt)">${fmtDate(inv.due_date)}</span>` : fmtDate(inv.due_date))
-          : '—';
-        return `
-        <tr class="${isSel?'selected':''}" onclick="openDrawer('${inv.name}')" id="row-${inv.name.replace(/\//g,'_')}">
-          <td style="padding-left:16px;" onclick="event.stopPropagation()">
-            <input type="checkbox" class="cd-cb row-cb" data-id="${inv.name}" ${isSel?'checked':''} onchange="toggleSelect('${inv.name}',this)" />
-          </td>
-          <td>
-            <div class="cd-inv-num">${inv.name}</div>
-            <div class="cd-inv-date">${fmtDate(inv.date)}</div>
-          </td>
-          <td>
-            <div class="cd-cust-name">${inv.customer}</div>
-            <div class="cd-cust-contact">${inv.contact||'—'}</div>
-          </td>
-          <td style="font-size:13px;color:var(--text-secondary)">${fmtDate(inv.date)}</td>
-          <td style="font-size:13px;">${dueTxt}</td>
-          <td style="text-align:right;">
-            <div class="cd-amount">${fmt(inv.amount)}</div>
-            ${inv.tax ? `<div class="cd-amount-sub">+${fmt(inv.tax)} GST</div>` : ''}
-          </td>
-          <td>${statusPill(inv.status)}</td>
-          <td onclick="event.stopPropagation()">
-            <div class="cd-row-actions">
-              <div class="cd-action-btn" title="View" onclick="openDrawer('${inv.name}')">
-                <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-              </div>
-              <div class="cd-action-btn" title="Print" onclick="printInvoice()">
-                <svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-              </div>
-              <div class="cd-action-btn" title="More" onclick="showMore(event,'${inv.name}')">
-                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
-              </div>
-            </div>
-          </td>
-        </tr>`;
-      }).join('');
-    }
-    
-    function renderPagination(){
-      const total = filtered.length;
-      const pages = Math.ceil(total/PAGE_SIZE);
-      const pag = document.getElementById('sinvPagination');
-      if(total===0){ pag.style.display='none'; return; }
-      pag.style.display='flex';
-    
-      const start = (currentPage-1)*PAGE_SIZE+1;
-      const end = Math.min(currentPage*PAGE_SIZE, total);
-      document.getElementById('sinvPageInfo').textContent = `Showing ${start}–${end} of ${total}`;
-    
-      const btns = document.getElementById('sinvPageBtns');
-      let html = `<button class="cd-page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>`;
-      for(let i=1;i<=pages;i++){
-        if(pages>7 && i>2 && i<pages-1 && Math.abs(i-currentPage)>1){ if(i===3||i===pages-2) html+='<span style="padding:0 4px;color:var(--text-muted);font-size:12px">…</span>'; continue; }
-        html += `<button class="cd-page-btn${i===currentPage?' active':''}" onclick="goPage(${i})">${i}</button>`;
-      }
-      html += `<button class="cd-page-btn" onclick="goPage(${currentPage+1})" ${currentPage===pages?'disabled':''}><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>`;
-      btns.innerHTML = html;
-    }
-    
-    function goPage(p){
-      const pages = Math.ceil(filtered.length/PAGE_SIZE);
-      if(p<1||p>pages) return;
-      currentPage=p; renderTable(); renderPagination();
-      document.querySelector('.cd-sinv-table-wrap').scrollIntoView({behavior:'smooth',block:'start'});
-    }
-    
-    // ===================== SELECTION =====================
-    function toggleSelect(id, cb){
-      if(cb.checked) selected.add(id); else selected.delete(id);
-      const row = document.getElementById('row-'+id.replace(/\//g,'_'));
-      if(row) row.classList.toggle('selected', cb.checked);
-      updateBulkBar();
-    }
-    
-    function toggleSelectAll(cb){
-      const page = filtered.slice((currentPage-1)*PAGE_SIZE, currentPage*PAGE_SIZE);
-      page.forEach(inv=>{
-        if(cb.checked) selected.add(inv.name); else selected.delete(inv.name);
-      });
-      renderTable(); updateBulkBar();
-    }
-    
-    function clearSelection(){
-      selected.clear(); renderTable(); updateBulkBar();
-      document.getElementById('sinvSelectAll').checked = false;
-    }
-    
-    function updateBulkBar(){
-      const bar = document.getElementById('bulkBar');
-      const n = selected.size;
-      document.getElementById('bulkLabel').textContent = n + ' invoice'+(n!==1?'s':'')+' selected';
-      bar.classList.toggle('visible', n>0);
-    }
-    
-    // ===================== DRAWER =====================
-    function openDrawer(name){
-      openInvoice = allInvoices.find(i=>i.name===name);
-      if(!openInvoice) return;
-      document.getElementById('drawerInvNum').textContent = openInvoice.name;
-      document.getElementById('drawerStatus').innerHTML = statusPill(openInvoice.status);
-    
-      const totalAmt = openInvoice.amount + openInvoice.tax - openInvoice.discount;
-    
-      const timeline = [
-        { label:'Invoice Created', sub: fmtDate(openInvoice.date), done: true },
-        { label:'Sent to Customer', sub: openInvoice.status!=='draft'?'Via email':'Not sent yet', done: openInvoice.status!=='draft' },
-        { label:'Payment Received', sub: openInvoice.status==='paid'?fmtDate(openInvoice.date):'Pending', done: openInvoice.status==='paid' },
-      ];
-    
-      document.getElementById('drawerBody').innerHTML = `
-        <div class="cd-drawer-inv-meta">
-          <div class="cd-dmeta-item">
-            <div class="cd-dmeta-label">Customer</div>
-            <div class="cd-dmeta-value">${openInvoice.customer}</div>
+    return ms && mq && mc;
+  });
+  if(sortField==='id') filtered.sort((a,b)=>sortDir==='asc'?a.name.localeCompare(b.name):b.name.localeCompare(a.name));
+  else if(sortField==='updated') filtered.sort((a,b)=>sortDir==='asc'?new Date(a.modified||a.creation)-new Date(b.modified||b.creation):new Date(b.modified||b.creation)-new Date(a.modified||a.creation));
+  else filtered.sort((a,b)=>sortDir==='asc'?new Date(a.creation||a.date)-new Date(b.creation||b.date):new Date(b.creation||b.date)-new Date(a.creation||a.date));
+  currentPage=1; renderTable(); renderPag();
+}
+
+function toggleFPop(id,e){
+  if(e) e.stopPropagation();
+  const pop=document.getElementById(id==='createdOn'?'createdOnPop':'lastUpdatedPop');
+  const chip=document.getElementById(id==='createdOn'?'createdOnChip':'lastUpdatedChip');
+  if(!pop) return;
+  const isOpen=pop.classList.contains('open');
+  closeAllPops();
+  if(!isOpen){ pop.classList.add('open'); chip?.classList.add('open'); }
+}
+function applyFPop(id){
+  if(id==='createdOn'){ createdOnFrom=document.getElementById('createdFrom').value; createdOnTo=document.getElementById('createdTo').value; }
+  updateChipLabel(id); closeAllPops(); applyFilters();
+}
+function clearFPop(id){
+  if(id==='createdOn'){ createdOnFrom=''; createdOnTo=''; document.getElementById('createdFrom').value=''; document.getElementById('createdTo').value=''; }
+  updateChipLabel(id); closeAllPops(); applyFilters();
+}
+function closeAllPops(){
+  document.querySelectorAll('.cd-fpop,.cd-sc-pop').forEach(p=>p.classList.remove('open'));
+  document.querySelectorAll('.cd-fchip,.cd-sc-lbl').forEach(c=>c.classList.remove('open'));
+}
+function updateChipLabel(id){
+  if(id==='createdOn'){
+    const lbl=document.getElementById('createdOnLabel');
+    const chip=document.getElementById('createdOnChip');
+    if(createdOnFrom&&createdOnTo){ lbl.textContent=`Created: ${fmtDate(createdOnFrom)} - ${fmtDate(createdOnTo)}`; chip?.classList.add('active'); }
+    else if(createdOnFrom){ lbl.textContent=`Created from ${fmtDate(createdOnFrom)}`; chip?.classList.add('active'); }
+    else if(createdOnTo)  { lbl.textContent=`Created to ${fmtDate(createdOnTo)}`; chip?.classList.add('active'); }
+    else { lbl.textContent='Created On'; chip?.classList.remove('active'); }
+  }
+}
+
+const SC_ICONS = {
+  desc:'<line x1="1" y1="4" x2="9" y2="4"/><line x1="1" y1="8" x2="7" y2="8"/><line x1="1" y1="12" x2="5" y2="12"/><line x1="13" y1="2" x2="13" y2="14"/><polyline points="10 11 13 14 16 11"/>',
+  asc: '<line x1="1" y1="4" x2="5" y2="4"/><line x1="1" y1="8" x2="7" y2="8"/><line x1="1" y1="12" x2="9" y2="12"/><line x1="13" y1="14" x2="13" y2="2"/><polyline points="10 5 13 2 16 5"/>',
+};
+const SC_LABELS = {created:'Created On', updated:'Last Updated', id:'ID'};
+function updateScChip(){
+  document.getElementById('scDirIcon').innerHTML=SC_ICONS[sortDir];
+  document.getElementById('scLbl').textContent=SC_LABELS[sortField];
+  document.querySelectorAll('.cd-sc-opt').forEach(opt=>opt.classList.toggle('active',opt.dataset.field===sortField));
+}
+function toggleSortDir(e){ if(e) e.stopPropagation(); sortDir=sortDir==='desc'?'asc':'desc'; updateScChip(); applyFilters(); }
+function toggleScPop(e){
+  if(e) e.stopPropagation();
+  const pop=document.getElementById('scPop'); const lbl=document.getElementById('scLblBtn');
+  const isOpen=pop.classList.contains('open'); closeAllPops();
+  if(!isOpen){ pop.classList.add('open'); lbl.classList.add('open'); }
+}
+function setSortField(field,e){
+  if(e) e.stopPropagation(); sortField=field; updateScChip();
+  document.getElementById('scPop').classList.remove('open');
+  document.getElementById('scLblBtn').classList.remove('open');
+  applyFilters();
+}
+
+function renderTable(){
+  const tbody=document.getElementById('siTbody');
+  const start=(currentPage-1)*PAGE_SIZE;
+  const page=filtered.slice(start,start+PAGE_SIZE);
+  document.getElementById('siCount').textContent=filtered.length+' result'+(filtered.length!==1?'s':'');
+  if(!page.length){
+    tbody.innerHTML=`<tr><td colspan="8"><div class="cd-empty"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><div class="cd-empty-title">No invoices found</div><div class="cd-empty-sub">Try a different filter or <a href="/caratdesk-new-sales-invoice" style="color:var(--pill-blue-txt)">create a new one</a></div></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = page.map(d=>{
+    const isSel=selected.has(d.name);
+    const safeName=encodeURIComponent(d.name);
+    const instBadge=d.instance==='PC'
+      ?`<span style="font-size:10px;font-weight:600;padding:1px 5px;border-radius:4px;background:var(--pill-amber-bg);color:var(--pill-amber-txt);margin-left:5px;vertical-align:middle">PC</span>`
+      :`<span style="font-size:10px;font-weight:600;padding:1px 5px;border-radius:4px;background:var(--pill-blue-bg);color:var(--pill-blue-txt);margin-left:5px;vertical-align:middle">PP</span>`;
+    const dueTxt=d.due_date?fmtDate(d.due_date):'—';
+    return `
+    <tr class="si-row${isSel?' sel':''}" data-name="${safeName}" data-inst="${d.instance||'PP'}">
+      <td style="padding-left:16px" class="no-open">
+        <input type="checkbox" class="cd-cb row-check" data-name="${safeName}" ${isSel?'checked':''}/>
+      </td>
+      <td>
+        <div class="doc-num">${d.name}${instBadge}</div>
+        <div class="doc-sub">${d.is_return?'Return':fmtDate(d.date)}</div>
+      </td>
+      <td><div style="font-weight:500">${d.customer}</div></td>
+      <td style="font-size:13px;color:var(--text-secondary)">${fmtDate(d.date)}</td>
+      <td style="font-size:13px">${dueTxt}</td>
+      <td style="text-align:right"><div style="font-variant-numeric:tabular-nums;font-weight:500;font-size:13.5px">${fmt(d.amount)}</div></td>
+      <td>${pill(d.status)}</td>
+      <td class="no-open">
+        <div class="cd-row-actions">
+          <div class="cd-act-btn view-btn" data-name="${safeName}" data-inst="${d.instance||'PP'}" title="View details">
+            <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
           </div>
-          <div class="cd-dmeta-item">
-            <div class="cd-dmeta-label">Invoice Date</div>
-            <div class="cd-dmeta-value">${fmtDate(openInvoice.date)}</div>
+          <div class="cd-act-btn edit-btn" data-name="${safeName}" data-inst="${d.instance||'PP'}" title="Edit">
+            <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
           </div>
-          <div class="cd-dmeta-item">
-            <div class="cd-dmeta-label">Due Date</div>
-            <div class="cd-dmeta-value">${fmtDate(openInvoice.due_date)||'—'}</div>
-          </div>
-          <div class="cd-dmeta-item">
-            <div class="cd-dmeta-label">Contact</div>
-            <div class="cd-dmeta-value">${openInvoice.contact||'—'}</div>
+          <div class="cd-act-btn ext-btn" data-name="${safeName}" data-inst="${d.instance||'PP'}" title="Open in Frappe">
+            <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
           </div>
         </div>
-    
-        <div class="cd-drawer-section-title">Items</div>
-        ${openInvoice.items.length ? openInvoice.items.map(it=>`
-          <div class="cd-drawer-item-row">
-            <div class="cd-di-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></div>
-            <div>
-              <div class="cd-di-name">${it.n}</div>
-              <div class="cd-di-qty">${it.sku} · Qty ${it.qty} × ${fmt(it.rate)}</div>
-            </div>
-            <div class="cd-di-amount">${fmt(it.amount)}</div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function openSIDoc(name,inst){
+  const key=inst==='PC'?localStorage.getItem('cd_pc_key'):localStorage.getItem('cd_pp_key');
+  const sec=inst==='PC'?localStorage.getItem('cd_pc_secret'):localStorage.getItem('cd_pp_secret');
+  if(key&&sec){ localStorage.setItem('cd_active_instance',inst); localStorage.setItem('cd_api_key',key); localStorage.setItem('cd_api_secret',sec); }
+  window.location.href='/caratdesk-new-sales-invoice?name='+encodeURIComponent(name);
+}
+function toggleNewSIPicker(e){
+  e.stopPropagation();
+  const picker=document.getElementById('newSIPicker');
+  const available=(localStorage.getItem('cd_available_instances')||'PP').split(',').filter(Boolean);
+  if(available.length<2){ goNewSI(available[0]||'PP'); return; }
+  const pcBtn=document.getElementById('newSIPCBtn'); if(pcBtn) pcBtn.style.display=available.includes('PC')?'':'none';
+  picker.style.display=picker.style.display==='none'?'block':'none';
+}
+function goNewSI(inst){
+  document.getElementById('newSIPicker').style.display='none';
+  const key=inst==='PC'?localStorage.getItem('cd_pc_key'):localStorage.getItem('cd_pp_key');
+  const sec=inst==='PC'?localStorage.getItem('cd_pc_secret'):localStorage.getItem('cd_pp_secret');
+  if(key&&sec){ localStorage.setItem('cd_active_instance',inst); localStorage.setItem('cd_api_key',key); localStorage.setItem('cd_api_secret',sec); }
+  window.location.href='/caratdesk-new-sales-invoice';
+}
+
+document.getElementById('siTbody').addEventListener('click', function(e){
+  const cb=e.target.closest('.row-check');
+  if(cb){ const name=decodeURIComponent(cb.dataset.name); if(cb.checked) selected.add(name); else selected.delete(name); cb.closest('tr')?.classList.toggle('sel',cb.checked); updateBulk(); return; }
+  const viewBtn=e.target.closest('.view-btn');
+  if(viewBtn){ openDrawer(decodeURIComponent(viewBtn.dataset.name), viewBtn.dataset.inst||'PP'); return; }
+  const editBtn=e.target.closest('.edit-btn');
+  if(editBtn){ openSIDoc(decodeURIComponent(editBtn.dataset.name), editBtn.dataset.inst||'PP'); return; }
+  const extBtn=e.target.closest('.ext-btn');
+  if(extBtn){ const inst=extBtn.dataset.inst||'PP'; const base=inst==='PC'?DEV2:DEV1; window.open(`${base}/Sales%20Invoice/${decodeURIComponent(extBtn.dataset.name)}`,'_blank'); return; }
+  const row=e.target.closest('.si-row');
+  if(row&&!e.target.closest('.no-open')){ openSIDoc(decodeURIComponent(row.dataset.name), row.dataset.inst||'PP'); }
+});
+
+// ── PAGINATION ──
+function renderPag(){
+  const total=filtered.length, pages=Math.ceil(total/PAGE_SIZE), pag=document.getElementById('siPag');
+  if(!total){ pag.style.display='none'; return; } pag.style.display='flex';
+  const s=(currentPage-1)*PAGE_SIZE+1, e2=Math.min(currentPage*PAGE_SIZE,total);
+  document.getElementById('siPagInfo').textContent=`Showing ${s}-${e2} of ${total}`;
+  let html=`<button class="cd-page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>`;
+  for(let i=1;i<=pages;i++){if(pages>7&&i>2&&i<pages-1&&Math.abs(i-currentPage)>1){if(i===3||i===pages-2)html+='<span style="padding:0 4px;color:var(--text-muted);font-size:12px">...</span>';continue;}html+=`<button class="cd-page-btn${i===currentPage?' active':''}" onclick="goPage(${i})">${i}</button>`;}
+  html+=`<button class="cd-page-btn" onclick="goPage(${currentPage+1})" ${currentPage===pages?'disabled':''}><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>`;
+  document.getElementById('siPagBtns').innerHTML=html;
+}
+function goPage(p){ const pages=Math.ceil(filtered.length/PAGE_SIZE); if(p<1||p>pages) return; currentPage=p; renderTable(); renderPag(); }
+
+function toggleAll(cb){
+  filtered.slice((currentPage-1)*PAGE_SIZE,currentPage*PAGE_SIZE).forEach(d=>{ if(cb.checked) selected.add(d.name); else selected.delete(d.name); });
+  renderTable(); updateBulk();
+}
+function clearSel(){ selected.clear(); renderTable(); updateBulk(); document.getElementById('selAll').checked=false; }
+function updateBulk(){ const n=selected.size; document.getElementById('bulkLabel').textContent=n+' invoice'+(n!==1?'s':'')+' selected'; document.getElementById('bulkBar').classList.toggle('visible',n>0); }
+
+// ── DRAWER ──
+async function openDrawer(name, inst){
+  drawerSIName=name; drawerSIInst=inst||'PP';
+  const d=SI_DATA.find(x=>x.name===name);
+  document.getElementById('drawerTitle').textContent=name;
+  document.getElementById('drawerStatus').innerHTML=pill(d?.status||'Draft');
+  document.getElementById('drawerBody').innerHTML=`
+    <div class="cd-dmeta">
+      <div><div class="cd-dmeta-lbl">Customer</div><div class="cd-dmeta-val">${d?.customer||'—'}</div></div>
+      <div><div class="cd-dmeta-lbl">Invoice Date</div><div class="cd-dmeta-val">${fmtDate(d?.date)}</div></div>
+      <div><div class="cd-dmeta-lbl">Due Date</div><div class="cd-dmeta-val">${fmtDate(d?.due_date)}</div></div>
+      <div><div class="cd-dmeta-lbl">Grand Total</div><div class="cd-dmeta-val">${fmt(d?.amount)}</div></div>
+    </div>
+    <div style="text-align:center;padding:24px;color:var(--text-muted);font-size:13px">Loading full details...</div>`;
+  document.getElementById('drawer').classList.add('open');
+  document.getElementById('drawerOverlay').classList.add('open');
+
+  try {
+    const _key=inst==='PC'?localStorage.getItem('cd_pc_key'):localStorage.getItem('cd_pp_key');
+    const _sec=inst==='PC'?localStorage.getItem('cd_pc_secret'):localStorage.getItem('cd_pp_secret');
+    const _base=inst==='PC'?DEV2:DEV1;
+    const res=await fetch(`${_base}/api/resource/Sales%20Invoice/${encodeURIComponent(name)}`,
+      {headers:{'Authorization':`token ${_key}:${_sec}`,'Accept':'application/json'}});
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const json=await res.json();
+    const doc=json.data||json.message||{};
+    const items=(doc.items||[]).map(it=>({n:it.item_name||it.item_code, code:it.item_code, qty:it.qty, rate:it.rate, amt:it.amount||(it.qty*it.rate), uom:it.uom||'Nos'}));
+    const net=parseFloat(doc.net_total||doc.grand_total||0);
+    const tax=parseFloat(doc.total_taxes_and_charges||0);
+    const grand=parseFloat(doc.grand_total||0);
+    const outstanding=parseFloat(doc.outstanding_amount||0);
+    document.getElementById('drawerBody').innerHTML=`
+      <div class="cd-dmeta">
+        <div><div class="cd-dmeta-lbl">Customer</div><div class="cd-dmeta-val">${doc.customer_name||doc.customer||'—'}</div></div>
+        <div><div class="cd-dmeta-lbl">Invoice Date</div><div class="cd-dmeta-val">${fmtDate(doc.posting_date)}</div></div>
+        <div><div class="cd-dmeta-lbl">Due Date</div><div class="cd-dmeta-val">${fmtDate(doc.due_date)}</div></div>
+        <div><div class="cd-dmeta-lbl">Grand Total</div><div class="cd-dmeta-val">${fmt(grand)}</div></div>
+        <div><div class="cd-dmeta-lbl">Outstanding</div><div class="cd-dmeta-val">${fmt(outstanding)}</div></div>
+        <div><div class="cd-dmeta-lbl">Company</div><div class="cd-dmeta-val">${doc.company||'—'}</div></div>
+        ${doc.update_stock?`<div><div class="cd-dmeta-lbl">Stock Updated</div><div class="cd-dmeta-val">Yes</div></div>`:''}
+      </div>
+      ${items.length?`
+      <div class="cd-dsec">Items (${items.length})</div>
+      ${items.map(it=>`
+        <div class="cd-drow">
+          <div class="cd-drow-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></div>
+          <div style="flex:1;min-width:0">
+            <div class="cd-drow-name">${it.n}</div>
+            <div class="cd-drow-sub">${it.code} · ${it.uom}</div>
           </div>
-        `).join('') : '<div style="font-size:12.5px;color:var(--text-muted);padding:12px 0">No items (draft)</div>'}
-    
-        <div class="cd-drawer-total-block">
-          <div class="cd-dt-row"><span class="l">Subtotal</span><span class="r">${fmt(openInvoice.amount)}</span></div>
-          <div class="cd-dt-row"><span class="l">GST (3%)</span><span class="r">${fmt(openInvoice.tax)}</span></div>
-          ${openInvoice.discount ? `<div class="cd-dt-row"><span class="l">Discount</span><span class="r" style="color:var(--pill-green-txt)">-${fmt(openInvoice.discount)}</span></div>` : ''}
-          <div class="cd-dt-grand"><span>Total</span><span>${fmt(totalAmt)}</span></div>
-        </div>
-    
-        <div class="cd-drawer-section-title" style="margin-top:20px">Timeline</div>
-        <div class="cd-timeline">
-          ${timeline.map(t=>`
-            <div class="cd-tl-item">
-              <div class="cd-tl-dot ${t.done?'active':''}">
-                <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-              </div>
-              <div>
-                <div class="cd-tl-label">${t.label}</div>
-                <div class="cd-tl-sub">${t.sub}</div>
-              </div>
-            </div>
-          `).join('')}
-        </div>
-      `;
-    
-      document.getElementById('drawer').classList.add('open');
-      document.getElementById('drawerOverlay').classList.add('open');
-    }
-    
-    function closeDrawer(){
-      document.getElementById('drawer').classList.remove('open');
-      document.getElementById('drawerOverlay').classList.remove('open');
-    }
-    
-    function openInFrappe(){
-      if(openInvoice) window.open('/Sales Invoice/'+openInvoice.name, '_blank');
-    }
-    function printInvoice(){ alert('🖨 Printing invoice…'); }
-    function sendWhatsApp(){ alert('📲 Sending via WhatsApp…'); }
-    function showMore(e, name){ e.stopPropagation(); alert('More options for ' + name); }
-    function newInvoice(){ window.location.href = '/Sales Invoice/new-sales-invoice-1'; }
-    function exportCSV(){ alert('📊 Exporting CSV…'); }
-    
-    // ===================== LOAD =====================
-    function loadInvoices(){
-      // Try real Frappe API, fallback to dummy
-      (async ()=>{
-        try {
-          const res = await fetch(`/api/resource/Sales Invoice?fields=["name","customer","posting_date","due_date","grand_total","outstanding_amount","docstatus","status"]&limit=50&order_by=posting_date desc`, { credentials:'same-origin' });
-          if(res.ok){
-            const data = await res.json();
-            if(data.data && data.data.length){
-              allInvoices = data.data.map(inv => ({
-                name: inv.name,
-                customer: inv.customer,
-                contact: '',
-                date: inv.posting_date,
-                due_date: inv.due_date,
-                amount: inv.grand_total||0,
-                tax: 0,
-                discount: 0,
-                status: inv.status==='Paid'?'paid': inv.status==='Cancelled'?'draft': (inv.outstanding_amount>0 && new Date(inv.due_date)<new Date())?'overdue':'unpaid',
-                items: []
-              }));
-            }
-          }
-        } catch(e){ /* use dummy */ }
-        filtered = [...allInvoices];
-        renderSummaryPills();
-        applyFilters();
-      })();
-    }
-    
-    // ===================== THEME / AUTH =====================
-    function initTheme(){
-      const saved = localStorage.getItem('cdTheme');
-      if(saved==='dark'){ document.documentElement.classList.add('dark'); document.getElementById('themeIcon').innerHTML = sunIcon; }
-      else { document.documentElement.classList.remove('dark'); document.getElementById('themeIcon').innerHTML = moonIcon; }
-    }
-    const moonIcon = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
-    const sunIcon = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
-    function toggleTheme(){
-      if(document.documentElement.classList.contains('dark')){ document.documentElement.classList.remove('dark'); localStorage.setItem('cdTheme','light'); document.getElementById('themeIcon').innerHTML=moonIcon; }
-      else { document.documentElement.classList.add('dark'); localStorage.setItem('cdTheme','dark'); document.getElementById('themeIcon').innerHTML=sunIcon; }
-    }
-    document.getElementById('cdThemeToggle').addEventListener('click', toggleTheme);
-    initTheme();
-    
-    const sidebar = document.getElementById('cdSidebar');
-    document.getElementById('cdMenuToggle').addEventListener('click', ()=>sidebar.classList.toggle('mobile-open'));
-    document.querySelectorAll('.cd-nav-item').forEach(link=>{
-      link.addEventListener('click', ()=>{ if(window.innerWidth<=768) sidebar.classList.remove('mobile-open'); });
-    });
-    
-    document.getElementById('cdTopDate').textContent = new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-    
-    (function(){
-      const key=localStorage.getItem('cd_api_key'), sec=localStorage.getItem('cd_api_secret');
-      if(!key||!sec){ window.location.replace('/caratdesk-login?logout=1'); return; }
-      const name=localStorage.getItem('cd_user')||localStorage.getItem('cd_user_email')||'User';
-      document.getElementById('cdUserName').textContent=name;
-      document.getElementById('cdAvatar').textContent=name.split('@')[0].split(/[\s.]+/).map(w=>w[0]||'').join('').slice(0,2).toUpperCase()||'U';
-    })();
-    
-    document.getElementById('cdLogoutBtn').addEventListener('click', async function(){
-      try { await fetch('/api/method/logout',{method:'POST',credentials:'same-origin'}); } catch(e){}
-      window.location.href='/caratdesk-login';
-    });
-    
-    // Init
-    loadInvoices();
-    </script>
-    
+          <div class="cd-drow-right">
+            <div class="cd-drow-amt">${fmt(it.amt)}</div>
+            <div class="cd-drow-qty">Qty ${it.qty} × ${fmt(it.rate)}</div>
+          </div>
+        </div>`).join('')}
+      <div style="background:var(--bg);border-radius:10px;padding:12px 14px;margin-top:10px;font-size:13px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="color:var(--text-secondary)">Net Total</span><span style="font-variant-numeric:tabular-nums">${fmt(net)}</span></div>
+        ${tax?`<div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="color:var(--text-secondary)">Tax</span><span style="font-variant-numeric:tabular-nums">${fmt(tax)}</span></div>`:''}
+        <div style="display:flex;justify-content:space-between;font-size:15px;font-weight:600;border-top:.5px solid var(--border);padding-top:8px;margin-top:4px"><span>Grand Total</span><span style="font-variant-numeric:tabular-nums">${fmt(grand)}</span></div>
+      </div>`:'<div style="padding:14px;font-size:13px;color:var(--text-muted)">No items found.</div>'}`;
+  } catch(e){
+    console.error('Drawer detail error:', e);
+    document.getElementById('drawerBody').innerHTML += `<div style="color:var(--pill-red-txt);font-size:12.5px;padding:10px">Could not load full details.</div>`;
+  }
+}
+function closeDrawer(){ document.getElementById('drawer').classList.remove('open'); document.getElementById('drawerOverlay').classList.remove('open'); }
+function openInFrappe(){
+  if(!drawerSIName) return;
+  const base=drawerSIInst==='PC'?DEV2:DEV1;
+  window.open(`${base}/Sales%20Invoice/${drawerSIName}`,'_blank');
+}
+
+// ── TOAST ──
+function showToast(msg,type='info'){
+  let t=document.getElementById('cdToast');
+  if(!t){ t=document.createElement('div'); t.id='cdToast'; t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--text-primary);color:var(--surface);padding:11px 20px;border-radius:10px;font-size:13px;font-weight:500;box-shadow:0 4px 24px rgba(0,0,0,.12);z-index:600;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;white-space:nowrap;'; document.body.appendChild(t); }
+  t.textContent=msg;
+  if(type==='success') t.style.background='#2D6A4F';
+  else if(type==='error') t.style.background='#A32D2D';
+  else t.style.background='#1A4A8A';
+  t.style.opacity='1'; t.style.transform='translateX(-50%) translateY(0)';
+  clearTimeout(t._t); t._t=setTimeout(()=>{ t.style.opacity='0'; t.style.transform='translateX(-50%) translateY(20px)'; },3000);
+}
+
+document.addEventListener('click',(e)=>{
+  const p=document.getElementById('newSIPicker'); if(p) p.style.display='none';
+  if(!e.target.closest('.cd-fchip-wrap')&&!e.target.closest('.cd-sc-wrap')) closeAllPops();
+});
+
+const moonIcon='<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+const sunIcon='<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+function initTheme(){ const s=localStorage.getItem('cdTheme'); if(s==='dark'){ document.documentElement.classList.add('dark'); document.getElementById('themeIcon').innerHTML=sunIcon; } else { document.documentElement.classList.remove('dark'); document.getElementById('themeIcon').innerHTML=moonIcon; } }
+function toggleTheme(){ const d=document.documentElement.classList.toggle('dark'); localStorage.setItem('cdTheme',d?'dark':'light'); document.getElementById('themeIcon').innerHTML=d?sunIcon:moonIcon; }
+document.getElementById('cdThemeToggle').addEventListener('click',toggleTheme); initTheme();
+const sidebar=document.getElementById('cdSidebar');
+document.getElementById('cdMenuToggle').addEventListener('click',()=>sidebar.classList.toggle('mobile-open'));
+document.querySelectorAll('.cd-nav-item').forEach(l=>l.addEventListener('click',()=>{ if(window.innerWidth<=768) sidebar.classList.remove('mobile-open'); }));
+document.getElementById('cdTopDate').textContent=new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+
+(function(){
+  const hasSession=localStorage.getItem('cd_pp_key')||localStorage.getItem('cd_pc_key');
+  if(!hasSession){ window.location.replace('/caratdesk-login?logout=1'); return; }
+  const active=cdGetActiveInstance();
+  const key=active==='PC'?localStorage.getItem('cd_pc_key'):localStorage.getItem('cd_pp_key');
+  const sec=active==='PC'?localStorage.getItem('cd_pc_secret'):localStorage.getItem('cd_pp_secret');
+  if(key&&sec){ localStorage.setItem('cd_api_key',key); localStorage.setItem('cd_api_secret',sec); }
+  const name=localStorage.getItem('cd_user')||localStorage.getItem('cd_user_email')||'User';
+  document.getElementById('cdUserName').textContent=name;
+  document.getElementById('cdAvatar').textContent=name.split('@')[0].split(/[\s.]+/).map(w=>w[0]||'').join('').slice(0,2).toUpperCase()||'U';
+  cdInitInstanceToggle();
+})();
+
+document.getElementById('cdLogoutBtn').addEventListener('click',async()=>{
+  const ppK=localStorage.getItem('cd_pp_key'), ppS=localStorage.getItem('cd_pp_secret');
+  const pcK=localStorage.getItem('cd_pc_key'), pcS=localStorage.getItem('cd_pc_secret');
+  try{ if(ppK&&ppS) await fetch(`${DEV1}/api/method/logout`,{method:'POST',headers:{Authorization:`token ${ppK}:${ppS}`}}); }catch(e){}
+  try{ if(pcK&&pcS) await fetch(`${DEV2}/api/method/logout`,{method:'POST',headers:{Authorization:`token ${pcK}:${pcS}`}}); }catch(e){}
+  ['cd_api_key','cd_api_secret','cd_pp_key','cd_pp_secret','cd_pc_key','cd_pc_secret','cd_user','cd_user_email','cd_active_instance','cd_available_instances'].forEach(k=>localStorage.removeItem(k));
+  window.location.replace('/caratdesk-login?logout=1');
+});
+
+load();
+</script>

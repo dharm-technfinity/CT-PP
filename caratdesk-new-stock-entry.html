@@ -1,0 +1,1369 @@
+<!-- CaratDesk – New Stock Entry -->
+<head>
+  <meta charset="UTF-8">
+</head>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap');
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    .navbar,.page-header,footer.web-footer,.container>.row>.col-sm-10,.frappe-footer{display:none!important}
+    .web-page-container,.container{padding:0!important;max-width:100%!important}
+    body{overflow-x:hidden}
+    :root{
+      --bg:#F7F6F3;--surface:#FFFFFF;--border:rgba(0,0,0,.07);--border-strong:rgba(0,0,0,.12);
+      --text-primary:#1A1A18;--text-secondary:#6B6B65;--text-muted:#A8A8A2;
+      --accent:#1A1A18;--accent-light:#F0EFE9;--nav-hover:#F7F6F3;--nav-active-bg:#EBEBE5;
+      --pill-green-bg:#EAF3DE;--pill-green-txt:#3B6D11;--pill-green-bg-hover:#d8edca;
+      --pill-red-bg:#FCEBEB;--pill-red-txt:#A32D2D;--pill-red-bg-hover:#f8d7d7;
+      --pill-amber-bg:#FAEEDA;--pill-amber-txt:#854F0B;--pill-amber-bg-hover:#f5e4c5;
+      --pill-blue-bg:#E8F0FD;--pill-blue-txt:#1A4A8A;
+      --toast-success-bg:#2D6A4F;--toast-info-bg:#1A4A8A;
+      --shadow-sm:0 2px 12px rgba(0,0,0,.04),0 0 0 .5px rgba(0,0,0,.03);
+      --shadow-md:0 4px 24px rgba(0,0,0,.08)
+    }
+    .dark{--bg:#121212;--surface:#1E1E1E;--border:rgba(255,255,255,.08);--border-strong:rgba(255,255,255,.15);--text-primary:#EDEDED;--text-secondary:#A0A0A0;--text-muted:#6E6E6E;--accent:#D4D4D4;--accent-light:#2C2C2C;--nav-hover:#252525;--nav-active-bg:#2D2D2D;--pill-green-bg:#1E3A2E;--pill-green-txt:#9CD45E;--pill-green-bg-hover:#2a4a3a;--pill-red-bg:#3E1E1E;--pill-red-txt:#F28B82;--pill-red-bg-hover:#4a2626;--pill-amber-bg:#3E2E1E;--pill-amber-txt:#FDBF6B;--pill-amber-bg-hover:#4a3826;--pill-blue-bg:#1A2A3E;--pill-blue-txt:#7AABF0;--toast-success-bg:#1f5f3f;--toast-info-bg:#2a5a9a;--shadow-sm:0 2px 12px rgba(0,0,0,.3),0 0 0 .5px rgba(255,255,255,.05);--shadow-md:0 4px 24px rgba(0,0,0,.3)}
+    html,body{color:var(--text-primary)}
+    *{transition:background-color .2s,border-color .2s,color .2s}
+    .cd-app{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);min-height:100vh;display:flex;-webkit-font-smoothing:antialiased;color:var(--text-primary)}
+    .cd-sidebar{width:260px;background:var(--surface);border-right:.5px solid var(--border);display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;z-index:200;box-shadow:var(--shadow-sm);transform:translateX(0);transition:transform .3s cubic-bezier(.2,.9,.4,1.1)}
+    @media(max-width:768px){.cd-sidebar{transform:translateX(-100%)}.cd-sidebar.mobile-open{transform:translateX(0);width:80%;max-width:280px}}
+    .cd-sidebar-logo{display:flex;align-items:center;gap:11px;padding:20px 16px 18px;border-bottom:.5px solid var(--border);text-decoration:none;color:inherit}
+    .cd-sidebar-logo img{width:30px;height:30px;object-fit:contain;border-radius:9px}
+    .cd-logo-name{font-family:'DM Serif Display',serif;font-size:17px;letter-spacing:-.2px}
+    .cd-logo-sub{font-size:10px;color:var(--text-muted);font-weight:300;letter-spacing:.07em;text-transform:uppercase}
+    .cd-nav{flex:1;padding:10px 8px;overflow-y:auto}
+    .cd-nav-section{font-size:10px;font-weight:500;color:var(--text-muted);letter-spacing:.08em;text-transform:uppercase;padding:14px 8px 5px}
+    .cd-nav-item{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:9px;margin-bottom:1px;text-decoration:none;color:var(--text-secondary);font-size:13.5px;transition:background .14s,color .14s}
+    .cd-nav-item:hover{background:var(--nav-hover);color:var(--text-primary)}
+    .cd-nav-item.active{background:var(--nav-active-bg);color:var(--text-primary);font-weight:500}
+    .cd-nav-icon{width:20px;height:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .cd-nav-icon svg{width:15px;height:15px;stroke:currentColor;stroke-width:1.75;fill:none;stroke-linecap:round;stroke-linejoin:round}
+    .cd-sidebar-bottom{padding:10px 8px;border-top:.5px solid var(--border)}
+    .cd-user-card{display:flex;align-items:center;gap:10px;padding:10px;border-radius:9px;cursor:pointer;transition:background .14s}
+    .cd-user-card:hover{background:var(--nav-hover)}
+    .cd-avatar{width:32px;height:32px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:var(--surface);flex-shrink:0}
+    .cd-user-name{font-size:13px;font-weight:500}
+    .cd-user-role{font-size:11px;color:var(--text-muted);font-weight:300}
+    .cd-logout-btn{display:flex;align-items:center;gap:7px;padding:9px 10px;border-radius:9px;cursor:pointer;font-size:13px;color:var(--text-secondary);margin-top:3px;border:none;background:none;font-family:'DM Sans',sans-serif;width:100%;transition:background .14s,color .14s}
+    .cd-logout-btn:hover{background:var(--pill-red-bg);color:var(--pill-red-txt)}
+    .cd-instance-bar{display:flex;align-items:center;gap:6px;padding:8px 10px 4px}
+    .cd-instance-label{font-size:10px;font-weight:500;color:var(--text-muted);letter-spacing:.07em;text-transform:uppercase;flex:1}
+    .cd-instance-pills{display:flex;gap:4px}
+    .cd-instance-pill{font-size:11px;font-weight:500;padding:3px 10px;border-radius:6px;border:.5px solid var(--border);background:var(--input-bg);color:var(--text-secondary);cursor:pointer;transition:background .14s,color .14s,border-color .14s;font-family:'DM Sans',sans-serif}
+    .cd-instance-pill:hover{background:var(--nav-hover);color:var(--text-primary)}
+    .cd-instance-pill.active{background:var(--accent);color:var(--surface);border-color:var(--accent)}
+    .cd-main{margin-left:260px;flex:1;min-height:100vh;display:flex;flex-direction:column;min-width:0;overflow-x:hidden}
+    @media(max-width:768px){.cd-main{margin-left:0}}
+    .cd-topbar{height:58px;background:var(--surface);border-bottom:.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 20px;position:sticky;top:0;z-index:100}
+    .cd-menu-btn{display:none;background:none;border:none;cursor:pointer;color:var(--text-secondary);margin-right:12px}
+    @media(max-width:768px){.cd-menu-btn{display:flex;align-items:center;justify-content:center}}
+    .cd-topbar-left{display:flex;align-items:center;gap:10px}
+    .cd-breadcrumb{display:flex;align-items:center;gap:6px;font-size:13.5px}
+    .cd-breadcrumb a{color:var(--text-muted);text-decoration:none;transition:color .14s}
+    .cd-breadcrumb a:hover{color:var(--text-primary)}
+    .cd-breadcrumb-sep{color:var(--text-muted);font-size:12px}
+    .cd-breadcrumb-cur{color:var(--text-primary);font-weight:500}
+    .cd-topbar-right{display:flex;align-items:center;gap:8px;min-width:0;overflow:hidden}
+    .cd-icon-btn{width:34px;height:34px;border-radius:9px;border:.5px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-secondary);transition:background .14s,color .14s}
+    .cd-icon-btn:hover{background:var(--nav-hover);color:var(--text-primary)}
+    .cd-icon-btn svg{width:15px;height:15px;stroke:currentColor;stroke-width:1.75;fill:none;stroke-linecap:round;stroke-linejoin:round}
+    .cd-form-content{padding:24px 28px 80px;flex:1;animation:fadeUp .35s cubic-bezier(.16,1,.3,1) both;min-width:0;max-width:100%}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+    .cd-btn{font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;padding:8px 16px;border-radius:9px;border:none;cursor:pointer;transition:background .14s,transform .1s,opacity .14s;display:inline-flex;align-items:center;gap:7px}
+    .cd-btn:active{transform:scale(.98)}
+    .cd-btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+    .cd-btn-primary{background:var(--text-primary);color:var(--surface)}.cd-btn-primary:hover{opacity:.85}
+    .cd-btn-secondary{background:var(--surface);color:var(--text-primary);border:.5px solid var(--border-strong)}.cd-btn-secondary:hover{background:var(--accent-light)}
+    .cd-btn-danger{background:var(--pill-red-bg);color:var(--pill-red-txt);border:.5px solid rgba(163,45,45,.15)}.cd-btn-danger:hover{background:var(--pill-red-bg-hover)}
+    .cd-section{background:var(--surface);border:.5px solid var(--border);border-radius:14px;margin-bottom:16px;overflow:visible;box-shadow:var(--shadow-sm)}
+    .cd-section-header{padding:14px 20px;border-bottom:.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none}
+    .cd-section-header:hover{background:var(--bg)}
+    .cd-sec-title{font-size:13px;font-weight:500;display:flex;align-items:center;gap:8px}
+    .cd-sec-title svg{width:14px;height:14px;stroke:var(--text-muted);fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+    .cd-sec-toggle{width:22px;height:22px;display:flex;align-items:center;justify-content:center;color:var(--text-muted)}
+    .cd-sec-toggle svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;transition:transform .2s}
+    .cd-sec-toggle.collapsed svg{transform:rotate(-90deg)}
+    .cd-section-body{padding:20px}
+    .cd-field{display:flex;flex-direction:column;gap:5px}
+    .cd-field.full{grid-column:1/-1}
+    .cd-label{font-size:11.5px;font-weight:500;color:var(--text-secondary);letter-spacing:.01em;margin-top:10px;margin-bottom:0px}
+    .cd-label .req{color:var(--pill-red-txt);margin-left:2px}
+    .cd-input,.cd-select,.cd-textarea{font-family:'DM Sans',sans-serif;font-size:13px;background:var(--bg);border:0.5px solid var(--border-strong);border-radius:9px;padding:9px 12px;color:var(--text-primary);outline:none;transition:border-color .14s,box-shadow .14s;width:100%}
+    .cd-input:focus,.cd-select:focus,.cd-textarea:focus{border-color:var(--text-secondary);box-shadow:0 0 0 3px rgba(0,0,0,.05);background:var(--surface)}
+    .cd-input::placeholder,.cd-textarea::placeholder{color:var(--text-muted)}
+    .cd-select{cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23A8A8A2' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:30px}
+    .cd-textarea{resize:vertical;min-height:60px;line-height:1.5}
+    .cd-readonly{opacity:.65;cursor:not-allowed;background:var(--accent-light)!important}
+    .cd-ac{position:relative}
+    .cd-ac-list{position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--surface);border:.5px solid var(--border-strong);border-radius:10px;box-shadow:var(--shadow-md);z-index:500;max-height:220px;overflow-y:auto;display:none}
+    .dark .cd-ac-list{box-shadow:0 8px 32px rgba(0,0,0,.5),0 0 0 1px var(--border-strong)}
+    .cd-ac-list.open{display:block}
+    .cd-ac-item{padding:9px 12px;font-size:13px;cursor:pointer;transition:background .1s;border-bottom:.5px solid var(--border)}
+    .cd-ac-item:last-child{border-bottom:none}
+    .cd-ac-item:hover{background:var(--nav-hover)}
+    .cd-ac-item .main{font-weight:500}
+    .cd-ac-item .sub{font-size:11px;color:var(--text-muted);margin-top:1px}
+    .cd-ac-empty{padding:12px;font-size:12.5px;color:var(--text-muted);text-align:center}
+    .cd-items-wrap{overflow-x:auto;border-radius:10px;border:.5px solid var(--border);margin-bottom:14px;width:100%;display:block}
+    .cd-items-tbl{width:100%;border-collapse:collapse;min-width:1100px}
+    .cd-items-tbl td{padding:8px 4px;height:28px;border-bottom:1px solid var(--border);border-right:1px solid var(--border);vertical-align:middle}
+    .cd-items-tbl td input,.cd-items-tbl td select,.cd-items-tbl td textarea{width:100%;height:26px;border:.5px solid var(--border-strong);outline:none;padding:0 6px;font-size:11px;background:var(--bg);color:var(--text-primary);line-height:1;border-radius:7px}
+    .cd-items-tbl td textarea{height:auto;min-height:26px;resize:none;line-height:1.5;padding:3px 6px}
+    .cd-items-tbl td input[readonly]{background:var(--accent-light);cursor:not-allowed}
+    .cd-items-tbl th{font-size:11px;font-weight:500;color:var(--text-muted);text-align:left;padding:10px 12px;letter-spacing:.05em;text-transform:uppercase;background:var(--bg);border-bottom:.5px solid var(--border);white-space:nowrap}
+    .cd-items-tbl td:first-child{font-size:13px;width:40px;text-align:center;font-weight:600;color:var(--text-secondary)}
+    .cd-items-tbl input[type=number]{text-align:right}
+    .cd-items-tbl input[type=number]::-webkit-inner-spin-button,.cd-items-tbl input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+    .cd-items-tbl input[type=number]{-moz-appearance:textfield;appearance:textfield}
+    .cd-items-tbl:not(.show-finished) .se-finished-col{display:none}
+    .cd-del-btn{width:20px;height:20px;border-radius:7px;border:none;background:none;cursor:pointer;color:var(--text-muted);display:flex;align-items:center;justify-content:center;transition:background .12s,color .12s;flex-shrink:0}
+    .cd-del-btn:hover{background:var(--pill-red-bg);color:var(--pill-red-txt)}
+    .cd-del-btn svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2}
+    .cd-add-row{display:flex;align-items:center;gap:7px;font-family:'DM Sans',sans-serif;font-size:12.5px;font-weight:500;color:var(--text-secondary);background:none;border:none;cursor:pointer;padding:8px 12px;border-radius:8px;transition:background .14s,color .14s}
+    .cd-add-row:hover{background:var(--accent-light);color:var(--text-primary)}
+    .cd-add-row svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2}
+    .cd-footer{position:fixed;bottom:0;left:260px;right:0;background:var(--surface);border-top:.5px solid var(--border);padding:12px 28px;display:flex;align-items:center;gap:10px;z-index:90;box-shadow:0 -4px 20px rgba(0,0,0,.05)}
+    @media(max-width:768px){.cd-footer{left:0;padding:12px 16px}}
+    .cd-footer-right{margin-left:auto;display:flex;gap:8px}
+    .cd-toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--text-primary);color:var(--surface);padding:11px 20px;border-radius:10px;font-size:13px;font-weight:500;box-shadow:var(--shadow-md);z-index:600;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;white-space:nowrap;display:flex;align-items:center;gap:8px}
+    .cd-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+    .cd-toast.success{background:var(--toast-success-bg)}.cd-toast.error{background:var(--pill-red-txt)}.cd-toast.info{background:var(--toast-info-bg)}
+    .cd-idialog-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:800;opacity:0;pointer-events:none;transition:opacity .22s;backdrop-filter:blur(3px)}
+    .cd-idialog-overlay.open{opacity:1;pointer-events:all}
+    .cd-idialog{position:fixed;top:50%;left:50%;transform:translate(-50%,-46%);width:600px;max-width:96vw;max-height:88vh;background:var(--surface);border-radius:16px;border:.5px solid var(--border);box-shadow:0 20px 60px rgba(0,0,0,.2);z-index:801;display:flex;flex-direction:column;opacity:0;pointer-events:none;transition:opacity .22s,transform .22s}
+    .cd-idialog.open{opacity:1;pointer-events:all;transform:translate(-50%,-50%)}
+    .cd-idialog-header{padding:18px 24px 14px;border-bottom:.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+    .cd-idialog-title{font-size:15px;font-weight:600;display:flex;align-items:center;gap:8px}
+    .cd-idialog-title svg{width:15px;height:15px;stroke:var(--text-muted);fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+    .cd-idialog-close{width:28px;height:28px;border-radius:7px;border:.5px solid var(--border);background:var(--bg);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-secondary);transition:background .14s}
+    .cd-idialog-close:hover{background:var(--pill-red-bg);color:var(--pill-red-txt)}
+    .cd-idialog-close svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2}
+    .cd-idialog-body{flex:1;overflow-y:auto;padding:8px 0}
+    .cd-idialog-footer{padding:14px 24px;border-top:.5px solid var(--border);display:flex;gap:8px;flex-shrink:0;align-items:center}
+    .cd-pick-btn{height:24px!important;min-height:24px!important;padding:0 8px!important;font-size:11px!important;border-radius:5px!important;font-family:'DM Sans',sans-serif;font-weight:500;border:.5px solid var(--border-strong);background:var(--surface);color:var(--text-secondary);cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:background .14s,color .14s;white-space:nowrap}
+    .cd-pick-btn:hover{background:var(--accent-light);color:var(--text-primary)}
+    .cd-pick-btn svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+    .rm-row{display:flex;align-items:flex-start;gap:16px;padding:12px 24px;border-bottom:.5px solid var(--border)}
+    .rm-row:last-child{border-bottom:none}
+    .rm-row-label{min-width:120px;font-size:10.5px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.07em;padding-top:6px;flex-shrink:0}
+    .rm-pills{display:flex;flex-wrap:wrap;gap:6px;flex:1}
+    .rm-pill{padding:5px 16px;border-radius:20px;border:.5px solid var(--border-strong);background:var(--bg);color:var(--text-secondary);font-size:12.5px;cursor:pointer;transition:all .12s;user-select:none;white-space:nowrap;font-family:'DM Sans',sans-serif}
+    .rm-pill:hover{border-color:var(--text-primary);color:var(--text-primary);background:var(--accent-light)}
+    .rm-pill.selected{background:var(--text-primary);border-color:var(--text-primary);color:var(--surface);font-weight:500}
+    .rm-loading{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--text-muted);padding-top:4px}
+    .rm-spinner{width:14px;height:14px;border:2px solid var(--border-strong);border-top-color:var(--text-secondary);border-radius:50%;animation:rm-spin .6s linear infinite;flex-shrink:0}
+    @keyframes rm-spin{to{transform:rotate(360deg)}}
+    .cd-dlg-result{display:none;align-items:center;gap:12px;background:var(--pill-green-bg);border:.5px solid rgba(59,109,17,.2);border-radius:10px;padding:12px 14px;margin:0 24px 14px}
+    .cd-dlg-result-icon{width:32px;height:32px;border-radius:8px;background:var(--pill-green-txt);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .cd-dlg-result-icon svg{width:15px;height:15px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+    .cd-dlg-result-code{font-size:13px;font-weight:600;color:var(--pill-green-txt)}
+    .cd-dlg-result-name{font-size:12px;color:var(--pill-green-txt);opacity:.85;margin-top:2px}
+    .cd-dlg-error{display:none;font-size:12.5px;color:var(--pill-red-txt);background:var(--pill-red-bg);border:.5px solid rgba(163,45,45,.15);border-radius:8px;padding:9px 12px;margin:0 24px 10px}
+</style>
+
+<div class="cd-app" id="cdApp">
+  <nav class="cd-sidebar" id="cdSidebar">
+    <a class="cd-sidebar-logo" href="/caratdesk">
+      <img src="https://i.postimg.cc/NMgHCKvC/letter-cc-cd-diamond-initial-600nw-2206465849.png" alt="CaratDesk"/>
+      <div><div class="cd-logo-name">PPJ Retail</div><div class="cd-logo-sub">Jewellery POS</div></div>
+    </a>
+    <div class="cd-nav">
+      <div class="cd-nav-section">Main</div>
+      <a href="/caratdesk" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>Dashboard</a>
+      <div class="cd-nav-section">Operations</div>
+      <a href="/caratdesk-pos" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>POS Billing</a>
+      <a href="/caratdesk-selling" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg></span>Selling</a>
+      <a href="/caratdesk-buying" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></span>Buying</a>
+      <a href="/caratdesk-stock" class="cd-nav-item active"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg></span>Stock</a>
+      <a href="/caratdesk-items" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></span>Items</a>
+      <div class="cd-nav-section">Finance</div>
+      <a href="/caratdesk-finance" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></span>Finance</a>
+      <a href="/caratdesk-accounts" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg></span>Accounts</a>
+      <a href="/caratdesk-reports" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>Reports</a>
+      <div class="cd-nav-section">System</div>
+      <a href="/caratdesk-settings" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M12 2v2M12 20v2M2 12h2M20 12h2M4.93 19.07l1.41-1.41M19.07 19.07l-1.41-1.41"/></svg></span>Settings</a>
+    </div>
+    <div class="cd-sidebar-bottom">
+      <div class="cd-instance-bar" id="cdInstanceBar" style="display:none">
+        <span class="cd-instance-label">Instance</span>
+        <div class="cd-instance-pills">
+          <button class="cd-instance-pill" id="cdInstPP" onclick="cdSwitchInstance('PP')">PP</button>
+          <button class="cd-instance-pill" id="cdInstPC" onclick="cdSwitchInstance('PC')">PC</button>
+        </div>
+      </div>
+      <div class="cd-user-card"><div class="cd-avatar" id="cdAvatar">-</div><div><div class="cd-user-name" id="cdUserName">Loading…</div><div class="cd-user-role" id="cdUserRole">POS Manager</div></div></div>
+      <button class="cd-logout-btn" id="cdLogoutBtn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign out</button>
+    </div>
+  </nav>
+
+  <div class="cd-main">
+    <div class="cd-topbar">
+      <div class="cd-topbar-left">
+        <button class="cd-menu-btn" id="cdMenuToggle"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+        <div class="cd-breadcrumb">
+          <a href="/caratdesk-stock">Stock</a><span class="cd-breadcrumb-sep">></span>
+          <span class="cd-breadcrumb-cur">New Stock Entry</span>
+        </div>
+      </div>
+      <div class="cd-topbar-right">
+        <div class="cd-icon-btn" id="cdThemeToggle"><svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div>
+      </div>
+    </div>
+
+    <div class="cd-form-content">
+
+      <!-- SECTION 1: Entry Details -->
+      <div class="cd-section">
+        <div class="cd-section-header" onclick="toggleSec(this)">
+          <div class="cd-sec-title"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>Entry Details</div>
+          <div class="cd-sec-toggle"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+        </div>
+        <div class="cd-section-body">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px">
+            <div class="cd-field">
+              <label class="cd-label">Company</label>
+              <input class="cd-input cd-readonly" id="companyDisplay" value="P.P. Jewellers Retail Pvt. Ltd." readonly/>
+              <label class="cd-label">Stock Entry Type <span class="req">*</span></label>
+              <select class="cd-select" id="stockEntryType" onchange="onStockEntryTypeChange()">
+                <option value="">— Loading types… —</option>
+              </select>
+              <label class="cd-label">Purpose</label>
+              <input class="cd-input cd-readonly" id="purposeDisplay" readonly placeholder="Auto-filled from Stock Entry Type"/>
+              <label class="cd-label">Branch</label>
+              <select class="cd-select" id="branch">
+                <option value="">- Select Branch -</option>
+              </select>
+            </div>
+            <div class="cd-field">
+              <label class="cd-label">Posting Date <span class="req">*</span></label>
+              <input class="cd-input" type="date" id="postingDate"/>
+              <label class="cd-label">Posting Time</label>
+              <input class="cd-input" type="time" step="1" id="postingTime"/>
+              <div id="fgQtyField" style="display:none">
+                <label class="cd-label">FG Completed Qty</label>
+                <input class="cd-input" type="number" min="0" step="0.001" id="fgQty" value="1" oninput="recalc()"/>
+              </div>
+            </div>
+            <div class="cd-field">
+              <div id="fromWhField">
+                <label class="cd-label" style="margin-top:0">Source Warehouse</label>
+                <select class="cd-select" id="fromWarehouse" onchange="onFromWarehouseChange()"><option value="">- Select Warehouse -</option></select>
+              </div>
+              <div id="toWhField">
+                <label class="cd-label">Target Warehouse</label>
+                <select class="cd-select" id="toWarehouse" onchange="onToWarehouseChange()"><option value="">- Select Warehouse -</option></select>
+              </div>
+            </div>
+          </div>
+
+          <div id="bomFieldWrap" style="display:none;margin-bottom:16px">
+            <div style="display:grid;grid-template-columns:2fr 1fr;gap:12px;align-items:end;background:var(--bg);border-radius:10px;border:.5px solid var(--border);padding:14px">
+              <div class="cd-field" style="margin:0">
+                <label class="cd-label" style="margin-top:0">BOM No</label>
+                <input class="cd-input" id="bomNo" placeholder="e.g. BOM-ITEM-001"/>
+              </div>
+              <button type="button" class="cd-btn cd-btn-secondary" onclick="fetchItemsFromBom()" style="height:38px">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+                Get Items from BOM
+              </button>
+            </div>
+          </div>
+
+          <div class="cd-field full">
+            <label class="cd-label" style="margin-top:0">Remarks</label>
+            <textarea class="cd-textarea" id="remarks" rows="2" placeholder="Optional notes…"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 2: Items -->
+      <div class="cd-section">
+        <div class="cd-section-header" onclick="toggleSec(this)">
+          <div class="cd-sec-title"><svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>Items</div>
+          <div class="cd-sec-toggle"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+        </div>
+        <div class="cd-section-body">
+          <div class="cd-items-wrap">
+            <table class="cd-items-tbl" id="seItemsTable">
+              <thead><tr>
+                <th style="width:34px">#</th>
+                <th style="width:150px">Item Code</th>
+                <th style="width:160px">Item Name</th>
+                <th style="width:130px">Source Warehouse</th>
+                <th style="width:130px">Target Warehouse</th>
+                <th style="width:85px">Qty <span style="color:var(--pill-red-txt)">*</span></th>
+                <th style="width:70px">UOM</th>
+                <th style="width:100px">Basic Rate</th>
+                <th style="width:110px">Amount</th>
+                <th style="width:110px">Batch No</th>
+                <th style="width:120px">Serial No</th>
+                <th class="se-finished-col" style="width:70px">Finished</th>
+                <th style="width:34px"></th>
+              </tr></thead>
+              <tbody id="itemsTbody"></tbody>
+            </table>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin:8px 4px;flex-wrap:wrap;gap:10px">
+            <button class="cd-add-row" onclick="addRow()"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Item Row</button>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+              <div style="display:flex;gap:18px;font-size:12.5px;color:var(--text-secondary)">
+                <div>Total Outgoing: <strong id="totOutgoing" style="color:var(--text-primary)">0</strong></div>
+                <div>Total Incoming: <strong id="totIncoming" style="color:var(--text-primary)">0</strong></div>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px">
+                <button type="button" class="cd-add-row" onclick="downloadExcel()">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  Download
+                </button>
+                <button type="button" class="cd-add-row" onclick="document.getElementById('excelUpload').click()">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                  Upload
+                </button>
+                <input type="file" id="excelUpload" accept=".csv" onchange="uploadExcel(event)" hidden>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="height:20px"></div>
+    </div>
+
+    <div class="cd-footer">
+      <button class="cd-btn cd-btn-danger" id="cdCancelBtn" style="display:none" onclick="cancelDoc()"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>Cancel</button>
+      <div class="cd-footer-right">
+        <button class="cd-btn cd-btn-primary" id="cdMainActionBtn" onclick="saveDraft()"><svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CSV Map Dialog -->
+<div class="cd-idialog-overlay" id="csvMapOverlay" onclick="closeCsvMapDialog()"></div>
+<div class="cd-idialog" id="csvMapDialog" style="width:600px;max-width:96vw">
+  <div class="cd-idialog-header">
+    <div>
+      <div class="cd-idialog-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>
+        Map CSV Columns
+      </div>
+      <div style="font-size:11px;color:var(--text-muted);margin-top:3px" id="csvMapSubtitle">Map each CSV column to the corresponding table field</div>
+    </div>
+    <div class="cd-idialog-close" onclick="closeCsvMapDialog()">
+      <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </div>
+  </div>
+  <div class="cd-idialog-body" style="padding:0">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;background:var(--bg);border-bottom:.5px solid var(--border);padding:8px 24px">
+      <div style="font-size:10px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">CSV Column</div>
+      <div style="font-size:10px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">Map To Field</div>
+    </div>
+    <div id="csvMapRows" style="max-height:360px;overflow-y:auto"></div>
+  </div>
+  <div style="font-size:11.5px;color:var(--text-muted);padding:8px 24px 0;display:flex;align-items:center;gap:6px">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;flex-shrink:0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <span id="csvMapInfo">0 rows will be imported</span>
+  </div>
+  <div class="cd-idialog-footer">
+    <button class="cd-btn cd-btn-secondary" onclick="closeCsvMapDialog()">Cancel</button>
+    <div style="margin-left:auto">
+      <button class="cd-btn cd-btn-primary" onclick="confirmCsvImport()">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        Import Rows
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Item Picker Dialog -->
+<div class="cd-idialog-overlay" id="itemDialogOverlay" onclick="closeItemDialog()"></div>
+<div class="cd-idialog" id="itemDialog" style="width:1100px;max-width:96vw">
+  <div class="cd-idialog-header">
+    <div class="cd-idialog-title"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>Select Item</div>
+    <div class="cd-idialog-close" onclick="closeItemDialog()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+  </div>
+  <div class="cd-idialog-body" id="rmDialogRoot"></div>
+  <div class="cd-dlg-error" id="dlg-error"></div>
+  <div class="cd-dlg-result" id="dlg-result">
+    <div class="cd-dlg-result-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+    <div><div class="cd-dlg-result-code" id="dlg-result-code">-</div><div class="cd-dlg-result-name" id="dlg-result-name">-</div></div>
+  </div>
+  <div class="cd-idialog-footer">
+    <button class="cd-btn cd-btn-secondary" onclick="closeItemDialog()">Cancel</button>
+    <div style="margin-left:auto"><button class="cd-btn cd-btn-primary" id="dlg-add-btn" onclick="addItemToRow()"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Item</button></div>
+  </div>
+</div>
+
+<div class="cd-toast" id="cdToast"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span id="cdToastMsg"></span></div>
+
+<script>
+// ══════════════════════════════════════════
+//  CONFIG
+// ══════════════════════════════════════════
+const COMPANY = 'P.P. Jewellers Retail Pvt. Ltd.';
+const DEV1    = 'https://ppj-dev1.m.frappe.cloud';
+const DEV2    = 'https://ppj-dev2.m.frappe.cloud';
+
+let WAREHOUSES        = [];
+let BRANCHES           = [];
+let SE_ITEMS           = [];
+let STOCK_ENTRY_TYPES  = []; // [{name, purpose}]
+let rowCount            = 0;
+let submitted           = false;
+let currentSEName       = null;
+let _changeTrackingActive = false;
+
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function fmt(n){ return ''+Math.round(n||0).toLocaleString('en-IN'); }
+
+// ══════════════════════════════════════════
+//  TOKEN AUTH
+// ══════════════════════════════════════════
+function getDevHeaders(){
+  const key    = localStorage.getItem('cd_api_key');
+  const secret = localStorage.getItem('cd_api_secret');
+  if(!key || !secret) return null;
+  return { 'Authorization': `token ${key}:${secret}`, 'Content-Type':'application/json', 'Accept':'application/json' };
+}
+async function dev1Get(endpoint){
+  const res = await fetch(`${cdGetInstanceUrl()}${endpoint}`, { headers: getDevHeaders() });
+  if(res.status===401){ _handle401(); throw new Error('Session expired'); }
+  const d = await res.json();
+  if(!res.ok){ const msg=d?.exception||d?.message||('HTTP '+res.status); throw new Error(String(msg).split('\n')[0].slice(0,300)); }
+  return d;
+}
+async function dev1Post(endpoint, body){
+  const res = await fetch(`${cdGetInstanceUrl()}${endpoint}`, { method:'POST', headers:getDevHeaders(), body:JSON.stringify(body) });
+  if(res.status===401){ _handle401(); throw new Error('Session expired'); }
+  const d = await res.json();
+  if(!res.ok){ const msg=d?.exception||d?.message||('HTTP '+res.status); throw new Error(String(msg).split('\n')[0].slice(0,300)); }
+  return d;
+}
+async function dev1Put(endpoint, body){
+  const res = await fetch(`${cdGetInstanceUrl()}${endpoint}`, { method:'PUT', headers:getDevHeaders(), body:JSON.stringify(body) });
+  if(res.status===401){ _handle401(); throw new Error('Session expired'); }
+  const d = await res.json();
+  if(!res.ok){ const msg=d?.exception||d?.message||('HTTP '+res.status); throw new Error(String(msg).split('\n')[0].slice(0,300)); }
+  return d;
+}
+function _handle401(){
+  const active = typeof cdGetActiveInstance==='function' ? cdGetActiveInstance() : 'PP';
+  if(active==='PC'){
+    showToast('PC session expired — switching back to PP','error');
+    const ppKey=localStorage.getItem('cd_pp_key'), ppSec=localStorage.getItem('cd_pp_secret');
+    if(ppKey&&ppSec){
+      localStorage.setItem('cd_active_instance','PP');
+      localStorage.setItem('cd_api_key',ppKey);
+      localStorage.setItem('cd_api_secret',ppSec);
+    }
+    setTimeout(()=>window.location.reload(),1800);
+  } else {
+    showToast('Session expired - please log in again','error');
+    setTimeout(()=>window.location.href='/caratdesk-login',1500);
+  }
+}
+
+// Returns fieldnames flagged "In Global Search" on a doctype, so item search can match them too.
+async function getGlobalSearchFields(doctype){
+  try{
+    const filters=encodeURIComponent(JSON.stringify([["parent","=",doctype],["in_global_search","=",1]]));
+    const res=await dev1Get(`/api/resource/DocField?filters=${filters}&fields=${encodeURIComponent('["fieldname"]')}&limit_page_length=0`);
+    return (res.data||res.message||[]).map(d=>d.fieldname).filter(Boolean);
+  }catch(e){ console.warn('getGlobalSearchFields error ('+doctype+'):', e.message); return []; }
+}
+
+// ══════════════════════════════════════════
+//  PURPOSE RULES
+// ══════════════════════════════════════════
+const PURPOSE_RULES = {
+  'Material Issue'                       : { fromWh:true,  toWh:false, needSrcRow:true,  needTgtRow:false, bom:false },
+  'Material Receipt'                     : { fromWh:false, toWh:true,  needSrcRow:false, needTgtRow:true,  bom:false },
+  'Material Transfer'                    : { fromWh:true,  toWh:true,  needSrcRow:true,  needTgtRow:true,  bom:false },
+  'Material Transfer for Manufacture'    : { fromWh:true,  toWh:true,  needSrcRow:true,  needTgtRow:true,  bom:false },
+  'Material Consumption for Manufacture' : { fromWh:true,  toWh:false, needSrcRow:true,  needTgtRow:false, bom:false },
+  'Manufacture'                          : { fromWh:true,  toWh:true,  needSrcRow:true,  needTgtRow:true,  bom:true  },
+  'Repack'                               : { fromWh:true,  toWh:true,  needSrcRow:true,  needTgtRow:true,  bom:true  },
+  'Send to Subcontractor'                : { fromWh:true,  toWh:true,  needSrcRow:true,  needTgtRow:true,  bom:false },
+  'Disassemble'                          : { fromWh:true,  toWh:true,  needSrcRow:true,  needTgtRow:true,  bom:false },
+};
+
+function onStockEntryTypeChange(){
+  const typeName = document.getElementById('stockEntryType').value;
+  const typeRec  = STOCK_ENTRY_TYPES.find(t=>t.name===typeName);
+  const purpose  = typeRec?.purpose || typeName || '';
+  document.getElementById('purposeDisplay').value = purpose;
+
+  const rules = PURPOSE_RULES[purpose] || { fromWh:true, toWh:true, needSrcRow:false, needTgtRow:false, bom:false };
+
+  document.getElementById('fromWhField').style.display  = rules.fromWh ? '' : 'none';
+  document.getElementById('toWhField').style.display    = rules.toWh   ? '' : 'none';
+  document.getElementById('bomFieldWrap').style.display = rules.bom   ? '' : 'none';
+  document.getElementById('fgQtyField').style.display    = purpose==='Manufacture' ? '' : 'none';
+  document.getElementById('seItemsTable').classList.toggle('show-finished', rules.bom);
+}
+
+// ══════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', async () => {
+  document.getElementById('postingDate').value = new Date().toISOString().slice(0,10);
+  document.getElementById('postingTime').value = new Date().toTimeString().slice(0,8);
+
+  await loadMasterData();
+
+  const params = new URLSearchParams(window.location.search);
+  const seName = params.get('name');
+  if(seName){ await loadExistingSE(seName); return; }
+  onStockEntryTypeChange();
+  addRow();
+});
+
+async function loadMasterData(){
+  try{
+    const whRes = await dev1Get('/api/resource/Warehouse?fields=["name"]&limit_page_length=500');
+    WAREHOUSES = (whRes.data||whRes.message||[]).map(w=>w.name);
+    populateWarehouseSelects();
+  }catch(e){ console.warn('Warehouse load failed:', e.message); }
+
+  try{
+    const setRes = await dev1Get('/api/resource/Stock%20Entry%20Type?fields=["name","purpose"]&limit_page_length=100');
+    STOCK_ENTRY_TYPES = (setRes.data||setRes.message||[]);
+    populateStockEntryTypes();
+  }catch(e){ console.warn('Stock Entry Type load failed:', e.message); }
+
+  try{
+    const brRes = await dev1Get('/api/resource/Branch?fields=["name"]&limit_page_length=100');
+    BRANCHES = (brRes.data||brRes.message||[]).map(b=>b.name).filter(Boolean);
+    populateBranch();
+  }catch(e){ console.warn('Branch load failed:', e.message); }
+
+  try{
+    const ITEM_BASE_FIELDS = ["item_code","item_name","stock_uom","standard_rate","item_group"];
+    const gsFields  = await getGlobalSearchFields('Item');
+    const itemFields = [...new Set([...ITEM_BASE_FIELDS, ...gsFields])];
+    const itemRes = await dev1Get(`/api/resource/Item?fields=${encodeURIComponent(JSON.stringify(itemFields))}&limit_page_length=1000`);
+    SE_ITEMS = (itemRes.data||itemRes.message||[]).map(i=>({
+      code: i.item_code, name: i.item_name||i.item_code, uom: i.stock_uom||'Nos', rate: parseFloat(i.standard_rate||0),
+      _search: itemFields.map(f=>String(i[f]||'')).join(' ').toLowerCase()
+    }));
+  }catch(e){ console.warn('Item load failed:', e.message); }
+}
+
+function populateWarehouseSelects(){
+  const opts = '<option value="">- Select Warehouse -</option>' + WAREHOUSES.map(w=>`<option value="${esc(w)}">${esc(w)}</option>`).join('');
+  ['fromWarehouse','toWarehouse'].forEach(id=>{
+    const sel=document.getElementById(id); if(!sel) return;
+    const cur=sel.value; sel.innerHTML=opts; if(cur) sel.value=cur;
+  });
+  document.querySelectorAll('#itemsTbody [data-f="s_warehouse"], #itemsTbody [data-f="t_warehouse"]').forEach(sel=>{
+    const cur=sel.value; sel.innerHTML=opts; if(cur) sel.value=cur;
+  });
+}
+
+function populateBranch(){
+  const sel = document.getElementById('branch');
+  if(!sel || !BRANCHES.length) return;
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">- Select Branch -</option>' +
+    BRANCHES.map(b=>`<option value="${esc(b)}">${esc(b)}</option>`).join('');
+  if(cur) sel.value = cur;
+}
+
+function populateStockEntryTypes(){
+  const sel = document.getElementById('stockEntryType');
+  if(!sel || !STOCK_ENTRY_TYPES.length) return;
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">- Select Type -</option>' +
+    STOCK_ENTRY_TYPES.map(t=>`<option value="${esc(t.name)}">${esc(t.name)}</option>`).join('');
+  if(cur) sel.value = cur;
+}
+
+function onFromWarehouseChange(){
+  const val = document.getElementById('fromWarehouse').value;
+  document.querySelectorAll('#itemsTbody [data-f="s_warehouse"]').forEach(sel=>{ if(!sel.value) sel.value = val; });
+}
+function onToWarehouseChange(){
+  const val = document.getElementById('toWarehouse').value;
+  document.querySelectorAll('#itemsTbody [data-f="t_warehouse"]').forEach(sel=>{ if(!sel.value) sel.value = val; });
+}
+
+// ══════════════════════════════════════════
+//  ITEMS TABLE
+// ══════════════════════════════════════════
+function addRow(d={}){
+  rowCount++;
+  const id = 'r'+rowCount;
+  const tr = document.createElement('tr'); tr.id = id;
+  const whOptsS = '<option value="">- Select -</option>' + WAREHOUSES.map(w=>`<option value="${esc(w)}" ${w===(d.s_warehouse||'')?'selected':''}>${esc(w)}</option>`).join('');
+  const whOptsT = '<option value="">- Select -</option>' + WAREHOUSES.map(w=>`<option value="${esc(w)}" ${w===(d.t_warehouse||'')?'selected':''}>${esc(w)}</option>`).join('');
+  tr.innerHTML = `
+    <td>${rowCount}</td>
+    <td>
+      <div style="display:flex;align-items:center;gap:4px">
+        <button class="cd-pick-btn" id="pickbtn-${id}" onclick="openItemDialog('${id}')" style="flex-shrink:0">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </button>
+        <div class="cd-ac" style="min-width:110px;flex:1">
+          <input placeholder="Item Code…" data-f="code" value="${esc(d.item_code||'')}" autocomplete="off"
+            oninput="seItemAc(this,'${id}')" onfocus="seItemAc(this,'${id}')" onblur="seItemBlur(this,'${id}')"/>
+          <div class="cd-ac-list" id="seac-${id}" style="min-width:260px"></div>
+        </div>
+      </div>
+    </td>
+    <td><input data-f="item_name" value="${esc(d.item_name||'')}" readonly style="opacity:.65;font-size:11px"/></td>
+    <td><select data-f="s_warehouse">${whOptsS}</select></td>
+    <td><select data-f="t_warehouse">${whOptsT}</select></td>
+    <td><input type="number" min="0" step="0.001" value="${d.qty||1}" data-f="qty" oninput="recalcRow('${id}')"/></td>
+    <td><input data-f="uom" value="${esc(d.uom||'Nos')}" style="font-size:11px;text-align:left"/></td>
+    <td><input type="number" min="0" step="0.01" value="${d.rate||0}" data-f="rate" oninput="recalcRow('${id}')"/></td>
+    <td><input type="number" data-f="amt" readonly style="text-align:right;font-weight:600;background:var(--accent-light)"/></td>
+    <td><textarea placeholder="Batch No" data-f="batch_no" rows="1" oninput="autoResize(this)">${esc(d.batch_no||'')}</textarea></td>
+    <td><textarea placeholder="Serial No" data-f="serial_no" rows="1" oninput="autoResize(this)">${esc(d.serial_no||'')}</textarea></td>
+    <td class="se-finished-col" style="text-align:center"><input type="checkbox" data-f="is_finished" style="width:auto;height:auto" ${d.is_finished_item?'checked':''}/></td>
+    <td><button class="cd-del-btn" onclick="delRow('${id}')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></td>
+  `;
+  document.getElementById('itemsTbody').appendChild(tr);
+  const fromWh = document.getElementById('fromWarehouse')?.value||'';
+  const toWh   = document.getElementById('toWarehouse')?.value||'';
+  if(!d.s_warehouse && fromWh) tr.querySelector('[data-f="s_warehouse"]').value = fromWh;
+  if(!d.t_warehouse && toWh)   tr.querySelector('[data-f="t_warehouse"]').value = toWh;
+  recalcRow(id);
+  return tr;
+}
+function delRow(id){ document.getElementById(id)?.remove(); recalc(); }
+
+function recalcRow(id){
+  const tr = document.getElementById(id); if(!tr) return;
+  const qty  = parseFloat(tr.querySelector('[data-f="qty"]')?.value||0)  || 0;
+  const rate = parseFloat(tr.querySelector('[data-f="rate"]')?.value||0) || 0;
+  const amt  = Math.round(qty*rate*100)/100;
+  const amtEl = tr.querySelector('[data-f="amt"]'); if(amtEl) amtEl.value = amt.toFixed(2);
+  recalc();
+}
+function recalc(){
+  let totalIn=0, totalOut=0;
+  document.querySelectorAll('#itemsTbody tr').forEach(tr=>{
+    const amt = parseFloat(tr.querySelector('[data-f="amt"]')?.value||0) || 0;
+    if(tr.querySelector('[data-f="t_warehouse"]')?.value) totalIn  += amt;
+    if(tr.querySelector('[data-f="s_warehouse"]')?.value) totalOut += amt;
+  });
+  const inEl=document.getElementById('totIncoming'); if(inEl) inEl.textContent=fmt(totalIn);
+  const outEl=document.getElementById('totOutgoing'); if(outEl) outEl.textContent=fmt(totalOut);
+}
+function autoResize(el){ el.style.height='auto'; el.style.height=el.scrollHeight+'px'; }
+
+// ── Item search (type-ahead against Item master, matches "In Global Search" fields too) ──
+function seItemAc(inp, rowId){
+  const q = inp.value.toLowerCase();
+  const list = document.getElementById('seac-'+rowId);
+  if(!list) return;
+  if(!q){ list.classList.remove('open'); return; }
+  const r = SE_ITEMS.filter(i=>i.code.toLowerCase().includes(q)||i.name.toLowerCase().includes(q)||(i._search&&i._search.includes(q))).slice(0,10);
+  list.innerHTML = r.length ? r.map(it=>`<div class="cd-ac-item" onmousedown="seSelectItem('${rowId}','${esc(it.code)}')"><div class="main">${esc(it.code)}</div><div class="sub">${esc(it.name)}${it.rate?' · ₹'+it.rate.toLocaleString('en-IN'):''}</div></div>`).join('') : `<div class="cd-ac-empty">No item found</div>`;
+  list.classList.add('open');
+}
+function seItemBlur(inp, rowId){
+  setTimeout(()=>{ document.getElementById('seac-'+rowId)?.classList.remove('open'); }, 150);
+  const code = inp.value.trim(); if(!code) return;
+  const it = SE_ITEMS.find(i=>i.code.toLowerCase()===code.toLowerCase()||i.name.toLowerCase()===code.toLowerCase());
+  if(it) seFillItem(rowId, it);
+}
+function seSelectItem(rowId, code){
+  const it = SE_ITEMS.find(i=>i.code===code);
+  if(it) seFillItem(rowId, it);
+}
+function seFillItem(rowId, it){
+  const tr = document.getElementById(rowId); if(!tr) return;
+  tr.querySelector('[data-f="code"]').value = it.code;
+  tr.querySelector('[data-f="item_name"]').value = it.name;
+  tr.querySelector('[data-f="uom"]').value = it.uom;
+  const rateEl = tr.querySelector('[data-f="rate"]'); if(rateEl && !parseFloat(rateEl.value)) rateEl.value = it.rate||0;
+  recalcRow(rowId);
+  document.getElementById('seac-'+rowId)?.classList.remove('open');
+}
+
+// ══════════════════════════════════════════
+//  ITEM PICKER DIALOG (Type → Template → Attributes → auto-match)
+// ══════════════════════════════════════════
+function getCsrf(){ if(typeof frappe!=='undefined'&&frappe.csrf_token)return frappe.csrf_token; const m=document.cookie.match(/csrf_token=([^;]+)/);return m?m[1]:''; }
+
+let _dialogRowId=null, _dlgSelected={type:null,template:null}, _dlgAttrVals={}, _dlgAttrs=[], _matchedItem=null;
+
+function openItemDialog(rowId){
+  _dialogRowId=rowId; _dlgSelected={type:null,template:null}; _dlgAttrVals={}; _dlgAttrs=[]; _matchedItem=null;
+  clearDialogError(); hideDialogResult();
+  document.getElementById('itemDialog').classList.add('open');
+  document.getElementById('itemDialogOverlay').classList.add('open');
+  initDialog();
+}
+function closeItemDialog(){
+  document.getElementById('itemDialog').classList.remove('open');
+  document.getElementById('itemDialogOverlay').classList.remove('open');
+}
+function getRoot(){ return document.getElementById('rmDialogRoot'); }
+function makeRow(id,labelText,content){ const row=document.createElement('div'); row.className='rm-row'; if(id) row.id=id; const label=document.createElement('div'); label.className='rm-row-label'; label.textContent=labelText; row.appendChild(label); row.appendChild(content); return row; }
+function loadingEl(text='Loading…'){ const el=document.createElement('div'); el.className='rm-loading'; el.innerHTML=`<div class="rm-spinner"></div><span>${text}</span>`; return el; }
+function makePillsWithAbbr(entries,selectedAbbr,onSelect){
+  const wrap=document.createElement('div'); wrap.className='rm-pills';
+  entries.forEach(entry=>{
+    const pill=document.createElement('div');
+    pill.className='rm-pill'+(entry.abbr===selectedAbbr?' selected':'');
+    pill.textContent=entry.value; pill.title=entry.abbr;
+    pill.addEventListener('click',()=>{ wrap.querySelectorAll('.rm-pill').forEach(p=>p.classList.remove('selected')); pill.classList.add('selected'); onSelect(entry.abbr,entry.value); });
+    wrap.appendChild(pill);
+  });
+  return wrap;
+}
+function makePills(values,selectedVal,onSelect){ return makePillsWithAbbr(values.map(v=>typeof v==='object'?v:{value:v,abbr:v}),selectedVal,(abbr)=>onSelect(abbr)); }
+
+async function getChildGroups(parentGroup){
+  try{
+    const headers=getDevHeaders(); if(!headers) return [];
+    const fields=encodeURIComponent(JSON.stringify(['name']));
+    const filters=encodeURIComponent(JSON.stringify([['Item Group','parent_item_group','=',parentGroup]]));
+    const res=await fetch(`${cdGetInstanceUrl()}/api/resource/Item Group?fields=${fields}&filters=${filters}&limit_page_length=100`,{headers});
+    if(!res.ok) return [];
+    const d=await res.json(); return (d?.data||d?.message||[]).map(g=>g.name).filter(Boolean);
+  }catch(e){ return []; }
+}
+async function getAllDescendantGroups(parentGroup){
+  const allGroups=[];
+  async function fetchChildren(group){ const children=await getChildGroups(group); await Promise.all(children.map(async child=>{ allGroups.push(child); await fetchChildren(child); })); }
+  await fetchChildren(parentGroup); return allGroups;
+}
+async function fetchTemplatesByGroups(groupNames){
+  if(!groupNames.length) return [];
+  try{
+    const headers=getDevHeaders(); if(!headers) return [];
+    const filters=[['Item','disabled','=',0],['Item','variant_of','=',''],['Item','item_group','in',groupNames]];
+    const fields=['name','item_name','item_group','has_variants'];
+    const url=`${cdGetInstanceUrl()}/api/resource/Item?fields=${encodeURIComponent(JSON.stringify(fields))}&filters=${encodeURIComponent(JSON.stringify(filters))}&limit_page_length=500`;
+    const res=await fetch(url,{headers}); if(!res.ok) return [];
+    const d=await res.json(); return d?.data||d?.message||[];
+  }catch(e){ return []; }
+}
+async function initDialog(){
+  const root=getRoot(); root.innerHTML='';
+  const tc=loadingEl('Loading types…'); root.appendChild(makeRow('rm-row-type','Type',tc));
+  try{
+    const form=new FormData(); form.append('parent_group','All Item Groups');
+    const res=await fetch('/api/method/caratdesk_get_item_group_children',{method:'POST',credentials:'same-origin',headers:{'X-Frappe-CSRF-Token':getCsrf()},body:form});
+    const d=await res.json(); const groups=d.message||[];
+    if(!groups.length){ tc.replaceWith(Object.assign(document.createElement('div'),{className:'cd-ac-empty',textContent:'No item groups found'})); return; }
+    const pills=makePills(groups,_dlgSelected.type,val=>{ _dlgSelected.type=val; _dlgSelected.template=null; _dlgAttrVals={}; _dlgAttrs=[]; _matchedItem=null; hideDialogResult(); clearDialogError(); root.querySelectorAll('.rm-row:not(#rm-row-type)').forEach(r=>r.remove()); loadTemplateRow(root,val); });
+    tc.replaceWith(pills);
+  }catch(e){ tc.replaceWith(Object.assign(document.createElement('div'),{className:'cd-ac-empty',textContent:'Failed to load types'})); }
+}
+async function loadTemplateRow(root,typeGroup){
+  const content=loadingEl('Loading templates…'); root.appendChild(makeRow('rm-row-template','Template',content));
+  try{
+    const descendants=await getAllDescendantGroups(typeGroup);
+    const groupsToSearch=[typeGroup,...descendants].filter(g=>typeof g==='string'&&g.trim());
+    if(!groupsToSearch.length){ content.replaceWith(Object.assign(document.createElement('div'),{className:'cd-ac-empty',textContent:'No sub-groups found under "'+typeGroup+'"'})); return; }
+    const templates=await fetchTemplatesByGroups(groupsToSearch);
+    if(!templates.length){ content.replaceWith(Object.assign(document.createElement('div'),{className:'cd-ac-empty',textContent:'No templates found under "'+typeGroup+'"'})); return; }
+    const templateMeta={};
+    templates.forEach(t=>{ templateMeta[t.name]={item_name:t.item_name||t.name,has_variants:t.has_variants}; });
+    const entries=templates.map(t=>({value:t.item_name||t.name,abbr:t.name}));
+    const pills=makePillsWithAbbr(entries,_dlgSelected.template,(abbr,value)=>{
+      _dlgSelected.template=abbr; _dlgAttrVals={}; _dlgAttrs=[]; _matchedItem=null; hideDialogResult(); clearDialogError();
+      root.querySelectorAll('[id^="rm-row-attr"]').forEach(r=>r.remove());
+      const meta=templateMeta[abbr]||{};
+      if(meta.has_variants){ loadAttrRows(root,abbr); }
+      else{ _matchedItem={item_code:abbr,item_name:meta.item_name||abbr}; showDialogResult(_matchedItem); }
+    });
+    content.replaceWith(pills);
+  }catch(e){ content.replaceWith(Object.assign(document.createElement('div'),{className:'cd-ac-empty',textContent:'Failed to load templates'})); }
+}
+async function loadAttrRows(root,templateItemCode){
+  const loadRow=document.createElement('div'); loadRow.className='rm-row'; loadRow.id='rm-row-attr-loading';
+  loadRow.appendChild(loadingEl('Loading attributes…')); root.appendChild(loadRow);
+  try{
+    const form=new FormData(); form.append('template_name',templateItemCode);
+    const res=await fetch('/api/method/caratdesk_get_template_attributes',{method:'POST',credentials:'same-origin',headers:{'X-Frappe-CSRF-Token':getCsrf()},body:form});
+    const d=await res.json(); loadRow.remove();
+    const attrs=d.message?.attributes||[]; if(!attrs.length) return;
+    _dlgAttrs=attrs;
+    _dlgAttrs.forEach((attr,i)=>{
+      const entries=(attr.values||[]).map(v=>typeof v==='object'?v:{value:v,abbr:v});
+      const pills=makePillsWithAbbr(entries,null,(abbr,value)=>{ _dlgAttrVals[attr.attribute]=abbr; hideDialogResult(); clearDialogError(); if(_dlgAttrs.every(a=>_dlgAttrVals[a.attribute])) autoSearch(); });
+      root.appendChild(makeRow('rm-row-attr-'+i,attr.label||attr.attribute,pills));
+    });
+  }catch(e){ loadRow.remove(); }
+}
+async function autoSearch(){
+  hideDialogResult(); clearDialogError();
+  const btn=document.getElementById('dlg-add-btn'); btn.disabled=true; btn.textContent='Searching…';
+  try{
+    const form=new FormData(); form.append('template_item_code',_dlgSelected.template); form.append('attributes',JSON.stringify(_dlgAttrVals));
+    const res=await fetch('/api/method/caratdesk_find_item_variant',{method:'POST',credentials:'same-origin',headers:{'X-Frappe-CSRF-Token':getCsrf()},body:form});
+    const d=await res.json();
+    if(!d.message){ showDialogError('No item found. Check abbreviations or item setup.'); _matchedItem=null; }
+    else{ _matchedItem=d.message; showDialogResult(d.message); }
+  }catch(e){ showDialogError('Search failed.'); }
+  finally{ btn.disabled=false; btn.textContent='Add Item'; }
+}
+async function addItemToRow(){
+  if(!_matchedItem){ showDialogError('Select all attributes - item will be found automatically.'); return; }
+  if(!_dialogRowId) return;
+  const cached=SE_ITEMS.find(i=>i.code===_matchedItem.item_code);
+  let uom=_matchedItem.stock_uom||_matchedItem.uom||cached?.uom||'';
+  if(!uom){
+    try{
+      const r=await dev1Get(`/api/resource/Item/${encodeURIComponent(_matchedItem.item_code)}`);
+      uom=(r.data||r.message)?.stock_uom||'Nos';
+    }catch(e){ uom='Nos'; }
+  }
+  seFillItem(_dialogRowId, { code:_matchedItem.item_code, name:_matchedItem.item_name, uom, rate: cached?.rate||0 });
+  closeItemDialog();
+  showToast(_matchedItem.item_code+' added','success');
+}
+function showDialogResult(item){ document.getElementById('dlg-result-code').textContent=item.item_code; document.getElementById('dlg-result-name').textContent=item.item_name; document.getElementById('dlg-result').style.display='flex'; }
+function hideDialogResult(){ document.getElementById('dlg-result').style.display='none'; _matchedItem=null; }
+function showDialogError(msg){ const el=document.getElementById('dlg-error'); if(el){el.textContent=msg;el.style.display='block';} }
+function clearDialogError(){ const el=document.getElementById('dlg-error'); if(el){el.textContent='';el.style.display='none';} }
+
+// ══════════════════════════════════════════
+//  GET ITEMS FROM BOM (Manufacture / Repack)
+// ══════════════════════════════════════════
+async function fetchItemsFromBom(){
+  const bomNo = document.getElementById('bomNo').value.trim();
+  if(!bomNo){ showToast('Enter a BOM number first','error'); return; }
+  const fgQty = parseFloat(document.getElementById('fgQty')?.value||1) || 1;
+  try{
+    showToast('Fetching BOM…','info');
+    const res = await dev1Get(`/api/resource/BOM/${encodeURIComponent(bomNo)}`);
+    const bom = res.data||res.message;
+    if(!bom){ showToast('BOM not found','error'); return; }
+    const scale  = fgQty / (parseFloat(bom.quantity)||1);
+    const fromWh = document.getElementById('fromWarehouse').value;
+    const toWh   = document.getElementById('toWarehouse').value;
+    (bom.items||[]).forEach(bi=>{
+      addRow({
+        item_code: bi.item_code, item_name: bi.item_name||bi.item_code,
+        uom: bi.uom||'Nos', qty: Math.round((bi.qty*scale)*1000)/1000, rate: bi.rate||0,
+        s_warehouse: fromWh,
+      });
+    });
+    addRow({
+      item_code: bom.item, item_name: bom.item_name||bom.item,
+      uom: bom.uom||'Nos', qty: fgQty, rate: 0,
+      t_warehouse: toWh, is_finished_item: 1,
+    });
+    showToast('BOM items loaded','success');
+  }catch(e){ showToast('Failed to fetch BOM: '+e.message,'error'); }
+}
+
+// ══════════════════════════════════════════
+//  CSV DOWNLOAD / UPLOAD
+// ══════════════════════════════════════════
+const SE_CSV_COLS = [
+  { label:'Item Code',         field:'code'         },
+  { label:'Item Name',         field:'item_name'    },
+  { label:'Source Warehouse',  field:'s_warehouse'  },
+  { label:'Target Warehouse',  field:'t_warehouse'  },
+  { label:'Qty',                field:'qty'          },
+  { label:'UOM',                field:'uom'          },
+  { label:'Basic Rate',        field:'rate'         },
+  { label:'Amount',             field:'amt'          },
+  { label:'Batch No',           field:'batch_no'     },
+  { label:'Serial No',          field:'serial_no'    },
+];
+function downloadExcel(){
+  downloadCsvGeneric(SE_CSV_COLS, 'itemsTbody', 'data-f', 'stock_entry_items.csv');
+}
+function uploadExcel(event){
+  const file = event.target.files[0]; event.target.value='';
+  readCsvFile(file, parsed => openCsvMapDialog(parsed, SE_CSV_COLS, importSERows));
+}
+function importSERows(rows, mapping){
+  const codeIdx = Object.keys(mapping).find(i => mapping[i]==='code');
+  if(codeIdx===undefined){ showToast('Please map "Item Code" column','error'); return 0; }
+  let imported = 0;
+  rows.forEach(cells => {
+    const itemCode = (cells[codeIdx]||'').trim(); if(!itemCode) return;
+    const cached = SE_ITEMS.find(i => i.code.toLowerCase()===itemCode.toLowerCase());
+    const tr = addRow({ item_code:itemCode, item_name:cached?.name||itemCode, uom:cached?.uom||'Nos', rate:cached?.rate||0 });
+    Object.entries(mapping).forEach(([csvIdx,field]) => {
+      if(field==='code'||field==='item_name') return;
+      const val=(cells[csvIdx]||'').trim(); if(!val) return;
+      const el=tr.querySelector(`[data-f="${field}"]`); if(el) el.value=val;
+    });
+    recalcRow(tr.id);
+    imported++;
+  });
+  return imported;
+}
+
+// ── GENERIC CSV DOWNLOAD / UPLOAD ──
+function csvEscape(val){
+  const s = String(val ?? '');
+  return (s.includes(',') || s.includes('"') || s.includes('\n')) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+function parseCsv(text){
+  const lines = text.replace(/\r\n/g,'\n').replace(/\r/g,'\n').split('\n');
+  function splitLine(line){
+    const cells=[]; let cur='', inQ=false;
+    for(let i=0;i<line.length;i++){
+      const ch=line[i];
+      if(ch==='"'){ if(inQ&&line[i+1]==='"'){cur+='"';i++;} else{inQ=!inQ;} }
+      else if(ch===','&&!inQ){cells.push(cur);cur='';}
+      else cur+=ch;
+    }
+    cells.push(cur);
+    return cells;
+  }
+  const nonEmpty=lines.filter(l=>l.trim());
+  if(!nonEmpty.length) return {headers:[],rows:[]};
+  const headers=splitLine(nonEmpty[0]).map(h=>h.trim());
+  const rows=nonEmpty.slice(1).filter(l=>l.trim()).map(l=>splitLine(l));
+  return {headers,rows};
+}
+function downloadCsvGeneric(cols, tbodyId, attrName, filename){
+  const header = cols.map(c => csvEscape(c.label)).join(',');
+  const dataRows = [];
+  document.querySelectorAll('#' + tbodyId + ' tr').forEach(tr => {
+    const cells = cols.map(c => {
+      if(c.getter) return csvEscape(c.getter(tr));
+      const el = tr.querySelector(`[${attrName}="${c.field}"]`);
+      return csvEscape(el ? el.value : '');
+    });
+    dataRows.push(cells.join(','));
+  });
+  const csv = [header, ...dataRows].join('\r\n');
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href=url; a.download=filename; a.click();
+  URL.revokeObjectURL(url);
+  showToast('Downloaded ' + dataRows.length + ' row(s)', 'success');
+}
+let _csvParsed = {headers:[],rows:[]}, _csvTargetCols = [], _csvImportFn = null;
+function autoMapCol(csvHeader, cols){
+  const h = csvHeader.toLowerCase().replace(/[^a-z0-9]/g,'');
+  for(const c of cols){
+    const l=c.label.toLowerCase().replace(/[^a-z0-9]/g,'');
+    const f=(c.field||'').toLowerCase().replace(/[^a-z0-9]/g,'');
+    if(h===l||h===f) return c.field;
+  }
+  for(const c of cols){
+    const l=c.label.toLowerCase().replace(/[^a-z0-9]/g,'');
+    if(l.includes(h)||h.includes(l.slice(0,5))) return c.field;
+  }
+  return '';
+}
+function openCsvMapDialog(parsed, cols, importFn){
+  _csvParsed=parsed; _csvTargetCols=cols; _csvImportFn=importFn;
+  const {headers, rows} = parsed;
+  const mapRowsHtml = headers.map((h, i) => {
+    const auto = autoMapCol(h, cols);
+    const opts = cols.filter(c => c.field).map(c => `<option value="${c.field}"${c.field===auto?' selected':''}>${esc(c.label)}</option>`).join('');
+    return `
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;padding:9px 24px;border-bottom:.5px solid var(--border);align-items:center">
+        <div style="font-size:12.5px;color:var(--text-primary);font-weight:500;padding-right:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(h)}">${esc(h)}</div>
+        <select data-csv-idx="${i}" style="font-family:'DM Sans',sans-serif;font-size:12px;background:var(--bg);border:.5px solid var(--border-strong);border-radius:7px;padding:5px 8px;color:var(--text-primary);outline:none;width:100%;cursor:pointer">
+          <option value="">-- Skip --</option>${opts}
+        </select>
+      </div>`;
+  }).join('');
+  document.getElementById('csvMapRows').innerHTML = mapRowsHtml;
+  document.getElementById('csvMapSubtitle').textContent = `${headers.length} column(s) detected · map each to a table field`;
+  document.getElementById('csvMapInfo').textContent = `${rows.length} data row(s) will be imported`;
+  document.getElementById('csvMapDialog').classList.add('open');
+  document.getElementById('csvMapOverlay').classList.add('open');
+}
+function closeCsvMapDialog(){
+  document.getElementById('csvMapDialog').classList.remove('open');
+  document.getElementById('csvMapOverlay').classList.remove('open');
+}
+function confirmCsvImport(){
+  const mapping = {};
+  document.querySelectorAll('#csvMapRows select').forEach(sel => { if(sel.value) mapping[parseInt(sel.dataset.csvIdx)] = sel.value; });
+  if(!_csvImportFn){ closeCsvMapDialog(); return; }
+  const imported = _csvImportFn(_csvParsed.rows, mapping);
+  closeCsvMapDialog();
+  showToast(`Imported ${imported} row(s)`, 'success');
+}
+function readCsvFile(file, onParsed){
+  if(!file) return;
+  if(!file.name.endsWith('.csv')){ showToast('Please upload a .csv file','error'); return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    const parsed = parseCsv(e.target.result);
+    if(!parsed.headers.length){ showToast('CSV is empty or invalid','error'); return; }
+    onParsed(parsed);
+  };
+  reader.readAsText(file);
+}
+
+// ══════════════════════════════════════════
+//  VALIDATE
+// ══════════════════════════════════════════
+function validate(){
+  const stockEntryType = document.getElementById('stockEntryType').value;
+  if(!stockEntryType){ showToast('Please select a Stock Entry Type','error'); return false; }
+  if(!document.getElementById('postingDate').value){ showToast('Please enter posting date','error'); return false; }
+
+  const purpose = document.getElementById('purposeDisplay').value;
+  const rules   = PURPOSE_RULES[purpose] || {};
+  const rows    = [...document.querySelectorAll('#itemsTbody tr')];
+  const validRows = rows.filter(tr=>{
+    const c = tr.querySelector('[data-f="code"]')?.value?.trim();
+    const q = parseFloat(tr.querySelector('[data-f="qty"]')?.value||0);
+    return c && q>0;
+  });
+  if(!validRows.length){ showToast('Please add at least one item with qty > 0','error'); return false; }
+
+  if(rules.needSrcRow && validRows.some(tr=>!tr.querySelector('[data-f="s_warehouse"]')?.value)){
+    showToast('Every item needs a Source Warehouse for "'+purpose+'"','error'); return false;
+  }
+  if(rules.needTgtRow && validRows.some(tr=>!tr.querySelector('[data-f="t_warehouse"]')?.value)){
+    showToast('Every item needs a Target Warehouse for "'+purpose+'"','error'); return false;
+  }
+  if(purpose==='Manufacture' && !validRows.some(tr=>tr.querySelector('[data-f="is_finished"]')?.checked)){
+    showToast('Mark at least one row as the Finished Item for Manufacture','error'); return false;
+  }
+  return true;
+}
+
+// ══════════════════════════════════════════
+//  BUILD PAYLOAD
+// ══════════════════════════════════════════
+function buildPayload(docstatus){
+  const stockEntryType = document.getElementById('stockEntryType').value;
+  const purpose         = document.getElementById('purposeDisplay').value;
+  const rules            = PURPOSE_RULES[purpose] || {};
+  const fromWh            = document.getElementById('fromWarehouse').value;
+  const toWh               = document.getElementById('toWarehouse').value;
+
+  const items = [];
+  document.querySelectorAll('#itemsTbody tr').forEach((tr, idx) => {
+    const code = tr.querySelector('[data-f="code"]')?.value?.trim();
+    const qty  = parseFloat(tr.querySelector('[data-f="qty"]')?.value||0) || 0;
+    if(!code || qty<=0) return;
+    const itemName  = tr.querySelector('[data-f="item_name"]')?.value?.trim() || code;
+    const uom       = tr.querySelector('[data-f="uom"]')?.value?.trim() || 'Nos';
+    const rate      = parseFloat(tr.querySelector('[data-f="rate"]')?.value||0) || 0;
+    const amt       = parseFloat(tr.querySelector('[data-f="amt"]')?.value||0) || 0;
+    const sWh       = tr.querySelector('[data-f="s_warehouse"]')?.value || '';
+    const tWh       = tr.querySelector('[data-f="t_warehouse"]')?.value || '';
+    const batchNo   = tr.querySelector('[data-f="batch_no"]')?.value?.trim() || '';
+    const serialNo  = tr.querySelector('[data-f="serial_no"]')?.value?.trim() || '';
+    const isFinished= tr.querySelector('[data-f="is_finished"]')?.checked ? 1 : 0;
+    items.push({
+      doctype: 'Stock Entry Detail', idx: idx+1,
+      item_code: code, item_name: itemName, description: itemName,
+      qty, uom, stock_uom: uom, conversion_factor: 1,
+      basic_rate: rate, basic_amount: amt, amount: amt,
+      ...(sWh ? { s_warehouse: sWh } : {}),
+      ...(tWh ? { t_warehouse: tWh } : {}),
+      ...(batchNo ? { batch_no: batchNo } : {}),
+      ...(serialNo ? { serial_no: serialNo } : {}),
+      ...(rules.bom ? { is_finished_item: isFinished } : {}),
+    });
+  });
+
+  return {
+    doctype: 'Stock Entry',
+    docstatus,
+    stock_entry_type: stockEntryType,
+    purpose,
+    company: COMPANY,
+    branch: document.getElementById('branch').value || '',
+    posting_date: document.getElementById('postingDate').value || '',
+    posting_time: document.getElementById('postingTime').value || '',
+    ...(rules.fromWh && fromWh ? { from_warehouse: fromWh } : {}),
+    ...(rules.toWh   && toWh   ? { to_warehouse: toWh } : {}),
+    ...(rules.bom && document.getElementById('bomNo').value.trim() ? { bom_no: document.getElementById('bomNo').value.trim() } : {}),
+    ...(purpose==='Manufacture' ? { fg_completed_qty: parseFloat(document.getElementById('fgQty')?.value||0)||0 } : {}),
+    remarks: document.getElementById('remarks')?.value || '',
+    items,
+  };
+}
+
+// ══════════════════════════════════════════
+//  SAVE DRAFT
+// ══════════════════════════════════════════
+async function saveDraft(){
+  if(!validate()) return;
+  let payload;
+  try{ payload = buildPayload(0); }catch(e){ return; }
+  try{
+    showToast('Saving draft…','info');
+    let docName;
+    if(currentSEName){
+      await dev1Put(`/api/resource/Stock Entry/${encodeURIComponent(currentSEName)}`, payload);
+      docName = currentSEName;
+    } else {
+      const d = await dev1Post('/api/resource/Stock Entry', payload);
+      docName = d?.data?.name || d?.name;
+    }
+    if(docName){
+      currentSEName = docName;
+      showToast('Draft saved: '+docName, 'success');
+      const url = new URL(window.location.href);
+      url.searchParams.set('name', docName);
+      window.history.replaceState({}, '', url.toString());
+      updateDocStatus('Draft', docName);
+      switchToSubmitButton();
+      startChangeTracking();
+    } else {
+      showToast('Error: Save failed','error');
+    }
+  }catch(e){ showToast('Error: '+String(e.message).slice(0,120),'error'); }
+}
+
+function switchToSubmitButton(){
+  const btn = document.getElementById('cdMainActionBtn');
+  if(!btn || btn.dataset.mode==='submit') return;
+  btn.dataset.mode='submit';
+  btn.className='cd-btn cd-btn-primary';
+  btn.setAttribute('onclick','submitSE()');
+  btn.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><polyline points="20 6 9 17 4 12"/></svg>Submit`;
+}
+function switchToSaveButton(){
+  const btn = document.getElementById('cdMainActionBtn');
+  if(!btn || btn.dataset.mode==='save') return;
+  btn.dataset.mode='save';
+  btn.className='cd-btn cd-btn-primary';
+  btn.setAttribute('onclick','saveDraft()');
+  btn.innerHTML=`<svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Save`;
+}
+function startChangeTracking(){
+  if(_changeTrackingActive) return;
+  _changeTrackingActive = true;
+  const form = document.querySelector('.cd-form-content');
+  if(form){ form.addEventListener('input', onFormChange); form.addEventListener('change', onFormChange); }
+}
+function onFormChange(){
+  if(!currentSEName || submitted) return;
+  updateDocStatus('Unsaved', currentSEName);
+  switchToSaveButton();
+}
+
+// ══════════════════════════════════════════
+//  SUBMIT / CANCEL
+// ══════════════════════════════════════════
+async function submitSE(){
+  if(!currentSEName){ showToast('Please save the draft first','error'); return; }
+  if(submitted){ showToast('Already submitted','info'); return; }
+  if(!confirm('Submit this Stock Entry? This cannot be undone.')) return;
+  try{
+    showToast('Submitting…','info');
+    await dev1Put(`/api/resource/Stock Entry/${encodeURIComponent(currentSEName)}`, {docstatus:1});
+    submitted = true;
+    updateDocStatus('Submitted', currentSEName);
+    setDocReadOnly(true);
+    showAmendBtn();
+    showToast('Submitted successfully!','success');
+    setTimeout(()=>window.location.href='/caratdesk-stock',1200);
+  }catch(e){ showToast('Error: '+String(e.message).slice(0,120),'error'); }
+}
+async function cancelDoc(){
+  if(!currentSEName){ showToast('No record to cancel','error'); return; }
+  if(!confirm('Cancel this Stock Entry? This cannot be undone.')) return;
+  try{
+    showToast('Cancelling…','info');
+    await dev1Put(`/api/resource/Stock Entry/${encodeURIComponent(currentSEName)}`, {docstatus:2});
+    submitted = false;
+    updateDocStatus('Cancelled', currentSEName);
+    setDocReadOnly(true);
+    hideMainActionBtn();
+    const btn = document.getElementById('cdCancelBtn'); if(btn){ btn.disabled=true; btn.style.opacity='0.4'; }
+    showToast('Cancelled','success');
+  }catch(e){ showToast('Error: '+String(e.message).slice(0,120),'error'); }
+}
+
+function updateDocStatus(status, docName){
+  const cur = document.querySelector('.cd-breadcrumb-cur');
+  if(cur) cur.textContent = docName || 'New Stock Entry';
+  let badge = document.getElementById('cdDocStatus');
+  if(!badge){
+    badge = document.createElement('span');
+    badge.id = 'cdDocStatus';
+    document.querySelector('.cd-breadcrumb').appendChild(badge);
+  }
+  const palette = {
+    'Draft'    : ['var(--pill-amber-bg)',  'var(--pill-amber-txt)'],
+    'Unsaved'  : ['var(--pill-red-bg)',    'var(--pill-red-txt)'],
+    'Submitted': ['var(--pill-green-bg)',  'var(--pill-green-txt)'],
+    'Cancelled': ['var(--accent-light)',   'var(--text-muted)'],
+  };
+  const [bg, color] = palette[status] || palette['Draft'];
+  badge.style.cssText = `display:inline-flex;align-items:center;font-size:11px;font-weight:500;padding:2px 8px;border-radius:5px;margin-left:8px;background:${bg};color:${color}`;
+  badge.textContent = status;
+  if(status==='Submitted'){ const cb=document.getElementById('cdCancelBtn'); if(cb) cb.style.display=''; }
+}
+
+function setDocReadOnly(readonly){
+  const form = document.querySelector('.cd-form-content');
+  if(!form) return;
+  form.querySelectorAll('input:not([type="hidden"]), select, textarea').forEach(el=>{
+    el.readOnly = readonly; el.disabled = readonly; if(readonly) el.style.cursor='not-allowed';
+  });
+  form.querySelectorAll('button').forEach(btn=>{
+    btn.disabled = readonly; btn.style.opacity = readonly?'0.5':''; btn.style.pointerEvents = readonly?'none':'';
+  });
+}
+function hideMainActionBtn(){ const btn = document.getElementById('cdMainActionBtn'); if(btn) btn.style.display='none'; }
+function showAmendBtn(){
+  const btn = document.getElementById('cdMainActionBtn'); if(!btn) return;
+  btn.style.display=''; btn.dataset.mode='amend'; btn.className='cd-btn cd-btn-secondary';
+  btn.setAttribute('onclick', `window.open(cdGetInstanceUrl()+'/desk/stock-entry/'+encodeURIComponent(currentSEName||''),'_blank')`);
+  btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Open in ERPNext`;
+}
+
+// ══════════════════════════════════════════
+//  LOAD EXISTING
+// ══════════════════════════════════════════
+async function loadExistingSE(name){
+  showToast('Loading '+name+'…','info');
+  try{
+    const res = await dev1Get(`/api/resource/Stock Entry/${encodeURIComponent(name)}`);
+    const doc = res.data || res.message || {};
+    currentSEName = doc.name;
+    submitted = doc.docstatus === 1;
+    const isCancelled = doc.docstatus === 2;
+
+    document.getElementById('stockEntryType').value = doc.stock_entry_type || '';
+    document.getElementById('purposeDisplay').value = doc.purpose || '';
+    document.getElementById('postingDate').value = doc.posting_date || '';
+    document.getElementById('postingTime').value = (doc.posting_time||'').toString().slice(0,8);
+    document.getElementById('fromWarehouse').value = doc.from_warehouse || '';
+    document.getElementById('toWarehouse').value = doc.to_warehouse || '';
+    document.getElementById('bomNo').value = doc.bom_no || '';
+    if(document.getElementById('fgQty')) document.getElementById('fgQty').value = doc.fg_completed_qty || '';
+    document.getElementById('remarks').value = doc.remarks || '';
+    if(doc.branch) document.getElementById('branch').value = doc.branch || '';
+    onStockEntryTypeChange();
+
+    document.getElementById('itemsTbody').innerHTML=''; rowCount=0;
+    (doc.items||[]).forEach(it=>{
+      addRow({
+        item_code: it.item_code, item_name: it.item_name||it.item_code,
+        uom: it.uom||it.stock_uom||'Nos', qty: it.qty||0, rate: it.basic_rate||0,
+        s_warehouse: it.s_warehouse||'', t_warehouse: it.t_warehouse||'',
+        batch_no: it.batch_no||'', serial_no: it.serial_no||'',
+        is_finished_item: it.is_finished_item||0,
+      });
+    });
+    recalc();
+
+    if(isCancelled){
+      updateDocStatus('Cancelled', name);
+      setDocReadOnly(true);
+      hideMainActionBtn();
+      const cb = document.getElementById('cdCancelBtn'); if(cb){ cb.style.display=''; cb.disabled=true; cb.style.opacity='0.4'; }
+    } else if(submitted){
+      updateDocStatus('Submitted', name);
+      setDocReadOnly(true);
+      showAmendBtn();
+    } else {
+      updateDocStatus('Draft', name);
+      switchToSubmitButton();
+      startChangeTracking();
+    }
+    showToast(name+' loaded','success');
+  }catch(e){ showToast('Failed to load '+name+': '+String(e.message).slice(0,120),'error'); }
+}
+
+// ══════════════════════════════════════════
+//  SECTION TOGGLE
+// ══════════════════════════════════════════
+const sections = document.querySelectorAll('.cd-section');
+let lastScrollTop = 0;
+function collapseSection(section){
+  const body=section.querySelector('.cd-section-body'), toggle=section.querySelector('.cd-sec-toggle');
+  if(body&&body.style.display!=='none'){ body.style.display='none'; toggle?.classList.add('collapsed'); }
+}
+function expandSection(section){
+  const body=section.querySelector('.cd-section-body'), toggle=section.querySelector('.cd-sec-toggle');
+  if(body){ body.style.display=''; toggle?.classList.remove('collapsed'); }
+}
+function toggleSec(h){
+  const section=h.closest('.cd-section'), body=section.querySelector('.cd-section-body');
+  if(body.style.display==='none'){ expandSection(section); } else { collapseSection(section); }
+}
+window.addEventListener('scroll',()=>{
+  const cur=window.pageYOffset||document.documentElement.scrollTop;
+  if(cur>lastScrollTop) sections.forEach(s=>{ if(s.getBoundingClientRect().bottom<100) collapseSection(s); });
+  lastScrollTop=cur<=0?0:cur;
+});
+
+function showToast(msg,type='info',duration=3500){
+  const t=document.getElementById('cdToast');
+  document.getElementById('cdToastMsg').textContent=msg;
+  t.className='cd-toast show '+type;
+  clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),duration);
+}
+
+// ══ INSTANCE HELPERS ══
+function cdGetActiveInstance(){ return localStorage.getItem('cd_active_instance')||'PP'; }
+function cdGetAvailableInstances(){ return (localStorage.getItem('cd_available_instances')||'PP').split(',').filter(Boolean); }
+function cdGetInstanceUrl(inst){ return (inst||cdGetActiveInstance())==='PC'?DEV2:DEV1; }
+function cdGetInstanceHeaders(inst){
+  const i=inst||cdGetActiveInstance();
+  const key=i==='PC'?localStorage.getItem('cd_pc_key'):localStorage.getItem('cd_pp_key');
+  const sec=i==='PC'?localStorage.getItem('cd_pc_secret'):localStorage.getItem('cd_pp_secret');
+  if(!key||!sec) return null;
+  return{'Authorization':`token ${key}:${sec}`,'Content-Type':'application/json','Accept':'application/json'};
+}
+function cdSwitchInstance(inst){
+  const available=cdGetAvailableInstances();
+  if(!available.includes(inst)) return;
+  const key=inst==='PC'?localStorage.getItem('cd_pc_key'):localStorage.getItem('cd_pp_key');
+  const sec=inst==='PC'?localStorage.getItem('cd_pc_secret'):localStorage.getItem('cd_pp_secret');
+  localStorage.setItem('cd_active_instance',inst);
+  localStorage.setItem('cd_api_key',key);
+  localStorage.setItem('cd_api_secret',sec);
+  window.location.reload();
+}
+function cdInitInstanceToggle(){
+  const available=cdGetAvailableInstances();
+  const active=cdGetActiveInstance();
+  const bar=document.getElementById('cdInstanceBar');
+  if(!bar) return;
+  if(available.length<2){ bar.style.display='none'; return; }
+  bar.style.display='flex';
+  ['PP','PC'].forEach(inst=>{
+    const btn=document.getElementById('cdInst'+inst);
+    if(!btn) return;
+    btn.classList.toggle('active',inst===active);
+    btn.style.display=available.includes(inst)?'':'none';
+  });
+  const roleEl=document.getElementById('cdUserRole');
+  if(roleEl) roleEl.textContent='Active: '+active;
+}
+
+// ══ THEME / SIDEBAR ══
+const moonIcon='<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+const sunIcon='<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+function initTheme(){ const s=localStorage.getItem('cdTheme'); if(s==='dark'){document.documentElement.classList.add('dark');document.getElementById('themeIcon').innerHTML=sunIcon}else{document.documentElement.classList.remove('dark');document.getElementById('themeIcon').innerHTML=moonIcon} }
+function toggleTheme(){ const d=document.documentElement.classList.toggle('dark'); localStorage.setItem('cdTheme',d?'dark':'light'); document.getElementById('themeIcon').innerHTML=d?sunIcon:moonIcon; }
+document.getElementById('cdThemeToggle').addEventListener('click',toggleTheme); initTheme();
+const sidebar=document.getElementById('cdSidebar');
+document.getElementById('cdMenuToggle').addEventListener('click',()=>sidebar.classList.toggle('mobile-open'));
+document.querySelectorAll('.cd-nav-item').forEach(l=>l.addEventListener('click',()=>{ if(window.innerWidth<=768) sidebar.classList.remove('mobile-open'); }));
+
+(function(){
+  const hasSession=localStorage.getItem('cd_pp_key')||localStorage.getItem('cd_pc_key');
+  if(!hasSession){ window.location.replace('/caratdesk-login?logout=1'); return; }
+  const active=cdGetActiveInstance();
+  const key=active==='PC'?localStorage.getItem('cd_pc_key'):localStorage.getItem('cd_pp_key');
+  const sec=active==='PC'?localStorage.getItem('cd_pc_secret'):localStorage.getItem('cd_pp_secret');
+  if(key&&sec){ localStorage.setItem('cd_api_key',key); localStorage.setItem('cd_api_secret',sec); }
+  const name=localStorage.getItem('cd_user')||localStorage.getItem('cd_user_email')||'User';
+  document.getElementById('cdUserName').textContent=name;
+  document.getElementById('cdAvatar').textContent=name.split('@')[0].split(/[\s.]+/).map(w=>w[0]||'').join('').slice(0,2).toUpperCase()||'U';
+  cdInitInstanceToggle();
+})();
+
+document.getElementById('cdLogoutBtn').addEventListener('click',async()=>{
+  const ppK=localStorage.getItem('cd_pp_key'), ppS=localStorage.getItem('cd_pp_secret');
+  const pcK=localStorage.getItem('cd_pc_key'), pcS=localStorage.getItem('cd_pc_secret');
+  try{ if(ppK&&ppS) await fetch(`${DEV1}/api/method/logout`,{method:'POST',headers:{Authorization:`token ${ppK}:${ppS}`}}); }catch(e){}
+  try{ if(pcK&&pcS) await fetch(`${DEV2}/api/method/logout`,{method:'POST',headers:{Authorization:`token ${pcK}:${pcS}`}}); }catch(e){}
+  ['cd_api_key','cd_api_secret','cd_pp_key','cd_pp_secret','cd_pc_key','cd_pc_secret',
+   'cd_user','cd_user_email','cd_active_instance','cd_available_instances'].forEach(k=>localStorage.removeItem(k));
+  window.location.replace('/caratdesk-login?logout=1');
+});
+</script>

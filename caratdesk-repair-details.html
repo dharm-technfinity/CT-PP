@@ -1,0 +1,1993 @@
+<!-- CaratDesk – Repair Order Details (full page, matches Purchase Receipt/Order/Invoice UI) -->
+<head>
+  <meta charset="UTF-8">
+</head>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap');
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  .navbar,.page-header,footer.web-footer,.container>.row>.col-sm-10,.frappe-footer{display:none!important}
+  .web-page-container,.container{padding:0!important;max-width:100%!important}
+  body{overflow-x:hidden}
+  :root{--bg:#F7F6F3;--surface:#FFF;--border:rgba(0,0,0,.07);--border-strong:rgba(0,0,0,.12);--text-primary:#1A1A18;--text-secondary:#6B6B65;--text-muted:#A8A8A2;--accent:#1A1A18;--accent-light:#F0EFE9;--nav-hover:#F7F6F3;--nav-active-bg:#EBEBE5;--pill-green-bg:#EAF3DE;--pill-green-txt:#3B6D11;--pill-red-bg:#FCEBEB;--pill-red-txt:#A32D2D;--pill-amber-bg:#FAEEDA;--pill-amber-txt:#854F0B;--pill-blue-bg:#E8F0FD;--pill-blue-txt:#1A4A8A;--shadow-sm:0 2px 12px rgba(0,0,0,.04),0 0 0 .5px rgba(0,0,0,.03);--shadow-md:0 4px 24px rgba(0,0,0,.08)}
+  .dark{--bg:#121212;--surface:#1E1E1E;--border:rgba(255,255,255,.08);--border-strong:rgba(255,255,255,.15);--text-primary:#EDEDED;--text-secondary:#A0A0A0;--text-muted:#6E6E6E;--accent:#D4D4D4;--accent-light:#2C2C2C;--nav-hover:#252525;--nav-active-bg:#2D2D2D;--pill-green-bg:#1E3A2E;--pill-green-txt:#9CD45E;--pill-red-bg:#3E1E1E;--pill-red-txt:#F28B82;--pill-amber-bg:#3E2E1E;--pill-amber-txt:#FDBF6B;--pill-blue-bg:#1A2A3E;--pill-blue-txt:#7AABF0;--shadow-sm:0 2px 12px rgba(0,0,0,.3),0 0 0 .5px rgba(255,255,255,.05);--shadow-md:0 4px 24px rgba(0,0,0,.3)}
+  html,body{color:var(--text-primary)}
+  *{transition:background-color .2s ease,border-color .2s ease,color .2s ease,box-shadow .2s ease}
+  .cd-app{font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);min-height:100vh;display:flex;-webkit-font-smoothing:antialiased;color:var(--text-primary)}
+  .cd-sidebar{width:260px;background:var(--surface);border-right:.5px solid var(--border);display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;z-index:200;transform:translateX(0);transition:transform .3s cubic-bezier(.2,.9,.4,1.1);box-shadow:var(--shadow-sm)}
+  @media(max-width:768px){.cd-sidebar{transform:translateX(-100%)}.cd-sidebar.mobile-open{transform:translateX(0);width:80%;max-width:280px}}
+  .cd-sidebar-logo{display:flex;align-items:center;gap:11px;padding:20px 16px 18px;border-bottom:.5px solid var(--border);text-decoration:none;color:inherit}
+  .cd-sidebar-logo img{width:30px;height:30px;object-fit:contain;border-radius:9px}
+  .cd-logo-name{font-family:'DM Serif Display',Georgia,serif;font-size:17px;color:var(--text-primary);letter-spacing:-.2px}
+  .cd-logo-sub{font-size:10px;color:var(--text-muted);font-weight:300;letter-spacing:.07em;text-transform:uppercase}
+  .cd-nav{flex:1;padding:10px 8px;overflow-y:auto}
+  .cd-nav-section{font-size:10px;font-weight:500;color:var(--text-muted);letter-spacing:.08em;text-transform:uppercase;padding:14px 8px 5px}
+  .cd-nav-item{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:9px;cursor:pointer;margin-bottom:1px;text-decoration:none;color:var(--text-secondary);font-size:13.5px;font-weight:400;transition:background .14s,color .14s}
+  .cd-nav-item:hover{background:var(--nav-hover);color:var(--text-primary)}
+  .cd-nav-item.active{background:var(--nav-active-bg);color:var(--text-primary);font-weight:500}
+  .cd-nav-icon{width:20px;height:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:inherit}
+  .cd-nav-icon svg{width:15px;height:15px;stroke:currentColor;stroke-width:1.75;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .cd-sidebar-bottom{padding:10px 8px;border-top:.5px solid var(--border)}
+  .cd-user-card{display:flex;align-items:center;gap:10px;padding:10px;border-radius:9px;cursor:pointer;transition:background .14s}
+  .cd-user-card:hover{background:var(--nav-hover)}
+  .cd-avatar{width:32px;height:32px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:var(--surface);flex-shrink:0}
+  .cd-user-name{font-size:13px;font-weight:500}
+  .cd-user-role{font-size:11px;color:var(--text-muted);font-weight:300}
+  .cd-logout-btn{display:flex;align-items:center;gap:7px;padding:9px 10px;border-radius:9px;cursor:pointer;font-size:13px;color:var(--text-secondary);margin-top:3px;border:none;background:none;font-family:'DM Sans',sans-serif;width:100%;transition:background .14s,color .14s}
+  .cd-logout-btn:hover{background:var(--pill-red-bg);color:var(--pill-red-txt)}
+  .cd-instance-bar{display:flex;align-items:center;gap:6px;padding:8px 10px 4px}
+  .cd-instance-label{font-size:10px;font-weight:500;color:var(--text-muted);letter-spacing:.07em;text-transform:uppercase;flex:1}
+  .cd-instance-pills{display:flex;gap:4px}
+  .cd-instance-pill{font-size:11px;font-weight:500;padding:3px 10px;border-radius:6px;border:.5px solid var(--border);background:var(--bg);color:var(--text-secondary);cursor:pointer;transition:background .14s,color .14s,border-color .14s;font-family:'DM Sans',sans-serif}
+  .cd-instance-pill:hover{background:var(--nav-hover);color:var(--text-primary)}
+  .cd-instance-pill.active{background:var(--accent);color:var(--surface);border-color:var(--accent)}
+  .cd-main{margin-left:260px;flex:1;min-height:100vh;display:flex;flex-direction:column;min-width:0;overflow-x:hidden}
+  @media(max-width:768px){.cd-main{margin-left:0}}
+  .cd-topbar{height:58px;background:var(--surface);border-bottom:.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 20px;position:sticky;top:0;z-index:100}
+  .cd-menu-btn{display:none;background:none;border:none;cursor:pointer;color:var(--text-secondary);margin-right:12px}
+  @media(max-width:768px){.cd-menu-btn{display:flex;align-items:center;justify-content:center}}
+  .cd-topbar-left{display:flex;align-items:center;gap:10px}
+  .cd-breadcrumb{display:flex;align-items:center;gap:6px;font-size:13.5px}
+  .cd-breadcrumb a{color:var(--text-muted);text-decoration:none;transition:color .14s}
+  .cd-breadcrumb a:hover{color:var(--text-primary)}
+  .cd-breadcrumb-sep{color:var(--text-muted);font-size:12px}
+  .cd-breadcrumb-cur{color:var(--text-primary);font-weight:500}
+  .cd-topbar-right{display:flex;align-items:center;gap:8px}
+  .cd-icon-btn{width:34px;height:34px;border-radius:9px;border:.5px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-secondary);transition:background .14s,color .14s}
+  .cd-icon-btn:hover{background:var(--nav-hover);color:var(--text-primary)}
+  .cd-icon-btn svg{width:15px;height:15px;stroke:currentColor;stroke-width:1.75;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .cd-form-content{padding:24px 28px 90px;flex:1;animation:fadeUp .35s cubic-bezier(.16,1,.3,1) both;min-width:0;max-width:100%}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+  .cd-btn{font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;padding:8px 16px;border-radius:9px;border:none;cursor:pointer;transition:background .14s,transform .1s,opacity .14s;display:inline-flex;align-items:center;gap:7px}
+  .cd-btn:active{transform:scale(.98)}
+  .cd-btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .cd-btn-primary{background:var(--text-primary);color:var(--surface)}
+  .cd-btn-primary:hover{opacity:.85}
+  .cd-btn-secondary{background:var(--surface);color:var(--text-primary);border:.5px solid var(--border-strong)}
+  .cd-btn-secondary:hover{background:var(--accent-light)}
+  .cd-btn-danger{background:var(--pill-red-bg);color:var(--pill-red-txt);border:.5px solid rgba(163,45,45,.15)}
+  .cd-btn-danger:hover{opacity:.85}
+  .cd-btn-green{background:var(--pill-green-bg);color:var(--pill-green-txt);border:.5px solid rgba(59,109,17,.15)}
+  .cd-btn-green:hover:not(:disabled){filter:brightness(.97)}
+  .cd-btn:disabled{opacity:.5;cursor:not-allowed}
+  .cd-section{background:var(--surface);border:.5px solid var(--border);border-radius:14px;margin-bottom:16px;overflow:visible;box-shadow:var(--shadow-sm)}
+  .cd-section-header{padding:14px 20px;border-bottom:.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none}
+  .cd-section-header:hover{background:var(--bg)}
+  .cd-sec-title{font-size:13px;font-weight:500;display:flex;align-items:center;gap:8px}
+  .cd-sec-title svg{width:14px;height:14px;stroke:var(--text-muted);fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+  .cd-sec-toggle{width:22px;height:22px;display:flex;align-items:center;justify-content:center;color:var(--text-muted)}
+  .cd-sec-toggle svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;transition:transform .2s}
+  .cd-sec-toggle.collapsed svg{transform:rotate(-90deg)}
+  .cd-section-body{padding:20px}
+  .cd-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+  .cd-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:900px){.cd-grid,.cd-grid-2{grid-template-columns:1fr 1fr}}
+  @media(max-width:640px){.cd-grid,.cd-grid-2{grid-template-columns:1fr}}
+  .cd-field{display:flex;flex-direction:column;gap:5px}
+  .cd-field.full{grid-column:1/-1}
+  .cd-label{font-size:11.5px;font-weight:500;color:var(--text-secondary);letter-spacing:.01em}
+  .req{color:var(--pill-red-txt);margin-left:2px}
+  .cd-input,.cd-select,.cd-textarea{font-family:'DM Sans',sans-serif;font-size:13px;background:var(--bg);border:.5px solid var(--border-strong);border-radius:9px;padding:9px 12px;color:var(--text-primary);outline:none;transition:border-color .14s,box-shadow .14s;width:100%}
+  .cd-textarea{resize:vertical;min-height:60px;line-height:1.5}
+  .cd-input:focus,.cd-select:focus,.cd-textarea:focus{border-color:var(--text-secondary);box-shadow:0 0 0 3px rgba(0,0,0,.05);background:var(--surface)}
+  .cd-input::placeholder{color:var(--text-muted)}
+  .cd-input[readonly]{opacity:.65;cursor:default}
+  .cd-select{cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23A8A8A2' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:30px}
+  .cd-check-lbl{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-primary);cursor:pointer}
+  .cd-ac{position:relative}
+  .cd-ac-list{position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--surface);border:.5px solid var(--border-strong);border-radius:10px;box-shadow:var(--shadow-md);z-index:500;max-height:220px;overflow-y:auto;display:none}
+  .cd-ac-list.open{display:block}
+  .cd-ac-item{padding:9px 12px;font-size:13px;cursor:pointer;transition:background .1s;border-bottom:.5px solid var(--border)}
+  .cd-ac-item:last-child{border-bottom:none}
+  .cd-ac-item:hover{background:var(--nav-hover)}
+  .cd-ac-item .main{font-weight:500}
+  .cd-ac-item .sub{font-size:11px;color:var(--text-muted);margin-top:1px}
+  .cd-ac-empty{padding:12px;font-size:12.5px;color:var(--text-muted);text-align:center}
+  .cd-hint{font-size:12px;color:var(--text-muted)}
+  .cd-pill{display:inline-flex;align-items:center;gap:5px;font-size:12px;padding:3px 9px;border-radius:100px;font-weight:500;white-space:nowrap}
+  .cd-pill.green{background:var(--pill-green-bg);color:var(--pill-green-txt)}
+  .cd-pill.red{background:var(--pill-red-bg);color:var(--pill-red-txt)}
+  .cd-pill.blue{background:var(--pill-blue-bg);color:var(--pill-blue-txt)}
+  .cd-pill.amber{background:var(--pill-amber-bg);color:var(--pill-amber-txt)}
+  .cd-pill.grey{background:var(--accent-light);color:var(--text-secondary)}
+  .cd-summary-box{background:var(--bg);border:.5px solid var(--border);border-radius:12px;padding:14px 16px}
+  .cd-summary-row{display:flex;justify-content:space-between;padding:4px 0;font-size:13px}
+  .cd-summary-row .k{color:var(--text-muted)}
+  .cd-summary-row .v{font-weight:500;text-align:right}
+  .cd-timeline{display:flex;flex-direction:column;gap:0}
+  .cd-tl-item{display:flex;gap:12px;padding-bottom:16px;position:relative}
+  .cd-tl-item:last-child{padding-bottom:0}
+  .cd-tl-item:not(:last-child)::before{content:'';position:absolute;left:5px;top:16px;bottom:0;width:1px;background:var(--border-strong)}
+  .cd-tl-dot{width:11px;height:11px;border-radius:50%;background:var(--pill-green-txt);flex-shrink:0;margin-top:4px}
+  .cd-tl-body{flex:1;min-width:0}
+  .cd-tl-main{font-size:13px;font-weight:500}
+  .cd-tl-sub{font-size:12px;color:var(--text-muted);margin-top:2px}
+  .cd-variance-ok{color:var(--pill-green-txt);font-weight:500}
+  .cd-variance-bad{color:var(--pill-red-txt);font-weight:500}
+  .cd-footer{position:fixed;bottom:0;left:260px;right:0;background:var(--surface);border-top:.5px solid var(--border);padding:12px 28px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;z-index:90;box-shadow:0 -4px 20px rgba(0,0,0,.05)}
+  @media(max-width:768px){.cd-footer{left:0;padding:12px 16px}}
+  .cd-footer-right{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+  .cd-toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--text-primary);color:var(--surface);padding:11px 20px;border-radius:10px;font-size:13px;font-weight:500;box-shadow:var(--shadow-md);z-index:900;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;white-space:nowrap}
+  .cd-empty{text-align:center;padding:50px 20px;color:var(--text-muted)}
+  .cd-empty-title{font-size:15px;font-weight:500;color:var(--text-secondary);margin-bottom:5px}
+
+  /* ── Repair BOM Builder (Make BOM dialog + BOM Details table) ── */
+  .cd-del-btn{width:20px;height:20px;border-radius:7px;border:none;background:none;cursor:pointer;color:var(--text-muted);display:flex;align-items:center;justify-content:center;transition:background .12s,color .12s;flex-shrink:0}
+  .cd-del-btn:hover{background:var(--pill-red-bg);color:var(--pill-red-txt)}
+  .cd-del-btn svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2}
+  .cd-add-row{display:flex;align-items:center;gap:7px;font-family:'DM Sans',sans-serif;font-size:12.5px;font-weight:500;color:var(--text-secondary);background:none;border:none;cursor:pointer;padding:8px 12px;border-radius:8px;transition:background .14s,color .14s}
+  .cd-add-row:hover{background:var(--accent-light);color:var(--text-primary)}
+  .cd-add-row svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2}
+  .cd-idialog-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:800;opacity:0;pointer-events:none;transition:opacity .22s;backdrop-filter:blur(3px)}
+  .cd-idialog-overlay.open{opacity:1;pointer-events:all}
+  .cd-idialog{position:fixed;top:50%;left:50%;transform:translate(-50%,-46%);width:660px;max-width:96vw;max-height:88vh;background:var(--surface);border-radius:16px;border:.5px solid var(--border);box-shadow:0 20px 60px rgba(0,0,0,.2);z-index:801;display:flex;flex-direction:column;opacity:0;pointer-events:none;transition:opacity .22s,transform .22s}
+  .cd-idialog.open{opacity:1;pointer-events:all;transform:translate(-50%,-50%)}
+  .cd-idialog-header{padding:18px 24px 14px;border-bottom:.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+  .cd-idialog-title{font-size:15px;font-weight:600;display:flex;align-items:center;gap:8px}
+  .cd-idialog-title svg{width:15px;height:15px;stroke:var(--text-muted);fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+  .cd-idialog-close{width:28px;height:28px;border-radius:7px;border:.5px solid var(--border);background:var(--bg);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-secondary);transition:background .14s}
+  .cd-idialog-close:hover{background:var(--pill-red-bg);color:var(--pill-red-txt)}
+  .cd-idialog-close svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2}
+  .cd-idialog-body{flex:1;overflow-y:auto;padding:8px 0}
+  .cd-idialog-footer{padding:14px 24px;border-top:.5px solid var(--border);display:flex;gap:8px;flex-shrink:0;align-items:center}
+  .rm-row{display:flex;align-items:flex-start;gap:16px;padding:12px 24px;border-bottom:.5px solid var(--border)}
+  .rm-row:last-child{border-bottom:none}
+  .rm-row-label{min-width:120px;font-size:10.5px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.07em;padding-top:6px;flex-shrink:0}
+  .rm-pills{display:flex;flex-wrap:wrap;gap:6px;flex:1}
+  .rm-pill{padding:5px 16px;border-radius:20px;border:.5px solid var(--border-strong);background:var(--bg);color:var(--text-secondary);font-size:12.5px;cursor:pointer;transition:all .12s;user-select:none;white-space:nowrap;font-family:'DM Sans',sans-serif}
+  .rm-pill:hover{border-color:var(--text-primary);color:var(--text-primary);background:var(--accent-light)}
+  .rm-pill.selected{background:var(--text-primary);border-color:var(--text-primary);color:var(--surface);font-weight:500}
+  .rm-loading{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--text-muted);padding-top:4px}
+  .rm-spinner{width:14px;height:14px;border:2px solid var(--border-strong);border-top-color:var(--text-secondary);border-radius:50%;animation:rm-spin .6s linear infinite;flex-shrink:0}
+  @keyframes rm-spin{to{transform:rotate(360deg)}}
+  .cd-bom-wrap{overflow-x:auto;border-radius:10px;border:.5px solid var(--border);margin-bottom:14px}
+  .cd-bom-tbl{width:100%;border-collapse:collapse;min-width:900px}
+  .cd-bom-tbl th{padding:4px 6px;font-size:11px;font-weight:600;color:var(--text-secondary);border-bottom:1px solid var(--border);height:30px;background:var(--bg);text-align:left;white-space:nowrap}
+  .cd-bom-tbl td{padding:0;height:28px;border-bottom:1px solid var(--border);border-right:1px solid var(--border);vertical-align:middle}
+  .cd-bom-tbl td:first-child{font-size:13px;width:40px;text-align:center;font-weight:600;color:var(--text-secondary)}
+  .cd-bom-tbl input,.cd-bom-tbl select{width:100%;height:26px;border:none;outline:none;padding:0 6px;font-size:11px;background:transparent;color:var(--text-primary);line-height:1}
+  .cd-bom-tbl input.cd-row-chk,.cd-bom-tbl input#repBomChkAll{width:auto;height:auto;border:none;padding:0;cursor:pointer}
+  .cd-bom-tbl input[type=number]::-webkit-inner-spin-button,.cd-bom-tbl input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+  .cd-bom-tbl input[type=number]{-moz-appearance:textfield;appearance:textfield}
+  .cd-bom-tbl tr:last-child td{border-bottom:none}
+  .cd-bom-tbl tbody tr:hover{background:var(--nav-hover)}
+</style>
+
+<div class="cd-app" id="cdApp">
+  <nav class="cd-sidebar" id="cdSidebar">
+    <a class="cd-sidebar-logo" href="/caratdesk">
+      <img src="https://i.postimg.cc/NMgHCKvC/letter-cc-cd-diamond-initial-600nw-2206465849.png" alt="CaratDesk"/>
+      <div><div class="cd-logo-name">PPJ Retail</div><div class="cd-logo-sub">Jewellery POS</div></div>
+    </a>
+    <div class="cd-nav">
+      <div class="cd-nav-section">Main</div>
+      <a href="/caratdesk" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>Dashboard</a>
+      <div class="cd-nav-section">Operations</div>
+      <a href="/caratdesk-pos" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>POS Billing</a>
+      <a href="/caratdesk-selling" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg></span>Selling</a>
+      <a href="/caratdesk-buying" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></span>Buying</a>
+      <a href="/caratdesk-stock" class="cd-nav-item active"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg></span>Stock</a>
+      <a href="/caratdesk-items" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></span>Items</a>
+      <div class="cd-nav-section">Finance</div>
+      <a href="/caratdesk-finance" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></span>Finance</a>
+      <a href="/caratdesk-accounts" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg></span>Accounts</a>
+      <a href="/caratdesk-reports" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>Reports</a>
+      <div class="cd-nav-section">System</div>
+      <a href="/caratdesk-settings" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M12 2v2M12 20v2M2 12h2M20 12h2M4.93 19.07l1.41-1.41M19.07 19.07l-1.41-1.41"/></svg></span>Settings</a>
+    </div>
+    <div class="cd-sidebar-bottom">
+      <div class="cd-instance-bar" id="cdInstanceBar" style="display:none">
+        <span class="cd-instance-label">Instance</span>
+        <div class="cd-instance-pills">
+          <button class="cd-instance-pill" id="cdInstPP" onclick="cdSwitchInstance('PP')">PP</button>
+          <button class="cd-instance-pill" id="cdInstPC" onclick="cdSwitchInstance('PC')">PC</button>
+        </div>
+      </div>
+      <div class="cd-user-card"><div class="cd-avatar" id="cdAvatar">-</div><div><div class="cd-user-name" id="cdUserName">Loading…</div><div class="cd-user-role" id="cdUserRole">POS Manager</div></div></div>
+      <button class="cd-logout-btn" id="cdLogoutBtn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign out</button>
+    </div>
+  </nav>
+
+  <div class="cd-main">
+    <div class="cd-topbar">
+      <div class="cd-topbar-left">
+        <button class="cd-menu-btn" id="cdMenuToggle"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+        <div class="cd-breadcrumb">
+          <a href="/caratdesk-repair">Repair Orders</a><span class="cd-breadcrumb-sep">&rsaquo;</span>
+          <span class="cd-breadcrumb-cur" id="breadcrumbName">Loading…</span>
+        </div>
+      </div>
+      <div class="cd-topbar-right">
+        <div class="cd-icon-btn" id="cdThemeToggle"><svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div>
+      </div>
+    </div>
+
+    <div class="cd-form-content" id="repDetailBody">
+      <div class="cd-empty"><div class="cd-empty-title">Loading…</div></div>
+    </div>
+
+    <div class="cd-footer">
+      <button class="cd-btn cd-btn-secondary" onclick="window.location.href='/caratdesk-repair'"><svg viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>Back to List</button>
+      <div class="cd-footer-right" id="repDetailActions"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+   MAKE BOM DIALOG — single-item version of Purchase Receipt's Make BOM dialog.
+   Rows built here go into this Repair Order's own bom_item table on save; no BOM
+   master document is ever created in the background.
+   ═══════════════════════════════════════════ -->
+<div class="cd-idialog-overlay" id="makeBomDialogOverlay" onclick="closeMakeBomDialog()"></div>
+<div class="cd-idialog" id="makeBomDialog" style="width:1500px;max-width:97vw;max-height:92vh">
+  <div class="cd-idialog-header" style="flex-direction:column;align-items:flex-start;gap:8px">
+    <div style="display:flex;align-items:center;justify-content:space-between;width:100%">
+      <div class="cd-idialog-title">
+        <svg viewBox="0 0 24 24"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2v-4M9 21H5a2 2 0 01-2-2v-4m0 0h18"/></svg>
+        Make BOM
+      </div>
+      <div class="cd-idialog-close" onclick="closeMakeBomDialog()">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </div>
+    </div>
+    <div id="mkbom-tabs" style="display:flex;gap:2px;overflow-x:auto;width:100%;padding-bottom:2px;scrollbar-width:none"></div>
+  </div>
+  <div class="cd-idialog-body" id="mkbom-panels" style="padding:0;position:relative"></div>
+  <div class="cd-idialog-footer" style="flex-wrap:wrap;gap:8px">
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap" id="mkbom-status-row">
+      <span id="mkbom-status-text" style="font-size:12px;color:var(--text-muted)">Fill in the raw materials, then save.</span>
+    </div>
+    <div style="margin-left:auto;display:flex;gap:8px">
+      <button class="cd-btn cd-btn-secondary" onclick="closeMakeBomDialog()">Cancel</button>
+      <button class="cd-btn cd-btn-green" id="mkbom-save-all-btn" onclick="mkbomSaveAll()" disabled>
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        Save
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══ INSTANCE HELPERS ══
+const DEV1 = 'https://ppj-dev1.m.frappe.cloud';
+const DEV2 = 'https://ppj-dev2.m.frappe.cloud';
+function cdGetActiveInstance(){ return localStorage.getItem('cd_active_instance')||'PP'; }
+function cdGetAvailableInstances(){ return (localStorage.getItem('cd_available_instances')||'PP').split(',').filter(Boolean); }
+function cdGetInstanceUrl(inst){ return (inst||cdGetActiveInstance())==='PC'?DEV2:DEV1; }
+function cdGetInstanceHeaders(inst){
+  const i=inst||cdGetActiveInstance();
+  const key=i==='PC'?localStorage.getItem('cd_pc_key'):localStorage.getItem('cd_pp_key');
+  const sec=i==='PC'?localStorage.getItem('cd_pc_secret'):localStorage.getItem('cd_pp_secret');
+  if(!key||!sec) return null;
+  return{'Authorization':`token ${key}:${sec}`,'Content-Type':'application/json','Accept':'application/json'};
+}
+function cdSwitchInstance(inst){
+  const available=cdGetAvailableInstances();
+  if(!available.includes(inst)) return;
+  const key=inst==='PC'?localStorage.getItem('cd_pc_key'):localStorage.getItem('cd_pp_key');
+  const sec=inst==='PC'?localStorage.getItem('cd_pc_secret'):localStorage.getItem('cd_pp_secret');
+  localStorage.setItem('cd_active_instance',inst);
+  localStorage.setItem('cd_api_key',key);
+  localStorage.setItem('cd_api_secret',sec);
+  window.location.reload();
+}
+function cdInitInstanceToggle(){
+  const available=cdGetAvailableInstances();
+  const active=cdGetActiveInstance();
+  const bar=document.getElementById('cdInstanceBar');
+  if(!bar) return;
+  if(available.length<2){ bar.style.display='none'; return; }
+  bar.style.display='flex';
+  ['PP','PC'].forEach(inst=>{
+    const btn=document.getElementById('cdInst'+inst);
+    if(!btn) return;
+    btn.classList.toggle('active',inst===active);
+    btn.style.display=available.includes(inst)?'':'none';
+  });
+  const roleEl=document.getElementById('cdUserRole');
+  if(roleEl) roleEl.textContent='Active: '+active;
+}
+function toggleSec(headerEl){
+  const body = headerEl.nextElementSibling;
+  const toggle = headerEl.querySelector('.cd-sec-toggle');
+  const collapsed = body.style.display==='none';
+  body.style.display = collapsed?'':'none';
+  toggle.classList.toggle('collapsed', !collapsed);
+}
+
+// ══ API HELPERS ══
+async function dev1Get(path){
+  const h=cdGetInstanceHeaders();
+  if(!h) throw new Error('No auth');
+  const res=await fetch(cdGetInstanceUrl()+path,{headers:h});
+  if(!res.ok) throw new Error('HTTP '+res.status);
+  return res.json();
+}
+async function dev1Put(path,body){
+  const h=cdGetInstanceHeaders();
+  if(!h) throw new Error('No auth');
+  const res=await fetch(cdGetInstanceUrl()+path,{method:'PUT',headers:h,body:JSON.stringify(body)});
+  if(!res.ok){ const t=await res.text(); throw new Error(t||'HTTP '+res.status); }
+  return res.json();
+}
+async function dev1Post(path,body){
+  const h=cdGetInstanceHeaders();
+  if(!h) throw new Error('No auth');
+  const res=await fetch(cdGetInstanceUrl()+path,{method:'POST',headers:h,body:JSON.stringify(body)});
+  if(!res.ok){ const t=await res.text(); throw new Error(t||'HTTP '+res.status); }
+  return res.json();
+}
+
+// ══ HELPERS ══
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function fmt(n){ return '₹'+(parseFloat(n||0)).toLocaleString('en-IN',{minimumFractionDigits:0,maximumFractionDigits:2}); }
+function fmtWt(n){ return (parseFloat(n||0)).toLocaleString('en-IN',{minimumFractionDigits:3,maximumFractionDigits:3})+' g'; }
+function fmtDateTime(d){ if(!d) return '—'; try{ return new Date(d.replace(' ','T')).toLocaleString('en-IN',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}); }catch(e){ return d; } }
+function nowDateTime(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')+':'+String(d.getSeconds()).padStart(2,'0'); }
+function currentUser(){ return localStorage.getItem('cd_user_email')||localStorage.getItem('cd_user')||'User'; }
+function showToast(msg,type='info'){
+  let t=document.getElementById('cdToast');
+  if(!t){ t=document.createElement('div'); t.id='cdToast'; t.className='cd-toast'; document.body.appendChild(t); }
+  if(!msg){ t.style.opacity='0'; return; }
+  t.textContent=msg;
+  if(type==='success') t.style.background='#2D6A4F';
+  else if(type==='error') t.style.background='#A32D2D';
+  else t.style.background='#1A4A8A';
+  t.style.opacity='1'; t.style.transform='translateX(-50%) translateY(0)';
+  clearTimeout(t._t); t._t=setTimeout(()=>{ t.style.opacity='0'; t.style.transform='translateX(-50%) translateY(20px)'; },3000);
+}
+
+// ══════════════════════════════════════════
+//  REPAIR BOM BUILDER — ported from Purchase Receipt's "Make BOM" dialog, scoped to a
+//  single implicit item (the shared "Repair Item"). Rows built here are saved directly
+//  onto THIS Repair Order's own bom_item table via patchRepOrder() — no BOM master
+//  document is ever created in the background.
+// ══════════════════════════════════════════
+function getCsrf(){ if(typeof frappe!=='undefined'&&frappe.csrf_token)return frappe.csrf_token; const m=document.cookie.match(/csrf_token=([^;]+)/);return m?m[1]:''; }
+const UOM_MAP = { 'Gm':'Gram','gm':'Gram','g':'Gram','Grams':'Gram','Ct':'Carat','ct':'Carat','Carats':'Carat','No':'Nos','Kg':'kg' };
+function mapUom(u){ return UOM_MAP[u] || u; }
+const BOM_RM_ROOT_GROUP = 'Raw Material';
+const BOM_UOMS = ['Gram','Carat','Nos','kg','Pair','Set','Pcs'];
+
+function makeRow(id,labelText,content){ const row=document.createElement('div'); row.className='rm-row'; if(id) row.id=id; const label=document.createElement('div'); label.className='rm-row-label'; label.textContent=labelText; row.appendChild(label); row.appendChild(content); return row; }
+function loadingEl(text='Loading…'){ const el=document.createElement('div'); el.className='rm-loading'; el.innerHTML=`<div class="rm-spinner"></div><span>${text}</span>`; return el; }
+function makePillsWithAbbr(entries,selectedAbbr,onSelect){
+  const wrap=document.createElement('div'); wrap.className='rm-pills';
+  entries.forEach(entry=>{
+    const pill=document.createElement('div');
+    pill.className='rm-pill'+(entry.abbr===selectedAbbr?' selected':'');
+    pill.textContent=entry.value; pill.title=entry.abbr;
+    pill.addEventListener('click',()=>{ wrap.querySelectorAll('.rm-pill').forEach(p=>p.classList.remove('selected')); pill.classList.add('selected'); onSelect(entry.abbr,entry.value); });
+    wrap.appendChild(pill);
+  });
+  return wrap;
+}
+async function getChildGroups(parentGroup){
+  try{
+    const headers=cdGetInstanceHeaders(); if(!headers) return [];
+    const fields=encodeURIComponent(JSON.stringify(['name']));
+    const filters=encodeURIComponent(JSON.stringify([['Item Group','parent_item_group','=',parentGroup]]));
+    const res=await fetch(`${cdGetInstanceUrl()}/api/resource/Item Group?fields=${fields}&filters=${filters}&limit_page_length=100`,{headers});
+    if(!res.ok) return [];
+    const d=await res.json(); return (d?.data||d?.message||[]).map(g=>g.name).filter(Boolean);
+  }catch(e){ return []; }
+}
+async function getAllDescendantGroups(parentGroup){
+  const allGroups=[];
+  async function fetchChildren(group){ const children=await getChildGroups(group); await Promise.all(children.map(async child=>{ allGroups.push(child); await fetchChildren(child); })); }
+  await fetchChildren(parentGroup); return allGroups;
+}
+async function fetchTemplatesByGroups(groupNames){
+  if(!groupNames.length) return [];
+  try{
+    const headers=cdGetInstanceHeaders(); if(!headers) return [];
+    const filters=[['Item','disabled','=',0],['Item','variant_of','=',''],['Item','item_group','in',groupNames]];
+    const fields=['name','item_name','item_group','has_variants'];
+    const url=`${cdGetInstanceUrl()}/api/resource/Item?fields=${encodeURIComponent(JSON.stringify(fields))}&filters=${encodeURIComponent(JSON.stringify(filters))}&limit_page_length=500`;
+    const res=await fetch(url,{headers}); if(!res.ok) return [];
+    const d=await res.json(); return d?.data||d?.message||[];
+  }catch(e){ return []; }
+}
+
+// ── BOM Details table (#repBomTbody) — built fresh into the DOM each time renderRepBomTable() runs ──
+let bomRowCount=0;
+function addBomRow(fgItemCode='', fgItemName='', templateType='', goldColour='', goldPurity='', diaType='', diaShape='', diaGrade='', diaSieveSize='', uom='', qty=1, rate=0, huid='', sourceRowId='', making=0, labourMode='Percentage', labourVal=0, wastage=0, handlingRate=0, bomAmt=0, minRate=0, maxRate=0, addInNetWt=0, sellingRate=0, itemGroup='', pcs=0, editable=true){
+  bomRowCount++;
+  const id='repbom'+bomRowCount;
+  const tbody=document.getElementById('repBomTbody');
+  if(!tbody) return;
+  const tr=document.createElement('tr'); tr.id=id;
+  if(sourceRowId) tr.dataset.sourceRow = sourceRowId;
+  const normUom=mapUom(uom)||uom;
+  const uomOpts=BOM_UOMS.map(u=>`<option value="${u}" ${u===normUom?'selected':''}>${u}</option>`).join('');
+  const amt = bomAmt > 0 ? bomAmt : Math.round(qty*rate*100)/100;
+  tr.innerHTML=`
+    ${editable?'<td style="text-align:center;padding:4px"><input type="checkbox" class="cd-row-chk"/></td>':''}
+    <td style="text-align:center;font-weight:600;color:var(--text-secondary);font-size:12px">${bomRowCount}</td>
+    <td style="padding:0 6px;font-size:11px;color:var(--text-secondary);max-width:110px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${esc(fgItemName||fgItemCode)}">${esc(fgItemCode||'Repair Item')}</td>
+    <td style="padding:0 4px"><input style="width:100%;height:26px;border:none;outline:none;padding:0 6px;font-size:11px;background:transparent;color:var(--text-primary)" value="${esc(huid)}" data-bf="huid" placeholder="HUID…"/></td>
+    <td style="padding:0 4px"><input style="width:100%;height:26px;border:none;outline:none;padding:0 6px;font-size:11px;background:transparent;color:var(--text-primary)" value="${esc(templateType)}" data-bf="template_type" placeholder="-" oninput="toggleBomMetalCells(this.closest('tr'))"/></td>
+    <td style="padding:0 4px"><input style="width:100%;height:26px;border:none;outline:none;padding:0 6px;font-size:11px;background:transparent;color:var(--text-primary)" value="${esc(goldColour)}" data-bf="gold_colour" placeholder="-"/></td>
+    <td style="padding:0 4px"><input style="width:100%;height:26px;border:none;outline:none;padding:0 6px;font-size:11px;background:transparent;color:var(--text-primary)" value="${esc(goldPurity)}" data-bf="gold_purity" placeholder="-"/></td>
+    <td style="padding:0 4px"><input style="width:100%;height:26px;border:none;outline:none;padding:0 6px;font-size:11px;background:transparent;color:var(--text-primary)" value="${esc(diaType)}" data-bf="dia_type" placeholder="-"/></td>
+    <td style="padding:0 4px"><input style="width:100%;height:26px;border:none;outline:none;padding:0 6px;font-size:11px;background:transparent;color:var(--text-primary)" value="${esc(diaShape)}" data-bf="dia_shape" placeholder="-"/></td>
+    <td style="padding:0 4px"><input style="width:100%;height:26px;border:none;outline:none;padding:0 6px;font-size:11px;background:transparent;color:var(--text-primary)" value="${esc(diaGrade)}" data-bf="dia_grade" placeholder="-"/></td>
+    <td style="padding:0 4px"><input style="width:100%;height:26px;border:none;outline:none;padding:0 6px;font-size:11px;background:transparent;color:var(--text-primary)" value="${esc(diaSieveSize)}" data-bf="dia_sieve_size" placeholder="-"/></td>
+    <td style="padding:0 4px"><select data-bf="uom" style="width:55px;height:26px;border:none;outline:none;padding:0 4px;font-size:11px;background:transparent;color:var(--text-primary)">${uomOpts}</select></td>
+    <td style="padding:0 4px"><input type="number" min="0" step="0.001" value="${qty}" data-bf="qty" style="width:60px;height:26px;border:none;outline:none;padding:0 6px;font-size:11px;background:transparent;color:var(--text-primary)" oninput="recalcBomRow('${id}')"/></td>
+    <td style="padding:0 4px" data-diamond-cell><input type="number" min="0" step="1" value="${pcs}" data-bf="pcs" placeholder="-" style="width:45px;height:26px;border:none;outline:none;padding:0 6px;font-size:11px;background:transparent;color:var(--text-primary)" oninput="this.value=this.value.replace(/[^0-9]/g,'')"/></td>
+    <td style="padding:0 4px"><input type="number" min="0" step="0.01" value="${rate}" data-bf="rate" style="width:100%;height:26px;border:none;outline:none;padding:0 6px;font-size:11px;background:transparent;color:var(--text-primary)" oninput="recalcBomRow('${id}')"/></td>
+    <td style="padding:0 4px" data-metal-cell>
+      <select data-bf="labour_mode" style="width:100%;height:26px;border:.5px solid var(--border-strong);border-radius:4px;font-size:10px;padding:0 4px;background:var(--bg);color:var(--text-primary)" onchange="recalcBomRow('${id}')">
+        <option value="Fixed Rate" ${labourMode==='Fixed Rate'?'selected':''}>Fixed Rate</option>
+        <option value="Percentage" ${labourMode==='Percentage'?'selected':''}>Percentage</option>
+      </select>
+    </td>
+    <td style="padding:0 4px" data-metal-cell>
+      <input type="number" min="0" step="0.01" value="${labourVal}" data-bf="labour_val" style="width:100%;height:26px;border:none;outline:none;padding:0 4px;font-size:11px;background:transparent;color:var(--text-primary);text-align:right" oninput="recalcBomRow('${id}')"/>
+    </td>
+    <td style="display:none"><input type="number" value="${wastage}" data-bf="wastage"/></td>
+    <td style="display:none"><input value="${esc(itemGroup)}" data-bf="item_group"/></td>
+    <input type="hidden" data-bf="add_in_net_wt" value="${addInNetWt?1:0}"/>
+    <td style="padding:0 4px" data-diamond-cell>
+      <input type="number" min="0" step="0.01" value="${handlingRate}" data-bf="handling_rate" style="width:100%;height:26px;border:none;outline:none;padding:0 4px;font-size:11px;background:transparent;color:var(--text-primary)" oninput="recalcBomRow('${id}')"/>
+    </td>
+    <td><input type="number" value="${amt}" data-bf="bom_amt" oninput="recalcBomFromAmt('${id}')" style="width:85px;height:26px;border:none;outline:none;padding:0 6px;font-size:11px;font-weight:600;background:var(--accent-light);color:var(--text-primary);cursor:text"/></td>
+    ${editable?`<td><button class="cd-del-btn" onclick="delBomRow('${id}')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></td>`:''}`;
+  if(!editable) tr.querySelectorAll('input,select').forEach(el => el.disabled = true);
+  tbody.appendChild(tr);
+  toggleBomMetalCells(tr);
+  recalcBom();
+}
+function toggleBomMetalCells(tr){
+  const tmpl = tr.querySelector('[data-bf="template_type"]')?.value || '';
+  const isMetal = /gold|silver|platinum/i.test(tmpl);
+  tr.querySelectorAll('[data-metal-cell]').forEach(td => {
+    td.style.opacity = isMetal ? '1' : '0.25';
+    td.querySelectorAll('input,select').forEach(el => { el.disabled = !isMetal; });
+  });
+  tr.querySelectorAll('[data-diamond-cell]').forEach(td => {
+    td.style.opacity = isMetal ? '0.25' : '1';
+    td.querySelectorAll('input,select').forEach(el => { el.disabled = isMetal; });
+  });
+}
+function delBomRow(id){ document.getElementById(id)?.remove(); recalcBom(); }
+function repBomChkAllToggle(chk){ document.querySelectorAll('#repBomTbody .cd-row-chk').forEach(c=>c.checked=chk.checked); updateBomDeleteBtnVisibility(); }
+function updateBomDeleteBtnVisibility(){
+  const anyChecked = !!document.querySelector('#repBomTbody .cd-row-chk:checked');
+  const btn = document.getElementById('repBomDeleteBtn');
+  if(btn) btn.style.display = anyChecked ? '' : 'none';
+}
+document.addEventListener('change', e => {
+  if(e.target.classList?.contains('cd-row-chk') && e.target.closest('#repBomTbody')) updateBomDeleteBtnVisibility();
+});
+function deleteSelectedBomRows(){
+  const rows = [...document.querySelectorAll('#repBomTbody tr')].filter(tr => tr.querySelector('.cd-row-chk')?.checked);
+  if(!rows.length){ showToast('No rows selected', 'error'); return; }
+  rows.forEach(tr => tr.remove());
+  const chkAll = document.getElementById('repBomChkAll'); if(chkAll) chkAll.checked = false;
+  updateBomDeleteBtnVisibility();
+  recalcBom();
+}
+function recalcBomRow(rowId){
+  const tr=document.getElementById(rowId); if(!tr) return;
+  const qty          = parseFloat(tr.querySelector('[data-bf="qty"]')?.value)          || 0;
+  const rate         = parseFloat(tr.querySelector('[data-bf="rate"]')?.value)         || 0;
+  const handlingRate = parseFloat(tr.querySelector('[data-bf="handling_rate"]')?.value)|| 0;
+  const labourMode   = tr.querySelector('[data-bf="labour_mode"]')?.value              || 'Percentage';
+  const labourVal    = parseFloat(tr.querySelector('[data-bf="labour_val"]')?.value)   || 0;
+  const baseAmt = qty * rate + qty * handlingRate;
+  const labourAdd = labourMode === 'Percentage' ? baseAmt * labourVal / 100 : qty * labourVal;
+  const amt = Math.round((baseAmt + labourAdd) * 100) / 100;
+  const amtEl = tr.querySelector('[data-bf="bom_amt"]');
+  if(amtEl) amtEl.value = amt;
+  recalcBom();
+}
+function recalcBomFromAmt(rowId){
+  const tr=document.getElementById(rowId); if(!tr) return;
+  const qty = parseFloat(tr.querySelector('[data-bf="qty"]')?.value) || 0;
+  const amt = parseFloat(tr.querySelector('[data-bf="bom_amt"]')?.value)|| 0;
+  const rateEl = tr.querySelector('[data-bf="rate"]');
+  if(rateEl && qty > 0) rateEl.value = Math.round((amt / qty) * 100) / 100;
+  recalcBom();
+}
+// Reads every field addBomRow() puts on a row (not just item_code/qty/uom/rate/amount) into
+// the full "BOM Item" child-row shape — same field set Purchase Receipt's own BOM save uses.
+// Was previously only mapping 5 fields, so Gold Colour/Purity, Diamond attributes, HUID,
+// Labour, Handling Rate and Pcs were visible in the table but silently dropped on save.
+function collectRepBomRows(){
+  return [...document.querySelectorAll('#repBomTbody tr')].map(tr => {
+    const g = (f) => tr.querySelector(`[data-bf="${f}"]`)?.value ?? '';
+    const item_code = g('template_type').trim();
+    const qty = parseFloat(g('qty')) || 0;
+    const goldPurity = g('gold_purity');
+    return {
+      doctype:'BOM Item', item_code, item_name:item_code,
+      qty, uom:g('uom')||'Gram', stock_uom:g('uom')||'Gram', conversion_factor:1,
+      rate:parseFloat(g('rate'))||0, amount:parseFloat(g('bom_amt'))||0,
+      custom_costing_rate:parseFloat(g('rate'))||0, custom_bom_amt:parseFloat(g('bom_amt'))||0,
+      custom_huid:g('huid'), custom_gold_colour:g('gold_colour'),
+      custom_gold_purity:goldPurity, custom_metal_touch:goldPurity,
+      custom_diamond_type:g('dia_type'), custom_diamond_shape:g('dia_shape'),
+      custom_diamond_grade:g('dia_grade'), custom_diamond_sieve_size:g('dia_sieve_size'),
+      custom_labour_mode:g('labour_mode')||'Percentage', custom_labour_val:parseFloat(g('labour_val'))||0,
+      custom_wastage:parseFloat(g('wastage'))||0, custom_handling_rate:parseFloat(g('handling_rate'))||0,
+      custom_add_in_net_wt:g('add_in_net_wt')==='1'?1:0, custom_item_group:g('item_group'),
+      custom_pcs:parseInt(g('pcs'))||0,
+    };
+  }).filter(r => r.item_code && r.qty > 0);
+}
+function recalcBom(){
+  let total=0;
+  document.querySelectorAll('#repBomTbody tr').forEach(tr=>{ total+=parseFloat(tr.querySelector('[data-bf="bom_amt"]')?.value||0); });
+  const el=document.getElementById('rep-bom-total'); if(el) el.textContent=''+Math.round(total).toLocaleString('en-IN');
+  refreshRepBomBreakup();
+}
+
+// Same Weight/Amount/Total breakup the read-only "BOM Item" section used to compute live via
+// getRowBuckets()/computeBreakup() — here it runs against the manually-built repBomTbody rows
+// instead. _repBomBreakupToken guards against
+// overlapping calls (e.g. several rows added in quick succession by mkbomSaveAll): only the
+// most recent call's result is ever applied. REP_BOM_BREAKUP holds the raw numbers for
+// saveRepBom()/buildPayload() to use, since the repMetalWt-etc. fields display
+// currency/weight-formatted text that can't be parsed back with parseFloat.
+let _repBomBreakupToken=0;
+let REP_BOM_BREAKUP=null;
+async function refreshRepBomBreakup(){
+  const myToken=++_repBomBreakupToken;
+  const rows=[...document.querySelectorAll('#repBomTbody tr')].map(tr=>({
+    item_code: tr.querySelector('[data-bf="template_type"]')?.value?.trim() || '',
+    qty: parseFloat(tr.querySelector('[data-bf="qty"]')?.value) || 0,
+    custom_bom_amt: parseFloat(tr.querySelector('[data-bf="bom_amt"]')?.value) || 0,
+  }));
+  const buckets=await getRowBuckets(rows);
+  if(myToken!==_repBomBreakupToken) return; // superseded by a newer call — discard
+  const b=computeBreakup(rows, buckets, 0);
+  REP_BOM_BREAKUP=b;
+  const setText=(id,val,isWt)=>{ const el=document.getElementById(id); if(el) el.value = isWt?fmtWt(val):fmt(val); };
+  setText('repMetalWt', b.metal_wt, true); setText('repDiamondWt', b.diamond_wt, true); setText('repStoneWt', b.stone_wt, true); setText('repOtherWt', b.other_wt, true);
+  setText('repGrossWt', b.gross_wt, true); setText('repNetWt', b.net_wt, true);
+  setText('repMetalAmount', b.metal_amount); setText('repDiamondAmount', b.diamond_amount); setText('repStoneAmount', b.stone_amount); setText('repOtherAmount', b.other_amount);
+  setText('repMakingCharges', b.making_charges); setText('repTotal', b.total);
+}
+
+// Rebuilds #repBomTbody from a Repair Order's saved bom_item rows — called after every
+// renderRepDetailBody() since that innerHTML-replaces the section each refresh.
+function renderRepBomTable(rows, editable=true){
+  bomRowCount = 0;
+  const tbody = document.getElementById('repBomTbody');
+  if(!tbody) return;
+  tbody.innerHTML = '';
+  (rows||[]).forEach(r => {
+    addBomRow(
+      'Repair Item', 'Repair Item', r.item_code||'',
+      r.custom_gold_colour||'', r.custom_gold_purity||'',
+      r.custom_diamond_type||'', r.custom_diamond_shape||'', r.custom_diamond_grade||'', r.custom_diamond_sieve_size||'',
+      r.uom||'Gram', r.qty||0, r.rate||r.custom_costing_rate||0,
+      r.custom_huid||'', '', 0,
+      r.custom_labour_mode||'Percentage', r.custom_labour_val||0, 0,
+      r.custom_handling_rate||0, r.amount||r.custom_bom_amt||0, 0, 0, 0, 0,
+      r.custom_item_group||'', r.custom_pcs||0, editable
+    );
+  });
+}
+function saveRepBom(){
+  const bom_item = collectRepBomRows();
+  const patch = { bom_item };
+  if(REP_BOM_BREAKUP) Object.assign(patch, REP_BOM_BREAKUP);
+  patchRepOrder(patch, 'BOM Details saved');
+}
+
+// ══════════════════════════════════════════
+//  RECEIVE BOM (#receiveBomTbody / receive_bom_item) — same row-builder pattern as
+//  repBomTbody/bom_item above, kept as its own separate table on purpose: bom_item is what
+//  was estimated/issued, receive_bom_item is what actually came back at Receive time. Editable
+//  only while status is Issued; locked read-only from Received onward. Feeds the Purchase
+//  Receipt auto-created on Submit for Repair-type orders (see autoCreateRepairPurchaseReceipt).
+// ══════════════════════════════════════════
+let receiveBomRowCount=0;
+function addReceiveBomRow(fgItemCode='', fgItemName='', templateType='', goldColour='', goldPurity='', diaType='', diaShape='', diaGrade='', diaSieveSize='', uom='', qty=1, rate=0, huid='', sourceRowId='', making=0, labourMode='Percentage', labourVal=0, wastage=0, handlingRate=0, bomAmt=0, minRate=0, maxRate=0, addInNetWt=0, sellingRate=0, itemGroup='', pcs=0, editable=true){
+  receiveBomRowCount++;
+  const id='recvbom'+receiveBomRowCount;
+  const tbody=document.getElementById('receiveBomTbody');
+  if(!tbody) return;
+  const tr=document.createElement('tr'); tr.id=id;
+  if(sourceRowId) tr.dataset.sourceRow = sourceRowId;
+  const normUom=mapUom(uom)||uom;
+  const uomOpts=BOM_UOMS.map(u=>`<option value="${u}" ${u===normUom?'selected':''}>${u}</option>`).join('');
+  const amt = bomAmt > 0 ? bomAmt : Math.round(qty*rate*100)/100;
+  tr.innerHTML=`
+    ${editable?'<td style="text-align:center;padding:4px"><input type="checkbox" class="cd-row-chk"/></td>':''}
+    <td style="text-align:center;font-weight:600;color:var(--text-secondary);font-size:12px">${receiveBomRowCount}</td>
+    <td style="padding:0 6px;font-size:11px;color:var(--text-secondary);max-width:110px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${esc(fgItemName||fgItemCode)}">${esc(fgItemCode||'Repair Item')}</td>
+    <td style="padding:0 4px"><input style="width:100%;height:26px;border:none;outline:none;padding:0 6px;font-size:11px;background:transparent;color:var(--text-primary)" value="${esc(huid)}" data-bf="huid" placeholder="HUID…"/></td>
+    <td style="padding:0 4px"><input style="width:100%;height:26px;border:none;outline:none;padding:0 6px;font-size:11px;background:transparent;color:var(--text-primary)" value="${esc(templateType)}" data-bf="template_type" placeholder="-" oninput="toggleBomMetalCells(this.closest('tr'))"/></td>
+    <td style="padding:0 4px"><input style="width:100%;height:26px;border:none;outline:none;padding:0 6px;font-size:11px;background:transparent;color:var(--text-primary)" value="${esc(goldColour)}" data-bf="gold_colour" placeholder="-"/></td>
+    <td style="padding:0 4px"><input style="width:100%;height:26px;border:none;outline:none;padding:0 6px;font-size:11px;background:transparent;color:var(--text-primary)" value="${esc(goldPurity)}" data-bf="gold_purity" placeholder="-"/></td>
+    <td style="padding:0 4px"><input style="width:100%;height:26px;border:none;outline:none;padding:0 6px;font-size:11px;background:transparent;color:var(--text-primary)" value="${esc(diaType)}" data-bf="dia_type" placeholder="-"/></td>
+    <td style="padding:0 4px"><input style="width:100%;height:26px;border:none;outline:none;padding:0 6px;font-size:11px;background:transparent;color:var(--text-primary)" value="${esc(diaShape)}" data-bf="dia_shape" placeholder="-"/></td>
+    <td style="padding:0 4px"><input style="width:100%;height:26px;border:none;outline:none;padding:0 6px;font-size:11px;background:transparent;color:var(--text-primary)" value="${esc(diaGrade)}" data-bf="dia_grade" placeholder="-"/></td>
+    <td style="padding:0 4px"><input style="width:100%;height:26px;border:none;outline:none;padding:0 6px;font-size:11px;background:transparent;color:var(--text-primary)" value="${esc(diaSieveSize)}" data-bf="dia_sieve_size" placeholder="-"/></td>
+    <td style="padding:0 4px"><select data-bf="uom" style="width:55px;height:26px;border:none;outline:none;padding:0 4px;font-size:11px;background:transparent;color:var(--text-primary)">${uomOpts}</select></td>
+    <td style="padding:0 4px"><input type="number" min="0" step="0.001" value="${qty}" data-bf="qty" style="width:60px;height:26px;border:none;outline:none;padding:0 6px;font-size:11px;background:transparent;color:var(--text-primary)" oninput="recalcReceiveBomRow('${id}')"/></td>
+    <td style="padding:0 4px" data-diamond-cell><input type="number" min="0" step="1" value="${pcs}" data-bf="pcs" placeholder="-" style="width:45px;height:26px;border:none;outline:none;padding:0 6px;font-size:11px;background:transparent;color:var(--text-primary)" oninput="this.value=this.value.replace(/[^0-9]/g,'')"/></td>
+    <td style="padding:0 4px"><input type="number" min="0" step="0.01" value="${rate}" data-bf="rate" style="width:100%;height:26px;border:none;outline:none;padding:0 6px;font-size:11px;background:transparent;color:var(--text-primary)" oninput="recalcReceiveBomRow('${id}')"/></td>
+    <td style="padding:0 4px" data-metal-cell>
+      <select data-bf="labour_mode" style="width:100%;height:26px;border:.5px solid var(--border-strong);border-radius:4px;font-size:10px;padding:0 4px;background:var(--bg);color:var(--text-primary)" onchange="recalcReceiveBomRow('${id}')">
+        <option value="Fixed Rate" ${labourMode==='Fixed Rate'?'selected':''}>Fixed Rate</option>
+        <option value="Percentage" ${labourMode==='Percentage'?'selected':''}>Percentage</option>
+      </select>
+    </td>
+    <td style="padding:0 4px" data-metal-cell>
+      <input type="number" min="0" step="0.01" value="${labourVal}" data-bf="labour_val" style="width:100%;height:26px;border:none;outline:none;padding:0 4px;font-size:11px;background:transparent;color:var(--text-primary);text-align:right" oninput="recalcReceiveBomRow('${id}')"/>
+    </td>
+    <td style="display:none"><input type="number" value="${wastage}" data-bf="wastage"/></td>
+    <td style="display:none"><input value="${esc(itemGroup)}" data-bf="item_group"/></td>
+    <input type="hidden" data-bf="add_in_net_wt" value="${addInNetWt?1:0}"/>
+    <td style="padding:0 4px" data-diamond-cell>
+      <input type="number" min="0" step="0.01" value="${handlingRate}" data-bf="handling_rate" style="width:100%;height:26px;border:none;outline:none;padding:0 4px;font-size:11px;background:transparent;color:var(--text-primary)" oninput="recalcReceiveBomRow('${id}')"/>
+    </td>
+    <td><input type="number" value="${amt}" data-bf="bom_amt" oninput="recalcReceiveBomFromAmt('${id}')" style="width:85px;height:26px;border:none;outline:none;padding:0 6px;font-size:11px;font-weight:600;background:var(--accent-light);color:var(--text-primary);cursor:text"/></td>
+    ${editable?`<td><button class="cd-del-btn" onclick="delReceiveBomRow('${id}')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></td>`:''}`;
+  if(!editable) tr.querySelectorAll('input,select').forEach(el => el.disabled = true);
+  tbody.appendChild(tr);
+  toggleBomMetalCells(tr);
+  recalcReceiveBom();
+}
+function delReceiveBomRow(id){ document.getElementById(id)?.remove(); recalcReceiveBom(); }
+function receiveBomChkAllToggle(chk){ document.querySelectorAll('#receiveBomTbody .cd-row-chk').forEach(c=>c.checked=chk.checked); updateReceiveBomDeleteBtnVisibility(); }
+function updateReceiveBomDeleteBtnVisibility(){
+  const anyChecked = !!document.querySelector('#receiveBomTbody .cd-row-chk:checked');
+  const btn = document.getElementById('receiveBomDeleteBtn');
+  if(btn) btn.style.display = anyChecked ? '' : 'none';
+}
+document.addEventListener('change', e => {
+  if(e.target.classList?.contains('cd-row-chk') && e.target.closest('#receiveBomTbody')) updateReceiveBomDeleteBtnVisibility();
+});
+function deleteSelectedReceiveBomRows(){
+  const rows = [...document.querySelectorAll('#receiveBomTbody tr')].filter(tr => tr.querySelector('.cd-row-chk')?.checked);
+  if(!rows.length){ showToast('No rows selected', 'error'); return; }
+  rows.forEach(tr => tr.remove());
+  const chkAll = document.getElementById('receiveBomChkAll'); if(chkAll) chkAll.checked = false;
+  updateReceiveBomDeleteBtnVisibility();
+  recalcReceiveBom();
+}
+function recalcReceiveBomRow(rowId){
+  const tr=document.getElementById(rowId); if(!tr) return;
+  const qty          = parseFloat(tr.querySelector('[data-bf="qty"]')?.value)          || 0;
+  const rate         = parseFloat(tr.querySelector('[data-bf="rate"]')?.value)         || 0;
+  const handlingRate = parseFloat(tr.querySelector('[data-bf="handling_rate"]')?.value)|| 0;
+  const labourMode   = tr.querySelector('[data-bf="labour_mode"]')?.value              || 'Percentage';
+  const labourVal    = parseFloat(tr.querySelector('[data-bf="labour_val"]')?.value)   || 0;
+  const baseAmt = qty * rate + qty * handlingRate;
+  const labourAdd = labourMode === 'Percentage' ? baseAmt * labourVal / 100 : qty * labourVal;
+  const amt = Math.round((baseAmt + labourAdd) * 100) / 100;
+  const amtEl = tr.querySelector('[data-bf="bom_amt"]');
+  if(amtEl) amtEl.value = amt;
+  recalcReceiveBom();
+}
+function recalcReceiveBomFromAmt(rowId){
+  const tr=document.getElementById(rowId); if(!tr) return;
+  const qty = parseFloat(tr.querySelector('[data-bf="qty"]')?.value) || 0;
+  const amt = parseFloat(tr.querySelector('[data-bf="bom_amt"]')?.value)|| 0;
+  const rateEl = tr.querySelector('[data-bf="rate"]');
+  if(rateEl && qty > 0) rateEl.value = Math.round((amt / qty) * 100) / 100;
+  recalcReceiveBom();
+}
+function collectReceiveBomRows(){
+  return [...document.querySelectorAll('#receiveBomTbody tr')].map(tr => {
+    const g = (f) => tr.querySelector(`[data-bf="${f}"]`)?.value ?? '';
+    const item_code = g('template_type').trim();
+    const qty = parseFloat(g('qty')) || 0;
+    const goldPurity = g('gold_purity');
+    return {
+      doctype:'BOM Item', item_code, item_name:item_code,
+      qty, uom:g('uom')||'Gram', stock_uom:g('uom')||'Gram', conversion_factor:1,
+      rate:parseFloat(g('rate'))||0, amount:parseFloat(g('bom_amt'))||0,
+      custom_costing_rate:parseFloat(g('rate'))||0, custom_bom_amt:parseFloat(g('bom_amt'))||0,
+      custom_huid:g('huid'), custom_gold_colour:g('gold_colour'),
+      custom_gold_purity:goldPurity, custom_metal_touch:goldPurity,
+      custom_diamond_type:g('dia_type'), custom_diamond_shape:g('dia_shape'),
+      custom_diamond_grade:g('dia_grade'), custom_diamond_sieve_size:g('dia_sieve_size'),
+      custom_labour_mode:g('labour_mode')||'Percentage', custom_labour_val:parseFloat(g('labour_val'))||0,
+      custom_wastage:parseFloat(g('wastage'))||0, custom_handling_rate:parseFloat(g('handling_rate'))||0,
+      custom_add_in_net_wt:g('add_in_net_wt')==='1'?1:0, custom_item_group:g('item_group'),
+      custom_pcs:parseInt(g('pcs'))||0,
+    };
+  }).filter(r => r.item_code && r.qty > 0);
+}
+function recalcReceiveBom(){
+  let total=0;
+  document.querySelectorAll('#receiveBomTbody tr').forEach(tr=>{ total+=parseFloat(tr.querySelector('[data-bf="bom_amt"]')?.value||0); });
+  const el=document.getElementById('receive-bom-total'); if(el) el.textContent=''+Math.round(total).toLocaleString('en-IN');
+}
+// Rebuilds #receiveBomTbody from a Repair Order's saved receive_bom_item rows — called after
+// every renderRepDetailBody() since that innerHTML-replaces the section each refresh.
+function renderReceiveBomTable(rows, editable=true){
+  receiveBomRowCount = 0;
+  const tbody = document.getElementById('receiveBomTbody');
+  if(!tbody) return;
+  tbody.innerHTML = '';
+  (rows||[]).forEach(r => {
+    addReceiveBomRow(
+      'Repair Item', 'Repair Item', r.item_code||'',
+      r.custom_gold_colour||'', r.custom_gold_purity||'',
+      r.custom_diamond_type||'', r.custom_diamond_shape||'', r.custom_diamond_grade||'', r.custom_diamond_sieve_size||'',
+      r.uom||'Gram', r.qty||0, r.rate||r.custom_costing_rate||0,
+      r.custom_huid||'', '', 0,
+      r.custom_labour_mode||'Percentage', r.custom_labour_val||0, 0,
+      r.custom_handling_rate||0, r.amount||r.custom_bom_amt||0, 0, 0, 0, 0,
+      r.custom_item_group||'', r.custom_pcs||0, editable
+    );
+  });
+}
+
+// ── Make BOM dialog — single implicit tab for the shared "Repair Item" ──
+let mkbomTabs = {};
+let mkbomActiveTab = null;
+
+function openMakeBomDialog(){
+  mkbomTabs = {}; mkbomActiveTab = null;
+  const rowId = 'repairbom', fgCode = 'Repair Item', fgName = 'Repair Item';
+
+  const existingStaging = [];
+  document.querySelectorAll('#repBomTbody tr').forEach(bomTr => {
+    existingStaging.push({
+      itemCode  : bomTr.querySelector('[data-bf="template_type"]')?.value?.trim() || '',
+      itemName  : bomTr.querySelector('[data-bf="template_type"]')?.value?.trim() || '',
+      goldColour: bomTr.querySelector('[data-bf="gold_colour"]')?.value  || '',
+      goldPurity: bomTr.querySelector('[data-bf="gold_purity"]')?.value  || '',
+      diaType   : bomTr.querySelector('[data-bf="dia_type"]')?.value     || '',
+      diaShape  : bomTr.querySelector('[data-bf="dia_shape"]')?.value    || '',
+      diaGrade  : bomTr.querySelector('[data-bf="dia_grade"]')?.value    || '',
+      diaSieve  : bomTr.querySelector('[data-bf="dia_sieve_size"]')?.value || '',
+      uom       : bomTr.querySelector('[data-bf="uom"]')?.value          || 'Gram',
+      qty       : parseFloat(bomTr.querySelector('[data-bf="qty"]')?.value)     || 0,
+      pcs       : parseInt(bomTr.querySelector('[data-bf="pcs"]')?.value)       || 0,
+      rate      : parseFloat(bomTr.querySelector('[data-bf="rate"]')?.value)    || 0,
+      amount    : parseFloat(bomTr.querySelector('[data-bf="bom_amt"]')?.value) || 0,
+      itemGroup : bomTr.querySelector('[data-bf="item_group"]')?.value || '',
+    });
+  });
+
+  mkbomTabs[rowId] = { rowId, fgCode, fgName, staging: existingStaging, selected:{template:null}, attrVals:{}, attrs:[], matchedItem:null };
+
+  document.getElementById('mkbom-tabs').innerHTML = '';
+  mkbomBuildTabs([{rowId, fgCode, fgName}]);
+  mkbomActivateTab(rowId);
+  document.getElementById('makeBomDialog').classList.add('open');
+  document.getElementById('makeBomDialogOverlay').classList.add('open');
+  mkbomUpdateSaveBtn();
+}
+function closeMakeBomDialog(){
+  document.getElementById('makeBomDialog').classList.remove('open');
+  document.getElementById('makeBomDialogOverlay').classList.remove('open');
+}
+function mkbomBuildTabs(fgRows){
+  const tabStrip = document.getElementById('mkbom-tabs');
+  const panels = document.getElementById('mkbom-panels');
+  tabStrip.innerHTML = ''; panels.innerHTML = '';
+  fgRows.forEach(({rowId, fgCode, fgName}) => {
+    const tab = document.createElement('button');
+    tab.id = 'mkbom-tab-' + rowId;
+    tab.dataset.rowid = rowId;
+    tab.style.cssText = `font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;padding:7px 14px;border-radius:8px 8px 0 0;border:.5px solid var(--border-strong);border-bottom:none;background:var(--bg);color:var(--text-secondary);cursor:pointer;white-space:nowrap;transition:background .14s,color .14s;display:flex;align-items:center;gap:6px;flex-shrink:0;position:relative`;
+    tab.innerHTML = `<span style="max-width:160px;overflow:hidden;text-overflow:ellipsis" title="${esc(fgCode)}">${esc(fgCode)}</span><span id="mkbom-tab-badge-${rowId}" style="background:var(--pill-amber-bg);color:var(--pill-amber-txt);font-size:10px;padding:1px 6px;border-radius:10px;font-weight:600">0</span>`;
+    tab.addEventListener('click', () => mkbomActivateTab(rowId));
+    tabStrip.appendChild(tab);
+    const panel = document.createElement('div');
+    panel.id = 'mkbom-panel-' + rowId;
+    panel.style.cssText = 'display:none;height:100%;overflow-y:auto';
+    panel.innerHTML = mkbomPanelHTML(rowId, fgCode, fgName);
+    panels.appendChild(panel);
+  });
+}
+function mkbomPanelHTML(rowId, fgCode, fgName){
+  return `
+    <div style="display:flex;height:100%">
+      <div style="flex:1;min-width:0;border-right:.5px solid var(--border);display:flex;flex-direction:column">
+        <div style="padding:10px 20px 6px;border-bottom:.5px solid var(--border);background:var(--bg)">
+          <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">Select Raw Material</div>
+          <div style="font-size:12px;color:var(--text-secondary);margin-top:2px">For: <strong style="color:var(--text-primary)">${esc(fgCode)}</strong></div>
+        </div>
+        <div id="mkbom-picker-${rowId}" style="flex:1;overflow-y:auto"></div>
+        <div id="mkbom-result-${rowId}" style="display:none;margin:0;padding:8px 20px;background:var(--pill-green-bg);border-top:.5px solid rgba(59,109,17,.15)">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="width:22px;height:22px;border-radius:6px;background:var(--pill-green-txt);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div>
+              <div id="mkbom-result-code-${rowId}" style="font-size:12px;font-weight:600;color:var(--pill-green-txt)">-</div>
+              <div id="mkbom-result-name-${rowId}" style="font-size:11px;color:var(--pill-green-txt);opacity:.8">-</div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr auto;gap:8px;align-items:flex-end;margin-top:10px">
+            <div style="display:flex;flex-direction:column;gap:3px">
+              <label style="font-size:10px;font-weight:500;color:var(--pill-green-txt)">UOM</label>
+              <select id="mkbom-uom-${rowId}" style="font-family:'DM Sans',sans-serif;font-size:11.5px;background:var(--surface);border:.5px solid rgba(59,109,17,.3);border-radius:7px;padding:5px 8px;color:var(--text-primary);outline:none;height:30px">
+                ${BOM_UOMS.map(u=>`<option value="${u}">${u}</option>`).join('')}
+              </select>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:3px">
+              <label style="font-size:10px;font-weight:500;color:var(--pill-green-txt)">Qty <span style="color:var(--pill-red-txt)">*</span></label>
+              <input type="number" id="mkbom-qty-${rowId}" value="1" min="0" step="0.001"
+                style="font-family:'DM Sans',sans-serif;font-size:11.5px;background:var(--surface);border:.5px solid rgba(59,109,17,.3);border-radius:7px;padding:5px 8px;color:var(--text-primary);outline:none;height:30px;text-align:right"
+                oninput="mkbomDlgRecalc('${rowId}')"/>
+            </div>
+            <div style="display:none;flex-direction:column;gap:3px" id="mkbom-pcs-field-${rowId}">
+              <label style="font-size:10px;font-weight:500;color:var(--pill-green-txt)">Pcs</label>
+              <input type="number" id="mkbom-pcs-${rowId}" value="0" min="0" step="1"
+                style="font-family:'DM Sans',sans-serif;font-size:11.5px;background:var(--surface);border:.5px solid rgba(59,109,17,.3);border-radius:7px;padding:5px 8px;color:var(--text-primary);outline:none;height:30px;text-align:right"
+                oninput="this.value=this.value.replace(/[^0-9]/g,'')"/>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:3px">
+              <label style="font-size:10px;font-weight:500;color:var(--pill-green-txt)">Rate <span style="color:var(--pill-red-txt)">*</span></label>
+              <input type="number" id="mkbom-rate-${rowId}" value="0" min="0" step="0.01"
+                style="font-family:'DM Sans',sans-serif;font-size:11.5px;background:var(--surface);border:.5px solid rgba(59,109,17,.3);border-radius:7px;padding:5px 8px;color:var(--text-primary);outline:none;height:30px;text-align:right"
+                oninput="mkbomDlgRecalc('${rowId}')"/>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:3px">
+              <label style="font-size:10px;font-weight:500;color:var(--pill-green-txt)">Amount</label>
+              <input type="number" id="mkbom-amt-${rowId}" value="0" min="0" step="0.01"
+                  oninput="mkbomDlgRecalcFromAmt('${rowId}')"
+                  style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;background:rgba(59,109,17,.12);border:.5px solid rgba(59,109,17,.2);border-radius:7px;padding:5px 10px;height:30px;width:100%;text-align:right;color:var(--pill-green-txt);outline:none;cursor:text"/>
+            </div>
+            <button class="cd-btn cd-btn-green" id="mkbom-addlist-btn-${rowId}"
+              onclick="mkbomAddToStaging('${rowId}')"
+              style="height:30px;padding:0 12px;font-size:11.5px;white-space:nowrap;align-self:flex-end">
+              <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Add
+            </button>
+          </div>
+        </div>
+        <div id="mkbom-error-${rowId}" style="display:none;font-size:12px;color:var(--pill-red-txt);background:var(--pill-red-bg);border-top:.5px solid rgba(163,45,45,.15);padding:8px 20px"></div>
+      </div>
+      <div style="width:420px;flex-shrink:0;display:flex;flex-direction:column;background:var(--bg)">
+        <div style="padding:10px 16px 6px;border-bottom:.5px solid var(--border)">
+          <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">
+            Raw Materials
+            <span id="mkbom-panel-count-${rowId}" style="background:var(--pill-green-bg);color:var(--pill-green-txt);padding:1px 6px;border-radius:10px;font-size:10px;margin-left:4px">0</span>
+          </div>
+        </div>
+        <div id="mkbom-staging-list-${rowId}" style="flex:1;overflow-y:auto;overflow-x:auto;padding:0">
+          <div id="mkbom-staging-empty-${rowId}" style="padding:24px 16px;text-align:center;font-size:12px;color:var(--text-muted)">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" style="display:block;margin:0 auto 8px;opacity:.4"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2v-4M9 21H5a2 2 0 01-2-2v-4m0 0h18"/></svg>
+            No raw materials yet.<br/>Select from the left panel.
+          </div>
+          <div id="mkbom-staging-tbody-${rowId}"></div>
+        </div>
+        <div style="padding:10px 16px;border-top:.5px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:11px;color:var(--text-muted)">Total</span>
+          <span id="mkbom-panel-total-${rowId}" style="font-size:13px;font-weight:700;color:var(--text-primary)">0</span>
+        </div>
+      </div>
+  `;
+}
+function mkbomActivateTab(rowId){
+  mkbomActiveTab = rowId;
+  document.querySelectorAll('#mkbom-tabs button').forEach(btn => {
+    const isActive = btn.dataset.rowid === rowId;
+    btn.style.background = isActive ? 'var(--surface)' : 'var(--bg)';
+    btn.style.color = isActive ? 'var(--text-primary)' : 'var(--text-secondary)';
+    btn.style.borderBottom = isActive ? '.5px solid var(--surface)' : '';
+    btn.style.zIndex = isActive ? '2' : '1';
+  });
+  document.querySelectorAll('#mkbom-panels > div').forEach(panel => {
+    panel.style.display = panel.id === 'mkbom-panel-' + rowId ? 'block' : 'none';
+  });
+  const state = mkbomTabs[rowId]; if(!state) return;
+  const picker = document.getElementById('mkbom-picker-' + rowId);
+  if(picker && !picker.dataset.initialized){ picker.dataset.initialized = '1'; mkbomInitPicker(rowId); }
+  mkbomRenderStaging(rowId);
+}
+async function mkbomInitPicker(rowId){
+  const picker = document.getElementById('mkbom-picker-' + rowId);
+  if(!picker) return;
+  picker.innerHTML = '';
+  const loadEl2 = loadingEl('Loading raw material templates…');
+  picker.appendChild(makeRow('', 'Template', loadEl2));
+  try{
+    const descendants = await getAllDescendantGroups(BOM_RM_ROOT_GROUP);
+    const groupsToSearch = [BOM_RM_ROOT_GROUP, ...descendants].filter(g => typeof g === 'string' && g.trim());
+    const templates = await fetchTemplatesByGroups(groupsToSearch);
+    if(!templates.length){
+      loadEl2.replaceWith(Object.assign(document.createElement('div'), { className:'cd-ac-empty', textContent:'No raw material templates found' }));
+      return;
+    }
+    const state = mkbomTabs[rowId];
+    const entries = templates.map(t => ({ value: t.item_name || t.name, abbr: t.name }));
+    const pills = makePillsWithAbbr(entries, state.selected.template, (abbr, value) => {
+      state.selected.template = abbr; state.attrVals = {}; state.attrs = []; state.matchedItem = null;
+      mkbomHideResult(rowId); mkbomClearError(rowId);
+      picker.querySelectorAll('[id^="mkbom-attr-row"]').forEach(r => r.remove());
+      mkbomLoadAttrRows(rowId, picker, abbr);
+      mkbomUpdatePcsVisibility(rowId, value);
+    });
+    mkbomUpdatePcsVisibility(rowId, entries.find(e => e.abbr === state.selected.template)?.value);
+    loadEl2.replaceWith(pills);
+  }catch(e){
+    loadEl2.replaceWith(Object.assign(document.createElement('div'), { className:'cd-ac-empty', textContent:'Failed to load templates' }));
+  }
+}
+async function mkbomLoadAttrRows(rowId, picker, templateItemCode){
+  const state = mkbomTabs[rowId];
+  const loadRow = document.createElement('div');
+  loadRow.className = 'rm-row'; loadRow.id = 'mkbom-attr-row-loading-' + rowId;
+  loadRow.appendChild(loadingEl('Loading attributes…'));
+  picker.appendChild(loadRow);
+  try{
+    const form = new FormData();
+    form.append('template_name', templateItemCode);
+    const res = await fetch('/api/method/caratdesk_get_template_attributes', { method:'POST', credentials:'same-origin', headers:{'X-Frappe-CSRF-Token':getCsrf()}, body:form });
+    const d = await res.json();
+    loadRow.remove();
+    const attrs = d.message?.attributes || [];
+    if(!attrs.length){ state.attrs = []; await mkbomAutoSearch(rowId); return; }
+    state.attrs = attrs;
+    attrs.forEach((attr, i) => {
+      const entries = (attr.values || []).map(v => typeof v === 'object' ? v : { value:v, abbr:v });
+      const pills = makePillsWithAbbr(entries, null, (abbr, value) => {
+        state.attrVals[attr.attribute] = { abbr, value };
+        mkbomHideResult(rowId); mkbomClearError(rowId);
+        if(state.attrs.every(a => state.attrVals[a.attribute])) mkbomAutoSearch(rowId);
+      });
+      const row = makeRow('mkbom-attr-row-' + rowId + '-' + i, attr.label || attr.attribute, pills);
+      picker.appendChild(row);
+    });
+  }catch(e){ loadRow.remove(); console.warn('mkbomLoadAttrRows error:', e); }
+}
+async function mkbomAutoSearch(rowId){
+  const state = mkbomTabs[rowId];
+  mkbomHideResult(rowId); mkbomClearError(rowId);
+  try{
+    const form = new FormData();
+    form.append('template_item_code', state.selected.template);
+    const _abbrMap = {};
+    Object.entries(state.attrVals).forEach(([k, v]) => { _abbrMap[k] = typeof v === 'object' ? v.abbr : v; });
+    form.append('attributes', JSON.stringify(_abbrMap));
+    const res = await fetch('/api/method/caratdesk_find_item_variant', { method:'POST', credentials:'same-origin', headers:{'X-Frappe-CSRF-Token':getCsrf()}, body:form });
+    const d = await res.json();
+    if(!d.message){ mkbomShowError(rowId, 'No item found. Check abbreviations or item setup.'); state.matchedItem = null; }
+    else{ state.matchedItem = d.message; mkbomShowResult(rowId, d.message); }
+  }catch(e){ mkbomShowError(rowId, 'Search failed: ' + e.message); }
+}
+function mkbomShowResult(rowId, item){
+  document.getElementById('mkbom-result-code-' + rowId).textContent = item.item_code;
+  document.getElementById('mkbom-result-name-' + rowId).textContent = item.item_name;
+  document.getElementById('mkbom-result-' + rowId).style.display = 'block';
+  function applyMkbomUom(rawUom){
+    if(!rawUom) return;
+    const uom = mapUom(rawUom);
+    const uomSel = document.getElementById('mkbom-uom-' + rowId);
+    if(!uomSel) return;
+    let found = false;
+    [...uomSel.options].forEach(o => { if(o.value === uom){ o.selected = true; found = true; } });
+    if(!found){ const op = document.createElement('option'); op.value = uom; op.textContent = uom; op.selected = true; uomSel.appendChild(op); }
+  }
+  const autoUom = item.stock_uom || item.uom || '';
+  if(autoUom) applyMkbomUom(autoUom);
+  else{
+    try{
+      const h = cdGetInstanceHeaders();
+      if(h){ fetch(`${cdGetInstanceUrl()}/api/resource/Item/${encodeURIComponent(item.item_code)}?fields=${encodeURIComponent(JSON.stringify(['stock_uom']))}`,{headers:h}).then(r=>r.json()).then(d=>applyMkbomUom((d?.data||d?.message)?.stock_uom||'')).catch(()=>{}); }
+    }catch(e){}
+  }
+  const qEl = document.getElementById('mkbom-qty-' + rowId);
+  const rEl = document.getElementById('mkbom-rate-' + rowId);
+  const aEl = document.getElementById('mkbom-amt-' + rowId);
+  if(qEl) qEl.value = '1';
+  if(rEl) rEl.value = '0';
+  if(aEl) aEl.value = '0';
+}
+function mkbomHideResult(rowId){
+  const el = document.getElementById('mkbom-result-' + rowId);
+  if(el) el.style.display = 'none';
+  const state = mkbomTabs[rowId];
+  if(state) state.matchedItem = null;
+}
+function mkbomUpdatePcsVisibility(rowId, templateLabel){
+  const field = document.getElementById('mkbom-pcs-field-' + rowId);
+  if(!field) return;
+  const show = /diamond|stone|gemstone/i.test(templateLabel || '');
+  field.style.display = show ? 'flex' : 'none';
+  if(!show){ const pEl = document.getElementById('mkbom-pcs-' + rowId); if(pEl) pEl.value = '0'; }
+}
+function mkbomShowError(rowId, msg){ const el = document.getElementById('mkbom-error-' + rowId); if(el){ el.textContent = msg; el.style.display = 'block'; } }
+function mkbomClearError(rowId){ const el = document.getElementById('mkbom-error-' + rowId); if(el){ el.textContent = ''; el.style.display = 'none'; } }
+function mkbomDlgRecalc(rowId){
+  const qty  = parseFloat(document.getElementById('mkbom-qty-' + rowId)?.value) || 0;
+  const rate = parseFloat(document.getElementById('mkbom-rate-' + rowId)?.value) || 0;
+  const el   = document.getElementById('mkbom-amt-' + rowId);
+  if(el) el.value = Math.round(qty * rate * 100) / 100;
+}
+function mkbomDlgRecalcFromAmt(rowId){
+  const qty = parseFloat(document.getElementById('mkbom-qty-' + rowId)?.value) || 0;
+  const amt = parseFloat(document.getElementById('mkbom-amt-' + rowId)?.value) || 0;
+  const rateEl = document.getElementById('mkbom-rate-' + rowId);
+  if(rateEl && qty > 0) rateEl.value = Math.round((amt / qty) * 100) / 100;
+}
+async function mkbomAddToStaging(rowId){
+  const state = mkbomTabs[rowId];
+  if(!state?.matchedItem){ mkbomShowError(rowId, 'No item found yet. Select all attributes first.'); return; }
+  const qty  = parseFloat(document.getElementById('mkbom-qty-' + rowId)?.value)  || 0;
+  const pcs  = parseInt(document.getElementById('mkbom-pcs-' + rowId)?.value)    || 0;
+  const rate = parseFloat(document.getElementById('mkbom-rate-' + rowId)?.value) || 0;
+  if(qty <= 0){ mkbomShowError(rowId, 'Please enter a valid Qty.'); return; }
+  if(rate <= 0){ mkbomShowError(rowId, 'Please enter a valid Rate.'); return; }
+  const uom = document.getElementById('mkbom-uom-' + rowId)?.value || 'Gram';
+  function getAttr(key){ const v = state.attrVals[key]; if(!v) return ''; return typeof v === 'object' ? v.value : v; }
+  state.staging.push({
+    itemCode: state.matchedItem.item_code, itemName: state.matchedItem.item_name,
+    goldColour: getAttr('Gold Colour'), goldPurity: getAttr('Gold Purity'),
+    diaType: getAttr('Diamond Type'), diaShape: getAttr('Diamond Shape'),
+    diaGrade: getAttr('Diamond Grade'), diaSieve: getAttr('Diamond Seive Size'),
+    uom, qty, pcs, rate, amount: Math.round(qty * rate * 100) / 100,
+  });
+  mkbomRenderStaging(rowId);
+  mkbomUpdateSaveBtn();
+  showToast(state.matchedItem.item_code + ' added', 'success');
+  state.attrVals = {}; state.matchedItem = null;
+  mkbomHideResult(rowId); mkbomClearError(rowId);
+  const qEl = document.getElementById('mkbom-qty-' + rowId);
+  const pEl = document.getElementById('mkbom-pcs-' + rowId);
+  const rEl = document.getElementById('mkbom-rate-' + rowId);
+  const aEl = document.getElementById('mkbom-amt-' + rowId);
+  if(qEl) qEl.value = '1'; if(pEl) pEl.value = '0'; if(rEl) rEl.value = '0'; if(aEl) aEl.value = 0;
+  const picker = document.getElementById('mkbom-picker-' + rowId);
+  picker?.querySelectorAll('[id^="mkbom-attr-row"] .rm-pill.selected').forEach(p => p.classList.remove('selected'));
+  picker?.querySelectorAll('[id^="mkbom-attr-row"]').forEach(r => r.remove());
+}
+function mkbomRenderStaging(rowId){
+  const state = mkbomTabs[rowId];
+  const tbody = document.getElementById('mkbom-staging-tbody-' + rowId);
+  const empty = document.getElementById('mkbom-staging-empty-' + rowId);
+  const count = document.getElementById('mkbom-panel-count-' + rowId);
+  const badge = document.getElementById('mkbom-tab-badge-' + rowId);
+  const total = document.getElementById('mkbom-panel-total-' + rowId);
+  if(!state.staging.length){
+    if(empty) empty.style.display = 'block';
+    if(tbody) tbody.innerHTML = '';
+    if(count) count.textContent = '0';
+    if(badge){ badge.textContent = '0'; badge.style.background = 'var(--pill-amber-bg)'; badge.style.color = 'var(--pill-amber-txt)'; }
+    if(total) total.textContent = '0';
+    return;
+  }
+  if(empty) empty.style.display = 'none';
+  if(count) count.textContent = state.staging.length;
+  if(badge){ badge.textContent = state.staging.length; badge.style.background = 'var(--pill-green-bg)'; badge.style.color = 'var(--pill-green-txt)'; }
+  const inputStyle = `font-family:'DM Sans',sans-serif;font-size:11px;background:var(--bg);border:.5px solid var(--border-strong);border-radius:5px;padding:2px 5px;color:var(--text-primary);outline:none;width:100%;height:22px`;
+  const numStyle = `${inputStyle};text-align:right`;
+  let grandTotal = 0;
+  tbody.innerHTML = `
+    <table style="width:100%;border-collapse:collapse;font-size:11px">
+      <thead>
+        <tr style="background:var(--bg);border-bottom:.5px solid var(--border)">
+          <th style="padding:5px 8px;font-size:10px;font-weight:600;color:var(--text-secondary);text-align:left;white-space:nowrap">#</th>
+          <th style="padding:5px 8px;font-size:10px;font-weight:600;color:var(--text-secondary);text-align:left;white-space:nowrap">Item Code</th>
+          <th style="padding:5px 8px;font-size:10px;font-weight:600;color:var(--text-secondary);text-align:left;white-space:nowrap">UOM</th>
+          <th style="padding:5px 8px;font-size:10px;font-weight:600;color:var(--text-secondary);text-align:right;white-space:nowrap">Qty</th>
+          <th style="padding:5px 8px;font-size:10px;font-weight:600;color:var(--text-secondary);text-align:right;white-space:nowrap">Pcs</th>
+          <th style="padding:5px 8px;font-size:10px;font-weight:600;color:var(--text-secondary);text-align:right;white-space:nowrap">Rate</th>
+          <th style="padding:5px 8px;font-size:10px;font-weight:600;color:var(--text-secondary);text-align:right;white-space:nowrap">Amount</th>
+          <th style="width:24px;padding:5px 4px"></th>
+        </tr>
+      </thead>
+      <tbody>
+        ${state.staging.map((row, i) => {
+          grandTotal += row.amount;
+          return `
+            <tr style="border-bottom:.5px solid var(--border)" id="mkbom-staging-row-${rowId}-${i}">
+              <td style="padding:4px 8px;color:var(--text-secondary);font-weight:600;font-size:10px">${i+1}</td>
+              <td style="padding:4px 6px;min-width:90px"><input value="${esc(row.itemCode)}" placeholder="Item Code" style="${inputStyle};font-weight:600" oninput="mkbomStagingUpdate('${rowId}',${i},'itemCode',this.value)"/></td>
+              <td style="padding:4px 6px;min-width:60px"><select style="${inputStyle}" onchange="mkbomStagingUpdate('${rowId}',${i},'uom',this.value)">${BOM_UOMS.map(u=>`<option value="${u}" ${u===row.uom?'selected':''}>${u}</option>`).join('')}</select></td>
+              <td style="padding:4px 6px;min-width:60px"><input type="number" value="${row.qty}" placeholder="Qty" min="0" step="0.001" style="${numStyle}" oninput="mkbomStagingUpdateCalc('${rowId}',${i},'qty',this.value)"/></td>
+              <td style="padding:4px 6px;min-width:50px"><input type="number" value="${row.pcs || 0}" placeholder="Pcs" min="0" step="1" style="${numStyle}" oninput="this.value=this.value.replace(/[^0-9]/g,''); mkbomStagingUpdate('${rowId}',${i},'pcs',parseInt(this.value)||0)"/></td>
+              <td style="padding:4px 6px;min-width:70px"><input type="number" value="${row.rate}" placeholder="Rate" min="0" step="0.01" style="${numStyle}" oninput="mkbomStagingUpdateCalc('${rowId}',${i},'rate',this.value)"/></td>
+              <td style="padding:4px 6px;min-width:70px"><input type="number" value="${row.amount}" placeholder="Amt" min="0" step="0.01" style="${numStyle};font-weight:600;background:var(--accent-light)" oninput="mkbomStagingUpdateFromAmt('${rowId}',${i},this.value)"/></td>
+              <td style="padding:4px;text-align:center"><button class="cd-del-btn" onclick="mkbomRemoveStaging('${rowId}',${i})" title="Remove"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></td>
+            </tr>`;
+        }).join('')}
+      </tbody>
+    </table>`;
+  if(total) total.textContent = '' + Math.round(grandTotal).toLocaleString('en-IN');
+}
+function mkbomRemoveStaging(rowId, index){
+  const state = mkbomTabs[rowId]; if(!state) return;
+  state.staging.splice(index, 1);
+  mkbomRenderStaging(rowId);
+  mkbomUpdateSaveBtn();
+}
+function mkbomStagingUpdate(rowId, index, field, value){
+  const state = mkbomTabs[rowId];
+  if(!state?.staging[index]) return;
+  state.staging[index][field] = value;
+  const total = document.getElementById('mkbom-panel-total-' + rowId);
+  if(total){ const grand = state.staging.reduce((s,r)=>s+r.amount,0); total.textContent = '' + Math.round(grand).toLocaleString('en-IN'); }
+}
+function mkbomStagingUpdateCalc(rowId, index, field, value){
+  const state = mkbomTabs[rowId];
+  if(!state?.staging[index]) return;
+  state.staging[index][field] = parseFloat(value) || 0;
+  const row = state.staging[index];
+  row.amount = Math.round(row.qty * row.rate * 100) / 100;
+  const tbody = document.getElementById('mkbom-staging-tbody-' + rowId);
+  if(tbody){
+    const amtInputs = tbody.querySelectorAll('input[type="number"]');
+    const base = index * 4;
+    if(amtInputs[base+3]) amtInputs[base+3].value = row.amount;
+  }
+  const total = document.getElementById('mkbom-panel-total-' + rowId);
+  if(total){ const grand = state.staging.reduce((s,r)=>s+r.amount,0); total.textContent = '' + Math.round(grand).toLocaleString('en-IN'); }
+}
+function mkbomStagingUpdateFromAmt(rowId, index, value){
+  const state = mkbomTabs[rowId];
+  if(!state?.staging[index]) return;
+  const amt = parseFloat(value) || 0;
+  state.staging[index].amount = amt;
+  const row = state.staging[index];
+  if(row.qty > 0){
+    row.rate = Math.round((amt / row.qty) * 100) / 100;
+    const tbody = document.getElementById('mkbom-staging-tbody-' + rowId);
+    if(tbody){
+      const amtInputs = tbody.querySelectorAll('input[type="number"]');
+      const base = index * 4;
+      if(amtInputs[base+2]) amtInputs[base+2].value = row.rate;
+    }
+  }
+  const total = document.getElementById('mkbom-panel-total-' + rowId);
+  if(total){ const grand = state.staging.reduce((s,r)=>s+r.amount,0); total.textContent = '' + Math.round(grand).toLocaleString('en-IN'); }
+}
+function mkbomUpdateSaveBtn(){
+  const hasAny = Object.values(mkbomTabs).some(s => s.staging.length > 0);
+  const btn = document.getElementById('mkbom-save-all-btn');
+  if(btn) btn.disabled = !hasAny;
+}
+async function mkbomSaveAll(){
+  const tabs = Object.values(mkbomTabs).filter(s => s.staging.length > 0);
+  if(!tabs.length){ showToast('No raw materials to save', 'error'); return; }
+  for(const state of tabs){
+    document.querySelectorAll('#repBomTbody tr').forEach(bomTr => { if(bomTr.dataset.sourceRow === state.rowId) bomTr.remove(); });
+    state.staging.forEach(row => {
+      addBomRow(
+        state.fgCode, state.fgName, row.itemCode,
+        row.goldColour, row.goldPurity, row.diaType, row.diaShape, row.diaGrade, row.diaSieve,
+        row.uom, row.qty, row.rate, '', state.rowId,
+        0, 'Percentage', 0, 0, 0, row.amount || 0, 0, 0, 0, 0, '', row.pcs || 0
+      );
+    });
+    const badge = document.getElementById('mkbom-tab-badge-' + state.rowId);
+    if(badge){ badge.textContent = '✓'; badge.style.background = 'var(--pill-green-bg)'; badge.style.color = 'var(--pill-green-txt)'; }
+  }
+  closeMakeBomDialog();
+  showToast('BOM staged — click "Save BOM" to write it to this Repair Order', 'success');
+}
+
+// Status is derived, not stored — Draft/Submitted come from docstatus, Issued/Received come
+// from whether issue_date / receive_date have been set by the Issue/Receive actions.
+// Originally these were driven by issue_stock_entry / receive_stock_entry, but the Stock
+// Entry side of Issue/Receive is disabled for now (2026-08-14) — see repDoIssue/repDoReceive.
+// Submit now happens LAST (after Issue and Receive, both of which are pre-submit field
+// updates on a still-Draft doc) instead of first — so docstatus alone can no longer tell
+// Draft/Issued/Received apart; only docstatus===1 (the real, final submit) is unambiguous.
+function derivedStatus(doc){
+  if(doc.docstatus===2) return 'Cancelled';
+  if(doc.docstatus===1) return 'Submitted';
+  if(doc.receive_date) return 'Received';
+  if(doc.issue_date) return 'Issued';
+  return 'Draft';
+}
+const STATUS_PILL = { 'Draft':'grey', 'Submitted':'blue', 'Issued':'amber', 'Received':'green', 'Cancelled':'red' };
+function statusPill(status){
+  const cls=STATUS_PILL[status]||'grey';
+  return `<span class="cd-pill ${cls}">${esc(status)}</span>`;
+}
+
+// ══ STATE ══
+const COMPANY='P.P. Jewellers Retail Pvt. Ltd.';
+const REPAIR_ITEM_CODE='Repair Item';
+// Fixed receiving warehouse for the Purchase Receipt auto-created on Repair Order submit —
+// same warehouse regardless of branch, per business decision.
+const AUTO_PR_WAREHOUSE='Stores - PPJ';
+window.currentRepName=null;
+let currentRepDoc=null;
+let WAREHOUSE_RECORDS=[]; // [{name, custom_supplier}]
+let SE_PURPOSE={}; // Stock Entry Type name -> purpose
+
+// Stock Entry feature revived — Issue/Receive on a Modification order now move real stock
+// again (Send to Subcontractor / Receive From Subcontractor), matching the restructured
+// Draft -> Issued -> Received -> Submit lifecycle where Issue/Receive happen pre-submit.
+async function loadWarehouses(){
+  try{
+    const res=await dev1Get('/api/resource/Warehouse?fields='+encodeURIComponent(JSON.stringify(['name','custom_supplier']))+'&filters='+encodeURIComponent(JSON.stringify([['disabled','=',0],['is_group','=',0]]))+'&limit_page_length=0');
+    WAREHOUSE_RECORDS=res.data||res.message||[];
+  }catch(e){ console.warn('Warehouse load failed:', e.message); }
+}
+async function loadStockEntryPurposes(){
+  try{
+    const res=await dev1Get('/api/resource/Stock%20Entry%20Type?fields='+encodeURIComponent(JSON.stringify(['name','purpose']))+'&filters='+encodeURIComponent(JSON.stringify([['name','in',['Send to Subcontractor','Receive From Subcontractor','Material Receipt']]]))+'&limit_page_length=10');
+    (res.data||res.message||[]).forEach(t=>{ SE_PURPOSE[t.name]=t.purpose||t.name; });
+  }catch(e){ console.warn('Stock Entry Type load failed:', e.message); }
+}
+function supplierWarehouse(supplier){
+  return WAREHOUSE_RECORDS.find(w=>w.custom_supplier===supplier)?.name||'';
+}
+function shopWarehouseOptions(){
+  return WAREHOUSE_RECORDS.filter(w=>!w.custom_supplier).map(w=>w.name);
+}
+
+// Same Item Group convention as the intake form: "Gold"/"Diamond"/"Stone" Item Groups map to
+// their bucket, everything else is Other.
+const ITEM_GROUP_BUCKET={ 'Gold':'metal', 'Diamond':'diamond', 'Stone':'stone' };
+async function getRowBuckets(rows){
+  const codes=[...new Set(rows.map(r=>r.item_code).filter(Boolean))];
+  const groups={};
+  if(codes.length){
+    try{
+      const res=await dev1Get('/api/resource/Item?fields='+encodeURIComponent(JSON.stringify(['name','item_group']))+'&filters='+encodeURIComponent(JSON.stringify([['name','in',codes]]))+'&limit_page_length=0');
+      (res.data||res.message||[]).forEach(it=>{ groups[it.name]=it.item_group; });
+    }catch(e){ console.warn('Item Group lookup failed:', e.message); }
+  }
+  return rows.map(r=>ITEM_GROUP_BUCKET[groups[r.item_code]]||'other');
+}
+
+async function refreshRepDetail(){
+  const name=window.currentRepName;
+  if(!name) return;
+  try{
+    const res=await dev1Get('/api/resource/Repair%20Order/'+encodeURIComponent(name));
+    const doc=res.data||res.message||res;
+    currentRepDoc=doc;
+    const status=derivedStatus(doc);
+    document.getElementById('breadcrumbName').innerHTML=esc(name)+' '+statusPill(status);
+    renderRepDetailBody(doc, status);
+    renderRepDetailActions(doc, status);
+  }catch(e){
+    document.getElementById('repDetailBody').innerHTML=`<div class="cd-empty"><div class="cd-empty-title">Error loading order</div><div class="cd-hint">${esc(e.message)}</div></div>`;
+  }
+}
+function renderRepDetailBody(doc, status){
+  let html='';
+  html+=`<div class="cd-section">
+    <div class="cd-section-header" onclick="toggleSec(this)">
+      <div class="cd-sec-title"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Customer &amp; Order</div>
+      <div class="cd-sec-toggle"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+    </div>
+    <div class="cd-section-body">
+      <div class="cd-grid">
+        <div class="cd-field"><label class="cd-label">Customer</label><input class="cd-input" readonly value="${esc(doc.customer_name||doc.customer||'')}"/></div>
+        <div class="cd-field"><label class="cd-label">Order Date</label><input class="cd-input" readonly value="${esc(doc.order_date||'')}"/></div>
+        <div class="cd-field"><label class="cd-label">Order Type</label><input class="cd-input" readonly value="${esc(doc.order_type||'')}"/></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cd-section">
+    <div class="cd-section-header" onclick="toggleSec(this)">
+      <div class="cd-sec-title"><svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>Item</div>
+      <div class="cd-sec-toggle"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+    </div>
+    <div class="cd-section-body">
+      <div class="cd-field" style="margin-bottom:16px">
+        <label class="cd-check-lbl"><input type="checkbox" disabled ${doc.sold_by_ppj?'checked':''}/>Sold by PPJ</label>
+      </div>
+      <div class="cd-grid">
+        <div class="cd-field"><label class="cd-label">Serial No</label><input class="cd-input" readonly value="${esc(doc.serial_no||'')}"/></div>
+        <div class="cd-field"><label class="cd-label">Item Code</label><input class="cd-input" readonly value="${esc(doc.item||'')}"/></div>
+        <div class="cd-field"><label class="cd-label">BOM</label><input class="cd-input" readonly value="${esc(doc.bom||'')}"/></div>
+      </div>
+    </div>
+  </div>`;
+
+  const bomRows=doc.bom_item||[];
+  if(bomRows.length && doc.order_type!=='Repair'){
+    // Always read-only now — corrections happen via the Receive BOM table below (editable
+    // while Issued) instead of editing this master-BOM snapshot in place. Receive still
+    // pushes those corrections onto the real master BOM (writeBackToMasterBom), just sourced
+    // from receive_bom_item now rather than an edited copy of this table.
+    html+=`<div class="cd-section" id="bomItemSection">
+    <div class="cd-section-header" onclick="toggleSec(this)">
+      <div class="cd-sec-title"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>BOM Item</div>
+      <div class="cd-sec-toggle"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+    </div>
+    <div class="cd-section-body" style="padding:0">
+      <table style="width:100%;border-collapse:collapse;font-size:12.5px">
+        <thead><tr style="background:var(--bg)"><th style="text-align:left;padding:9px 12px;color:var(--text-muted);font-weight:600;font-size:10.5px;text-transform:uppercase">Item Code</th><th style="text-align:right;padding:9px 12px;color:var(--text-muted);font-weight:600;font-size:10.5px;text-transform:uppercase">Qty</th><th style="text-align:left;padding:9px 12px;color:var(--text-muted);font-weight:600;font-size:10.5px;text-transform:uppercase">UOM</th><th style="text-align:right;padding:9px 12px;color:var(--text-muted);font-weight:600;font-size:10.5px;text-transform:uppercase">Costing Rate</th><th style="text-align:right;padding:9px 12px;color:var(--text-muted);font-weight:600;font-size:10.5px;text-transform:uppercase">BOM Amount</th></tr></thead>
+        <tbody id="bomItemTbody">${bomRows.map((r,i)=>`<tr>
+          <td style="padding:8px 12px;border-top:.5px solid var(--border)">${esc(r.item_code||'')}</td>
+          <td style="padding:8px 12px;border-top:.5px solid var(--border);text-align:right">${r.qty||0}</td>
+          <td style="padding:8px 12px;border-top:.5px solid var(--border)">${esc(r.uom||'')}</td>
+          <td style="padding:8px 12px;border-top:.5px solid var(--border);text-align:right">${(parseFloat(r.custom_costing_rate||0)).toLocaleString('en-IN')}</td>
+          <td style="padding:8px 12px;border-top:.5px solid var(--border);text-align:right">${(parseFloat(r.custom_bom_amt||0)).toLocaleString('en-IN')}</td>
+        </tr>`).join('')}</tbody>
+        <tfoot><tr><td colspan="4" style="padding:9px 12px;text-align:right;font-weight:600;border-top:1px solid var(--border-strong)">Subtotal</td><td id="bomItemTotal" style="padding:9px 12px;text-align:right;font-weight:600;border-top:1px solid var(--border-strong)">${fmt(bomRows.reduce((s,r)=>s+(parseFloat(r.custom_bom_amt||0)),0))}</td></tr></tfoot>
+      </table>
+    </div>
+    <div class="cd-section-body">
+      <div class="cd-sec-title" style="margin-bottom:12px">Weight</div>
+      <div class="cd-grid">
+        <div class="cd-field"><label class="cd-label">Metal Wt</label><input class="cd-input" id="bkMetalWt" readonly value="${fmtWt(doc.metal_wt)}"/></div>
+        <div class="cd-field"><label class="cd-label">Diamond Wt</label><input class="cd-input" id="bkDiamondWt" readonly value="${fmtWt(doc.diamond_wt)}"/></div>
+        <div class="cd-field"><label class="cd-label">Stone Wt</label><input class="cd-input" id="bkStoneWt" readonly value="${fmtWt(doc.stone_wt)}"/></div>
+        <div class="cd-field"><label class="cd-label">Other Wt</label><input class="cd-input" id="bkOtherWt" readonly value="${fmtWt(doc.other_wt)}"/></div>
+        <div class="cd-field"><label class="cd-label">Gross Wt</label><input class="cd-input" id="bkGrossWt" readonly value="${fmtWt(doc.gross_wt)}"/></div>
+        <div class="cd-field"><label class="cd-label">Net Wt</label><input class="cd-input" id="bkNetWt" readonly value="${fmtWt(doc.net_wt)}"/></div>
+      </div>
+      <div class="cd-sec-title" style="margin:20px 0 12px">Amount</div>
+      <div class="cd-grid">
+        <div class="cd-field"><label class="cd-label">Metal Amount</label><input class="cd-input" id="bkMetalAmount" readonly value="${fmt(doc.metal_amount)}"/></div>
+        <div class="cd-field"><label class="cd-label">Diamond Amount</label><input class="cd-input" id="bkDiamondAmount" readonly value="${fmt(doc.diamond_amount)}"/></div>
+        <div class="cd-field"><label class="cd-label">Stone Amount</label><input class="cd-input" id="bkStoneAmount" readonly value="${fmt(doc.stone_amount)}"/></div>
+        <div class="cd-field"><label class="cd-label">Other Amount</label><input class="cd-input" id="bkOtherAmount" readonly value="${fmt(doc.other_amount)}"/></div>
+        <div class="cd-field"><label class="cd-label">Making Charges</label><input class="cd-input" id="bkMakingCharges" readonly value="${fmt(doc.making_charges)}"/></div>
+      </div>
+      <div class="cd-sec-title" style="margin:20px 0 12px">Total</div>
+      <div class="cd-grid">
+        <div class="cd-field"><label class="cd-label">Total</label><input class="cd-input" id="bkTotal" readonly style="font-weight:600" value="${fmt(doc.total)}"/></div>
+      </div>
+    </div>
+  </div>`;
+  }
+
+  // Order Type = Repair — no pre-existing master BOM to display, so this builds one by
+  // hand via "Make BOM" (same picker as Purchase Receipt). Rows save straight onto this
+  // Repair Order's own bom_item table — no BOM master document is ever created.
+  if(doc.order_type==='Repair'){
+    // Locked once Issued — same "read only after Issue" rule as the rest of the form.
+    // Corrections at Receive time now go into receive_bom_item instead of editing this table.
+    const bomEditable = (status==='Draft');
+    html+=`<div class="cd-section" id="repBomSection">
+    <div class="cd-section-header" onclick="toggleSec(this)">
+      <div class="cd-sec-title"><svg viewBox="0 0 24 24"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2v-4M9 21H5a2 2 0 01-2-2v-4m0 0h18"/></svg>BOM Details</div>
+      <div class="cd-sec-toggle"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+    </div>
+    <div class="cd-section-body">
+      ${bomEditable?`<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+        <button class="cd-btn cd-btn-primary" style="font-size:12px;padding:6px 14px" onclick="openMakeBomDialog()">
+          <svg viewBox="0 0 24 24"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2v-4M9 21H5a2 2 0 01-2-2v-4m0 0h18"/></svg>
+          Make BOM
+        </button>
+      </div>`:''}
+      <div class="cd-bom-wrap">
+        <table class="cd-bom-tbl">
+          <thead><tr>
+            ${bomEditable?'<th style="width:28px"><input type="checkbox" id="repBomChkAll" onchange="repBomChkAllToggle(this)"/></th>':''}
+            <th style="width:34px">#</th>
+            <th style="width:120px">FG Item</th>
+            <th style="width:110px">HUID</th>
+            <th style="width:110px">Template Type</th>
+            <th style="width:90px">Gold Colour</th>
+            <th style="width:90px">Tounch</th>
+            <th style="width:90px">Diamond Type</th>
+            <th style="width:90px">Diamond Shape</th>
+            <th style="width:90px">Diamond Grade</th>
+            <th style="width:110px">Diamond Sieve Size</th>
+            <th style="width:65px">UOM</th>
+            <th style="width:70px">Qty</th>
+            <th style="width:55px">Pcs</th>
+            <th style="width:90px">Rate</th>
+            <th style="width:110px">Labour On</th>
+            <th style="width:90px">Labour Charges</th>
+            <th style="width:90px">Handling Rate</th>
+            <th style="width:90px">Amount</th>
+            ${bomEditable?'<th style="width:34px"></th>':''}
+          </tr></thead>
+          <tbody id="repBomTbody"></tbody>
+        </table>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin:8px 4px;flex-wrap:wrap;gap:10px">
+        ${bomEditable?`<div style="display:flex;align-items:center;gap:8px">
+          <button class="cd-add-row" onclick="addBomRow('Repair Item','Repair Item')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add BOM Row</button>
+          <button type="button" id="repBomDeleteBtn" class="cd-add-row" style="color:var(--pill-red-txt);display:none" onclick="deleteSelectedBomRows()">Delete</button>
+          <button type="button" class="cd-btn cd-btn-secondary" style="font-size:12px;padding:6px 12px" onclick="saveRepBom()">Save BOM</button>
+        </div>`:'<div></div>'}
+        <div style="font-size:12.5px;color:var(--text-secondary)">
+          BOM Total <strong id="rep-bom-total" style="color:var(--text-primary)">0</strong>
+        </div>
+      </div>
+
+      <!-- Same Weight/Amount/Total breakup Modification shows above — here computed live
+           from repBomTbody's rows (see refreshRepBomBreakup()) instead of a fetched master
+           BOM. Initial values below are whatever was last saved; editing recomputes them. -->
+      <div class="cd-sec-title" style="margin:20px 0 12px">Weight</div>
+      <div class="cd-grid">
+        <div class="cd-field"><label class="cd-label">Metal Wt</label><input class="cd-input" id="repMetalWt" readonly value="${fmtWt(doc.metal_wt)}"/></div>
+        <div class="cd-field"><label class="cd-label">Diamond Wt</label><input class="cd-input" id="repDiamondWt" readonly value="${fmtWt(doc.diamond_wt)}"/></div>
+        <div class="cd-field"><label class="cd-label">Stone Wt</label><input class="cd-input" id="repStoneWt" readonly value="${fmtWt(doc.stone_wt)}"/></div>
+        <div class="cd-field"><label class="cd-label">Other Wt</label><input class="cd-input" id="repOtherWt" readonly value="${fmtWt(doc.other_wt)}"/></div>
+        <div class="cd-field"><label class="cd-label">Gross Wt</label><input class="cd-input" id="repGrossWt" readonly value="${fmtWt(doc.gross_wt)}"/></div>
+        <div class="cd-field"><label class="cd-label">Net Wt</label><input class="cd-input" id="repNetWt" readonly value="${fmtWt(doc.net_wt)}"/></div>
+      </div>
+      <div class="cd-sec-title" style="margin:20px 0 12px">Amount</div>
+      <div class="cd-grid">
+        <div class="cd-field"><label class="cd-label">Metal Amount</label><input class="cd-input" id="repMetalAmount" readonly value="${fmt(doc.metal_amount)}"/></div>
+        <div class="cd-field"><label class="cd-label">Diamond Amount</label><input class="cd-input" id="repDiamondAmount" readonly value="${fmt(doc.diamond_amount)}"/></div>
+        <div class="cd-field"><label class="cd-label">Stone Amount</label><input class="cd-input" id="repStoneAmount" readonly value="${fmt(doc.stone_amount)}"/></div>
+        <div class="cd-field"><label class="cd-label">Other Amount</label><input class="cd-input" id="repOtherAmount" readonly value="${fmt(doc.other_amount)}"/></div>
+        <div class="cd-field"><label class="cd-label">Making Charges</label><input class="cd-input" id="repMakingCharges" readonly value="${fmt(doc.making_charges)}"/></div>
+      </div>
+      <div class="cd-sec-title" style="margin:20px 0 12px">Total</div>
+      <div class="cd-grid">
+        <div class="cd-field"><label class="cd-label">Total</label><input class="cd-input" id="repTotal" readonly style="font-weight:600" value="${fmt(doc.total)}"/></div>
+      </div>
+    </div>
+  </div>`;
+  }
+
+  // Both order types now go through Issue/Receive — Modification moves real stock
+  // (Send/Receive to Subcontractor); Repair just locks the form and tracks dates.
+  html+=`<div class="cd-section">
+    <div class="cd-section-header" onclick="toggleSec(this)">
+      <div class="cd-sec-title"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>Issue &amp; Receive</div>
+      <div class="cd-sec-toggle"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+    </div>
+    <div class="cd-section-body">`;
+  if(status==='Draft'){
+    html+=`<div class="cd-grid-2">
+      <div class="cd-field"><label class="cd-label">Issue Type</label>
+        <select class="cd-select" id="issAssignType">
+          <option value="">Select…</option>
+          <option ${doc.issue_type==='Karigar'?'selected':''}>Karigar</option>
+          <option ${doc.issue_type==='Subcontractor'?'selected':''}>Subcontractor</option>
+        </select>
+      </div>
+      <div class="cd-field"><label class="cd-label">Supplier</label>
+        <div class="cd-ac">
+          <input class="cd-input" id="issAssignSupplier" autocomplete="off" value="${esc(doc.supplier||'')}" oninput="acIssSupplier(this.value)" onfocus="acIssSupplier(this.value)"/>
+          <div class="cd-ac-list" id="ac-iss-supplier"></div>
+        </div>
+      </div>
+    </div>
+    <button class="cd-btn cd-btn-secondary" style="margin-top:14px" onclick="repSaveIssueAssignment()">Save Issue Assignment</button>`;
+  } else {
+    html+=`<div class="cd-grid-2">
+      <div class="cd-field"><label class="cd-label">Issue Type</label><input class="cd-input" readonly value="${esc(doc.issue_type||'')}"/></div>
+      <div class="cd-field"><label class="cd-label">Supplier</label><input class="cd-input" readonly value="${esc(doc.supplier||'')}"/></div>
+    </div>`;
+  }
+  html+=`<div class="cd-grid-2" style="margin-top:16px">
+      <div class="cd-field"><label class="cd-label">Issue Date</label><input class="cd-input" readonly value="${esc(doc.issue_date||'')}"/></div>
+      <div class="cd-field"><label class="cd-label">Receive Date</label><input class="cd-input" readonly value="${esc(doc.receive_date||'')}"/></div>
+    </div>`;
+  // Modification moves real stock, so it needs a warehouse pick at the two points that
+  // matter: before Issue (only if this piece isn't already a tracked serial — a new one gets
+  // minted and needs somewhere to sit before going to the subcontractor), and before Receive
+  // (where the item physically lands back in the shop).
+  if(doc.order_type==='Modification' && status==='Draft' && !doc.sold_by_ppj){
+    html+=`<div class="cd-field" style="margin-top:16px"><label class="cd-label">Receiving Warehouse (for the new Repair Item, before it goes to the supplier)</label>
+      <select class="cd-select" id="issueSrcWarehouse"><option value="">Select…</option>${shopWarehouseOptions().map(w=>`<option>${esc(w)}</option>`).join('')}</select>
+    </div>`;
+  }
+  if(doc.order_type==='Modification' && status==='Issued'){
+    html+=`<div class="cd-field" style="margin-top:16px"><label class="cd-label">Receiving Warehouse (item comes back into)</label>
+      <select class="cd-select" id="receiveTgtWarehouse"><option value="">Select…</option>${shopWarehouseOptions().map(w=>`<option>${esc(w)}</option>`).join('')}</select>
+    </div>`;
+  }
+  html+='</div></div>';
+
+  // Receive BOM — what actually came back, as opposed to bom_item's original estimate.
+  // Editable only while Issued; visible read-only from Received onward. Feeds the Purchase
+  // Receipt auto-created on Submit for Repair-type orders.
+  if(status==='Issued' || status==='Received' || status==='Submitted'){
+    const recvEditable = (status==='Issued');
+    html+=`<div class="cd-section" id="receiveBomSection">
+    <div class="cd-section-header" onclick="toggleSec(this)">
+      <div class="cd-sec-title"><svg viewBox="0 0 24 24"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2v-4M9 21H5a2 2 0 01-2-2v-4m0 0h18"/></svg>Receive BOM</div>
+      <div class="cd-sec-toggle"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+    </div>
+    <div class="cd-section-body">
+      ${recvEditable?`<div class="cd-hint" style="margin-bottom:14px">What actually came back — add a row per material. ${doc.order_type==='Repair'?'This becomes the Purchase Receipt on Submit.':'This gets pushed onto the master BOM when you hit Receive.'}</div>`:''}
+      <div class="cd-bom-wrap">
+        <table class="cd-bom-tbl">
+          <thead><tr>
+            ${recvEditable?'<th style="width:28px"><input type="checkbox" id="receiveBomChkAll" onchange="receiveBomChkAllToggle(this)"/></th>':''}
+            <th style="width:34px">#</th>
+            <th style="width:120px">FG Item</th>
+            <th style="width:110px">HUID</th>
+            <th style="width:110px">Template Type</th>
+            <th style="width:90px">Gold Colour</th>
+            <th style="width:90px">Tounch</th>
+            <th style="width:90px">Diamond Type</th>
+            <th style="width:90px">Diamond Shape</th>
+            <th style="width:90px">Diamond Grade</th>
+            <th style="width:110px">Diamond Sieve Size</th>
+            <th style="width:65px">UOM</th>
+            <th style="width:70px">Qty</th>
+            <th style="width:55px">Pcs</th>
+            <th style="width:90px">Rate</th>
+            <th style="width:110px">Labour On</th>
+            <th style="width:90px">Labour Charges</th>
+            <th style="width:90px">Handling Rate</th>
+            <th style="width:90px">Amount</th>
+            ${recvEditable?'<th style="width:34px"></th>':''}
+          </tr></thead>
+          <tbody id="receiveBomTbody"></tbody>
+        </table>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin:8px 4px;flex-wrap:wrap;gap:10px">
+        ${recvEditable?`<div style="display:flex;align-items:center;gap:8px">
+          <button class="cd-add-row" onclick="addReceiveBomRow('Repair Item','Repair Item')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Row</button>
+          <button type="button" id="receiveBomDeleteBtn" class="cd-add-row" style="color:var(--pill-red-txt);display:none" onclick="deleteSelectedReceiveBomRows()">Delete</button>
+        </div>`:'<div></div>'}
+        <div style="font-size:12.5px;color:var(--text-secondary)">
+          Total <strong id="receive-bom-total" style="color:var(--text-primary)">0</strong>
+        </div>
+      </div>
+    </div>
+  </div>`;
+  }
+
+  html+=`<div class="cd-section">
+    <div class="cd-section-header" onclick="toggleSec(this)">
+      <div class="cd-sec-title"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Remarks</div>
+      <div class="cd-sec-toggle"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+    </div>
+    <div class="cd-section-body">
+      <textarea class="cd-textarea" readonly>${esc(doc.remarks||'')}</textarea>
+    </div>
+  </div>`;
+
+  document.getElementById('repDetailBody').innerHTML=html;
+  if(status==='Issued' || status==='Received' || status==='Submitted') renderReceiveBomTable(doc.receive_bom_item||[], status==='Issued');
+  if(doc.order_type==='Repair') renderRepBomTable(doc.bom_item||[], status==='Draft');
+}
+// Draft -> Issued -> Received -> Submitted (real docstatus:1, last). Cancel Order (a real
+// Frappe cancel, docstatus 1->2) only makes sense once genuinely submitted — there's nothing
+// to "cancel" on a still-Draft doc pre-submit, it just wouldn't be created.
+function renderRepDetailActions(doc, status){
+  const el=document.getElementById('repDetailActions');
+  let buttons='';
+  if(status==='Draft'){
+    buttons+=`<button class="cd-btn cd-btn-primary" onclick="repDoIssue()">Issue</button>`;
+  } else if(status==='Issued'){
+    buttons+=`<button class="cd-btn cd-btn-green" onclick="repDoReceive()">Receive</button>`;
+  } else if(status==='Received'){
+    buttons+=`<button class="cd-btn cd-btn-primary" onclick="repSubmitOrder()">Submit</button>`;
+  } else if(status==='Submitted'){
+    buttons+=`<button class="cd-btn cd-btn-danger" onclick="repCancelOrder()">Cancel Order</button>`;
+  }
+  el.innerHTML=buttons;
+}
+async function patchRepOrder(patch, successMsg){
+  const name=window.currentRepName;
+  try{
+    await dev1Put('/api/resource/Repair%20Order/'+encodeURIComponent(name), patch);
+    if(successMsg) showToast(successMsg,'success');
+    await refreshRepDetail();
+  }catch(e){
+    showToast('Error: '+String(e.message).slice(0,150),'error');
+  }
+}
+// Submit is now the LAST step (after Issue and Receive) — blocked if receive_bom_item is
+// empty for either order type. Repair-type orders auto-create and submit a Purchase Receipt
+// straight after the real submit succeeds — same population logic selRepair() already uses
+// for the manual fetch in caratdesk-new-purchase-receipt.html, just sourced from
+// receive_bom_item and run in the background instead of a live form. Modification needs
+// nothing extra here — its real stock movement already happened at Issue/Receive.
+async function repSubmitOrder(){
+  const doc=currentRepDoc;
+  if(!doc.receive_bom_item?.length){ showToast('Add BOM details at Receive before submitting','error'); return; }
+  if(!confirm('Submit this Repair Order? This cannot be undone.')) return;
+  try{
+    await dev1Put('/api/resource/Repair%20Order/'+encodeURIComponent(window.currentRepName), {docstatus:1});
+    showToast('Repair Order submitted','success');
+  }catch(e){
+    showToast('Error: '+String(e.message).slice(0,150),'error');
+    return;
+  }
+  if(doc.order_type==='Repair'){
+    try{ await autoCreateRepairPurchaseReceipt(window.currentRepName, doc); }
+    catch(e){
+      console.error('autoCreateRepairPurchaseReceipt failed:', e.message);
+      showToast('Repair Order submitted, but Purchase Receipt creation failed: '+String(e.message).slice(0,150),'error',8000);
+    }
+  }
+  await refreshRepDetail();
+}
+
+// ══════════════════════════════════════════
+//  AUTO-CREATE PURCHASE RECEIPT (Repair-type orders, on Submit)
+// ══════════════════════════════════════════
+async function autoCreateRepairPurchaseReceipt(repairName, doc){
+  const receiveRows = doc.receive_bom_item || [];
+  if(!receiveRows.length) return;
+
+  const itemCode = doc.item || REPAIR_ITEM_CODE;
+  const totalAmt = receiveRows.reduce((s,r)=>s+(parseFloat(r.custom_bom_amt||r.amount||0)),0);
+
+  // ── BOM, Draft — same payload shape the manual "Make BOM" flow posts in
+  //    caratdesk-new-purchase-receipt.html, built from receive_bom_item instead of a
+  //    live BOM-builder table. ──
+  const bomItems = receiveRows.map((r,i)=>({
+    doctype:'BOM Item', idx:i+1,
+    item_code:r.item_code, item_name:r.item_code,
+    qty:r.qty, stock_qty:r.qty, uom:r.uom||'Gram', stock_uom:r.uom||'Gram', conversion_factor:1,
+    rate:r.rate||r.custom_costing_rate||0, base_rate:r.rate||r.custom_costing_rate||0,
+    amount:r.amount||r.custom_bom_amt||0, base_amount:r.amount||r.custom_bom_amt||0,
+    include_item_in_manufacturing:1, sourced_by_supplier:0,
+    custom_fg_item_code:itemCode, custom_fg_item_name:itemCode,
+    custom_gold_colour:r.custom_gold_colour||'', custom_gold_purity:r.custom_gold_purity||'',
+    custom_metal_touch:r.custom_metal_touch||r.custom_gold_purity||'',
+    custom_diamond_type:r.custom_diamond_type||'', custom_diamond_shape:r.custom_diamond_shape||'',
+    custom_diamond_grade:r.custom_diamond_grade||'', custom_diamond_sieve_size:r.custom_diamond_sieve_size||'',
+    custom_huid:r.custom_huid||'', custom_labour_mode:r.custom_labour_mode||'Percentage',
+    custom_labour_val:r.custom_labour_val||0, custom_wastage:r.custom_wastage||0,
+    custom_handling_rate:r.custom_handling_rate||0, custom_bom_amt:r.amount||r.custom_bom_amt||0,
+    custom_manual_rate:r.rate||r.custom_costing_rate||0, custom_add_in_net_wt:r.custom_add_in_net_wt||0,
+    custom_item_group:r.custom_item_group||'', custom_costing_rate:r.rate||r.custom_costing_rate||0,
+    custom_pcs:r.custom_pcs||0,
+  }));
+  const bomRes = await dev1Post('/api/resource/BOM', {
+    doctype:'BOM', item:itemCode, item_name:itemCode, company:COMPANY,
+    quantity:1, uom:'Nos', is_active:1, is_default:1, with_operations:0,
+    rm_cost_as_per:'Valuation Rate', currency:'INR', conversion_rate:1,
+    items:bomItems,
+  });
+  const bomName = bomRes?.data?.name || bomRes?.name;
+  if(!bomName) throw new Error('BOM creation failed');
+
+  // ── Purchase Receipt, Draft — qty fixed at 1, amount = BOM total, same convention the
+  //    manual Repair Order fetch already uses ──
+  const prRes = await dev1Post('/api/resource/Purchase Receipt', {
+    doctype:'Purchase Receipt',
+    supplier: doc.supplier,
+    posting_date: new Date().toISOString().slice(0,10),
+    company: COMPANY,
+    set_warehouse: AUTO_PR_WAREHOUSE,
+    custom_type: 'Repair',
+    custom_repair_order: repairName,
+    branch: doc.branch || '',
+    items: [{
+      doctype:'Purchase Receipt Item', idx:1,
+      item_code:itemCode, item_name:itemCode, description:itemCode,
+      qty:1, received_qty:1, rate:totalAmt, amount:totalAmt, base_amount:totalAmt,
+      uom:'Nos', stock_uom:'Nos', conversion_factor:1,
+      warehouse: AUTO_PR_WAREHOUSE, use_serial_batch_fields:1,
+      custom_bom: bomName,
+    }],
+    taxes: [],
+  });
+  const prName = prRes?.data?.name || prRes?.name;
+  if(!prName) throw new Error('Purchase Receipt creation failed');
+
+  // ── Submit the Purchase Receipt, then the BOM — same order submitPR()/submitLinkedBoms()
+  //    use manually. ERPNext generates the real Serial No itself as part of the PR submit. ──
+  await dev1Put('/api/resource/Purchase Receipt/'+encodeURIComponent(prName), {docstatus:1});
+  try{ await dev1Put('/api/resource/BOM/'+encodeURIComponent(bomName), {docstatus:1}); }
+  catch(e){ console.error('Auto-created BOM submit failed:', e.message); }
+
+  // custom_bom / custom_metal_type are plain values we already have in hand (unlike
+  // Gross/Net/Pure Wt and Sell Rate, which need the live-form rollup submitPR() computes) —
+  // no reason to leave the resulting Serial No untraceable to its BOM when tagging them is
+  // this direct. Same fetch-fresh-doc-then-tag pattern submitPR() uses.
+  try{ await tagRepairSerialNos(prName, bomName, receiveRows); }
+  catch(e){ console.error('tagRepairSerialNos failed:', e.message); }
+
+  try{ await postRepairPurityLedgerEntry(prName, doc, receiveRows); }
+  catch(e){ console.error('postRepairPurityLedgerEntry failed:', e.message); }
+
+  showToast('Purchase Receipt '+prName+' created and submitted from this Repair Order','success', 6000);
+}
+
+async function tagRepairSerialNos(prName, bomName, receiveRows){
+  const metalRow = receiveRows.find(r => r.custom_add_in_net_wt===1 || r.custom_add_in_net_wt==='1');
+  const metalType = detectRepairMetalType(metalRow?.item_code || '');
+
+  const freshDoc = await dev1Get('/api/resource/Purchase Receipt/'+encodeURIComponent(prName));
+  const items = (freshDoc.data || freshDoc.message || {}).items || [];
+
+  let serialNos = [];
+  for(const item of items){
+    if(item.serial_no){
+      serialNos.push(...String(item.serial_no).split('\n').map(s=>s.trim()).filter(Boolean));
+    } else if(item.serial_and_batch_bundle){
+      try{
+        const bundleRes = await dev1Get('/api/resource/Serial and Batch Bundle/'+encodeURIComponent(item.serial_and_batch_bundle));
+        const bundle = bundleRes.data || bundleRes.message || {};
+        serialNos.push(...(bundle.entries||[]).map(e=>e.serial_no).filter(Boolean));
+      }catch(e){ console.error('Failed to fetch Serial and Batch Bundle', item.serial_and_batch_bundle, ':', e.message); }
+    }
+  }
+  if(!serialNos.length) return;
+
+  for(const sn of serialNos){
+    try{ await dev1Put('/api/resource/Serial No/'+encodeURIComponent(sn), {custom_bom:bomName, custom_metal_type:metalType}); }
+    catch(e){ console.error('Failed to tag Serial No', sn, ':', e.message); }
+  }
+}
+
+function detectRepairMetalType(itemCode){
+  const s=(itemCode||'').toLowerCase();
+  if(s.includes('silver')) return 'Silver';
+  if(s.includes('platinum')) return 'Platinum';
+  return 'Gold';
+}
+async function getTodayMetalRateRepair(metalType){
+  try{
+    const fields=encodeURIComponent(JSON.stringify(['rate']));
+    const filters=encodeURIComponent(JSON.stringify([['metal_type','=',metalType]]));
+    const res=await dev1Get('/api/resource/Metal%20Price%20List?fields='+fields+'&filters='+filters+'&order_by=date%20desc&limit_page_length=1');
+    const rows=res.data||res.message||[];
+    return parseFloat(rows[0]?.rate)||0;
+  }catch(e){ return 0; }
+}
+async function getLastPurityLedgerBalanceRepair(metalType){
+  try{
+    const fields=encodeURIComponent(JSON.stringify(['balance']));
+    const filters=encodeURIComponent(JSON.stringify([['metal_type','=',metalType]]));
+    const res=await dev1Get('/api/resource/Purity%20Ledger%20Entry?fields='+fields+'&filters='+filters+'&order_by=creation%20desc&limit_page_length=1');
+    const rows=res.data||res.message||[];
+    return parseFloat(rows[0]?.balance)||0;
+  }catch(e){ return 0; }
+}
+// Credits the supplier's Purity Ledger balance for the metal received — same convention
+// postPurityLedgerEntries() uses in caratdesk-new-purchase-receipt.html, driven straight off
+// receive_bom_item's rows instead of DOM (there's no live form here). Only rows flagged
+// "Add in Net Wt" count, same as the manual flow's getRowMetalType().
+async function postRepairPurityLedgerEntry(prName, doc, receiveRows){
+  const credits={};
+  receiveRows.forEach(r=>{
+    const addInNetWt = r.custom_add_in_net_wt===1 || r.custom_add_in_net_wt==='1';
+    if(!addInNetWt) return;
+    const metalType = detectRepairMetalType(r.item_code);
+    const wt = parseFloat(r.qty)||0;
+    if(wt<=0) return;
+    credits[metalType] = (credits[metalType]||0) + wt;
+  });
+  for(const metalType of Object.keys(credits)){
+    const wt = credits[metalType];
+    const lastBalance = await getLastPurityLedgerBalanceRepair(metalType);
+    const rate = await getTodayMetalRateRepair(metalType);
+    await dev1Post('/api/resource/Purity Ledger Entry', {
+      datetime: nowDateTime(),
+      posting_date: new Date().toISOString().slice(0,10),
+      company: COMPANY, branch: doc.branch||'',
+      metal_type: metalType,
+      pure_wt_cr: wt, net_wt_cr: wt,
+      pure_wt_dr: 0, net_wt_dr: 0,
+      amount_credit: wt*rate, amount_debit: 0,
+      voucher_type: 'Purchase Receipt', voucher_name: prName,
+      party_type: 'Supplier', party: doc.supplier,
+      balance: lastBalance + wt,
+      is_cancel: 0,
+    });
+  }
+}
+function repCancelOrder(){
+  if(!window.confirm('Cancel this Repair Order?')) return;
+  patchRepOrder({ docstatus:2 }, 'Repair Order cancelled');
+}
+
+// Supplier autocomplete for the inline Issue Assignment editor
+let ISS_SUPPLIERS=[];
+async function acIssSupplier(val){
+  const list=document.getElementById('ac-iss-supplier');
+  if(!ISS_SUPPLIERS.length){
+    try{
+      const res=await dev1Get('/api/resource/Supplier?fields='+encodeURIComponent(JSON.stringify(['name','supplier_name']))+'&limit_page_length=0');
+      ISS_SUPPLIERS=(res.data||res.message||[]).map(s=>({name:s.name, display:s.supplier_name||s.name}));
+    }catch(e){ console.warn('Supplier load failed:', e.message); }
+  }
+  const q=(val||'').toLowerCase();
+  const results=ISS_SUPPLIERS.filter(s=>s.display.toLowerCase().includes(q)||s.name.toLowerCase().includes(q)).slice(0,20);
+  list.innerHTML = results.length? results.map(s=>`<div class="cd-ac-item" onclick="selIssSupplier('${esc(s.name)}')"><div class="main">${esc(s.display)}</div></div>`).join('') : `<div class="cd-ac-empty">No supplier found</div>`;
+  list.classList.add('open');
+}
+function selIssSupplier(name){
+  document.getElementById('issAssignSupplier').value=name;
+  document.getElementById('ac-iss-supplier').classList.remove('open');
+}
+document.addEventListener('click',(e)=>{
+  const list=document.getElementById('ac-iss-supplier');
+  if(list && !e.target.closest('.cd-ac')) list.classList.remove('open');
+});
+function repSaveIssueAssignment(){
+  const issueType=document.getElementById('issAssignType')?.value||'';
+  const supplier=document.getElementById('issAssignSupplier')?.value.trim()||'';
+  if(!issueType || !supplier){ showToast('Select both Issue Type and Supplier','error'); return; }
+  patchRepOrder({ issue_type:issueType, supplier }, 'Issue assignment saved');
+}
+
+// ══════════════════════════════════════════
+//  ISSUE / RECEIVE — both happen pre-submit now (doc still Draft/docstatus 0). Repair-type
+//  just locks the form and tracks dates; Modification moves real stock via Stock Entry.
+// ══════════════════════════════════════════
+async function repDoIssue(){
+  const doc=currentRepDoc;
+  if(!doc.issue_type || !doc.supplier){ showToast('Save Issue Type and Supplier first','error'); return; }
+  if(doc.order_type==='Modification'){
+    await repDoIssueModification();
+  } else {
+    await patchRepOrder({ issue_date:new Date().toISOString().slice(0,10) }, 'Issued');
+  }
+}
+async function createStockEntry(typeName, rows, extra){
+  const purpose=SE_PURPOSE[typeName]||typeName;
+  const payload={
+    doctype:'Stock Entry',
+    docstatus:1,
+    stock_entry_type:typeName,
+    purpose,
+    company:COMPANY,
+    posting_date:new Date().toISOString().slice(0,10),
+    items: rows.map((r,idx)=>({
+      doctype:'Stock Entry Detail', idx: idx+1,
+      item_code:r.item_code, item_name:r.item_code, description:r.item_code,
+      qty:r.qty||1, uom:'Nos', stock_uom:'Nos', conversion_factor:1,
+      ...(r.s_warehouse?{s_warehouse:r.s_warehouse}:{}),
+      ...(r.t_warehouse?{t_warehouse:r.t_warehouse}:{}),
+      ...(r.serial_no?{serial_no:r.serial_no, use_serial_batch_fields:1}:{}),
+    })),
+    ...(extra||{}),
+  };
+  const res=await dev1Post('/api/resource/Stock%20Entry', payload);
+  const name=res?.data?.name||res?.name;
+  if(!name) throw new Error('Stock Entry creation failed');
+  return name;
+}
+async function repDoIssueModification(){
+  const doc=currentRepDoc;
+  const targetWh=supplierWarehouse(doc.supplier);
+  if(!targetWh){ showToast('No Warehouse has "Custom Supplier" set to '+doc.supplier,'error'); return; }
+  try{
+    if(doc.sold_by_ppj){
+      if(!doc.serial_no){ showToast('Serial No is missing on this order','error'); return; }
+      const serialRes=await dev1Get('/api/resource/Serial%20No/'+encodeURIComponent(doc.serial_no));
+      const serialDoc=serialRes.data||serialRes.message||serialRes;
+      const sourceWh=serialDoc.warehouse;
+      if(!sourceWh){ showToast('Serial No '+doc.serial_no+' has no current warehouse','error'); return; }
+      if(sourceWh===targetWh){ showToast('This Serial No is already in '+targetWh+' — that\'s also the warehouse linked to '+doc.supplier+', so there\'s nothing to issue','error'); return; }
+      const seName=await createStockEntry('Send to Subcontractor', [{ item_code:doc.item, serial_no:doc.serial_no, s_warehouse:sourceWh, t_warehouse:targetWh }]);
+      await patchRepOrder({ issue_stock_entry:seName, issue_date:new Date().toISOString().slice(0,10) }, 'Issued — '+seName);
+    } else {
+      const pickedWh=document.getElementById('issueSrcWarehouse')?.value||'';
+      if(!pickedWh){ showToast('Select the receiving warehouse first','error'); return; }
+      const serRes=await dev1Post('/api/resource/Serial%20No', { doctype:'Serial No', item_code:REPAIR_ITEM_CODE });
+      const newSerial=serRes?.data?.name||serRes?.name;
+      if(!newSerial) throw new Error('Could not create a Serial No for '+REPAIR_ITEM_CODE);
+      await createStockEntry('Material Receipt', [{ item_code:REPAIR_ITEM_CODE, serial_no:newSerial, t_warehouse:pickedWh }]);
+      const seName=await createStockEntry('Send to Subcontractor', [{ item_code:REPAIR_ITEM_CODE, serial_no:newSerial, s_warehouse:pickedWh, t_warehouse:targetWh }]);
+      await patchRepOrder({ serial_no:newSerial, item:REPAIR_ITEM_CODE, issue_stock_entry:seName, issue_date:new Date().toISOString().slice(0,10) }, 'Issued — '+seName);
+    }
+  }catch(e){
+    showToast('Error: '+String(e.message).slice(0,150),'error');
+  }
+}
+function computeBreakup(rows, buckets, makingCharges){
+  const t={ metal_wt:0, metal_amount:0, diamond_wt:0, diamond_amount:0, stone_wt:0, stone_amount:0, other_wt:0, other_amount:0 };
+  rows.forEach((r,i)=>{
+    const bucket=buckets[i]||'other';
+    t[bucket+'_wt']+=parseFloat(r.qty||0)||0;
+    t[bucket+'_amount']+=parseFloat(r.custom_bom_amt||0)||0;
+  });
+  const gross_wt=t.metal_wt+t.diamond_wt+t.stone_wt+t.other_wt;
+  const net_wt=t.metal_wt;
+  const rowsTotal=rows.reduce((s,r)=>s+(parseFloat(r.custom_bom_amt||0)),0);
+  const total=rowsTotal+(parseFloat(makingCharges||0)||0);
+  return { ...t, gross_wt, net_wt, making_charges: parseFloat(makingCharges||0)||0, total };
+}
+// Both order types: collects receive_bom_item from the Receive BOM table and saves it, along
+// with the date. Modification additionally creates the real "Receive From Subcontractor"
+// Stock Entry and pushes the same rows onto the master BOM (writeBackToMasterBom) — Repair
+// has no master BOM and no stock movement here; its receive_bom_item feeds the Purchase
+// Receipt that gets auto-created on Submit instead (see autoCreateRepairPurchaseReceipt).
+async function repDoReceive(){
+  const doc=currentRepDoc;
+  const receiveRows=collectReceiveBomRows();
+  if(!receiveRows.length){ showToast('Add at least one BOM row before receiving','error'); return; }
+  const patch={ receive_date:new Date().toISOString().slice(0,10), receive_bom_item:receiveRows };
+
+  if(doc.order_type==='Modification'){
+    const sourceWh=supplierWarehouse(doc.supplier);
+    if(!sourceWh){ showToast('No Warehouse has "Custom Supplier" set to '+doc.supplier,'error'); return; }
+    const targetWh=document.getElementById('receiveTgtWarehouse')?.value||'';
+    if(!targetWh){ showToast('Select the receiving warehouse first','error'); return; }
+    try{
+      const seName=await createStockEntry('Receive From Subcontractor', [{ item_code:doc.item, serial_no:doc.serial_no, s_warehouse:sourceWh, t_warehouse:targetWh }]);
+      patch.receive_stock_entry=seName;
+      if(doc.bom) await writeBackToMasterBom(doc.bom, receiveRows);
+    }catch(e){
+      showToast('Error: '+String(e.message).slice(0,150),'error');
+      return;
+    }
+  }
+
+  await patchRepOrder(patch, 'Received');
+}
+// Edits made while receiving always overwrite the master BOM's own item rows (matched by
+// item_code) — the BOM is shared, but the client explicitly wants corrections made during a
+// repair to flow back into it rather than only living on this Repair Order.
+async function writeBackToMasterBom(bomName, editedRows){
+  try{
+    const bomRes=await dev1Get('/api/resource/BOM/'+encodeURIComponent(bomName));
+    const bomDoc=bomRes.data||bomRes.message||bomRes;
+    const items=(bomDoc.items||[]).map(row=>{
+      const edited=editedRows.find(e=>e.item_code===row.item_code);
+      return edited ? { ...row, custom_costing_rate:edited.custom_costing_rate, custom_bom_amt:edited.custom_bom_amt } : row;
+    });
+    await dev1Put('/api/resource/BOM/'+encodeURIComponent(bomName), { items });
+  }catch(e){
+    console.warn('Writing back to master BOM failed:', e.message);
+    showToast('Received, but updating the master BOM failed: '+e.message,'error');
+  }
+}
+
+// ══ INIT ══
+async function init(){
+  const h=cdGetInstanceHeaders();
+  if(!h){ window.location.replace('/caratdesk-login?logout=1'); return; }
+  const params = new URLSearchParams(window.location.search);
+  const name = params.get('repair');
+  if(!name){ window.location.replace('/caratdesk-repair'); return; }
+  window.currentRepName=name;
+  loadWarehouses();
+  loadStockEntryPurposes();
+  await refreshRepDetail();
+  if(params.get('created')){ showToast('Repair Order '+name+' submitted','success'); history.replaceState({},'',window.location.pathname+'?repair='+encodeURIComponent(name)); }
+}
+
+// ── THEME ──
+const moonIcon='<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+const sunIcon='<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+function initTheme(){ const s=localStorage.getItem('cdTheme'); if(s==='dark'){ document.documentElement.classList.add('dark'); document.getElementById('themeIcon').innerHTML=sunIcon; } else { document.getElementById('themeIcon').innerHTML=moonIcon; } }
+function toggleTheme(){
+  if(document.documentElement.classList.contains('dark')){
+    document.documentElement.classList.remove('dark'); localStorage.setItem('cdTheme','light'); document.getElementById('themeIcon').innerHTML=moonIcon;
+  } else {
+    document.documentElement.classList.add('dark'); localStorage.setItem('cdTheme','dark'); document.getElementById('themeIcon').innerHTML=sunIcon;
+  }
+}
+document.getElementById('cdThemeToggle').addEventListener('click', toggleTheme);
+initTheme();
+
+// Sidebar toggle
+const sidebar = document.getElementById('cdSidebar');
+document.getElementById('cdMenuToggle').addEventListener('click', () => sidebar.classList.toggle('mobile-open'));
+document.querySelectorAll('.cd-nav-item').forEach(link => {
+  link.addEventListener('click', () => { if (window.innerWidth <= 768) sidebar.classList.remove('mobile-open'); });
+});
+
+// Auth / user
+(function(){
+  const hasSession=localStorage.getItem('cd_pp_key')||localStorage.getItem('cd_pc_key');
+  if(!hasSession){ window.location.replace('/caratdesk-login?logout=1'); return; }
+  const active=cdGetActiveInstance();
+  const key=active==='PC'?localStorage.getItem('cd_pc_key'):localStorage.getItem('cd_pp_key');
+  const sec=active==='PC'?localStorage.getItem('cd_pc_secret'):localStorage.getItem('cd_pp_secret');
+  if(key&&sec){ localStorage.setItem('cd_api_key',key); localStorage.setItem('cd_api_secret',sec); }
+  const name=localStorage.getItem('cd_user')||localStorage.getItem('cd_user_email')||'User';
+  document.getElementById('cdUserName').textContent=name;
+  document.getElementById('cdAvatar').textContent=name.split('@')[0].split(/[\s.]+/).map(w=>w[0]||'').join('').slice(0,2).toUpperCase()||'U';
+  cdInitInstanceToggle();
+})();
+
+document.getElementById('cdLogoutBtn').addEventListener('click',async()=>{
+  const ppK=localStorage.getItem('cd_pp_key'), ppS=localStorage.getItem('cd_pp_secret');
+  const pcK=localStorage.getItem('cd_pc_key'), pcS=localStorage.getItem('cd_pc_secret');
+  try{ if(ppK&&ppS) await fetch(`${DEV1}/api/method/logout`,{method:'POST',headers:{Authorization:`token ${ppK}:${ppS}`}}); }catch(e){}
+  try{ if(pcK&&pcS) await fetch(`${DEV2}/api/method/logout`,{method:'POST',headers:{Authorization:`token ${pcK}:${pcS}`}}); }catch(e){}
+  ['cd_api_key','cd_api_secret','cd_pp_key','cd_pp_secret','cd_pc_key','cd_pc_secret',
+   'cd_user','cd_user_email','cd_active_instance','cd_available_instances'].forEach(k=>localStorage.removeItem(k));
+  window.location.replace('/caratdesk-login?logout=1');
+});
+
+init();
+</script>

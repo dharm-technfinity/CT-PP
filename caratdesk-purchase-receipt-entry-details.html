@@ -8,8 +8,9 @@
     .navbar,.page-header,footer.web-footer,.container>.row>.col-sm-10,.frappe-footer{display:none!important}
     .web-page-container,.container{padding:0!important;max-width:100%!important}
     body{overflow-x:hidden}
-    :root{--bg:#F7F6F3;--surface:#FFF;--border:rgba(0,0,0,.07);--border-strong:rgba(0,0,0,.12);--text-primary:#1A1A18;--text-secondary:#6B6B65;--text-muted:#A8A8A2;--accent:#1A1A18;--accent-light:#F0EFE9;--nav-hover:#F7F6F3;--nav-active-bg:#EBEBE5;--pill-green-bg:#EAF3DE;--pill-green-txt:#3B6D11;--pill-red-bg:#FCEBEB;--pill-red-txt:#A32D2D;--pill-amber-bg:#FAEEDA;--pill-amber-txt:#854F0B;--pill-blue-bg:#E8F0FD;--pill-blue-txt:#1A4A8A;--shadow-sm:0 2px 12px rgba(0,0,0,.04),0 0 0 .5px rgba(0,0,0,.03);--shadow-md:0 4px 24px rgba(0,0,0,.08)}
-    .dark{--bg:#121212;--surface:#1E1E1E;--border:rgba(255,255,255,.08);--border-strong:rgba(255,255,255,.15);--text-primary:#EDEDED;--text-secondary:#A0A0A0;--text-muted:#6E6E6E;--accent:#D4D4D4;--accent-light:#2C2C2C;--nav-hover:#252525;--nav-active-bg:#2D2D2D;--pill-green-bg:#1E3A2E;--pill-green-txt:#9CD45E;--pill-red-bg:#3E1E1E;--pill-red-txt:#F28B82;--pill-amber-bg:#3E2E1E;--pill-amber-txt:#FDBF6B;--pill-blue-bg:#1A2A3E;--pill-blue-txt:#7AABF0;--shadow-sm:0 2px 12px rgba(0,0,0,.3),0 0 0 .5px rgba(255,255,255,.05);--shadow-md:0 4px 24px rgba(0,0,0,.3)}
+    :root{--bg:#F7F6F3;--surface:#FFF;--border:rgba(0,0,0,.07);--border-strong:rgba(0,0,0,.12);--text-primary:#1A1A18;--text-secondary:#6B6B65;--text-muted:#A8A8A2;--accent:#1A1A18;--accent-light:#F0EFE9;--nav-hover:#F7F6F3;--nav-active-bg:#EBEBE5;--pill-green-bg:#EAF3DE;--pill-green-txt:#3B6D11;--pill-green-bg-hover:#d8edca;--pill-red-bg:#FCEBEB;--pill-red-txt:#A32D2D;--pill-red-bg-hover:#f8d7d7;--pill-amber-bg:#FAEEDA;--pill-amber-txt:#854F0B;--pill-amber-bg-hover:#f5e4c5;--pill-blue-bg:#E8F0FD;--pill-blue-txt:#1A4A8A;--pill-yellow-bg:#fff6d3;--pill-yellow-txt:#1e293b;--pill-yellow-border:#eab308;--pill-yellow-bg-hover:#eab308;--pill-white-bg:#ffffff;--pill-white-txt:#1e293b;--pill-white-border:#d1d5db;--pill-white-bg-hover:#f8fafc;--toast-success-bg:#2D6A4F;--toast-info-bg:#1A4A8A;--shadow-sm:0 2px 12px rgba(0,0,0,.04),0 0 0 .5px rgba(0,0,0,.03);--shadow-md:0 4px 24px rgba(0,0,0,.08)}
+    .dark{--bg:#121212;--surface:#1E1E1E;--border:rgba(255,255,255,.08);--border-strong:rgba(255,255,255,.15);--text-primary:#EDEDED;--text-secondary:#A0A0A0;--text-muted:#6E6E6E;--accent:#D4D4D4;--accent-light:#2C2C2C;--nav-hover:#252525;--nav-active-bg:#2D2D2D;--pill-green-bg:#1E3A2E;--pill-green-txt:#9CD45E;--pill-green-bg-hover:#2a4a3a;--pill-red-bg:#3E1E1E;--pill-red-txt:#F28B82;--pill-red-bg-hover:#4a2626;--pill-amber-bg:#3E2E1E;--pill-amber-txt:#FDBF6B;--pill-amber-bg-hover:#4a3826;--pill-blue-bg:#1A2A3E;--pill-blue-txt:#7AABF0;--pill-yellow-bg:#3e331e;--pill-yellow-txt:#facc15;--pill-yellow-border:#ca8a04;--pill-yellow-bg-hover:#4a401e;--pill-white-bg:#2c2c2c;--pill-white-txt:#ededed;--pill-white-border:#444444;--pill-white-bg-hover:#383838;--toast-success-bg:#1f5f3f;--toast-info-bg:#2a5a9a;--shadow-sm:0 2px 12px rgba(0,0,0,.3),0 0 0 .5px rgba(255,255,255,.05);--shadow-md:0 4px 24px rgba(0,0,0,.3)}
+    html,body{color:var(--text-primary)}
     *{transition:background-color .2s,border-color .2s,color .2s}
     .cd-app{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);min-height:100vh;display:flex;-webkit-font-smoothing:antialiased;color:var(--text-primary)}
     .cd-sidebar{width:260px;background:var(--surface);border-right:.5px solid var(--border);display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;z-index:200;box-shadow:var(--shadow-sm);transform:translateX(0);transition:transform .3s cubic-bezier(.2,.9,.4,1.1)}
@@ -195,7 +196,7 @@
       align-items:center;
       gap:3px;
     }
-    .cd-field-lbl .req{color:#E05252}
+    .cd-field-lbl .req{color:var(--pill-red-txt)}
      
     /* Section wrapper — reuses your surface/border/shadow vars */
     .cd-form-section{
@@ -302,10 +303,10 @@
         /*bom-table*/
         .cd-bom-wrap{overflow-x:auto;border-radius:10px;border:.5px solid var(--border);margin-bottom:14px}
         .cd-bom-tbl{width:100%;border-collapse:collapse;min-width:900px}
-        .cd-bom-tbl th{padding:4px 6px;font-size:11px;font-weight:600;color:#64748b;border-bottom:1px solid #e5e7eb;height:30px;background:var(--bg);text-align:left;white-space:nowrap}
-        .cd-bom-tbl td{padding:0;height:28px;border-bottom:1px solid #e5e7eb;border-right:1px solid #edf2f7;vertical-align:middle}
-        .cd-bom-tbl td:first-child{font-size:13px;width:40px;text-align:center;font-weight:600;color:#64748b}
-        .cd-bom-tbl input,.cd-bom-tbl select{width:100%;height:26px;border:none;outline:none;padding:0 6px;font-size:11px;background:transparent;color:#334155;line-height:1}
+        .cd-bom-tbl th{padding:4px 6px;font-size:11px;font-weight:600;color:var(--text-secondary);border-bottom:1px solid var(--border);height:30px;background:var(--bg);text-align:left;white-space:nowrap}
+        .cd-bom-tbl td{padding:0;height:28px;border-bottom:1px solid var(--border);border-right:1px solid var(--border);vertical-align:middle}
+        .cd-bom-tbl td:first-child{font-size:13px;width:40px;text-align:center;font-weight:600;color:var(--text-secondary)}
+        .cd-bom-tbl input,.cd-bom-tbl select{width:100%;height:26px;border:none;outline:none;padding:0 6px;font-size:11px;background:transparent;color:var(--text-primary);line-height:1}
         .cd-bom-tbl input[type=number]::-webkit-inner-spin-button,.cd-bom-tbl input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
         .cd-bom-tbl input[type=number]{-moz-appearance:textfield;appearance:textfield}
         .cd-bom-tbl tr:last-child td{border-bottom:none}
@@ -318,6 +319,59 @@
         .cd-tax-cell{padding:0 10px;font-size:12.5px;color:var(--text-primary);white-space:nowrap}
         .cd-tax-cell-right{padding:0 10px;font-size:12.5px;color:var(--text-primary);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
         .cd-tax-cell-muted{padding:0 10px;font-size:12px;color:var(--text-muted);white-space:nowrap}
+    /* ── section cards matching new-purchase-receipt ── */
+    .cd-section{background:var(--surface);border:.5px solid var(--border);border-radius:14px;margin-bottom:16px;overflow:visible;box-shadow:var(--shadow-sm)}
+    .cd-section-header{padding:14px 20px;border-bottom:.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none}
+    .cd-section-header:hover{background:var(--bg)}
+    .cd-sec-title{font-size:13px;font-weight:500;display:flex;align-items:center;gap:8px}
+    .cd-sec-title svg{width:14px;height:14px;stroke:var(--text-muted);fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+    .cd-sec-toggle{width:22px;height:22px;display:flex;align-items:center;justify-content:center;color:var(--text-muted)}
+    .cd-sec-toggle svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;transition:transform .2s}
+    .cd-sec-toggle.collapsed svg{transform:rotate(-90deg)}
+    .cd-section-body{padding:20px}
+    /* ── field labels & inputs ── */
+    .cd-label{font-size:11.5px;font-weight:500;color:var(--text-secondary);letter-spacing:.01em;margin-top:10px;margin-bottom:0}
+    .cd-input,.cd-select,.cd-textarea{font-family:'DM Sans',sans-serif;font-size:13px;background:var(--bg);border:.5px solid var(--border-strong);border-radius:9px;padding:9px 12px;color:var(--text-primary);outline:none;transition:border-color .14s,box-shadow .14s;width:100%}
+    .cd-textarea{resize:vertical;min-height:72px;line-height:1.5}
+    .cd-readonly{opacity:.65;cursor:not-allowed;background:var(--accent-light)!important}
+    .cd-field{display:flex;flex-direction:column;gap:5px}
+    /* ── items table (same as new-purchase-receipt) ── */
+    .cd-items-wrap{overflow-x:auto;border-radius:10px;border:.5px solid var(--border);margin-bottom:14px;width:100%;display:block}
+    .cd-items-tbl{width:100%;border-collapse:collapse;min-width:1100px}
+    .cd-items-tbl th{font-size:11px;font-weight:500;color:var(--text-muted);text-align:left;padding:10px 12px;letter-spacing:.05em;text-transform:uppercase;background:var(--bg);border-bottom:.5px solid var(--border);white-space:nowrap}
+    .cd-items-tbl td{padding:6px 4px;height:28px;border-bottom:1px solid var(--border);border-right:1px solid var(--border);vertical-align:middle}
+    .cd-items-tbl td:first-child{font-size:12px;width:40px;text-align:center;font-weight:600;color:var(--text-secondary)}
+    .cd-items-tbl td input{width:100%;height:26px;border:.5px solid var(--border-strong);outline:none;padding:0 6px;font-size:11.5px;background:var(--bg);color:var(--text-primary);border-radius:7px;font-family:'DM Sans',sans-serif}
+    .cd-items-tbl td input[readonly]{background:var(--accent-light);cursor:not-allowed}
+    .cd-items-tbl tr:last-child td{border-bottom:none}
+    /* ── words / amount in words ── */
+    .cd-words{font-size:12px;color:var(--text-secondary);padding:8px 12px;background:var(--bg);border-radius:8px;border:.5px solid var(--border);line-height:1.5}
+    /* ── input suffix (for disc %) ── */
+    .cd-input-suffix{display:flex;align-items:center;background:var(--bg);border:.5px solid var(--border-strong);border-radius:9px;overflow:hidden}
+    .cd-suffix-inp{font-family:'DM Sans',sans-serif;font-size:13px;background:transparent;border:none;outline:none;padding:9px 12px;color:var(--text-primary);width:100%}
+    .cd-suffix-sym{padding:9px 12px 9px 4px;font-size:12px;color:var(--text-muted);flex-shrink:0}
+    .cd-footer{position:fixed;bottom:0;left:260px;right:0;background:var(--surface);border-top:.5px solid var(--border);padding:12px 28px;display:flex;align-items:center;gap:10px;z-index:90;box-shadow:0 -4px 20px rgba(0,0,0,.05)}
+    @media(max-width:768px){.cd-footer{left:0;padding:12px 16px}}
+    .cd-footer-right{margin-left:auto;display:flex;gap:8px;align-items:center}
+    .cd-content{padding-bottom:80px!important}
+    /* Create dropdown */
+    .cd-create-wrap{position:relative;display:none}
+    .cd-create-wrap.visible{display:inline-flex;align-items:center}
+    .cd-create-btn{display:inline-flex;align-items:stretch;background:var(--text-primary);color:var(--surface);border-radius:9px;border:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;overflow:hidden;line-height:1}
+    .cd-create-btn:hover{opacity:.85}
+    .cd-create-lbl{padding:8px 12px;display:flex;align-items:center;gap:7px}
+    .cd-create-lbl svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+    .cd-create-sep{width:.5px;background:rgba(255,255,255,.25);flex-shrink:0}
+    .cd-create-caret{padding:8px 9px;display:flex;align-items:center}
+    .cd-create-caret svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+    .cd-create-pop{position:absolute;top:calc(100% + 6px);right:0;background:var(--surface);border:.5px solid var(--border-strong);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.12);min-width:180px;z-index:500;display:none;overflow:hidden}
+    .cd-create-pop.open{display:block}
+    .cd-create-opt{padding:10px 14px;font-size:13px;font-weight:500;color:var(--text-primary);cursor:pointer;display:flex;align-items:center;gap:9px;transition:background .12s}
+    .cd-create-opt:hover{background:var(--accent-light)}
+    .cd-create-opt svg{width:13px;height:13px;stroke:var(--text-muted);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+    .cd-toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--text-primary);color:var(--surface);padding:11px 20px;border-radius:10px;font-size:13px;font-weight:500;box-shadow:var(--shadow-md);z-index:600;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;white-space:nowrap;display:flex;align-items:center;gap:8px}
+    .cd-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+    .cd-toast.success{background:var(--toast-success-bg)}.cd-toast.error{background:var(--pill-red-txt)}
     </style>
     
     <div class="cd-app" id="cdApp">
@@ -330,6 +384,10 @@
           <div class="cd-nav-section">Main</div>
           <a href="/caratdesk" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>Dashboard</a>
           <div class="cd-nav-section">Operations</div>
+          <a href="/caratdesk-pos" class="cd-nav-item">
+        <span class="cd-nav-icon"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>
+        POS Billing
+      </a>
           <a href="/caratdesk-selling" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg></span>Selling</a>
           <a href="/caratdesk-buying" class="cd-nav-item active"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></span>Buying</a>
           <a href="/caratdesk-stock" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg></span>Stock</a>
@@ -354,10 +412,29 @@
             <div class="cd-breadcrumb">
               <a href="/caratdesk-buying">Buying</a>
               <span class="cd-breadcrumb-sep">›</span>
-              <span class="cd-breadcrumb-cur">Purchase Receipts</span>
+              <a href="/caratdesk-purchase-receipt">Purchase Receipts</a>
+              <span class="cd-breadcrumb-sep">›</span>
+              <span class="cd-breadcrumb-cur" id="bcName">—</span>
             </div>
+            <div id="prStatus"></div>
           </div>
           <div class="cd-topbar-right">
+            <!-- Create dropdown — visible only after submission -->
+            <div class="cd-create-wrap" id="createWrap">
+              <div class="cd-create-btn" onclick="toggleCreatePop(event)">
+                <div class="cd-create-lbl">
+                  <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Create
+                </div>
+                <div class="cd-create-sep"></div>
+                <div class="cd-create-caret"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+              </div>
+              <div class="cd-create-pop" id="createPop">
+                <div class="cd-create-opt" onclick="createFromPR('pi')">
+                  <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                  Purchase Invoice
+                </div>
+              </div>
+            </div>
             <div class="cd-icon-btn" id="cdThemeToggle"><svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div>
           </div>
         </div>
@@ -368,149 +445,100 @@
      
       <!-- PAGE HEADER -->
       <div class="cd-page-header">
-        <div>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
           <div class="cd-page-title" id="prTitle">Purchase Receipt</div>
-          <div class="cd-page-sub">Complete Purchase Receipt Overview</div>
         </div>
         <div style="display:flex;gap:8px;align-items:center">
-          <div id="prStatus"></div>
-          <button class="cd-btn cd-btn-secondary" onclick="window.location.href='/caratdesk-purchase-receipt'">Back</button>
-          <button class="cd-btn cd-btn-secondary" 
-            onclick="window.location.href='/caratdesk-purchase-receipt'">Submit</button>
-          <button class="cd-btn cd-btn-primary" id="openFrappeBtn">Open in Frappe</button>
+          <button class="cd-btn cd-btn-secondary" onclick="window.location.href='/caratdesk-purchase-receipt'">
+            <svg viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>Back
+          </button>
         </div>
       </div>
      
-      <!-- SUMMARY — billing progress only -->
-        <div style="background:var(--surface);border:.5px solid var(--border);border-radius:14px;padding:20px;box-shadow:var(--shadow-sm);margin-bottom:20px;display:flex;align-items:center;gap:24px">
-        
-          <div style="flex:1">
-            <div class="cd-dmeta-lbl" style="margin-bottom:6px">Billing Progress</div>
-            <div style="height:8px;background:var(--border);border-radius:999px;overflow:hidden">
-              <div id="billBar" style="height:100%;width:0%;background:var(--pill-green-txt);border-radius:999px;transition:width .4s ease"></div>
-            </div>
-          </div>
-        
-          <div id="billedPercent" style="font-size:26px;font-weight:700;flex-shrink:0">0%</div>
-        
+      <!-- SECTION 1: Supplier & Receipt Info -->
+      <div class="cd-section">
+        <div class="cd-section-header" onclick="toggleSec(this)">
+          <div class="cd-sec-title"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>Supplier &amp; Receipt Information</div>
+          <div class="cd-sec-toggle"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
         </div>
-     
-      <!-- ① SUPPLIER & RECEIPT INFORMATION -->
-      <div class="cd-form-section" id="secSupplier">
-        <div class="cd-form-section-hd" onclick="toggleSec('secSupplier')">
-          <div class="cd-form-section-hd-left">
-            <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            Supplier &amp; Receipt Information
-          </div>
-          <svg class="cd-form-section-chev" viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
-        </div>
-     
-        <div class="cd-form-section-body" id="bodySupplier">
-          <div class="cd-field-grid">
-     
-            <div>
-              <div class="cd-field-lbl">Company <span class="req">*</span></div>
-              <input class="cd-form-input" id="f_company" placeholder="—"/>
+        <div class="cd-section-body">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px">
+            <div class="cd-field">
+              <label class="cd-label">Company</label>
+              <input class="cd-input cd-readonly" id="f_company" readonly placeholder="—"/>
+              <label class="cd-label">Branch</label>
+              <input class="cd-input cd-readonly" id="f_branch" readonly placeholder="—"/>
+              <label class="cd-label">Supplier</label>
+              <input class="cd-input cd-readonly" id="f_supplier" readonly placeholder="—"/>
             </div>
-     
-            <div>
-              <div class="cd-field-lbl">Posting Date <span class="req">*</span></div>
-              <input class="cd-form-input" id="f_posting_date" placeholder="—"/>
+            <div class="cd-field">
+              <label class="cd-label">Posting Date</label>
+              <input class="cd-input cd-readonly" id="f_posting_date" readonly placeholder="—"/>
+              <label class="cd-label">Supplier Address</label>
+              <textarea class="cd-textarea cd-readonly" id="f_address" rows="5" readonly placeholder="—" style="resize:none;line-height:1.6"></textarea>
             </div>
-     
-            <!--<div>-->
-            <!--  <div class="cd-field-lbl">Against Purchase Order</div>-->
-            <!--  <input class="cd-form-input" id="f_po" readonly placeholder="Filtered by supplier…"/>-->
-            <!--</div>-->
-     
-            <div>
-              <div class="cd-field-lbl">Supplier <span class="req">*</span></div>
-              <input class="cd-form-input" id="f_supplier" placeholder="—"/>
+            <div class="cd-field">
+              <label class="cd-label">Against Purchase Order</label>
+              <input class="cd-input cd-readonly" id="f_po" readonly placeholder="—"/>
+              <label class="cd-label">Supplier Delivery Note</label>
+              <input class="cd-input cd-readonly" id="f_delivery_note" readonly placeholder="—"/>
             </div>
-     
-            <div>
-              <div class="cd-field-lbl">Branch</div>
-              <input class="cd-form-input" id="f_branch" placeholder="branch"/>
-            </div>
-            
-            <div>
-              <div class="cd-field-lbl">Supplier Address</div>
-              <textarea class="cd-form-input" id="f_address" placeholder="—"></textarea>
-            </div>
-            
-            
-     
           </div>
         </div>
       </div>
-     
-      <!-- ② ITEMS RECEIVED -->
-      <div class="cd-form-section" id="secItems">
-        <div class="cd-form-section-hd" onclick="toggleSec('secItems')">
-          <div class="cd-form-section-hd-left">
-            <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
-            Items Received
-          </div>
-          <svg class="cd-form-section-chev" viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
+
+      <!-- SECTION 2: Items Received -->
+      <div class="cd-section">
+        <div class="cd-section-header" onclick="toggleSec(this)">
+          <div class="cd-sec-title"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>Items Received</div>
+          <div class="cd-sec-toggle"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
         </div>
-     
-        <div class="cd-form-section-body" id="bodyItems">
-     
-          <!-- Items table — reuses your .cd-table-wrap / .cd-table classes -->
-          <div class="cd-table-wrap" style="border-radius:10px;overflow:hidden">
-            <div style="overflow-x:auto">
-              <table class="cd-table" style="min-width:860px">
-                <thead>
-                  <tr>
-                    <th style="width:36px">#</th>
-                    <th>Item / Raw Material</th>
-                    <th>Item Code</th>
-                    <th>HSN</th>
-                    <th style="text-align:right">Ordered Qty</th>
-                    <th style="text-align:right">Received Qty</th>
-                    <th style="text-align:right">Rejected Qty</th>
-                    <th>UOM</th>
-                    <th style="text-align:right">Rate (₹)</th>
-                    <th style="text-align:right">Disc %</th>
-                    <th style="text-align:right">Amount (₹)</th>
-                    <th>Warehouse</th>
-                  </tr>
-                </thead>
-                <tbody id="itemsTbody"></tbody>
-              </table>
+        <div class="cd-section-body">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px">
+            <div class="cd-field">
+              <label class="cd-label">Accepted Warehouse</label>
+              <input class="cd-input cd-readonly" id="f_warehouse" readonly placeholder="—"/>
             </div>
-            <div style="display:flex;justify-content:space-between;align-items:center;margin:8px 4px;flex-wrap:wrap;gap:10px">
-                <button class="cd-add-row" onclick="addRow()"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Item Row</button> 
-                
+            <div class="cd-field">
+              <label class="cd-label">Rejected Warehouse</label>
+              <input class="cd-input cd-readonly" id="f_rej_warehouse" readonly placeholder="—"/>
             </div>
-            </div>
-            <!-- Totals -->
-            <div class="cd-totals-strip" id="totalsBox"></div>
           </div>
-        
+          <div class="cd-items-wrap">
+            <table class="cd-items-tbl">
+              <thead><tr>
+                <th style="width:34px">#</th>
+                <th style="width:130px">Item Code</th>
+                <th style="width:150px">Item Name</th>
+                <th style="width:80px">UOM</th>
+                <th style="width:100px">Order Qty</th>
+                <th style="width:105px">Received Qty</th>
+                <th style="width:100px">Rejected Qty</th>
+                <th style="width:95px">Gross Wt (g)</th>
+                <th style="width:95px">Net Wt (g)</th>
+                <th style="width:120px">Rate</th>
+                <th style="width:90px">Disc %</th>
+                <th style="width:110px">Amount</th>
+                <th style="width:120px">Warehouse</th>
+                <th style="width:85px">HSN</th>
+              </tr></thead>
+              <tbody id="itemsTbody"></tbody>
+            </table>
+          </div>
         </div>
-      
-        <!-- SECTION 3: BOM Details -->
-      <div class="cd-form-section" id="bomSection">
-        <div class="cd-form-section-hd" onclick="toggleSec(this)">
-          <div class="cd-form-section-hd-left">
+      </div>
+
+      <!-- SECTION 3: BOM Details -->
+      <div class="cd-section" id="bomSection">
+        <div class="cd-section-header" onclick="toggleSec(this)">
+          <div class="cd-sec-title">
             <svg viewBox="0 0 24 24"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2v-4M9 21H5a2 2 0 01-2-2v-4m0 0h18"/></svg>
             BOM Details
-            <span style="font-size:10px;font-weight:400;color:var(--text-muted);margin-left:4px">(Bill of Materials — use "Add BOM" button in Items table)</span>
+            <span style="font-size:10px;font-weight:400;color:var(--text-muted);margin-left:4px">(Bill of Materials)</span>
           </div>
           <div class="cd-sec-toggle"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
         </div>
         <div class="cd-section-body">
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap">
-            <div style="background:var(--pill-amber-bg);color:var(--pill-amber-txt);padding:6px 12px;border-radius:7px;display:flex;align-items:center;gap:6px;font-size:12px">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-              Click "Add BOM" in the Items table row to add BOM entries linked to that item.
-            </div>
-            <button class="cd-btn cd-btn-secondary" style="font-size:12px;padding:6px 12px" onclick="syncBomFromItems()">
-              <svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
-              Sync from Items
-            </button>
-          </div>
           <div class="cd-bom-wrap">
             <table class="cd-bom-tbl">
               <thead><tr>
@@ -525,34 +553,109 @@
                 <th style="width:110px">Diamond Sieve Size</th>
                 <th style="width:65px">UOM</th>
                 <th style="width:70px">Qty</th>
-                <th style="width:90px">Rate (₹)</th>
-                <th style="width:90px">Amount (₹)</th>
-                <th style="width:34px"></th>
+                <th style="width:90px">Rate</th>
+                <th style="width:90px">Making</th>
+                <th style="width:90px">Amount</th>
               </tr></thead>
               <tbody id="bomTbody"></tbody>
             </table>
           </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;margin:8px 4px;flex-wrap:wrap;gap:10px">
-            <button class="cd-add-row" onclick="openBomItemDialog(null)">
-              <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add BOM Row
-            </button>
-            <div style="display:flex;align-items:center;gap:8px">
-              <div style="font-size:11.5px;color:var(--text-muted)">
-                BOM Total: <strong id="bom-total" style="color:var(--text-primary)">₹0</strong>
-              </div>
-              <button type="button" class="cd-add-row" onclick="downloadBomExcel()">Download Excel</button>
-              <button type="button" class="cd-add-row" onclick="document.getElementById('bomExcelUpload').click()">Upload Excel</button>
-              <input type="file" id="bomExcelUpload" accept=".xlsx,.xls" onchange="uploadBomExcel(event)" hidden>
+          <div style="display:flex;align-items:center;justify-content:flex-end;margin:8px 4px">
+            <div style="font-size:11.5px;color:var(--text-muted)">
+              BOM Total <strong id="bom-total" style="color:var(--text-primary)">0</strong>
             </div>
           </div>
         </div>
       </div>
-    
-      
+
+      <!-- SECTION 4: Taxes & Charges -->
+      <div class="cd-section">
+        <div class="cd-section-header" onclick="toggleSec(this)">
+          <div class="cd-sec-title"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>Taxes &amp; Charges</div>
+          <div class="cd-sec-toggle collapsed"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+        </div>
+        <div class="cd-section-body" style="padding:0;display:none">
+          <div style="padding:16px 20px;border-bottom:.5px solid var(--border);display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+            <div class="cd-field" style="min-width:260px;margin:0">
+              <label class="cd-label" style="margin-top:0">Purchase Taxes Template</label>
+              <input class="cd-input cd-readonly" id="f_tax_template" readonly placeholder="—" style="margin-top:4px"/>
+            </div>
+            <div class="cd-field" style="min-width:160px;margin:0">
+              <label class="cd-label" style="margin-top:0">Additional Discount %</label>
+              <div class="cd-input-suffix" style="margin-top:4px">
+                <input class="cd-suffix-inp cd-readonly" id="f_add_disc" readonly value="0"/>
+                <span class="cd-suffix-sym">%</span>
+              </div>
+            </div>
+          </div>
+          <div style="padding:0 20px 20px">
+            <table style="width:100%;border-collapse:collapse;min-width:700px">
+              <thead>
+                <tr style="background:var(--bg)">
+                  <th style="width:40px;padding:7px 10px;font-size:11px;font-weight:600;color:var(--text-secondary);border-bottom:.5px solid var(--border);text-align:left">No.</th>
+                  <th style="padding:7px 10px;font-size:11px;font-weight:600;color:var(--text-secondary);border-bottom:.5px solid var(--border);text-align:left">Type</th>
+                  <th style="padding:7px 10px;font-size:11px;font-weight:600;color:var(--text-secondary);border-bottom:.5px solid var(--border);text-align:left">Account Head</th>
+                  <th style="width:90px;padding:7px 10px;font-size:11px;font-weight:600;color:var(--text-secondary);border-bottom:.5px solid var(--border);text-align:right">Tax Rate</th>
+                  <th style="width:130px;padding:7px 10px;font-size:11px;font-weight:600;color:var(--text-secondary);border-bottom:.5px solid var(--border);text-align:right">Net Amount</th>
+                  <th style="width:130px;padding:7px 10px;font-size:11px;font-weight:600;color:var(--text-secondary);border-bottom:.5px solid var(--border);text-align:right">Amount</th>
+                  <th style="width:130px;padding:7px 10px;font-size:11px;font-weight:600;color:var(--text-secondary);border-bottom:.5px solid var(--border);text-align:right">Total</th>
+                </tr>
+              </thead>
+              <tbody id="taxTbody"></tbody>
+            </table>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;border-top:.5px solid var(--border)">
+            <div style="padding:10px 14px;border-right:.5px solid var(--border)">
+              <div style="font-size:10px;font-weight:500;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Net Total</div>
+              <div style="font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--text-primary)" id="tot-net">0</div>
+            </div>
+            <div style="padding:10px 14px;border-right:.5px solid var(--border)">
+              <div style="font-size:10px;font-weight:500;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Tax</div>
+              <div style="font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--text-primary)" id="tot-tax">0</div>
+            </div>
+            <div style="padding:10px 14px;border-right:.5px solid var(--border)">
+              <div style="font-size:10px;font-weight:500;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Discount</div>
+              <div style="font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--pill-red-txt)" id="tot-disc">0</div>
+            </div>
+            <div style="padding:10px 14px;background:var(--accent-light)">
+              <div style="font-size:10px;font-weight:500;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Grand Total</div>
+              <div style="font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--text-primary)" id="tot-grand">0</div>
+            </div>
+          </div>
+          <div class="cd-words" style="margin:0;border-radius:0;border-top:.5px solid var(--border)" id="tot-words">Zero Rupees Only</div>
+        </div>
       </div>
+
+      <!-- SECTION 5: Additional Info -->
+      <div class="cd-section">
+        <div class="cd-section-header" onclick="toggleSec(this)">
+          <div class="cd-sec-title"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Additional Information</div>
+          <div class="cd-sec-toggle"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+        </div>
+        <div class="cd-section-body">
+          <div class="cd-field">
+            <label class="cd-label">Remarks</label>
+            <textarea class="cd-textarea cd-readonly" id="f_remarks" rows="3" readonly placeholder="—"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div style="height:20px"></div>
     </div><!-- /cd-content -->
-     
-     
+
+    <!-- FOOTER BAR -->
+    <div class="cd-footer">
+      <button class="cd-btn cd-btn-secondary" id="openFrappeBtn">
+        <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Open in Frappe
+      </button>
+      <div class="cd-footer-right">
+        <button class="cd-btn cd-btn-primary" id="submitBtn" onclick="submitPR()" style="display:none">
+          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Submit
+        </button>
+      </div>
+    </div>
+    <div class="cd-toast" id="cdToast"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span id="cdToastMsg"></span></div>
+
     <script>
 
 // Override pubGet to use direct API for known proxies
@@ -589,9 +692,17 @@ async function pubGet(script, params = {}) {
     const prName    = params.get('name');
      
     function fmt(v){
-      return new Intl.NumberFormat('en-IN',{
-        style:'currency',currency:'INR',maximumFractionDigits:2
-      }).format(v||0);
+      return new Intl.NumberFormat('en-IN',{style:'currency',currency:'INR',maximumFractionDigits:2}).format(v||0);
+    }
+    function fmtNum(n){
+      return ''+Math.round(n||0).toLocaleString('en-IN');
+    }
+    function numWords(n){
+      if(!n) return 'Zero Rupees';
+      const a=['','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen'];
+      const b=['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
+      function w(n){if(n<20)return a[n];if(n<100)return b[Math.floor(n/10)]+(n%10?' '+a[n%10]:'');if(n<1000)return a[Math.floor(n/100)]+' Hundred'+(n%100?' and '+w(n%100):'');if(n<100000)return w(Math.floor(n/1000))+' Thousand'+(n%1000?' '+w(n%1000):'');if(n<10000000)return w(Math.floor(n/100000))+' Lakh'+(n%100000?' '+w(n%100000):'');return w(Math.floor(n/10000000))+' Crore'+(n%10000000?' '+w(n%10000000):'');}
+      return w(n)+' Rupees';
     }
     
     function fmtDate(v){
@@ -616,11 +727,12 @@ async function pubGet(script, params = {}) {
       else el.textContent=val||'';
     }
      
-    function toggleSec(id){
-      const sec=document.getElementById(id);
-      const body=sec.querySelector('.cd-form-section-body');
-      const col=sec.classList.toggle('collapsed');
-      body.classList.toggle('hidden',col);
+    function toggleSec(h){
+      const sec = h.closest('.cd-section');
+      const body = sec.querySelector('.cd-section-body');
+      const toggle = h.querySelector('.cd-sec-toggle');
+      if(body.style.display === 'none'){ body.style.display = ''; toggle?.classList.remove('collapsed'); }
+      else { body.style.display = 'none'; toggle?.classList.add('collapsed'); }
     }
      
     async function loadPRDetails(){
@@ -640,72 +752,89 @@ async function pubGet(script, params = {}) {
         const items= doc.items||[];
         console.log(doc)
      
-        const billed     = parseFloat(doc.per_billed||0);
         const grandTotal = parseFloat(doc.grand_total||0);
         const netTotal   = parseFloat(doc.net_total||0);
         const taxAmt     = parseFloat(doc.total_taxes_and_charges||0);
      
         /* header */
         document.getElementById('prTitle').textContent = doc.name;
+        document.getElementById('bcName').textContent  = doc.name;
         document.getElementById('prStatus').innerHTML  = pill(doc.status);
         document.getElementById('openFrappeBtn').onclick = ()=>
           window.open(`${DATA_SITE}/app/purchase-receipt/${doc.name}`,'_blank');
-     
-        /* cards */ 
-        document.getElementById('billedPercent').textContent  = billed.toFixed(0)+'%';
-        document.getElementById('billBar').style.width        = billed+'%'; 
-     
+
+        /* submit button — hide if already submitted (docstatus=1) */
+        const submitBtn = document.getElementById('submitBtn');
+        if(doc.docstatus !== 1) submitBtn.style.display = '';
+        /* Create dropdown — only when submitted */
+        if(doc.docstatus === 1){
+          document.getElementById('createWrap').classList.add('visible');
+        }
+
         /* supplier fields */
-        setVal('f_company',      doc.company);
-        setVal('f_posting_date', fmtDate(doc.posting_date));
-        setVal('f_po',           doc.purchase_order||'—');
-        setVal('f_supplier',     doc.supplier_name||doc.supplier);
-        setVal('f_branch',     doc.custom_branch||'-');
+        setVal('f_company',       doc.company);
+        setVal('f_posting_date',  fmtDate(doc.posting_date));
+        setVal('f_po',            doc.purchase_order||'');
+        setVal('f_supplier',      doc.supplier_name||doc.supplier);
+        setVal('f_branch',        doc.custom_branch||'');
+        setVal('f_delivery_note', doc.supplier_delivery_note||'');
         const addr = doc.address_display
           ? doc.address_display.replace(/<br\s*\/?>/gi,'\n').replace(/<[^>]+>/g,'')
-          : '—';
-        setVal('f_address',        addr);
-        setVal('f_delivery_note',  doc.supplier_delivery_note||'—');
-     
-        /* scan strip */
-        setVal('f_barcode',      '—');
-        setVal('f_warehouse',    doc.set_warehouse||'—');
-        setVal('f_rej_warehouse','—');
-     
-        /* items rows */
+          : '';
+        setVal('f_address', addr);
+
+        /* warehouse fields */
+        setVal('f_warehouse',     doc.set_warehouse||'');
+        setVal('f_rej_warehouse', doc.rejected_warehouse||'');
+
+        /* items table — same column order as new-purchase-receipt */
+        function inp(val, ro=true){ return `<input style="width:100%;height:26px;border:.5px solid var(--border-strong);outline:none;padding:0 6px;font-size:11.5px;background:var(--bg);color:var(--text-primary);border-radius:7px;font-family:'DM Sans',sans-serif${ro?';opacity:.75;cursor:not-allowed;background:var(--accent-light)':''}" value="${String(val||'').replace(/"/g,'&quot;')}" readonly/>`; }
+        function inpR(val){ return `<input style="width:100%;height:26px;border:.5px solid var(--border-strong);outline:none;padding:0 6px;font-size:11.5px;background:var(--accent-light);color:var(--text-primary);border-radius:7px;font-family:'DM Sans',sans-serif;text-align:right;opacity:.75;cursor:not-allowed" value="${String(val||'').replace(/"/g,'&quot;')}" readonly/>`; }
         document.getElementById('itemsTbody').innerHTML = items.map((it,i)=>`
           <tr>
-            <td style="text-align:center;font-size:12px;color:var(--text-muted);padding:0 8px">${i+1}</td>
-            <td class="cd-td-inp"><input class="cd-tbl-inp" value="${it.item_name||it.item_code||''}"/></td>
-            <td class="cd-td-inp"><input class="cd-tbl-inp" value="${it.item_code||''}"/></td>
-            <td class="cd-td-inp"><input class="cd-tbl-inp" value="${it.gst_hsn_code||''}"/></td>
-            <td class="cd-td-inp"><input class="cd-tbl-inp r" value="${it.ordered_qty??0}"/></td>
-            <td class="cd-td-inp"><input class="cd-tbl-inp r" value="${it.qty??0}"/></td>
-            <td class="cd-td-inp"><input class="cd-tbl-inp r" value="${it.rejected_qty??0}"/></td>
-            <td class="cd-td-inp"><input class="cd-tbl-inp" value="${it.uom||''}"/></td>
-            <td class="cd-td-inp"><input class="cd-tbl-inp r" value="${parseFloat(it.rate||0).toFixed(2)}"/></td>
-            <td class="cd-td-inp"><input class="cd-tbl-inp r" value="${parseFloat(it.discount_percentage||0).toFixed(2)}"/></td>
-            <td class="cd-td-inp"><input class="cd-tbl-inp r" value="${parseFloat(it.amount||0).toFixed(2)}"/></td>
-            <td class="cd-td-inp"><input class="cd-tbl-inp" value="${it.warehouse||''}"/></td>
+            <td style="text-align:center;width:34px">${i+1}</td>
+            <td style="padding:4px">${inp(it.item_code)}</td>
+            <td style="padding:4px">${inp(it.item_name||it.item_code)}</td>
+            <td style="padding:4px">${inp(it.uom)}</td>
+            <td style="padding:4px">${inpR(it.ordered_qty??0)}</td>
+            <td style="padding:4px">${inpR(it.qty??0)}</td>
+            <td style="padding:4px">${inpR(it.rejected_qty??0)}</td>
+            <td style="padding:4px">${inpR(parseFloat(it.custom_gross_weight||0).toFixed(3))}</td>
+            <td style="padding:4px">${inpR(parseFloat(it.custom_net_weight||0).toFixed(3))}</td>
+            <td style="padding:4px">${inpR(parseFloat(it.rate||0).toFixed(2))}</td>
+            <td style="padding:4px">${inpR(parseFloat(it.discount_percentage||0).toFixed(2))}</td>
+            <td style="padding:4px">${inpR(parseFloat(it.amount||0).toFixed(2))}</td>
+            <td style="padding:4px">${inp(it.warehouse)}</td>
+            <td style="padding:4px">${inp(it.gst_hsn_code)}</td>
           </tr>
         `).join('');
-     
-        /* totals */
-        document.getElementById('totalsBox').innerHTML = `
-          <div class="cd-totals-row">
-            <span style="font-size:13px;color:var(--text-secondary)">Net Total</span>
-            <span style="font-size:13px;font-weight:400;font-variant-numeric:tabular-nums">${fmt(netTotal)}</span>
-          </div>
-          ${taxAmt?`
-          <div class="cd-totals-row">
-            <span style="font-size:13px;color:var(--text-secondary)">Taxes &amp; Charges</span>
-            <span style="font-size:13px;font-weight:400;font-variant-numeric:tabular-nums">${fmt(taxAmt)}</span>
-          </div>`:''}
-          <div class="cd-totals-row grand">
-            <span>Grand Total</span>
-            <span>${fmt(grandTotal)}</span>
-          </div>
-        `;
+
+        /* tax section */
+        setVal('f_tax_template', doc.taxes_and_charges||'');
+        setVal('f_add_disc', doc.additional_discount_percentage||0);
+        const taxes = doc.taxes||[];
+        document.getElementById('taxTbody').innerHTML = taxes.map((tx,i)=>`
+          <tr class="cd-tax-row">
+            <td class="cd-tax-cell">${i+1}</td>
+            <td class="cd-tax-cell">${tx.charge_type||''}</td>
+            <td class="cd-tax-cell">${tx.account_head||''}</td>
+            <td class="cd-tax-cell-right">${parseFloat(tx.rate||0).toFixed(2)}%</td>
+            <td class="cd-tax-cell-right">${fmt(tx.net_total||0)}</td>
+            <td class="cd-tax-cell-right">${fmt(tx.tax_amount||0)}</td>
+            <td class="cd-tax-cell-right">${fmt(tx.total||0)}</td>
+          </tr>`).join('');
+
+        /* totals strip */
+        const discAmt = parseFloat(doc.discount_amount||0);
+        document.getElementById('tot-net').textContent   = fmtNum(netTotal);
+        document.getElementById('tot-tax').textContent   = fmtNum(taxAmt);
+        document.getElementById('tot-disc').textContent  = fmtNum(discAmt);
+        document.getElementById('tot-grand').textContent = fmtNum(grandTotal);
+        document.getElementById('tot-words').textContent = numWords(Math.round(grandTotal))+' Only';
+
+        /* remarks */
+        setVal('f_remarks', doc.remarks||'');
+
         renderBomTable(items);
      
       }catch(e){
@@ -719,188 +848,78 @@ async function pubGet(script, params = {}) {
     
     function renderBomTable(items = []) {
       const tbody = document.getElementById('bomTbody');
-    
-      let rows = [];
-      let total = 0;
-      let idx = 1;
-    
-      items.forEach((fgItem) => {
-    
-        const bomItems = fgItem.bom_data?.items || [];
-        console.log(bomItems)
-    
-        bomItems.forEach((bom) => {
-    
-          const amount = parseFloat(bom.amount || 0);
+      const s = (v,r=false)=>`<input style="width:100%;height:26px;border:none;outline:none;padding:0 6px;font-size:11px;background:transparent;color:var(--text-primary)${r?';text-align:right':''}" value="${String(v||'').replace(/"/g,'&quot;')}" readonly/>`;
+      let rows = [], total = 0, idx = 1;
+      items.forEach(fgItem => {
+        (fgItem.bom_data?.items || []).forEach(bom => {
+          const amount  = parseFloat(bom.amount || 0);
+          const making  = parseFloat(bom.custom_making_charges || bom.making || 0);
           total += amount;
-    
-          rows.push(`
-            <tr>
-              <td style="text-align:center">${idx++}</td>
-    
-              <td class="cd-td-inp">
-                <input class="cd-tbl-inp"
-                  value="${bom.custom_fg_item_name || bom.custom_fg_item_code || ''}">
-              </td>
-    
-              <td class="cd-td-inp">
-                <input class="cd-tbl-inp"
-                  value="${bom.item_name || ''}">
-              </td>
-    
-              <td class="cd-td-inp">
-                <input class="cd-tbl-inp"
-                  value="${bom.custom_gold_colour || ''}">
-              </td>
-    
-              <td class="cd-td-inp">
-                <input class="cd-tbl-inp"
-                  value="${bom.custom_gold_purity || ''}">
-              </td>
-    
-              <td class="cd-td-inp">
-                <input class="cd-tbl-inp"
-                  value="${bom.custom_diamond_type || ''}">
-              </td>
-    
-              <td class="cd-td-inp">
-                <input class="cd-tbl-inp"
-                  value="${bom.custom_diamond_shape || ''}">
-              </td>
-    
-              <td class="cd-td-inp">
-                <input class="cd-tbl-inp"
-                  value="${bom.custom_diamond_grade || ''}">
-              </td>
-    
-              <td class="cd-td-inp">
-                <input class="cd-tbl-inp"
-                  value="${bom.custom_diamond_sieve_size || ''}">
-              </td>
-    
-              <td class="cd-td-inp">
-                <input class="cd-tbl-inp r"
-                  value="${bom.uom || ''}">
-              </td>
-    
-              <td class="cd-td-inp">
-                <input class="cd-tbl-inp r"
-                  value="${bom.qty || 0}">
-              </td>
-    
-              <td class="cd-td-inp">
-                <input class="cd-tbl-inp r"
-                  value="${parseFloat(bom.rate || 0).toFixed(2)}">
-              </td>
-    
-              <td class="cd-td-inp">
-                <input class="cd-tbl-inp r"
-                  value="${amount.toFixed(2)}">
-              </td>
-    
-              <td style="text-align:center">
-                <button type="button"
-                  onclick="this.closest('tr').remove()"
-                  class="cd-icon-btn">
-                  ✕
-                </button>
-              </td>
-            </tr>
-          `);
+          rows.push(`<tr>
+            <td style="text-align:center;font-weight:600;color:var(--text-secondary);font-size:12px">${idx++}</td>
+            <td style="padding:0 6px;font-size:11px;color:var(--text-secondary)">${String(bom.custom_fg_item_code||'').replace(/</g,'&lt;')}</td>
+            <td style="padding:0 4px">${s(bom.item_name||bom.item_code)}</td>
+            <td style="padding:0 4px">${s(bom.custom_gold_colour)}</td>
+            <td style="padding:0 4px">${s(bom.custom_gold_purity)}</td>
+            <td style="padding:0 4px">${s(bom.custom_diamond_type)}</td>
+            <td style="padding:0 4px">${s(bom.custom_diamond_shape)}</td>
+            <td style="padding:0 4px">${s(bom.custom_diamond_grade)}</td>
+            <td style="padding:0 4px">${s(bom.custom_diamond_sieve_size)}</td>
+            <td style="padding:0 4px">${s(bom.uom)}</td>
+            <td style="padding:0 4px">${s(parseFloat(bom.qty||0).toFixed(3),true)}</td>
+            <td style="padding:0 4px">${s(parseFloat(bom.rate||0).toFixed(2),true)}</td>
+            <td style="padding:0 4px">${s(making.toFixed(2),true)}</td>
+            <td style="padding:0 4px"><input style="width:85px;height:26px;border:none;outline:none;padding:0 6px;font-size:11px;font-weight:600;background:var(--accent-light);color:var(--text-primary);text-align:right" value="${amount.toFixed(2)}" readonly/></td>
+          </tr>`);
         });
       });
-    
       tbody.innerHTML = rows.join('');
-    
-      document.getElementById('bom-total').textContent = fmt(total);
+      document.getElementById('bom-total').textContent = fmtNum(total);
     }
     
-    function addRow(){
-      const tbody = document.getElementById('itemsTbody');
-      const rowCount = tbody.querySelectorAll('tr').length + 1;
-    
-      const tr = document.createElement('tr');
-    
-      tr.innerHTML = `
-        <td style="text-align:center;font-size:12px;color:var(--text-muted);padding:0 8px">
-          ${rowCount}
-        </td>
-    
-        <td class="cd-td-inp">
-          <input class="cd-tbl-inp" placeholder="Item Name"/>
-        </td>
-    
-        <td class="cd-td-inp">
-          <input class="cd-tbl-inp" placeholder="Item Code"/>
-        </td>
-    
-        <td class="cd-td-inp">
-          <input class="cd-tbl-inp" placeholder="HSN"/>
-        </td>
-    
-        <td class="cd-td-inp">
-          <input class="cd-tbl-inp r qty" type="number" value="0"/>
-        </td>
-    
-        <td class="cd-td-inp">
-          <input class="cd-tbl-inp r received" type="number" value="0"/>
-        </td>
-    
-        <td class="cd-td-inp">
-          <input class="cd-tbl-inp r rejected" type="number" value="0"/>
-        </td>
-    
-        <td class="cd-td-inp">
-          <input class="cd-tbl-inp" placeholder="UOM"/>
-        </td>
-    
-        <td class="cd-td-inp">
-          <input class="cd-tbl-inp r rate" type="number" value="0"/>
-        </td>
-    
-        <td class="cd-td-inp">
-          <input class="cd-tbl-inp r discount" type="number" value="0"/>
-        </td>
-    
-        <td class="cd-td-inp">
-          <input class="cd-tbl-inp r amount" type="number" value="0" readonly/>
-        </td>
-    
-        <td class="cd-td-inp">
-          <input class="cd-tbl-inp" placeholder="Warehouse"/>
-        </td>
-      `;
-    
-      tbody.appendChild(tr);
-    
-      attachCalculation(tr);
+    function getDevHeaders(){
+      const key    = localStorage.getItem('cd_api_key');
+      const secret = localStorage.getItem('cd_api_secret');
+      if(!key || !secret) return null;
+      return { 'Authorization': `token ${key}:${secret}`, 'Content-Type': 'application/json', 'Accept': 'application/json' };
     }
-    
-    function attachCalculation(row){
-    
-      const qty      = row.querySelector('.received');
-      const rate     = row.querySelector('.rate');
-      const discount = row.querySelector('.discount');
-      const amount   = row.querySelector('.amount');
-    
-      function calc(){
-    
-        const q = parseFloat(qty.value || 0);
-        const r = parseFloat(rate.value || 0);
-        const d = parseFloat(discount.value || 0);
-    
-        let total = q * r;
-    
-        if(d){
-          total -= (total * d / 100);
-        }
-    
-        amount.value = total.toFixed(2);
-      }
-    
-      qty.addEventListener('input', calc);
-      rate.addEventListener('input', calc);
-      discount.addEventListener('input', calc);
+
+    function showToast(msg, type='info'){
+      const t = document.getElementById('cdToast');
+      document.getElementById('cdToastMsg').textContent = msg;
+      t.className = 'cd-toast show ' + type;
+      clearTimeout(t._t); t._t = setTimeout(()=>t.classList.remove('show'), 3500);
     }
-    
+
+    async function submitPR(){
+      if(!prName){ showToast('No PR loaded','error'); return; }
+      if(!confirm('Submit this Purchase Receipt? This cannot be undone.')) return;
+      const headers = getDevHeaders();
+      if(!headers){ showToast('Session expired — please log in again','error'); return; }
+      try{
+        showToast('Submitting…');
+        const res = await fetch(`${DATA_SITE}/api/resource/Purchase%20Receipt/${encodeURIComponent(prName)}`,{
+          method: 'PUT', headers, body: JSON.stringify({docstatus:1})
+        });
+        if(res.status===401){ showToast('Session expired — please log in again','error'); return; }
+        const d = await res.json();
+        if(!res.ok){ showToast('Error: '+(d?.exception||d?.message||'Submit failed'),'error'); return; }
+        showToast('Submitted successfully!','success');
+        document.getElementById('submitBtn').style.display = 'none';
+        document.getElementById('createWrap').classList.add('visible');
+        document.getElementById('prStatus').innerHTML = pill('Submitted');
+        document.getElementById('prTitle').textContent = prName;
+        setTimeout(()=>window.location.href='/caratdesk-purchase-receipt', 1500);
+      }catch(e){ showToast('Error: '+String(e.message).slice(0,80),'error'); }
+    }
+
+    function toggleCreatePop(e){
+      e.stopPropagation();
+      document.getElementById('createPop').classList.toggle('open');
+    }
+    function createFromPR(type){
+      if(type==='pi') window.location.href='/caratdesk-new-purchase-invoice?pr='+encodeURIComponent(prName);
+    }
+    document.addEventListener('click',()=>{ document.getElementById('createPop')?.classList.remove('open'); });
+
     </script>

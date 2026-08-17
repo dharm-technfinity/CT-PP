@@ -8,8 +8,9 @@
     .navbar,.page-header,footer.web-footer,.container>.row>.col-sm-10,.frappe-footer{display:none!important}
     .web-page-container,.container{padding:0!important;max-width:100%!important}
     body{overflow-x:hidden}
-    :root{--bg:#F7F6F3;--surface:#FFFFFF;--border:rgba(0,0,0,.07);--border-strong:rgba(0,0,0,.12);--text-primary:#1A1A18;--text-secondary:#6B6B65;--text-muted:#A8A8A2;--accent:#1A1A18;--accent-light:#F0EFE9;--nav-hover:#F7F6F3;--nav-active-bg:#EBEBE5;--pill-green-bg:#EAF3DE;--pill-green-txt:#3B6D11;--pill-red-bg:#FCEBEB;--pill-red-txt:#A32D2D;--pill-amber-bg:#FAEEDA;--pill-amber-txt:#854F0B;--pill-blue-bg:#E8F0FD;--pill-blue-txt:#1A4A8A;--shadow-sm:0 2px 12px rgba(0,0,0,.04),0 0 0 .5px rgba(0,0,0,.03);--shadow-md:0 4px 24px rgba(0,0,0,.08)}
-    .dark{--bg:#121212;--surface:#1E1E1E;--border:rgba(255,255,255,.08);--border-strong:rgba(255,255,255,.15);--text-primary:#EDEDED;--text-secondary:#A0A0A0;--text-muted:#6E6E6E;--accent:#D4D4D4;--accent-light:#2C2C2C;--nav-hover:#252525;--nav-active-bg:#2D2D2D;--pill-green-bg:#1E3A2E;--pill-green-txt:#9CD45E;--pill-red-bg:#3E1E1E;--pill-red-txt:#F28B82;--pill-amber-bg:#3E2E1E;--pill-amber-txt:#FDBF6B;--pill-blue-bg:#1A2A3E;--pill-blue-txt:#7AABF0;--shadow-sm:0 2px 12px rgba(0,0,0,.3),0 0 0 .5px rgba(255,255,255,.05);--shadow-md:0 4px 24px rgba(0,0,0,.3)}
+    :root{--bg:#F7F6F3;--surface:#FFFFFF;--border:rgba(0,0,0,.07);--border-strong:rgba(0,0,0,.12);--text-primary:#1A1A18;--text-secondary:#6B6B65;--text-muted:#A8A8A2;--accent:#1A1A18;--accent-light:#F0EFE9;--nav-hover:#F7F6F3;--nav-active-bg:#EBEBE5;--pill-green-bg:#EAF3DE;--pill-green-txt:#3B6D11;--pill-green-bg-hover:#d8edca;--pill-red-bg:#FCEBEB;--pill-red-txt:#A32D2D;--pill-red-bg-hover:#f8d7d7;--pill-amber-bg:#FAEEDA;--pill-amber-txt:#854F0B;--pill-amber-bg-hover:#f5e4c5;--pill-blue-bg:#E8F0FD;--pill-blue-txt:#1A4A8A;--pill-yellow-bg:#fff6d3;--pill-yellow-txt:#1e293b;--pill-yellow-border:#eab308;--pill-yellow-bg-hover:#eab308;--pill-white-bg:#ffffff;--pill-white-txt:#1e293b;--pill-white-border:#d1d5db;--pill-white-bg-hover:#f8fafc;--toast-success-bg:#2D6A4F;--toast-info-bg:#1A4A8A;--shadow-sm:0 2px 12px rgba(0,0,0,.04),0 0 0 .5px rgba(0,0,0,.03);--shadow-md:0 4px 24px rgba(0,0,0,.08)}
+    .dark{--bg:#121212;--surface:#1E1E1E;--border:rgba(255,255,255,.08);--border-strong:rgba(255,255,255,.15);--text-primary:#EDEDED;--text-secondary:#A0A0A0;--text-muted:#6E6E6E;--accent:#D4D4D4;--accent-light:#2C2C2C;--nav-hover:#252525;--nav-active-bg:#2D2D2D;--pill-green-bg:#1E3A2E;--pill-green-txt:#9CD45E;--pill-green-bg-hover:#2a4a3a;--pill-red-bg:#3E1E1E;--pill-red-txt:#F28B82;--pill-red-bg-hover:#4a2626;--pill-amber-bg:#3E2E1E;--pill-amber-txt:#FDBF6B;--pill-amber-bg-hover:#4a3826;--pill-blue-bg:#1A2A3E;--pill-blue-txt:#7AABF0;--pill-yellow-bg:#3e331e;--pill-yellow-txt:#facc15;--pill-yellow-border:#ca8a04;--pill-yellow-bg-hover:#4a401e;--pill-white-bg:#2c2c2c;--pill-white-txt:#ededed;--pill-white-border:#444444;--pill-white-bg-hover:#383838;--toast-success-bg:#1f5f3f;--toast-info-bg:#2a5a9a;--shadow-sm:0 2px 12px rgba(0,0,0,.3),0 0 0 .5px rgba(255,255,255,.05);--shadow-md:0 4px 24px rgba(0,0,0,.3)}
+    html,body{color:var(--text-primary)}
     *{transition:background-color .2s,border-color .2s,color .2s}
     .cd-app{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);min-height:100vh;display:flex;-webkit-font-smoothing:antialiased;color:var(--text-primary)}
     .cd-sidebar{width:260px;background:var(--surface);border-right:.5px solid var(--border);display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;z-index:200;box-shadow:var(--shadow-sm);transform:translateX(0);transition:transform .3s cubic-bezier(.2,.9,.4,1.1)}
@@ -33,6 +34,12 @@
     .cd-user-role{font-size:11px;color:var(--text-muted);font-weight:300}
     .cd-logout-btn{display:flex;align-items:center;gap:7px;padding:9px 10px;border-radius:9px;cursor:pointer;font-size:13px;color:var(--text-secondary);margin-top:3px;border:none;background:none;font-family:'DM Sans',sans-serif;width:100%;transition:background .14s,color .14s}
     .cd-logout-btn:hover{background:var(--pill-red-bg);color:var(--pill-red-txt)}
+    .cd-instance-bar{display:flex;align-items:center;gap:6px;padding:8px 10px 4px}
+    .cd-instance-label{font-size:10px;font-weight:500;color:var(--text-muted);letter-spacing:.07em;text-transform:uppercase;flex:1}
+    .cd-instance-pills{display:flex;gap:4px}
+    .cd-instance-pill{font-size:11px;font-weight:500;padding:3px 10px;border-radius:6px;border:.5px solid var(--border);background:var(--input-bg);color:var(--text-secondary);cursor:pointer;transition:background .14s,color .14s,border-color .14s;font-family:'DM Sans',sans-serif}
+    .cd-instance-pill:hover{background:var(--nav-hover);color:var(--text-primary)}
+    .cd-instance-pill.active{background:var(--accent);color:var(--surface);border-color:var(--accent)}
     .cd-main{margin-left:260px;flex:1;min-height:100vh;display:flex;flex-direction:column}
     @media(max-width:768px){.cd-main{margin-left:0}}
     .cd-topbar{height:58px;background:var(--surface);border-bottom:.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 20px;position:sticky;top:0;z-index:100}
@@ -55,10 +62,10 @@
     .cd-btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
     .cd-btn-primary{background:var(--text-primary);color:var(--surface)}.cd-btn-primary:hover{opacity:.85}
     .cd-btn-secondary{background:var(--surface);color:var(--text-primary);border:.5px solid var(--border-strong)}.cd-btn-secondary:hover{background:var(--accent-light)}
-    .cd-btn-danger{background:var(--pill-red-bg);color:var(--pill-red-txt);border:.5px solid rgba(163,45,45,.15)}.cd-btn-danger:hover{background:#f8d7d7}
-    .cd-btn-green{background:var(--pill-green-bg);color:var(--pill-green-txt);border:.5px solid rgba(59,109,17,.15)}.cd-btn-green:hover{background:#d8edca}
-    .cd-btn-yellow{background:#fff6d3;color:#1e293b;border:1px solid #eab308}.cd-btn-yellow:hover{background:#eab308}
-    .cd-btn-white{background:#ffffff;color:#1e293b;border:1px solid #d1d5db}.cd-btn-white:hover{background:#f8fafc}
+    .cd-btn-danger{background:var(--pill-red-bg);color:var(--pill-red-txt);border:.5px solid rgba(163,45,45,.15)}.cd-btn-danger:hover{background:var(--pill-red-bg-hover)}
+    .cd-btn-green{background:var(--pill-green-bg);color:var(--pill-green-txt);border:.5px solid rgba(59,109,17,.15)}.cd-btn-green:hover{background:var(--pill-green-bg-hover)}
+    .cd-btn-yellow{background:var(--pill-yellow-bg);color:var(--pill-yellow-txt);border:1px solid var(--pill-yellow-border)}.cd-btn-yellow:hover{background:var(--pill-yellow-bg-hover)}
+    .cd-btn-white{background:var(--pill-white-bg);color:var(--pill-white-txt);border:1px solid var(--pill-white-border)}.cd-btn-white:hover{background:var(--pill-white-bg-hover)}
     .cd-section{background:var(--surface);border:.5px solid var(--border);border-radius:14px;margin-bottom:16px;overflow:visible;box-shadow:var(--shadow-sm)}
     .cd-section-header{padding:14px 20px;border-bottom:.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none}
     .cd-section-header:hover{background:var(--bg)}
@@ -119,13 +126,29 @@
     /*itemss*/
     .cd-items-tbl{width:100%;border-collapse:collapse;min-width:860px}
     .cd-items-tbl th{font-size:11px;font-weight:500;color:var(--text-muted);text-align:left;padding:10px 12px;letter-spacing:.05em;text-transform:uppercase;background:var(--bg);border-bottom:.5px solid var(--border);white-space:nowrap}
-    .cd-items-tbl td{padding:8px 4px;height:28px;border-bottom:1px solid #e5e7eb;border-right:1px solid #edf2f7;vertical-align:middle}
-    .cd-items-tbl td:first-child{font-size:13px;width:40px;text-align:center;font-weight:600;color:#64748b}
-    .cd-items-tbl input,.cd-items-tbl select{width:100%;height:26px;border:.5px solid var(--border-strong);outline:none;padding:0 6px;font-size:11px;background:var(--bg);color:#334155;line-height:1;
+    .cd-items-tbl td{padding:8px 4px;height:28px;border-bottom:1px solid var(--border);border-right:1px solid var(--border);vertical-align:middle}
+    .cd-items-tbl td:first-child{font-size:13px;width:40px;text-align:center;font-weight:600;color:var(--text-secondary)}
+    .cd-items-tbl input,.cd-items-tbl select{width:100%;height:26px;border:.5px solid var(--border-strong);outline:none;padding:0 6px;font-size:11px;background:var(--bg);color:var(--text-primary);line-height:1;
             border-radius: 7px;
     }
     .cd-items-wrap{overflow-x:auto;border-radius:10px;border:.5px solid var(--border);margin-bottom:14px}
-    
+
+    /* ── Bhav Cut Breakup table ── */
+    .bhav-tbl{width:100%;border-collapse:collapse;min-width:1400px}
+    .bhav-tbl th{font-size:10.5px;font-weight:600;color:var(--text-muted);text-align:left;padding:9px 8px;letter-spacing:.05em;text-transform:uppercase;background:var(--bg);border-bottom:.5px solid var(--border);white-space:nowrap}
+    .bhav-tbl td{padding:0;height:30px;border-bottom:.5px solid var(--border);border-right:.5px solid var(--border);vertical-align:middle}
+    .bhav-tbl td:first-child{width:36px;text-align:center;font-size:12px;font-weight:600;color:var(--text-secondary)}
+    .bhav-tbl td input,.bhav-tbl td select{width:100%;height:28px;border:none;outline:none;padding:0 6px;font-size:11.5px;background:var(--bg);color:var(--text-primary);font-family:'DM Sans',sans-serif}
+    .dark .bhav-tbl td select{color-scheme:dark}
+    .bhav-tbl td input[readonly]{background:var(--accent-light);cursor:not-allowed;color:var(--text-secondary)}
+    .bhav-tbl td input[type=number]{text-align:right}
+    .bhav-tbl td input[type=number]::-webkit-inner-spin-button,.bhav-tbl td input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+    .bhav-tbl td input[type=number]{-moz-appearance:textfield;appearance:textfield}
+    .bhav-tbl tbody tr:hover td{background:var(--nav-hover)}
+    .bhav-tbl tfoot td{background:var(--bg);font-size:12px;font-weight:600;color:var(--text-primary);padding:8px 8px;border-top:.5px solid var(--border-strong)}
+    .bhav-tbl tfoot td.bhav-tot-label{color:var(--text-secondary);font-size:11px;text-transform:uppercase;letter-spacing:.05em}
+    .bhav-tbl td input[type=checkbox]{width:auto;cursor:pointer;transform:scale(1.2)}
+
     .cd-add-row{display:flex;align-items:center;gap:7px;font-family:'DM Sans',sans-serif;font-size:12.5px;font-weight:500;color:var(--text-secondary);background:none;border:none;cursor:pointer;padding:8px 12px;border-radius:8px;transition:background .14s,color .14s}
     .cd-add-row:hover{background:var(--accent-light);color:var(--text-primary)}
     .cd-add-row svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2}
@@ -141,7 +164,7 @@
     .cd-footer-right{margin-left:auto;display:flex;gap:8px}
     .cd-toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--text-primary);color:var(--surface);padding:11px 20px;border-radius:10px;font-size:13px;font-weight:500;box-shadow:var(--shadow-md);z-index:600;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;white-space:nowrap;display:flex;align-items:center;gap:8px}
     .cd-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-    .cd-toast.success{background:#2D6A4F}.cd-toast.error{background:var(--pill-red-txt)}.cd-toast.info{background:#1A4A8A}
+    .cd-toast.success{background:var(--toast-success-bg)}.cd-toast.error{background:var(--pill-red-txt)}.cd-toast.info{background:var(--toast-info-bg)}
     /* BOM styles removed */
     .cd-del-btn{width:20px;height:20px;border-radius:7px;border:none;background:none;cursor:pointer;color:var(--text-muted);display:flex;align-items:center;justify-content:center;transition:background .12s,color .12s;flex-shrink:0}
     .cd-del-btn:hover{background:var(--pill-red-bg);color:var(--pill-red-txt)}
@@ -156,7 +179,8 @@
     .cd-idialog-close{width:28px;height:28px;border-radius:7px;border:.5px solid var(--border);background:var(--bg);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-secondary);transition:background .14s}
     .cd-idialog-close:hover{background:var(--pill-red-bg);color:var(--pill-red-txt)}
     .cd-idialog-close svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2}
-    .cd-idialog-body{flex:1;overflow-y:auto;padding:20px}
+    .cd-idialog-body{flex:1;overflow-y:auto;padding:8px 0}
+    .cd-idialog-footer{padding:14px 24px;border-top:.5px solid var(--border);display:flex;gap:8px;flex-shrink:0;align-items:center}
     .cd-words{font-size:12px;color:var(--text-secondary);margin-top:8px;padding:8px 12px;background:var(--bg);border-radius:8px;border:.5px solid var(--border);line-height:1.5}
     .cd-item-display{font-size:12px;min-height:16px;line-height:1.4;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .cd-item-display:hover{color:var(--accent)}
@@ -192,6 +216,7 @@
             <div class="cd-nav-section">Main</div>
             <a href="/caratdesk" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>Dashboard</a>
             <div class="cd-nav-section">Operations</div>
+            <a href="/caratdesk-pos" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>POS Billing</a>
             <a href="/caratdesk-selling" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg></span>Selling</a>
             <a href="caratdesk-buying.html" class="cd-nav-item active"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></span>Buying</a>
             <a href="/caratdesk-stock" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg></span>Stock</a>
@@ -204,7 +229,14 @@
             <a href="/caratdesk-settings" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M12 2v2M12 20v2M2 12h2M20 12h2M4.93 19.07l1.41-1.41M19.07 19.07l-1.41-1.41"/></svg></span>Settings</a>
         </div>
         <div class="cd-sidebar-bottom">
-            <div class="cd-user-card"><div class="cd-avatar" id="cdAvatar">—</div><div><div class="cd-user-name" id="cdUserName">Loading…</div><div class="cd-user-role">POS Manager</div></div></div>
+          <div class="cd-instance-bar" id="cdInstanceBar" style="display:none">
+            <span class="cd-instance-label">Instance</span>
+            <div class="cd-instance-pills">
+              <button class="cd-instance-pill" id="cdInstPP" onclick="cdSwitchInstance('PP')">PP</button>
+              <button class="cd-instance-pill" id="cdInstPC" onclick="cdSwitchInstance('PC')">PC</button>
+            </div>
+          </div>
+            <div class="cd-user-card"><div class="cd-avatar" id="cdAvatar">—</div><div><div class="cd-user-name" id="cdUserName">Loading…</div><div class="cd-user-role" id="cdUserRole">POS Manager</div></div></div>
             <button class="cd-logout-btn" id="cdLogoutBtn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign out</button>
         </div>
     </nav>
@@ -247,27 +279,43 @@
                     <div class="cd-sec-toggle"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
                 </div>
                 <div class="cd-section-body">
-                    <div class="cd-grid">
-                        <!-- Left column: Company → Supplier → Supplier Address -->
+                    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px">
+                        <!-- Column 1: Company, Branch, Supplier -->
                         <div class="cd-field">
                             <label class="cd-label">Company <span class="req">*</span></label>
                             <input class="cd-input cd-readonly" id="companyDisplay" value="P.P. Jewellers Retail Pvt. Ltd." readonly/>
-                            
                             <label class="cd-label">Branch <span class="req">*</span></label>
                             <select class="cd-input" id="branchDisplay">
                               <option value="">— Loading branches… —</option>
                             </select>
-              
                             <label class="cd-label">Supplier <span class="req">*</span></label>
                             <div class="cd-ac" id="supplierAcWrap">
-                                <input class="cd-input" id="supplier" placeholder="Click to browse or type supplier name…" autocomplete="off" 
+                                <input class="cd-input" id="supplier" placeholder="Click to browse or type supplier name…" autocomplete="off"
                                   oninput="acSupplier(this.value)" onfocus="acSupplier(this.value, true)" onclick="acSupplier(this.value, true)"/>
                                 <div class="cd-ac-list cd-ac-list--supplier" id="ac-supplier"></div>
                             </div>
-
+                        </div>
+                        <!-- Column 2: Posting Date, Due Date, Supplier Address -->
+                        <div class="cd-field">
+                            <label class="cd-label">Posting Date <span class="req">*</span></label>
+                            <input class="cd-input" type="date" id="postingDate" style="padding-bottom:7px" onchange="syncDueDate()"/>
+                            <label class="cd-label">Due Date <span class="req">*</span></label>
+                            <input class="cd-input" type="date" id="dueDate" style="padding-bottom:7px"/>
                             <label class="cd-label">Supplier Address</label>
                             <textarea class="cd-textarea cd-readonly" id="suppAddr" rows="5" placeholder="Fetched automatically on supplier select" readonly style="resize:none;line-height:1.6"></textarea>
-
+                        </div>
+                        <!-- Column 3: Bill No, Bill Date, Against PR, Checkboxes -->
+                        <div class="cd-field">
+                            <label class="cd-label">Supplier Invoice No (Bill No)</label>
+                            <input class="cd-input" id="billNo" placeholder="As per vendor invoice"/>
+                            <label class="cd-label">Supplier Invoice Date</label>
+                            <input class="cd-input cd-readonly" type="date" id="billDate" style="padding-bottom:7px" readonly/>
+                            <label class="cd-label">Against Purchase Receipt</label>
+                            <div class="cd-ac">
+                                <input class="cd-input" id="againstPR" placeholder="Filtered by supplier…" autocomplete="off" oninput="acPR(this.value)" onfocus="acPR(this.value, true)" onclick="acPR(this.value, true)"/>
+                                <div class="cd-ac-list" id="ac-pr"></div>
+                            </div>
+                            <input type="hidden" id="piLinkedPO"/>
                             <div style="display:flex;align-items:center;gap:15px;margin-top:14px">
                               <div style="display:flex;align-items:center;gap:8px">
                                 <input type="checkbox" id="updateStock" onchange="toggleStockFields()"/>
@@ -279,37 +327,24 @@
                               </div>
                             </div>
                         </div>
-                        <!-- Right column: Dates & References -->
-                        <div class="cd-field">
-                            <label class="cd-label">Posting Date <span class="req">*</span></label>
-                            <input class="cd-input" type="date" id="postingDate" style="padding-bottom:7px"/>
-                            
-                            <label class="cd-label">Due Date <span class="req">*</span></label>
-                            <input class="cd-input" type="date" id="dueDate" style="padding-bottom:7px"/>
-
-                            <label class="cd-label">Supplier Invoice No (Bill No)</label>
-                            <input class="cd-input" id="billNo" placeholder="As per vendor invoice"/>
-
-                            <label class="cd-label">Supplier Invoice Date</label>
-                            <input class="cd-input" type="date" id="billDate" style="padding-bottom:7px"/>
-
-                            <label class="cd-label">Against Purchase Receipt</label>
-                            <div class="cd-ac">
-                                <input class="cd-input" id="againstPR" placeholder="Filtered by supplier…" autocomplete="off" oninput="acPR(this.value)" onfocus="acPR(this.value, true)" onclick="acPR(this.value, true)"/>
-                                <div class="cd-ac-list" id="ac-pr"></div>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- SECTION 2: Items -->
-            <div class="cd-section">
-                <div class="cd-section-header" onclick="toggleSec(this)">
+            <div class="cd-section cd-section-nocollapse">
+                <div class="cd-section-header" style="cursor:default">
                     <div class="cd-sec-title"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>Items Received</div>
-                    <div class="cd-sec-toggle"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
                 </div>
                 <div class="cd-section-body">
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+                      <input type="file" id="attachInput" accept="image/*,application/pdf" multiple hidden onchange="handleAttachFiles(event)">
+                      <button id="attachAddBtn" onclick="document.getElementById('attachInput').click()" style="display:inline-flex;align-items:center;gap:5px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;padding:4px 10px;border-radius:6px;border:.5px solid var(--border-strong);background:var(--surface);color:var(--text-secondary);cursor:pointer;white-space:nowrap">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;flex-shrink:0"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
+                        Attach
+                      </button>
+                      <div id="attachGrid" style="display:flex;flex-wrap:wrap;gap:6px;align-items:center"></div>
+                    </div>
                     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px">
                         <div class="cd-field">
                             <label class="cd-label">Scan / Barcode</label>
@@ -325,6 +360,10 @@
                               <option value="">— Loading accounts… —</option>
                             </select>
                         </div>
+                        <div class="cd-field">
+                            <label class="cd-label">Shipping Branch</label>
+                            <select class="cd-select" id="shippingBranch"><option value="">— Select Branch —</option></select>
+                        </div>
                     </div>
 
                     <div class="cd-items-wrap">
@@ -332,17 +371,17 @@
                             <thead>
                                 <tr>
                                     <th style="width:34px">#</th>
-                                    <!--<th style="min-width:180px">-->
-                                    <th style="">
-                                        Item / Raw Material <span class="req">*</span></th>
+                                    <th style="width:40px">Item</th>
                                     <th style="width:150px">Item Code</th>
-                                    <th style="width:90px">HSN</th>
-                                    <th style="width:85px">Qty <span class="req">*</span></th>
+                                    <th style="width:150px">Item Name</th>
                                     <th style="width:70px">UOM</th>
+                                    <th style="width:85px">Qty <span class="req">*</span></th>
                                     <th style="width:130px">Rate (₹) <span class="req">*</span></th>
                                     <th style="width:80px">Disc %</th>
                                     <th style="width:120px">Amount (₹)</th>
-                                    <th style="width:120px">Warehouse</th>
+                                    <th style="width:90px">HSN</th>
+                                    <th style="width:60px">Image</th>
+                                    <th style="width:160px">Description</th>
                                     <th style="width:34px"></th>
                                 </tr>
                             </thead>
@@ -426,9 +465,9 @@
             <div class="cd-section">
                 <div class="cd-section-header" onclick="toggleSec(this)">
                     <div class="cd-sec-title"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>Taxes & Charges</div>
-                    <div class="cd-sec-toggle"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+                    <div class="cd-sec-toggle collapsed"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
                 </div>
-                <div class="cd-section-body" style="padding:0">
+                <div class="cd-section-body" style="padding:0;display:none">
                     <div style="padding:16px 20px;border-bottom:.5px solid var(--border);display:flex;align-items:center;gap:16px;flex-wrap:wrap">
                       <div class="cd-field" style="min-width:260px;margin:0">
                         <label class="cd-label" style="margin-top:0">Purchase Taxes Template</label>
@@ -450,12 +489,12 @@
                             <th style="width:32px;padding:7px 10px;border-bottom:.5px solid var(--border)">
                               <input type="checkbox" id="taxChkAll" onchange="taxChkAllToggle(this)"/>
                             </th>
-                            <th style="width:40px;padding:7px 10px;font-size:11px;font-weight:600;color:#64748b;border-bottom:.5px solid var(--border);text-align:left">No.</th>
-                            <th style="padding:7px 10px;font-size:11px;font-weight:600;color:#64748b;border-bottom:.5px solid var(--border);text-align:left">Type <span style="color:var(--pill-red-txt)">*</span></th>
-                            <th style="padding:7px 10px;font-size:11px;font-weight:600;color:#64748b;border-bottom:.5px solid var(--border);text-align:left">Account Head <span style="color:var(--pill-red-txt)">*</span></th>
-                            <th style="width:90px;padding:7px 10px;font-size:11px;font-weight:600;color:#64748b;border-bottom:.5px solid var(--border);text-align:right">Tax Rate</th>
-                            <th style="width:120px;padding:7px 10px;font-size:11px;font-weight:600;color:#64748b;border-bottom:.5px solid var(--border);text-align:right">Amount</th>
-                            <th style="width:130px;padding:7px 10px;font-size:11px;font-weight:600;color:#64748b;border-bottom:.5px solid var(--border);text-align:right">Total</th>
+                            <th style="width:40px;padding:7px 10px;font-size:11px;font-weight:600;color:var(--text-secondary);border-bottom:.5px solid var(--border);text-align:left">No.</th>
+                            <th style="padding:7px 10px;font-size:11px;font-weight:600;color:var(--text-secondary);border-bottom:.5px solid var(--border);text-align:left">Type <span style="color:var(--pill-red-txt)">*</span></th>
+                            <th style="padding:7px 10px;font-size:11px;font-weight:600;color:var(--text-secondary);border-bottom:.5px solid var(--border);text-align:left">Account Head <span style="color:var(--pill-red-txt)">*</span></th>
+                            <th style="width:90px;padding:7px 10px;font-size:11px;font-weight:600;color:var(--text-secondary);border-bottom:.5px solid var(--border);text-align:right">Tax Rate</th>
+                            <th style="width:120px;padding:7px 10px;font-size:11px;font-weight:600;color:var(--text-secondary);border-bottom:.5px solid var(--border);text-align:right">Amount</th>
+                            <th style="width:130px;padding:7px 10px;font-size:11px;font-weight:600;color:var(--text-secondary);border-bottom:.5px solid var(--border);text-align:right">Total</th>
                             <th style="width:56px;border-bottom:.5px solid var(--border)"></th>
                           </tr>
                         </thead>
@@ -513,6 +552,30 @@
   </div>
 </div>
 
+<!-- Item Description Dialog -->
+<div class="cd-idialog-overlay" id="descDialogOverlay" onclick="closeDescDialog()"></div>
+<div class="cd-idialog" id="descDialog" style="width:480px;max-width:96vw">
+  <div class="cd-idialog-header">
+    <div>
+      <div class="cd-idialog-title" style="font-size:14px">Description</div>
+      <div style="font-size:11px;color:var(--text-muted);margin-top:2px">Notes for this line item</div>
+    </div>
+    <div class="cd-idialog-close" onclick="closeDescDialog()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+  </div>
+  <div class="cd-idialog-body" style="padding:20px 24px">
+    <textarea id="descDlgText" rows="5" placeholder="Add a description for this item…"
+      style="width:100%;resize:vertical;padding:8px 10px;border:.5px solid var(--border-strong);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;background:var(--bg);color:var(--text-primary)"></textarea>
+  </div>
+  <div class="cd-idialog-footer">
+    <div style="margin-left:auto;display:flex;gap:8px">
+      <button class="cd-btn cd-btn-secondary" onclick="closeDescDialog()">Cancel</button>
+      <button class="cd-btn cd-btn-primary" onclick="saveDescDialog()">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Save
+      </button>
+    </div>
+  </div>
+</div>
+
             <!-- SECTION 4: Payment -->
             <div class="cd-section">
                 <div class="cd-section-header" onclick="toggleSec(this)">
@@ -540,22 +603,195 @@
                     </div>
                 </div>
             </div>
+
+            <!-- SECTION 5: Bhav Cut Breakup — hidden, uncomment to re-enable
+            <div class="cd-section" id="bhavCutSection">
+              <div class="cd-section-header" onclick="toggleSec(this)">
+                <div class="cd-sec-title">
+                  <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                  Bhav Cut Breakup
+                  <span style="font-size:10px;font-weight:400;color:var(--text-muted);margin-left:4px">(Gold Settlement Against Purchase)</span>
+                </div>
+                <div class="cd-sec-toggle collapsed"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+              </div>
+              <div class="cd-section-body" style="display:none">
+                <div class="cd-items-wrap">
+                  <table class="bhav-tbl" id="bhavTbl">
+                    <thead><tr>
+                      <th style="width:36px">#</th>
+                      <th style="width:140px">Settlement Item</th>
+                      <th style="width:110px">Settlement Purity</th>
+                      <th style="width:100px">Input Weight (g)</th>
+                      <th style="width:90px">Input Purity %</th>
+                      <th style="width:110px">Pure Gold Wt (g)</th>
+                      <th style="width:80px">PG Purity %</th>
+                      <th style="width:100px">PG Weight (g)</th>
+                      <th style="width:110px">Gold Rate</th>
+                      <th style="width:110px">Labour Type</th>
+                      <th style="width:100px">Labour/Wastage Value</th>
+                      <th style="width:120px">Labour Gold (g)</th>
+                      <th style="width:120px">Final Settle Qty</th>
+                      <th style="width:120px">Amount</th>
+                      <th style="width:160px">Remarks</th>
+                      <th style="width:34px"></th>
+                    </tr></thead>
+                    <tbody id="bhavTbody"></tbody>
+                    <tfoot id="bhavTfoot">
+                      <tr>
+                        <td colspan="12" class="bhav-tot-label" style="text-align:right;padding-right:10px">Total</td>
+                        <td style="text-align:right;padding-right:8px;font-variant-numeric:tabular-nums" id="bhavTotQty">0.000</td>
+                        <td style="text-align:right;padding-right:8px;font-variant-numeric:tabular-nums" id="bhavTotAmt">0.00</td>
+                        <td colspan="2"></td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin:8px 4px;flex-wrap:wrap;gap:10px">
+                  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                    <button class="cd-add-row" onclick="addBhavRow()">
+                      <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                      Add Row
+                    </button>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                    <button type="button" class="cd-add-row" onclick="downloadBhavCsv()">Download</button>
+                    <button type="button" class="cd-add-row" onclick="document.getElementById('bhavCsvUpload').click()">Upload</button>
+                    <input type="file" id="bhavCsvUpload" accept=".csv" onchange="uploadBhavCsv(event)" hidden>
+                    <div style="font-size:11.5px;color:var(--text-muted);margin-left:8px">
+                      Final Qty: <strong id="bhavSummaryQty" style="color:var(--text-primary)">0.000</strong> g &nbsp;|&nbsp;
+                      Amount: <strong id="bhavSummaryAmt" style="color:var(--text-primary)">0.00</strong>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            -->
         </div>
 
         <div class="cd-footer">
-          <button class="cd-btn cd-btn-danger" onclick="window.location.href='/caratdesk-purchase-invoice'"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>Discard</button>
+          <button class="cd-btn cd-btn-danger" id="cdCancelBtn" onclick="cancelDoc()"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>Cancel</button>
+          <!-- Bhav Cut buttons — hidden, uncomment to re-enable
+          <button class="cd-btn cd-btn-green" id="createBhavSOBtn" style="display:none" onclick="createBhavCutSalesOrder()">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+            Create Bhav Cut Sales Order
+          </button>
+          -->
           <button class="cd-btn cd-btn-white" onclick="printInvoice()"><svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Print Invoice</button>
+          <!-- <button class="cd-btn cd-btn-secondary" id="bhavCutBtn" onclick="openBhavEntryDialog()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+            Bhav Cut
+          </button> -->
           <div class="cd-footer-right">
-            <button class="cd-btn cd-btn-secondary" onclick="saveDoc(0)"><svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Save</button>
-            <!--<button class="cd-btn cd-btn-green" onclick="saveDoc(1)"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Submit Invoice</button>-->
+            <button class="cd-btn cd-btn-secondary" id="cdReturnBtn" onclick="makeReturnPI()" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4"/></svg>Make Return</button>
+            <button class="cd-btn cd-btn-primary" id="cdMainActionBtn" onclick="saveDoc(0)"><svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Save</button>
           </div>
         </div>
     </div>
 </div>
 
+<!-- Bhav Cut Entry Dialog — hidden, uncomment to re-enable
+<div class="cd-idialog-overlay" id="bhavEntryOverlay" onclick="closeBhavEntryDialog()"></div>
+<div class="cd-idialog" id="bhavEntryDialog" style="width:1000px;max-width:96vw">
+  <div class="cd-idialog-header">
+    <div class="cd-idialog-title">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      Bhav Cut
+    </div>
+    <div class="cd-idialog-close" onclick="closeBhavEntryDialog()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+  </div>
+  <div class="cd-idialog-body" style="padding:20px 24px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+      <div class="cd-field">
+        <label class="cd-label" style="margin-top:0">Settlement Item</label>
+        <div style="display:flex;align-items:center;gap:6px;margin-top:4px">
+          <div class="cd-ac" style="flex:1;position:relative">
+            <input class="cd-input" id="bdlg-item" placeholder="Item Code…" autocomplete="off"
+              oninput="bhavItemAc(this,'bhav-dlg')" onblur="setTimeout(()=>closeBhavAc('bhav-dlg'),180)" style="margin-top:0"/>
+            <div class="cd-ac-list" id="bhav-iac-bhav-dlg" style="min-width:260px"></div>
+          </div>
+        </div>
+      </div>
+      <div class="cd-field">
+        <label class="cd-label" style="margin-top:0">Settlement Purity</label>
+        <select class="cd-select" id="bdlg-purity" onchange="bhavDlgOnPurityChange()" style="margin-top:4px"></select>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px">
+      <div class="cd-field">
+        <label class="cd-label" style="margin-top:0">Input Weight (g)</label>
+        <input class="cd-input" type="number" id="bdlg-input-wt" step="0.001" placeholder="0.000" oninput="calcBhavDlg()" style="margin-top:4px"/>
+      </div>
+      <div class="cd-field">
+        <label class="cd-label" style="margin-top:0">Input Purity %</label>
+        <select class="cd-select" id="bdlg-input-pur" onchange="calcBhavDlg()" style="margin-top:4px"></select>
+      </div>
+      <div class="cd-field">
+        <label class="cd-label" style="margin-top:0">Pure Gold Wt (g)</label>
+        <input class="cd-input cd-readonly" type="number" id="bdlg-pure-gold" readonly style="margin-top:4px;background:var(--accent-light)"/>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px">
+      <div class="cd-field">
+        <label class="cd-label" style="margin-top:0">PG Purity %</label>
+        <input class="cd-input" type="number" id="bdlg-pg-pur" step="0.001" value="99.5" oninput="calcBhavDlg()" style="margin-top:4px"/>
+      </div>
+      <div class="cd-field">
+        <label class="cd-label" style="margin-top:0">PG Weight (g)</label>
+        <input class="cd-input cd-readonly" type="number" id="bdlg-pg-wt" readonly style="margin-top:4px;background:var(--accent-light)"/>
+      </div>
+      <div class="cd-field">
+        <label class="cd-label" style="margin-top:0">Gold Rate</label>
+        <input class="cd-input" type="number" id="bdlg-gold-rate" step="0.01" placeholder="0.00" oninput="calcBhavDlg()" style="margin-top:4px"/>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px">
+      <div class="cd-field">
+        <label class="cd-label" style="margin-top:0">Labour Type</label>
+        <select class="cd-select" id="bdlg-labour-type" onchange="calcBhavDlg()" style="margin-top:4px">
+          <option value="">- None -</option>
+          <option value="Percentage">Percentage</option>
+          <option value="Per Gram">Per Gram</option>
+        </select>
+      </div>
+      <div class="cd-field">
+        <label class="cd-label" style="margin-top:0">Labour/Wastage Value</label>
+        <input class="cd-input" type="number" id="bdlg-labour-val" step="0.01" placeholder="0.00" oninput="calcBhavDlg()" style="margin-top:4px"/>
+      </div>
+      <div class="cd-field">
+        <label class="cd-label" style="margin-top:0">Labour Gold (g)</label>
+        <input class="cd-input cd-readonly" type="number" id="bdlg-labour-gold" readonly style="margin-top:4px;background:var(--accent-light)"/>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+      <div class="cd-field">
+        <label class="cd-label" style="margin-top:0">Final Settle Qty (g)</label>
+        <input class="cd-input cd-readonly" type="number" id="bdlg-final-qty" readonly style="margin-top:4px;background:var(--accent-light);font-weight:600"/>
+      </div>
+      <div class="cd-field">
+        <label class="cd-label" style="margin-top:0">Amount</label>
+        <input class="cd-input cd-readonly" type="number" id="bdlg-amount" readonly style="margin-top:4px;background:var(--accent-light);font-weight:600"/>
+      </div>
+    </div>
+    <div class="cd-field">
+      <label class="cd-label" style="margin-top:0">Remarks</label>
+      <input class="cd-input" id="bdlg-remarks" placeholder="Optional notes…" style="margin-top:4px"/>
+    </div>
+  </div>
+  <div class="cd-idialog-footer">
+    <button class="cd-btn cd-btn-secondary" onclick="closeBhavEntryDialog()">Cancel</button>
+    <div style="margin-left:auto">
+      <button class="cd-btn cd-btn-primary" onclick="saveBhavEntryDialog()">
+        <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add to Table
+      </button>
+    </div>
+  </div>
+</div>
+-->
+
 <!-- Item Picker Dialog -->
 <div class="cd-idialog-overlay" id="itemDialogOverlay" onclick="closeItemDialog()"></div>
-<div class="cd-idialog" id="itemDialog">
+<div class="cd-idialog" id="itemDialog" style="width:1100px;max-width:96vw">
   <div class="cd-idialog-header">
     <div class="cd-idialog-title"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>Select Item</div>
     <div class="cd-idialog-close" onclick="closeItemDialog()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
@@ -573,6 +809,44 @@
 </div>
 
 <div class="cd-toast" id="cdToast"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span id="cdToastMsg"></span></div>
+
+<!-- CSV Column Mapping Dialog -->
+<div class="cd-idialog-overlay" id="csvMapOverlay" onclick="closeCsvMapDialog()"></div>
+<div class="cd-idialog" id="csvMapDialog" style="width:600px;max-width:96vw">
+  <div class="cd-idialog-header">
+    <div>
+      <div class="cd-idialog-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>
+        Map CSV Columns
+      </div>
+      <div style="font-size:11px;color:var(--text-muted);margin-top:3px" id="csvMapSubtitle">Map each CSV column to the corresponding table field</div>
+    </div>
+    <div class="cd-idialog-close" onclick="closeCsvMapDialog()">
+      <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </div>
+  </div>
+  <div class="cd-idialog-body" style="padding:0">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;background:var(--bg);border-bottom:.5px solid var(--border);padding:8px 24px">
+      <div style="font-size:10px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">CSV Column</div>
+      <div style="font-size:10px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">Map To Field</div>
+    </div>
+    <div id="csvMapRows" style="max-height:360px;overflow-y:auto"></div>
+  </div>
+  <div style="font-size:11.5px;color:var(--text-muted);padding:8px 24px 0;display:flex;align-items:center;gap:6px">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;flex-shrink:0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <span id="csvMapInfo">0 rows will be imported</span>
+  </div>
+  <div class="cd-idialog-footer">
+    <button class="cd-btn cd-btn-secondary" onclick="closeCsvMapDialog()">Cancel</button>
+    <div style="margin-left:auto">
+      <button class="cd-btn cd-btn-primary" onclick="confirmCsvImport()">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        Import Rows
+      </button>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
 <script>
@@ -586,6 +860,7 @@ let SUPPLIERSTATE = "";
 
 let SUPPLIERS=[], ITEMS=[], WAREHOUSES=[], TAX_TEMPLATES=[], PR_LIST=[], ITEM_PRICES={}, ACCOUNTS=[];
 let rowCount=0, bomRowCount=0, taxRowCount=0, submitted=false;
+window.currentPIName = null;
 let activeRowId=null, currentTaxIdx=-1;
 let TAX_DETAILS = []; // Loaded from template
 
@@ -596,30 +871,47 @@ function fmt(n){ return '₹'+Math.round(n||0).toLocaleString('en-IN'); }
 function getCsrf(){ if(typeof frappe!=='undefined'&&frappe.csrf_token)return frappe.csrf_token; const m=document.cookie.match(/csrf_token=([^;]+)/);return m?m[1]:''; }
 
 // ══════════════════════════════════════════
-//  DEV1 TOKEN AUTH
+//  TOKEN AUTH
 // ══════════════════════════════════════════
+function _handle401(){
+    const active = typeof cdGetActiveInstance==='function' ? cdGetActiveInstance() : 'PP';
+    if(active==='PC'){
+        if(typeof showToast==='function') showToast('PC session expired — switching back to PP','error');
+        const ppKey=localStorage.getItem('cd_pp_key'), ppSec=localStorage.getItem('cd_pp_secret');
+        if(ppKey&&ppSec){
+            localStorage.setItem('cd_active_instance','PP');
+            localStorage.setItem('cd_api_key',ppKey);
+            localStorage.setItem('cd_api_secret',ppSec);
+        }
+        setTimeout(()=>window.location.reload(),1800);
+    } else {
+        if(typeof showToast==='function') showToast('Session expired - please log in again','error');
+        setTimeout(()=>window.location.href='/caratdesk-login',1500);
+    }
+}
+
 function getDevHeaders(){
     const key    = localStorage.getItem('cd_api_key');
     const secret = localStorage.getItem('cd_api_secret');
-    if(!key || !secret){ window.location.href='/caratdesk-login'; throw new Error('No auth token'); }
+    if(!key || !secret){ _handle401(); throw new Error('No auth token'); }
     return {'Authorization':`token ${key}:${secret}`,'Content-Type':'application/json','Accept':'application/json'};
 }
 
 async function dev1Post(endpoint, body){
-    const res = await fetch(`${DEV1}${endpoint}`, {
+    const res = await fetch(`${cdGetInstanceUrl()}${endpoint}`, {
         method: 'POST', headers: getDevHeaders(), body: JSON.stringify(body),
     });
-    if(res.status === 401){ window.location.href='/caratdesk-login'; throw new Error('Session expired'); }
+    if(res.status === 401){ _handle401(); throw new Error('Session expired'); }
     const d = await res.json();
     if(!res.ok) throw new Error(d.message || d.exception || 'Error');
     return d;
 }
 
 async function dev1Put(endpoint, body){
-    const res = await fetch(`${DEV1}${endpoint}`, {
+    const res = await fetch(`${cdGetInstanceUrl()}${endpoint}`, {
         method: 'PUT', headers: getDevHeaders(), body: JSON.stringify(body),
     });
-    if(res.status === 401){ window.location.href='/caratdesk-login'; throw new Error('Session expired'); }
+    if(res.status === 401){ _handle401(); throw new Error('Session expired'); }
     const d = await res.json();
     if(!res.ok) throw new Error(d.message || d.exception || 'Error');
     return d;
@@ -627,11 +919,108 @@ async function dev1Put(endpoint, body){
 
 async function dev1Get(endpoint){
     const h = {'Authorization': getDevHeaders().Authorization, 'Accept':'application/json'};
-    const res = await fetch(`${DEV1}${endpoint}`, { headers: h });
-    if(res.status === 401){ window.location.href='/caratdesk-login'; throw new Error('Session expired'); }
+    const res = await fetch(`${cdGetInstanceUrl()}${endpoint}`, { headers: h });
+    if(res.status === 401){ _handle401(); throw new Error('Session expired'); }
     const d = await res.json();
     if(!res.ok) throw new Error(d.message || d.exception || 'Error');
     return d;
+}
+
+// Returns fieldnames flagged "In Global Search" on a doctype, so link pickers can search them too.
+async function getGlobalSearchFields(doctype){
+    try{
+        const filters=encodeURIComponent(JSON.stringify([["parent","=",doctype],["in_global_search","=",1]]));
+        const res=await dev1Get(`/api/resource/DocField?filters=${filters}&fields=${encodeURIComponent('["fieldname"]')}&limit_page_length=0`);
+        return (res.data||res.message||[]).map(d=>d.fieldname).filter(Boolean);
+    }catch(e){ console.warn('getGlobalSearchFields error ('+doctype+'):', e.message); return []; }
+}
+
+async function dev1PostForm(endpoint, formData){
+    const key=localStorage.getItem('cd_api_key'), secret=localStorage.getItem('cd_api_secret');
+    if(!key||!secret){ _handle401(); throw new Error('No auth token'); }
+    const res=await fetch(`${cdGetInstanceUrl()}${endpoint}`,{method:'POST',headers:{'Authorization':`token ${key}:${secret}`,'Accept':'application/json'},body:formData});
+    if(res.status===401){ _handle401(); throw new Error('Session expired'); }
+    const d=await res.json();
+    if(!res.ok) throw new Error(d.message||d.exception||'Error');
+    return d;
+}
+
+async function dev1Delete(endpoint){
+    const key=localStorage.getItem('cd_api_key'), secret=localStorage.getItem('cd_api_secret');
+    if(!key||!secret){ _handle401(); throw new Error('No auth token'); }
+    const res=await fetch(`${cdGetInstanceUrl()}${endpoint}`,{method:'DELETE',headers:{'Authorization':`token ${key}:${secret}`,'Accept':'application/json','Content-Type':'application/json'}});
+    if(res.status===401){ _handle401(); throw new Error('Session expired'); }
+    const d=await res.json();
+    if(!res.ok) throw new Error(d.message||d.exception||'Error');
+    return d;
+}
+
+// ── ATTACHMENTS ──
+let ATTACHMENTS=[];
+
+async function loadAttachments(){
+    if(!window.currentPIName) return;
+    try{
+        const fields=encodeURIComponent(JSON.stringify(['name','file_name','file_url','is_private']));
+        const filters=encodeURIComponent(JSON.stringify([['attached_to_doctype','=','Purchase Invoice'],['attached_to_name','=',window.currentPIName]]));
+        const res=await dev1Get(`/api/resource/File?filters=${filters}&fields=${fields}&limit=50`);
+        ATTACHMENTS=res.data||res.message||[];
+        renderAttachments();
+    }catch(e){ console.error('loadAttachments error',e); }
+}
+
+function renderAttachments(){
+    const grid=document.getElementById('attachGrid');
+    if(!grid) return;
+    if(!ATTACHMENTS.length){ grid.innerHTML=''; return; }
+    grid.innerHTML=ATTACHMENTS.map(f=>{
+        const displayUrl=f._localUrl||(cdGetInstanceUrl()+(f.file_url||''));
+        const isImg=/\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i.test(f.file_name||'');
+        const thumb=isImg
+            ? `<img src="${displayUrl}" style="width:100%;height:100%;object-fit:cover;display:block">`
+            : `<div style="width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:4px;background:var(--accent-light)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:20px;height:20px;color:var(--text-muted)"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span style="font-size:8px;color:var(--text-muted);text-align:center;word-break:break-all;line-height:1.2">${(f.file_name||'').slice(0,14)}</span></div>`;
+        const uploading=f._uploading
+            ? `<div style="position:absolute;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;border-radius:8px"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" style="width:16px;height:16px;animation:rm-spin .8s linear infinite"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg></div>` : '';
+        const removeBtn=!f._uploading
+            ? `<button onclick="removeAttachment('${f.name}',event)" style="position:absolute;top:-5px;right:-5px;width:18px;height:18px;border-radius:50%;background:#A32D2D;border:2px solid var(--surface);cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;z-index:2"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" style="width:8px;height:8px"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>` : '';
+        const openAttr=f._uploading?'':` onclick="window.open('${displayUrl}','_blank')"`;
+        return `<div style="position:relative;width:60px;height:60px;flex-shrink:0"><div style="width:60px;height:60px;border-radius:8px;border:.5px solid var(--border);overflow:hidden;cursor:${f._uploading?'default':'pointer'}"${openAttr}>${thumb}${uploading}</div>${removeBtn}</div>`;
+    }).join('');
+}
+
+async function handleAttachFiles(e){
+    const files=Array.from(e.target.files||[]);
+    e.target.value='';
+    if(!files.length) return;
+    if(!window.currentPIName){ showToast('Save the invoice first before attaching','error'); return; }
+    const pending=files.map(file=>({name:'_tmp_'+Math.random().toString(36).slice(2),file_name:file.name,file_url:'',_localUrl:URL.createObjectURL(file),_uploading:true,_file:file}));
+    ATTACHMENTS.push(...pending);
+    renderAttachments();
+    for(const item of pending){
+        try{
+            const fd=new FormData(); fd.append('file',item._file,item._file.name); fd.append('doctype','Purchase Invoice'); fd.append('docname',window.currentPIName); fd.append('is_private','0');
+            const res=await dev1PostForm('/api/method/upload_file',fd);
+            const up=res.message||res;
+            const idx=ATTACHMENTS.findIndex(a=>a.name===item.name);
+            if(idx>-1){ URL.revokeObjectURL(item._localUrl); ATTACHMENTS[idx]={name:up.name,file_name:up.file_name,file_url:up.file_url}; }
+        }catch(err){
+            const idx=ATTACHMENTS.findIndex(a=>a.name===item.name);
+            if(idx>-1) ATTACHMENTS[idx]._uploading=false;
+            showToast('Upload failed: '+item.file_name,'error');
+        }
+        renderAttachments();
+    }
+}
+
+async function removeAttachment(name,e){
+    if(e) e.stopPropagation();
+    if(!confirm('Remove this attachment?')) return;
+    try{
+        await dev1Delete(`/api/resource/File/${encodeURIComponent(name)}`);
+        ATTACHMENTS=ATTACHMENTS.filter(f=>f.name!==name);
+        renderAttachments();
+        showToast('Removed','success');
+    }catch(err){ showToast('Failed to remove: '+err.message,'error'); }
 }
 
 async function fetchAddrByLink(linkDoctype, linkName){
@@ -642,14 +1031,20 @@ async function fetchAddrByLink(linkDoctype, linkName){
 }
 
 async function loadBranches(){
-    const sel = document.getElementById('branchDisplay');
     try{
         const d = await dev1Get('/api/resource/Branch?fields=["name"]&limit=100');
         const branches = (d.data || d.message || []).map(b => b.name).filter(Boolean);
-        sel.innerHTML = '<option value="">— Select Branch —</option>' +
+        const opts = '<option value="">— Select Branch —</option>' +
             branches.map(b => `<option value="${b}">${b}</option>`).join('');
+        ['branchDisplay','shippingBranch'].forEach(id=>{
+            const sel = document.getElementById(id);
+            if(sel){ const cur=sel.value; sel.innerHTML=opts; if(cur) sel.value=cur; }
+        });
     }catch(e){
-        sel.innerHTML = '<option value="">— Branch load failed —</option>';
+        ['branchDisplay','shippingBranch'].forEach(id=>{
+            const sel = document.getElementById(id);
+            if(sel) sel.innerHTML = '<option value="">— Branch load failed —</option>';
+        });
     }
 }
 async function pubGet(script, params = {}) {
@@ -676,6 +1071,18 @@ async function pubGet(script, params = {}) {
   return await res.json();
 }
 
+// ERPNext rejects the invoice if Due Date is before either Posting Date or Supplier Invoice
+// Date (bill_date) — this commonly happens when backdating Supplier Invoice Date to match an
+// old-gold vendor bill without also pushing Due Date back. Keep Due Date pinned to the later of
+// the two whenever either changes, mirroring how Frappe desk itself keeps due_date in sync.
+function syncDueDate(){
+    const postingVal = document.getElementById('postingDate').value;
+    const billVal     = document.getElementById('billDate').value;
+    const dueEl       = document.getElementById('dueDate');
+    const minDue = [postingVal, billVal].filter(Boolean).sort().pop();
+    if(minDue && (!dueEl.value || dueEl.value < minDue)) dueEl.value = minDue;
+}
+
 // ══════════════════════════════════════════
 //  INIT & MASTER DATA
 // ══════════════════════════════════════════
@@ -686,8 +1093,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     await Promise.all([loadMasterData(), loadBranches()]);
     loadMetalRates();
-    addRow();
-    // addBomRow(); // BOM disabled
+    // loadBhavMetalItems(); // Bhav Cut hidden — uncomment to re-enable
 
     // Get Company State via direct Address API
     try {
@@ -701,27 +1107,38 @@ window.addEventListener('DOMContentLoaded', async () => {
     // Check for existing doc or PR ref
     const params = new URLSearchParams(window.location.search);
     const invName = params.get('name');
-    const prName = params.get('pr');
+    const prName  = params.get('pr');
 
-    if (invName) await loadExistingInvoice(invName);
-    else if (prName) {
+    if (invName) {
+        await loadExistingInvoice(invName);
+    } else if (prName) {
+        addRow();
         document.getElementById('againstPR').value = prName;
         selPR(prName);
+    } else {
+        addRow();
     }
 });
 
 async function loadMasterData(){
     try {
+        const SUPPLIER_BASE_FIELDS = ["name","supplier_name","supplier_type","mobile_no","tax_id"];
+        const ITEM_BASE_FIELDS = ["item_code","item_name","gst_hsn_code","stock_uom","standard_rate"];
+        const [supplierGsFields, itemGsFields] = await Promise.all([
+            getGlobalSearchFields('Supplier'), getGlobalSearchFields('Item')
+        ]);
+        const supplierFields = [...new Set([...SUPPLIER_BASE_FIELDS, ...supplierGsFields])];
+        const itemFields = [...new Set([...ITEM_BASE_FIELDS, ...itemGsFields])];
         const [s, i, w, t, r, a] = await Promise.all([
-            dev1Get('/api/resource/Supplier?fields=["name","supplier_name","supplier_type","mobile_no","tax_id"]&limit=500'),
-            dev1Get('/api/resource/Item?fields=["item_code","item_name","gst_hsn_code","stock_uom","standard_rate"]&limit=1000'),
+            dev1Get(`/api/resource/Supplier?fields=${encodeURIComponent(JSON.stringify(supplierFields))}&limit=500`),
+            dev1Get(`/api/resource/Item?fields=${encodeURIComponent(JSON.stringify(itemFields))}&limit=1000`),
             dev1Get('/api/resource/Warehouse?fields=["name"]&limit=500'),
             dev1Get('/api/resource/Purchase%20Taxes%20and%20Charges%20Template?fields=["name"]&limit=100'),
             dev1Get('/api/resource/Purchase%20Receipt?fields=["name","supplier","supplier_name","posting_date","grand_total","status","docstatus"]&limit=500&order_by=posting_date%20desc'),
             dev1Get('/api/resource/Account?fields=["name","root_type","is_group"]&filters=[["root_type","=","Expense"],["is_group","=",0]]&limit=500'),
         ]);
-        SUPPLIERS    = (s.data||s.message||[]).map(x=>({name:x.name,display:x.supplier_name||x.name,type:x.supplier_type||'',phone:x.mobile_no||'',gstin:x.tax_id||''}));
-        ITEMS        = (i.data||i.message||[]).map(x=>({code:x.item_code||x.name,name:x.item_name||x.item_code||x.name,hsn:x.gst_hsn_code||'',uom:x.stock_uom||'Nos',rate:parseFloat(x.standard_rate)||0}));
+        SUPPLIERS    = (s.data||s.message||[]).map(x=>({name:x.name,display:x.supplier_name||x.name,type:x.supplier_type||'',phone:x.mobile_no||'',gstin:x.tax_id||'',_search:supplierFields.map(f=>String(x[f]||'')).join(' ').toLowerCase()}));
+        ITEMS        = (i.data||i.message||[]).map(x=>({code:x.item_code||x.name,name:x.item_name||x.item_code||x.name,hsn:x.gst_hsn_code||'',uom:x.stock_uom||'Nos',rate:parseFloat(x.standard_rate)||0,_search:itemFields.map(f=>String(x[f]||'')).join(' ').toLowerCase()}));
         WAREHOUSES   = (w.data||w.message||[]).map(x=>x.name);
         TAX_TEMPLATES= (t.data||t.message||[]).map(x=>x.name);
         PR_LIST      = (r.data||r.message||[]).filter(x=>x.docstatus===1&&x.status!=='Closed');
@@ -744,7 +1161,7 @@ function populateSelect(id, list){
 // ══════════════════════════════════════════
 //  UI HELPERS
 // ══════════════════════════════════════════
-const sections = document.querySelectorAll('.cd-section');
+const sections = document.querySelectorAll('.cd-section:not(.cd-section-nocollapse)');
 let lastScrollTop = 0;
 
 function collapseSection(section){
@@ -790,7 +1207,7 @@ function acSupplier(q, force=false){
     const list = document.getElementById('ac-supplier');
     const query = (q||'').trim().toLowerCase();
     if(!force && !query){ setAcOpen('ac-supplier', false); return; }
-    const res = SUPPLIERS.filter(s => s.display.toLowerCase().includes(query) || s.name.toLowerCase().includes(query)).slice(0, 10);
+    const res = SUPPLIERS.filter(s => s.display.toLowerCase().includes(query) || s.name.toLowerCase().includes(query) || (s._search||'').includes(query)).slice(0, 10);
     const hint = `<div class="cd-ac-hint">Suppliers · ${res.length} found</div>`;
     list.innerHTML = hint + (res.length ? res.map(s => `
         <div class="cd-ac-item" onclick="selSupplier('${esc(s.name)}')">
@@ -905,15 +1322,42 @@ async function selPR(name){
         const doc = res.data || res.message;
         if(doc) {
             if(!document.getElementById('supplier').dataset.id) selSupplier(doc.supplier);
+            document.getElementById('piLinkedPO').value = doc.purchase_order || '';
+            if(doc.custom_shipping_branch){
+              const sbSel = document.getElementById('shippingBranch');
+              if(sbSel && !sbSel.value) sbSel.value = doc.custom_shipping_branch;
+            }
             document.getElementById('itemsTbody').innerHTML = ''; rowCount = 0;
+
+            // Fetch already-billed qty per PR item (includes draft + submitted PIs, excludes cancelled)
+            const billedMap = {};
+            try {
+                const piItemsRes = await dev1Get(`/api/resource/Purchase%20Invoice%20Item?filters=${encodeURIComponent(JSON.stringify([["purchase_receipt","=",name],["docstatus","!=",2]]))}&fields=${encodeURIComponent('["pr_detail","qty"]')}&limit_page_length=500`);
+                (piItemsRes.data || piItemsRes.message || []).forEach(r => { if(r.pr_detail) billedMap[r.pr_detail] = (billedMap[r.pr_detail] || 0) + (r.qty || 0); });
+            } catch(e) { console.warn('[PI] Could not fetch billed qty:', e.message); }
+
             doc.items.forEach(it => {
                 addRow(); const rid = `row${rowCount}`;
                 fillRow(rid, it.item_code, it.item_name, it.gst_hsn_code, it.uom, it.rate);
                 const tr = document.getElementById(rid);
-                tr.querySelector('[data-f="qty"]').value = it.qty;
-                // Store PR reference — links PI item to PR item row
+                const remaining = Math.max(0, (it.qty || 0) - (billedMap[it.name] || 0));
+                tr.querySelector('[data-f="qty"]').value = remaining;
+                // Store PR/PO reference — links PI item to PR item row and back to PO
                 tr.querySelector('[data-f="purchase_receipt"]').value = name;
                 tr.querySelector('[data-f="pr_detail"]').value = it.name || '';
+                tr.querySelector('[data-f="purchase_order"]').value = doc.purchase_order || '';
+                tr.querySelector('[data-f="purchase_order_item"]').value = it.purchase_order_item || '';
+                // Load item image from custom_image field
+                if(it.custom_image){
+                    const fullUrl = cdGetInstanceUrl() + it.custom_image;
+                    tr.querySelector('[data-f="img_url"]').value = it.custom_image;
+                    const imgEl     = document.getElementById('imgPrev-'+rid);
+                    const thumbWrap = document.getElementById('imgThumbWrap-'+rid);
+                    const uploadBtn = document.getElementById('imgUploadBtn-'+rid);
+                    if(imgEl){ imgEl.src = fullUrl; imgEl.title = 'Click to preview'; }
+                    if(thumbWrap) thumbWrap.style.display = 'block';
+                    if(uploadBtn) uploadBtn.style.display = 'none';
+                }
                 recalcRow(rid);
             });
             showToast(`Imported ${doc.items.length} item(s) from ${name}`, 'success');
@@ -930,21 +1374,21 @@ function addRow(){
     const uoms = [...new Set(['Nos','kg','g','ct','mtr','Pair','Set','Lot','Box','Pcs',...ITEMS.map(i=>i.uom).filter(Boolean)])];
     tr.innerHTML = `
         <td style="color:var(--text-muted);font-size:12px;text-align:center;font-weight:500">${rowCount}</td>
-        <td style='width: 90px;'>
-          <div style="display:flex;flex-direction:column;gap:4px;">
-                <div class="cd-item-display" id="iname-${rid}" style="color:var(--text-muted);font-style:italic;min-height:14px;display: none;"></div>
-                <button class="cd-pick-btn" id="pickbtn-${rid}" onclick="openItemDialog('${rid}')">
-                  <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Select Item
-                </button>
-                <input type="hidden" data-f="code"/>
-                <input type="hidden" data-f="purchase_receipt"/>
-                <input type="hidden" data-f="pr_detail"/>
-            </div>
+        <td style="text-align:center;padding:4px">
+            <button class="cd-pick-btn" id="pickbtn-${rid}" onclick="openItemDialog('${rid}')" style="font-size:10px;padding:0 6px;height:22px;border-radius:4px">
+              <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            </button>
+            <input type="hidden" data-f="code"/>
+            <input type="hidden" data-f="purchase_receipt"/>
+            <input type="hidden" data-f="pr_detail"/>
+            <input type="hidden" data-f="purchase_order"/>
+            <input type="hidden" data-f="purchase_order_item"/>
+            <input type="hidden" data-f="wh"/>
         </td>
         <td><input data-f="code-vis" readonly style="opacity:.6;font-size:11px"/></td>
-        <td><input data-f="hsn" style="font-size:11px"/></td>
-        <td><input type="number" data-f="qty" value="1" oninput="recalcRow('${rid}')"/></td>
+        <td><input data-f="item_name" readonly style="opacity:.6;font-size:11px"/></td>
         <td><select data-f="uom">${uoms.map(u=>`<option>${u}</option>`).join('')}</select></td>
+        <td><input type="number" data-f="qty" value="1" oninput="recalcRow('${rid}')"/></td>
         <td>
             <div class="cd-input-prefix">
                 <span class="cd-prefix-sym">₹</span>
@@ -958,14 +1402,30 @@ function addRow(){
             </div>
         </td>
         <td><input data-f="amt" readonly class="cd-readonly" style="text-align:right;font-weight:600"/></td>
-        <td><select class="cd-select" data-f="wh" 
-            style="height:28px;padding:2px 6px;font-size:11px">
-            <option value=""></option>
-            ${WAREHOUSES.map(w=>`<option value="${w}">${w}</option>`).join('')}</select></td>
+        <td><input data-f="hsn" style="font-size:11px"/></td>
+        <td style="text-align:center;padding:4px">
+          <input type="file" id="imgFile-${rid}" accept="image/*" hidden onchange="previewRowImg('${rid}',this)"/>
+          <button id="imgUploadBtn-${rid}" onclick="document.getElementById('imgFile-${rid}').click()" title="Attach image"
+            style="width:26px;height:26px;border-radius:6px;border:.5px solid var(--border-strong);background:var(--surface);color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;margin:auto">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          </button>
+          <div id="imgThumbWrap-${rid}" style="display:none;position:relative;width:36px;margin:3px auto 0">
+            <img id="imgPrev-${rid}" style="width:36px;height:36px;object-fit:cover;border-radius:4px;cursor:zoom-in;display:block" onclick="showImgLightbox(this.src)" title="Click to preview"/>
+            <button onclick="removeRowImg('${rid}')" title="Remove image" style="position:absolute;top:-6px;right:-6px;width:16px;height:16px;border-radius:50%;background:#ef4444;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;line-height:1;padding:0;font-weight:700">×</button>
+          </div>
+          <input type="hidden" data-f="img_url" value=""/>
+        </td>
+        <td style="text-align:center;padding:4px">
+          <button class="cd-pick-btn" id="descbtn-${rid}" onclick="openDescDialog('${rid}')" title="Add description"
+            style="font-size:10px;padding:0 6px;height:22px;border-radius:4px">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          </button>
+          <input type="hidden" data-f="custom_remarks" value=""/>
+        </td>
         <td><button class="cd-del-btn" onclick="delRow('${rid}')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></td>
     `;
     document.getElementById('itemsTbody').appendChild(tr);
-    const wh = document.getElementById('defaultWarehouse').value;
+    const wh = document.getElementById('defaultWarehouse')?.value || '';
     if(wh) tr.querySelector('[data-f="wh"]').value = wh;
 }
 
@@ -973,10 +1433,15 @@ function fillRow(rid, code, name, hsn, uom, rate){
     const tr = document.getElementById(rid); if(!tr) return;
     tr.querySelector('[data-f="code"]').value = code;
     tr.querySelector('[data-f="code-vis"]').value = code;
-    tr.querySelector(`#iname-${rid}`).textContent = name;
+    const nameInp = tr.querySelector('[data-f="item_name"]');
+    if(nameInp) nameInp.value = name || code;
     tr.querySelector('[data-f="hsn"]').value = hsn || '';
-    tr.querySelector('[data-f="uom"]').value = uom || 'Nos';
+    const uomSel=tr.querySelector('[data-f="uom"]');
+    if(uomSel){let found=false;[...uomSel.options].forEach(o=>{if(o.value===(uom||'Nos')){o.selected=true;found=true;}});if(!found&&uom){const opt=document.createElement('option');opt.value=uom;opt.textContent=uom;opt.selected=true;uomSel.appendChild(opt);}}
     tr.querySelector('[data-f="rate"]').value = rate || 0;
+    // Update picker button to edit icon after selection
+    const btn = document.getElementById('pickbtn-'+rid);
+    if(btn) btn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`;
     recalcRow(rid);
 }
 
@@ -991,6 +1456,112 @@ function recalcRow(rid){
 }
 
 function delRow(rid){ document.getElementById(rid).remove(); recalc(); }
+
+// ── Per-item Description dialog (backed by hidden data-f="custom_remarks") ──
+var _descDlgRowId = null;
+function openDescDialog(rowId){
+  const tr = document.getElementById(rowId); if(!tr) return;
+  _descDlgRowId = rowId;
+  document.getElementById('descDlgText').value = tr.querySelector('[data-f="custom_remarks"]')?.value || '';
+  document.getElementById('descDialog').classList.add('open');
+  document.getElementById('descDialogOverlay').classList.add('open');
+  document.getElementById('descDlgText').focus();
+}
+function closeDescDialog(){
+  document.getElementById('descDialog').classList.remove('open');
+  document.getElementById('descDialogOverlay').classList.remove('open');
+  _descDlgRowId = null;
+}
+function saveDescDialog(){
+  if(!_descDlgRowId) return;
+  const tr = document.getElementById(_descDlgRowId); if(!tr) return;
+  const val = document.getElementById('descDlgText').value.trim();
+  const input = tr.querySelector('[data-f="custom_remarks"]');
+  if(input) input.value = val;
+  updateDescBtnVisual(_descDlgRowId);
+  closeDescDialog();
+}
+function updateDescBtnVisual(rowId){
+  const tr = document.getElementById(rowId); if(!tr) return;
+  const val = tr.querySelector('[data-f="custom_remarks"]')?.value || '';
+  const btn = document.getElementById('descbtn-'+rowId); if(!btn) return;
+  if(val){
+    btn.style.background = 'var(--pill-green-bg)';
+    btn.style.color = 'var(--pill-green-txt)';
+    btn.title = val.length > 80 ? val.slice(0,80)+'…' : val;
+  } else {
+    btn.style.background = '';
+    btn.style.color = '';
+    btn.title = 'Add description';
+  }
+}
+
+function previewRowImg(rowId, input){
+  if(!input.files || !input.files[0]) return;
+  const file      = input.files[0];
+  const localSrc  = URL.createObjectURL(file);
+  const img       = document.getElementById('imgPrev-'+rowId);
+  const thumbWrap = document.getElementById('imgThumbWrap-'+rowId);
+  const uploadBtn = document.getElementById('imgUploadBtn-'+rowId);
+  // Show local preview immediately (dimmed while uploading)
+  if(img){ img.src = localSrc; img.style.opacity = '0.45'; img.title = 'Uploading…'; }
+  if(thumbWrap) thumbWrap.style.display = 'block';
+  if(uploadBtn) uploadBtn.style.display = 'none';
+  // Upload to ERPNext in background
+  _uploadRowImg(rowId, file, localSrc);
+}
+
+async function _uploadRowImg(rowId, file, localSrc){
+  const tr        = document.getElementById(rowId);
+  const img       = document.getElementById('imgPrev-'+rowId);
+  const urlInp    = tr?.querySelector('[data-f="img_url"]');
+  try{
+    const fd = new FormData();
+    fd.append('file', file, file.name);
+    fd.append('is_private', '0');
+    const res    = await dev1PostForm('/api/method/upload_file', fd);
+    const up     = res.message || res;
+    const fileUrl = up.file_url || '';
+    if(urlInp) urlInp.value = fileUrl;
+    if(img){
+      img.src       = cdGetInstanceUrl() + fileUrl;
+      img.style.opacity = '1';
+      img.title     = 'Click to preview';
+      URL.revokeObjectURL(localSrc);
+    }
+  }catch(err){
+    showToast('Image upload failed: ' + err.message, 'error');
+    if(img){ img.style.opacity = '0.35'; img.title = 'Upload failed'; }
+  }
+}
+
+function removeRowImg(rowId){
+  const img       = document.getElementById('imgPrev-'+rowId);
+  const thumbWrap = document.getElementById('imgThumbWrap-'+rowId);
+  const uploadBtn = document.getElementById('imgUploadBtn-'+rowId);
+  const fileInput = document.getElementById('imgFile-'+rowId);
+  const tr        = fileInput?.closest('tr');
+  const urlInp    = tr?.querySelector('[data-f="img_url"]');
+  if(img){ img.src = ''; img.style.opacity = '1'; }
+  if(thumbWrap) thumbWrap.style.display = 'none';
+  if(uploadBtn) uploadBtn.style.display = 'flex';
+  if(fileInput) fileInput.value = '';
+  if(urlInp) urlInp.value = '';
+}
+
+function showImgLightbox(src){
+  let ov = document.getElementById('imgLightboxOverlay');
+  if(!ov){
+    ov = document.createElement('div');
+    ov.id = 'imgLightboxOverlay';
+    ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:9999;display:none;align-items:center;justify-content:center;cursor:zoom-out';
+    ov.innerHTML = '<img id="imgLightboxImg" style="max-width:90vw;max-height:90vh;border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.5);cursor:default" onclick="event.stopPropagation()"/>';
+    ov.onclick = () => { ov.style.display = 'none'; };
+    document.body.appendChild(ov);
+  }
+  document.getElementById('imgLightboxImg').src = src;
+  ov.style.display = 'flex';
+}
 
 // ══════════════════════════════════════════
 //  BOM TABLE — functions kept but not called
@@ -1117,6 +1688,225 @@ function recalc(){
 // ══════════════════════════════════════════
 //  SAVE & SUBMIT
 // ══════════════════════════════════════════
+async function loadExistingInvoice(name){
+    try{
+        showToast('Loading…','info');
+        const json = await dev1Get(`/api/resource/Purchase%20Invoice/${encodeURIComponent(name)}`);
+        const doc = json.data || json.message;
+        if(!doc) throw new Error('Purchase Invoice not found');
+
+        window.currentPIName = doc.name;
+        const isSubmitted = doc.docstatus === 1;
+        const isCancelled = doc.docstatus === 2;
+
+        // ── Header fields ──
+        const setVal = (id, val) => { const el=document.getElementById(id); if(el) el.value=val||''; };
+        const setChk = (id, val) => { const el=document.getElementById(id); if(el) el.checked=!!val; };
+        setVal('postingDate',       doc.posting_date);
+        setVal('dueDate',           doc.due_date);
+        setVal('billNo',            doc.bill_no);
+        setVal('billDate',          doc.bill_date);
+        setVal('supplier',          doc.supplier_name||doc.supplier);
+        setVal('branchDisplay',     doc.branch || doc.custom_branch);
+        setVal('againstPR',         doc.purchase_receipt||'');
+        setVal('piLinkedPO',        doc.purchase_order||'');
+        setVal('taxTemplate',       doc.taxes_and_charges);
+        setVal('addDisc',           doc.additional_discount_percentage||0);
+        setVal('modeOfPayment',     doc.mode_of_payment);
+        setVal('paidAmount',        doc.paid_amount||0);
+        setVal('remarks',           doc.remarks);
+        setChk('updateStock',       doc.update_stock);
+        setChk('isReturn',          doc.is_return);
+        setChk('isPaid',            doc.is_paid);
+
+        // Trigger supplier card / address fetch
+        if(doc.supplier) await selSupplier(doc.supplier_name||doc.supplier);
+
+        // ── Items ──
+        document.getElementById('itemsTbody').innerHTML=''; rowCount=0;
+        (doc.items||[]).forEach(item=>{
+            addRow();
+            const rid='row'+rowCount;
+            const tr=document.getElementById(rid); if(!tr) return;
+            const f=(sel,val)=>{ const el=tr.querySelector(sel); if(el) el.value=val; };
+            f('[data-f="code"]',            item.item_code||'');
+            f('[data-f="code-vis"]',        item.item_code||'');
+            f('[data-f="item_name"]',       item.item_name||item.item_code||'');
+            f('[data-f="hsn"]',             item.gst_hsn_code||'');
+            f('[data-f="qty"]',             item.qty||0);
+            f('[data-f="rate"]',            item.rate||0);
+            f('[data-f="disc"]',            item.discount_percentage||0);
+            f('[data-f="wh"]',              item.warehouse||'');
+            f('[data-f="purchase_receipt"]',   item.purchase_receipt||'');
+            f('[data-f="pr_detail"]',          item.pr_detail||'');
+            f('[data-f="purchase_order"]',     item.purchase_order||'');
+            f('[data-f="purchase_order_item"]',item.purchase_order_item||'');
+            f('[data-f="custom_remarks"]',     item.custom_remarks||'');
+            updateDescBtnVisual(rid);
+            // Load item image from custom_image field
+            if(item.custom_image){
+                const fullUrl = cdGetInstanceUrl() + item.custom_image;
+                f('[data-f="img_url"]', item.custom_image);
+                const imgEl     = document.getElementById('imgPrev-'+rid);
+                const thumbWrap = document.getElementById('imgThumbWrap-'+rid);
+                const uploadBtn = document.getElementById('imgUploadBtn-'+rid);
+                if(imgEl){ imgEl.src = fullUrl; imgEl.title = 'Click to preview'; }
+                if(thumbWrap) thumbWrap.style.display = 'block';
+                if(uploadBtn) uploadBtn.style.display = 'none';
+            }
+            // UOM
+            const uomSel=tr.querySelector('[data-f="uom"]');
+            if(uomSel){
+                const uom=item.uom||'Nos'; let found=false;
+                [...uomSel.options].forEach(o=>{ if(o.value===uom){o.selected=true;found=true;} });
+                if(!found){ const op=document.createElement('option');op.value=uom;op.textContent=uom;op.selected=true;uomSel.appendChild(op); }
+            }
+            // Update picker button to edit icon
+            const btn=document.getElementById('pickbtn-'+rid);
+            if(btn) btn.innerHTML=`<svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`;
+            recalcRow(rid);
+        });
+
+        // ── Taxes ──
+        TAX_DETAILS = [];
+        (doc.taxes||[]).forEach(tx=>{
+            TAX_DETAILS.push({ charge_type:tx.charge_type||'On Net Total', account_head:tx.account_head||'', rate:tx.rate||0, amount:tx.tax_amount||0, total:tx.total||0 });
+        });
+        recalc();
+
+        // ── Bhav Cut Breakup — hidden, uncomment to re-enable ──
+        // loadBhavRows(doc.custom_bhav_cut || []);
+
+        // ── Status & button state ──
+        if(isCancelled){
+            updateInvoiceDocStatus('Cancelled', name);
+            setInvoiceDocReadOnly(true);
+            hideInvoiceMainActionBtn();
+            const cancelBtn = document.getElementById('cdCancelBtn');
+            if(cancelBtn){ cancelBtn.disabled = true; cancelBtn.style.opacity = '0.4'; }
+        } else if(isSubmitted){
+            submitted = true;
+            updateInvoiceDocStatus('Submitted', name);
+            setInvoiceDocReadOnly(true);
+            showInvoiceAmendBtn();
+        } else {
+            updateInvoiceDocStatus('Draft', name);
+            switchToSubmitInvoiceButton();
+            startChangeTracking();
+        }
+
+        showToast(`${name} loaded`, 'success');
+        loadAttachments();
+    }catch(e){ console.error('loadExistingInvoice error',e); showToast(`Failed to load ${name}: ${e.message}`,'error'); }
+}
+
+function setInvoiceDocReadOnly(readonly){
+    const form = document.querySelector('.cd-form-content');
+    if(!form) return;
+    form.querySelectorAll('input:not([type="hidden"]), select, textarea').forEach(el=>{
+        el.readOnly = readonly;
+        el.disabled = readonly;
+        if(readonly) el.style.cursor='not-allowed';
+    });
+    form.querySelectorAll('button').forEach(btn=>{
+        btn.disabled = readonly;
+        btn.style.opacity = readonly ? '0.5' : '';
+        btn.style.pointerEvents = readonly ? 'none' : '';
+    });
+}
+
+function hideInvoiceMainActionBtn(){
+    const btn = document.getElementById('cdMainActionBtn');
+    if(btn) btn.style.display = 'none';
+    const returnBtn = document.getElementById('cdReturnBtn');
+    if(returnBtn) returnBtn.style.display = 'none';
+    // Bhav Cut entry / SO-creation only make sense while the invoice can still be edited —
+    // hide both once the document is cancelled.
+    hideBhavButtons();
+}
+
+function showInvoiceAmendBtn(){
+    const btn = document.getElementById('cdMainActionBtn');
+    if(!btn) return;
+    btn.style.display = '';
+    btn.dataset.mode = 'amend';
+    btn.className = 'cd-btn cd-btn-secondary';
+    btn.setAttribute('onclick', `window.open(cdGetInstanceUrl()+'/desk/purchase-invoice/'+encodeURIComponent(window.currentPIName||''),'_blank')`);
+    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Open in ERPNext`;
+    const returnBtn = document.getElementById('cdReturnBtn');
+    if(returnBtn) returnBtn.style.display = '';
+}
+
+async function makeReturnPI(){
+    if(!window.currentPIName) return;
+    if(!confirm(`Create a Purchase Return (Debit Note) against ${window.currentPIName}?\n\nA new draft return invoice will be created with negative quantities.`)) return;
+    try{
+        showToast('Fetching original invoice…', 'info');
+        const json = await dev1Get(`/api/resource/Purchase%20Invoice/${encodeURIComponent(window.currentPIName)}`);
+        const doc = json.data || json.message;
+        if(!doc) throw new Error('Could not load original invoice');
+
+        const today = new Date().toISOString().slice(0, 10);
+
+        const returnItems = (doc.items || []).map((item, idx) => ({
+            doctype             : 'Purchase Invoice Item',
+            idx                 : idx + 1,
+            item_code           : item.item_code,
+            item_name           : item.item_name || item.item_code,
+            description         : item.description || item.item_code,
+            gst_hsn_code        : item.gst_hsn_code || '',
+            qty                 : -Math.abs(item.qty),
+            uom                 : item.uom,
+            stock_uom           : item.stock_uom || item.uom,
+            conversion_factor   : item.conversion_factor || 1,
+            rate                : item.rate,
+            discount_percentage : item.discount_percentage || 0,
+            amount              : -Math.abs(item.amount || 0),
+            base_amount         : -Math.abs(item.base_amount || item.amount || 0),
+            ...(item.warehouse       ? { warehouse        : item.warehouse       } : {}),
+            ...(item.expense_account ? { expense_account  : item.expense_account } : {}),
+            ...(item.custom_image    ? { custom_image     : item.custom_image    } : {}),
+        }));
+
+        const returnTaxes = (doc.taxes || []).map((t, idx) => ({
+            doctype                : 'Purchase Taxes and Charges',
+            idx                    : idx + 1,
+            charge_type            : t.charge_type || 'On Net Total',
+            account_head           : t.account_head,
+            description            : t.description || t.account_head,
+            included_in_print_rate : t.included_in_print_rate || 0,
+            rate                   : t.rate || 0,
+            tax_amount             : -Math.abs(t.tax_amount || 0),
+            total                  : -Math.abs(t.total || 0),
+        }));
+
+        const payload = {
+            doctype       : 'Purchase Invoice',
+            is_return     : 1,
+            return_against: window.currentPIName,
+            supplier      : doc.supplier,
+            supplier_name : doc.supplier_name || doc.supplier,
+            posting_date  : today,
+            company       : doc.company,
+            update_stock  : doc.update_stock || 0,
+            items         : returnItems,
+            taxes         : returnTaxes,
+            docstatus     : 0,
+        };
+
+        showToast('Creating return invoice…', 'info');
+        const res = await dev1Post('/api/resource/Purchase Invoice', payload);
+        const newName = res?.data?.name || res?.name;
+        if(!newName) throw new Error('Return creation failed');
+
+        showToast('Return created: ' + newName, 'success');
+        const url = new URL(window.location.href);
+        url.searchParams.set('name', newName);
+        window.location.href = url.toString();
+
+    }catch(e){ showToast('Error: ' + e.message, 'error'); }
+}
+
 function buildInvoicePayload(docstatus){
     const supplierInput = document.getElementById('supplier').value.trim();
     const supplierObj   = SUPPLIERS.find(s => s.name === supplierInput || s.display === supplierInput);
@@ -1140,8 +1930,12 @@ function buildInvoicePayload(docstatus){
         const uom          = tr.querySelector('[data-f="uom"]')?.value              || 'Nos';
         const hsn          = tr.querySelector('[data-f="hsn"]')?.value              || '';
         const wh           = tr.querySelector('[data-f="wh"]')?.value               || defaultWh;
-        const prRef        = tr.querySelector('[data-f="purchase_receipt"]')?.value || '';
-        const prDetailRef  = tr.querySelector('[data-f="pr_detail"]')?.value        || '';
+        const prRef        = tr.querySelector('[data-f="purchase_receipt"]')?.value    || '';
+        const prDetailRef  = tr.querySelector('[data-f="pr_detail"]')?.value          || '';
+        const poRef        = tr.querySelector('[data-f="purchase_order"]')?.value     || '';
+        const poItemRef    = tr.querySelector('[data-f="purchase_order_item"]')?.value|| '';
+        const imgUrl       = tr.querySelector('[data-f="img_url"]')?.value?.trim()    || '';
+        const remarks      = tr.querySelector('[data-f="custom_remarks"]')?.value?.trim() || '';
         const itemObj = ITEMS.find(i => i.code === code);
         items.push({
             doctype            : 'Purchase Invoice Item',
@@ -1149,6 +1943,7 @@ function buildInvoicePayload(docstatus){
             item_code          : code,
             item_name          : itemObj?.name || code,
             description        : itemObj?.name || code,
+            custom_remarks     : remarks || undefined,
             gst_hsn_code       : hsn,
             qty,
             uom,
@@ -1158,10 +1953,13 @@ function buildInvoicePayload(docstatus){
             discount_percentage: disc,
             amount,
             base_amount        : amount,
-            ...(wh          ? { warehouse        : wh          } : {}),
-            ...(expenseAcct ? { expense_account  : expenseAcct } : {}),
-            ...(prRef       ? { purchase_receipt : prRef       } : {}),
-            ...(prDetailRef ? { pr_detail        : prDetailRef } : {}),
+            ...(wh          ? { warehouse          : wh          } : {}),
+            ...(expenseAcct ? { expense_account    : expenseAcct } : {}),
+            ...(prRef       ? { purchase_receipt   : prRef       } : {}),
+            ...(prDetailRef ? { pr_detail          : prDetailRef } : {}),
+            ...(poRef       ? { purchase_order     : poRef       } : {}),
+            ...(poItemRef   ? { purchase_order_item: poItemRef   } : {}),
+            ...(imgUrl      ? { custom_image        : imgUrl      } : {}),
         });
     });
 
@@ -1177,6 +1975,8 @@ function buildInvoicePayload(docstatus){
         included_in_print_rate : 0,
     }));
 
+    const prRef  = document.getElementById('againstPR').value?.trim()  || '';
+    const poRef  = document.getElementById('piLinkedPO').value?.trim() || '';
     return {
         doctype          : 'Purchase Invoice',
         docstatus,
@@ -1187,7 +1987,7 @@ function buildInvoicePayload(docstatus){
         due_date         : document.getElementById('dueDate').value      || '',
         bill_no          : document.getElementById('billNo').value       || '',
         bill_date        : document.getElementById('billDate').value     || '',
-        custom_branch    : document.getElementById('branchDisplay').value || '',
+        branch           : document.getElementById('branchDisplay').value || '',
         update_stock     : document.getElementById('updateStock').checked   ? 1 : 0,
         is_return        : document.getElementById('isReturn').checked      ? 1 : 0,
         remarks          : document.getElementById('remarks').value         || '',
@@ -1196,8 +1996,11 @@ function buildInvoicePayload(docstatus){
         mode_of_payment  : document.getElementById('modeOfPayment').value   || '',
         paid_amount      : parseFloat(document.getElementById('paidAmount').value) || 0,
         ...(taxTemplate ? { taxes_and_charges: taxTemplate } : {}),
+        ...(prRef ? { purchase_receipt: prRef } : {}),
+        ...(poRef ? { purchase_order  : poRef } : {}),
         items,
         taxes,
+        // custom_bhav_cut: getBhavRows(), // Bhav Cut hidden — uncomment to re-enable (leave commented, not [], to avoid clearing existing saved data)
     };
 }
 
@@ -1207,6 +2010,19 @@ async function saveDoc(docstatus){
     const supplier = document.getElementById('supplier').dataset.id ||
                      document.getElementById('supplier').value.trim();
     if(!supplier){ showToast('Select a supplier', 'error'); return; }
+    if(!document.getElementById('branchDisplay').value){ showToast('Please select a branch', 'error'); return; }
+
+    const postingVal = document.getElementById('postingDate').value;
+    const billVal     = document.getElementById('billDate').value;
+    const dueVal      = document.getElementById('dueDate').value;
+    if(billVal && dueVal && dueVal < billVal){
+        showToast('Due Date cannot be before Supplier Invoice Date', 'error');
+        return;
+    }
+    if(postingVal && dueVal && dueVal < postingVal){
+        showToast('Due Date cannot be before Posting Date', 'error');
+        return;
+    }
 
     const rows = [...document.querySelectorAll('#itemsTbody tr')];
     const hasItem = rows.some(tr => {
@@ -1216,27 +2032,138 @@ async function saveDoc(docstatus){
     });
     if(!hasItem){ showToast('Add at least one item with qty > 0', 'error'); return; }
 
-    const btn = document.querySelector('[onclick="saveDoc(0)"]');
+    const btn = document.getElementById('cdMainActionBtn');
     const origHtml = btn?.innerHTML;
     if(btn){ btn.disabled = true; btn.textContent = 'Saving…'; }
 
     try {
         showToast('Saving invoice…', 'info');
         const payload = buildInvoicePayload(0);
-        const res  = await dev1Post('/api/resource/Purchase Invoice', payload);
-        const name = res.data?.name || res.message?.name || res.name;
-        if(!name) throw new Error('No document name in response');
-        if(docstatus === 1){
-            await dev1Put(`/api/resource/Purchase Invoice/${encodeURIComponent(name)}`, { docstatus: 1 });
+        let name;
+        if(window.currentPIName){
+            await dev1Put(`/api/resource/Purchase Invoice/${encodeURIComponent(window.currentPIName)}`, payload);
+            name = window.currentPIName;
+        } else {
+            const res = await dev1Post('/api/resource/Purchase Invoice', payload);
+            name = res.data?.name || res.message?.name || res.name;
         }
-        submitted = true;
-        showToast((docstatus ? 'Submitted: ' : 'Saved: ') + name, 'success');
-        setTimeout(() => window.location.href = `/caratdesk-purchase-invoice?saved=${encodeURIComponent(name)}`, 1200);
+        if(!name) throw new Error('No document name in response');
+
+        if(docstatus === 1){
+            // Submit flow — redirect to list
+            if(!confirm('Submit this Purchase Invoice? This cannot be undone.')) {
+                if(btn){ btn.disabled = false; btn.innerHTML = origHtml; }
+                return;
+            }
+            await dev1Put(`/api/resource/Purchase Invoice/${encodeURIComponent(name)}`, { docstatus: 1 });
+            submitted = true;
+            window.currentPIName = name;
+            showToast('Submitted: ' + name, 'success');
+            // Bhav Cut auto-trigger hidden — uncomment to re-enable
+            // if(document.querySelectorAll('#bhavTbody tr').length > 0){
+            //     await createBhavCutSalesOrder();
+            // }
+            setTimeout(() => window.location.href = '/caratdesk-purchase-invoice', 1200);
+        } else {
+            // Draft save — stay on page
+            const isNew = !window.currentPIName;
+            window.currentPIName = name;
+            showToast('Draft saved: ' + name, 'success');
+            if(isNew) loadAttachments();
+            const url = new URL(window.location.href);
+            url.searchParams.set('name', name);
+            window.history.replaceState({}, '', url.toString());
+            updateInvoiceDocStatus('Draft', name);
+            switchToSubmitInvoiceButton();
+            startChangeTracking();
+            if(btn){ btn.disabled = false; }
+        }
     } catch(e) {
         const msg = String(e.message).split('\n')[0].slice(0, 120);
         showToast('Save failed: ' + msg, 'error');
         if(btn){ btn.disabled = false; btn.innerHTML = origHtml; }
     }
+}
+
+async function submitInvoice(){
+    if(!window.currentPIName){ showToast('Please save the draft first', 'error'); return; }
+    if(submitted){ showToast('Already submitted', 'info'); return; }
+    await saveDoc(1);
+}
+
+function updateInvoiceDocStatus(status, docName){
+    const cur = document.querySelector('.cd-breadcrumb-cur');
+    if(cur) cur.textContent = docName || 'New Purchase Invoice';
+    let badge = document.getElementById('cdDocStatus');
+    if(!badge){
+        badge = document.createElement('span');
+        badge.id = 'cdDocStatus';
+        document.querySelector('.cd-breadcrumb').appendChild(badge);
+    }
+    const palette = {
+        'Draft'    : ['var(--pill-amber-bg)',  'var(--pill-amber-txt)'],
+        'Unsaved'  : ['var(--pill-red-bg)',    'var(--pill-red-txt)'],
+        'Submitted': ['var(--pill-green-bg)',  'var(--pill-green-txt)'],
+        'Cancelled': ['var(--accent-light)',   'var(--text-muted)'],
+    };
+    const [bg, color] = palette[status] || palette['Draft'];
+    badge.style.cssText = `display:inline-flex;align-items:center;font-size:11px;font-weight:500;padding:2px 8px;border-radius:5px;margin-left:8px;background:${bg};color:${color}`;
+    badge.textContent = status;
+}
+
+async function cancelDoc(){
+    if(submitted){
+        if(!window.currentPIName){ showToast('No record to cancel','error'); return; }
+        if(!confirm('Cancel this Purchase Invoice? This cannot be undone.')) return;
+        try{
+            showToast('Cancelling…','info');
+            await dev1Put(`/api/resource/Purchase Invoice/${encodeURIComponent(window.currentPIName)}`,{docstatus:2});
+            submitted = false;
+            updateInvoiceDocStatus('Cancelled', window.currentPIName);
+            setInvoiceDocReadOnly(true);
+            hideInvoiceMainActionBtn();
+            const btn = document.getElementById('cdCancelBtn');
+            if(btn){ btn.disabled = true; btn.style.opacity = '0.4'; }
+            showToast(window.currentPIName+' cancelled','success');
+        }catch(e){ showToast('Error: '+String(e.message).slice(0,80),'error'); console.error('cancelDoc error:',e); }
+    } else {
+        if(confirm('Discard unsaved changes and go back?')) window.location.href='/caratdesk-purchase-invoice';
+    }
+}
+
+function switchToSubmitInvoiceButton(){
+    const btn = document.getElementById('cdMainActionBtn');
+    if(!btn || btn.dataset.mode === 'submit') return;
+    btn.dataset.mode = 'submit';
+    btn.className = 'cd-btn cd-btn-primary';
+    btn.setAttribute('onclick', 'submitInvoice()');
+    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><polyline points="20 6 9 17 4 12"/></svg>Submit`;
+}
+
+function switchToSaveInvoiceButton(){
+    const btn = document.getElementById('cdMainActionBtn');
+    if(!btn || btn.dataset.mode === 'save') return;
+    btn.dataset.mode = 'save';
+    btn.className = 'cd-btn cd-btn-primary';
+    btn.setAttribute('onclick', 'saveDoc(0)');
+    btn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Save`;
+}
+
+let _piChangeTrackingActive = false;
+function startChangeTracking(){
+    if(_piChangeTrackingActive) return;
+    _piChangeTrackingActive = true;
+    const form = document.querySelector('.cd-form-content');
+    if(form){
+        form.addEventListener('input', onPIFormChange);
+        form.addEventListener('change', onPIFormChange);
+    }
+}
+
+function onPIFormChange(){
+    if(!window.currentPIName || submitted) return;
+    updateInvoiceDocStatus('Unsaved', window.currentPIName);
+    switchToSaveInvoiceButton();
 }
 
 // ══════════════════════════════════════════
@@ -1246,7 +2173,7 @@ async function saveDoc(docstatus){
 //  ITEM SELECTION DIALOG
 // ══════════════════════════════════════════
 function openItemDialog(rowId){
-    _dialogRowId=rowId;_dlgSelected={type:null,material:null};_dlgAttrVals={};_dlgAttrs=[];_matchedItem=null;
+    _dialogRowId=rowId;_dlgSelected={type:null,template:null};_dlgAttrVals={};_dlgAttrs=[];_matchedItem=null;
     clearDialogError();hideDialogResult();
     document.getElementById('itemDialog').classList.add('open');
     document.getElementById('itemDialogOverlay').classList.add('open');
@@ -1290,83 +2217,98 @@ function makePills(values,selectedVal,onSelect){
     return makePillsWithAbbr(values.map(v=>({value:v,abbr:v})),selectedVal,(abbr)=>onSelect(abbr));
 }
 
+async function getChildGroups(parentGroup){
+  try{
+    const headers=getDevHeaders(); if(!headers) return [];
+    const fields=encodeURIComponent(JSON.stringify(['name']));
+    const filters=encodeURIComponent(JSON.stringify([['Item Group','parent_item_group','=',parentGroup]]));
+    const res=await fetch(`${cdGetInstanceUrl()}/api/resource/Item Group?fields=${fields}&filters=${filters}&limit_page_length=100`,{headers});
+    if(!res.ok) return [];
+    const d=await res.json(); return (d?.data||d?.message||[]).map(g=>g.name).filter(Boolean);
+  }catch(e){ return []; }
+}
+async function getAllDescendantGroups(parentGroup){
+  const allGroups=[];
+  async function fetchChildren(group){ const children=await getChildGroups(group); await Promise.all(children.map(async child=>{ allGroups.push(child); await fetchChildren(child); })); }
+  await fetchChildren(parentGroup); return allGroups;
+}
+async function fetchTemplatesByGroups(groupNames){
+  if(!groupNames.length) return [];
+  try{
+    const headers=getDevHeaders(); if(!headers) return [];
+    const filters=[['Item','has_variants','=',1],['Item','disabled','=',0],['Item','item_group','in',groupNames]];
+    const fields=['name','item_name','item_group'];
+    const url=`${cdGetInstanceUrl()}/api/resource/Item?fields=${encodeURIComponent(JSON.stringify(fields))}&filters=${encodeURIComponent(JSON.stringify(filters))}&limit_page_length=100`;
+    const res=await fetch(url,{headers}); if(!res.ok) return [];
+    const d=await res.json(); return d?.data||d?.message||[];
+  }catch(e){ return []; }
+}
 async function initDialog(){
-    const root=getRoot();root.innerHTML='';
-    const tc=loadingEl('Loading types…');root.appendChild(makeRow('rm-row-type','Type',tc));
-    try{
-        const form=new FormData();form.append('parent_group','Raw Material');
-        const res=await fetch('/api/method/proxy_get_item_groups',{method:'POST',credentials:'same-origin',headers:{'X-Frappe-CSRF-Token':getCsrf()},body:form});
-        const d=await res.json();
-        const pills=makePills(d.message||[],_dlgSelected.type,val=>{
-            _dlgSelected.type=val;_dlgSelected.material=null;_dlgAttrVals={};_dlgAttrs=[];_matchedItem=null;
-            hideDialogResult();clearDialogError();
-            root.querySelectorAll('.rm-row:not(#rm-row-type)').forEach(r=>r.remove());
-            loadMaterialRow(root,val);
-        });
-        tc.replaceWith(pills);
-    }catch(e){tc.textContent='Failed to load types';}
+  const root=getRoot(); root.innerHTML='';
+  const tc=loadingEl('Loading types…'); root.appendChild(makeRow('rm-row-type','Type',tc));
+  try{
+    const form=new FormData(); form.append('parent_group','All Item Groups');
+    const res=await fetch('/api/method/caratdesk_get_item_group_children',{method:'POST',credentials:'same-origin',headers:{'X-Frappe-CSRF-Token':getCsrf()},body:form});
+    const d=await res.json(); const groups=d.message||[];
+    if(!groups.length){ tc.replaceWith(Object.assign(document.createElement('div'),{className:'cd-ac-empty',textContent:'No item groups found'})); return; }
+    const pills=makePills(groups,_dlgSelected.type,val=>{ _dlgSelected.type=val; _dlgSelected.template=null; _dlgAttrVals={}; _dlgAttrs=[]; _matchedItem=null; hideDialogResult(); clearDialogError(); root.querySelectorAll('.rm-row:not(#rm-row-type)').forEach(r=>r.remove()); loadTemplateRow(root,val); });
+    tc.replaceWith(pills);
+  }catch(e){ tc.replaceWith(Object.assign(document.createElement('div'),{className:'cd-ac-empty',textContent:'Failed to load types'})); }
 }
-
-async function loadMaterialRow(root,materialType){
-    const content=loadingEl();root.appendChild(makeRow('rm-row-material','Material',content));
-    try{
-        const form=new FormData();form.append('parent_group',materialType);
-        const res=await fetch('/api/method/proxy_get_item_groups',{method:'POST',credentials:'same-origin',headers:{'X-Frappe-CSRF-Token':getCsrf()},body:form});
-        const d=await res.json();
-        const children=d.message||[];
-        if(!children.length){content.textContent='No items found';return;}
-        const pills=makePills(children,_dlgSelected.material,val=>{
-            _dlgSelected.material=val;_dlgAttrVals={};_dlgAttrs=[];_matchedItem=null;
-            hideDialogResult();clearDialogError();
-            root.querySelectorAll('[id^="rm-row-attr"]').forEach(r=>r.remove());
-            loadAttrRows(root,val);
-        });
-        content.replaceWith(pills);
-    }catch(e){content.textContent='Failed to load';}
+async function loadTemplateRow(root,typeGroup){
+  const content=loadingEl('Loading templates…'); root.appendChild(makeRow('rm-row-template','Template',content));
+  try{
+    const descendants=await getAllDescendantGroups(typeGroup);
+    const groupsToSearch=[typeGroup,...descendants].filter(g=>typeof g==='string'&&g.trim());
+    if(!groupsToSearch.length){ content.replaceWith(Object.assign(document.createElement('div'),{className:'cd-ac-empty',textContent:'No sub-groups found under "'+typeGroup+'"'})); return; }
+    const templates=await fetchTemplatesByGroups(groupsToSearch);
+    if(!templates.length){ content.replaceWith(Object.assign(document.createElement('div'),{className:'cd-ac-empty',textContent:'No templates found under "'+typeGroup+'"'})); return; }
+    const entries=templates.map(t=>({value:t.item_name||t.name,abbr:t.name}));
+    const pills=makePillsWithAbbr(entries,_dlgSelected.template,(abbr,value)=>{ _dlgSelected.template=abbr; _dlgAttrVals={}; _dlgAttrs=[]; _matchedItem=null; hideDialogResult(); clearDialogError(); root.querySelectorAll('[id^="rm-row-attr"]').forEach(r=>r.remove()); loadAttrRows(root,abbr); });
+    content.replaceWith(pills);
+  }catch(e){ content.replaceWith(Object.assign(document.createElement('div'),{className:'cd-ac-empty',textContent:'Failed to load templates'})); }
 }
-
-async function loadAttrRows(root,template){
-    const loadRow=document.createElement('div');loadRow.className='rm-row';loadRow.id='rm-row-attr-loading';
-    loadRow.appendChild(loadingEl('Loading attributes…'));root.appendChild(loadRow);
-    try{
-        const form=new FormData();form.append('template_name',template);
-        const res=await fetch('/api/method/proxy_get_template_attributes',{method:'POST',credentials:'same-origin',headers:{'X-Frappe-CSRF-Token':getCsrf()},body:form});
-        const d=await res.json();
-        loadRow.remove();
-        if(!d.message){showDialogError('"'+template+'" has no variant attributes.');return;}
-        _dlgAttrs=d.message.attributes||[];
-        _dlgAttrs.forEach((attr,i)=>{
-            const entries=(attr.values||[]).map(v=>typeof v==='object'?v:{value:v,abbr:v});
-            const pills=makePillsWithAbbr(entries,null,(abbr,value)=>{
-                _dlgAttrVals[attr.attribute]=abbr;hideDialogResult();clearDialogError();
-                if(_dlgAttrs.every(a=>_dlgAttrVals[a.attribute])) autoSearch();
-            });
-            root.appendChild(makeRow('rm-row-attr-'+i,attr.label||attr.attribute,pills));
-        });
-    }catch(e){loadRow.remove();showDialogError('Failed to load attributes.');}
+async function loadAttrRows(root,templateItemCode){
+  const loadRow=document.createElement('div'); loadRow.className='rm-row'; loadRow.id='rm-row-attr-loading';
+  loadRow.appendChild(loadingEl('Loading attributes…')); root.appendChild(loadRow);
+  try{
+    const form=new FormData(); form.append('template_name',templateItemCode);
+    const res=await fetch('/api/method/caratdesk_get_template_attributes',{method:'POST',credentials:'same-origin',headers:{'X-Frappe-CSRF-Token':getCsrf()},body:form});
+    const d=await res.json(); loadRow.remove();
+    const attrs=d.message?.attributes||[]; if(!attrs.length) return;
+    _dlgAttrs=attrs;
+    _dlgAttrs.forEach((attr,i)=>{
+      const entries=(attr.values||[]).map(v=>typeof v==='object'?v:{value:v,abbr:v});
+      const pills=makePillsWithAbbr(entries,null,(abbr,value)=>{ _dlgAttrVals[attr.attribute]=abbr; hideDialogResult(); clearDialogError(); if(_dlgAttrs.every(a=>_dlgAttrVals[a.attribute])) autoSearch(); });
+      root.appendChild(makeRow('rm-row-attr-'+i,attr.label||attr.attribute,pills));
+    });
+  }catch(e){ loadRow.remove(); }
 }
-
 async function autoSearch(){
-    hideDialogResult();clearDialogError();
-    const btn=document.getElementById('dlg-add-btn');
-    btn.disabled=true;btn.textContent='Searching…';
-    try{
-        const form=new FormData();
-        form.append('template_item_code',_dlgSelected.material);
-        form.append('attributes',JSON.stringify(_dlgAttrVals));
-        const res=await fetch('/api/method/proxy_find_item_variant',{method:'POST',credentials:'same-origin',headers:{'X-Frappe-CSRF-Token':getCsrf()},body:form});
-        const d=await res.json();
-        if(!d.message){showDialogError('No item found. Check abbreviations or item setup.');_matchedItem=null;}
-        else{_matchedItem=d.message;showDialogResult(d.message);}
-    }catch(e){showDialogError('Search failed.');}
-    finally{btn.disabled=false;btn.textContent='Add Item';}
+  hideDialogResult(); clearDialogError();
+  const btn=document.getElementById('dlg-add-btn'); btn.disabled=true; btn.textContent='Searching…';
+  try{
+    const form=new FormData(); form.append('template_item_code',_dlgSelected.template); form.append('attributes',JSON.stringify(_dlgAttrVals));
+    const res=await fetch('/api/method/caratdesk_find_item_variant',{method:'POST',credentials:'same-origin',headers:{'X-Frappe-CSRF-Token':getCsrf()},body:form});
+    const d=await res.json();
+    if(!d.message){showDialogError('No item found. Check abbreviations or item setup.');_matchedItem=null;}
+    else{_matchedItem=d.message;showDialogResult(d.message);}
+  }catch(e){showDialogError('Search failed.');}
+  finally{btn.disabled=false;btn.textContent='Add Item';}
 }
 
-function addItemToRow(){
+async function addItemToRow(){
     if(!_matchedItem){showDialogError('Select all attributes — item will be found automatically.');return;}
     if(!_dialogRowId)return;
     const cached=ITEMS.find(i=>i.code===_matchedItem.item_code);
-    fillRow(_dialogRowId,_matchedItem.item_code,_matchedItem.item_name,cached?.hsn||'',cached?.uom||'Nos',ITEM_PRICES[_matchedItem.item_code]||cached?.rate||0);
+    let uom=_matchedItem.stock_uom||_matchedItem.uom||cached?.uom||'';
+    if(!uom){
+      try{
+        const r=await dev1Get(`/api/resource/Item/${encodeURIComponent(_matchedItem.item_code)}`);
+        uom=(r.data||r.message)?.stock_uom||'Nos';
+      }catch(e){ uom='Nos'; }
+    }
+    fillRow(_dialogRowId,_matchedItem.item_code,_matchedItem.item_name,cached?.hsn||_matchedItem.gst_hsn_code||'',uom,ITEM_PRICES[_matchedItem.item_code]||cached?.rate||0);
     closeItemDialog();
     showToast(_matchedItem.item_code+' added','success');
 }
@@ -1385,12 +2327,14 @@ function fillRow(rid, code, name, hsn, uom, rate){
     const tr = document.getElementById(rid); if(!tr) return;
     tr.querySelector('[data-f="code"]').value = code;
     tr.querySelector('[data-f="code-vis"]').value = code;
-    tr.querySelector(`#iname-${rid}`).textContent = name;
-    tr.querySelector(`#iname-${rid}`).style.color = "var(--text-primary)";
-    tr.querySelector(`#iname-${rid}`).style.fontStyle = "normal";
+    const nameInp2 = tr.querySelector('[data-f="item_name"]');
+    if(nameInp2) nameInp2.value = name || code;
     tr.querySelector('[data-f="hsn"]').value = hsn || '';
-    tr.querySelector('[data-f="uom"]').value = uom || 'Nos';
+    const uomSel=tr.querySelector('[data-f="uom"]');
+    if(uomSel){let found=false;[...uomSel.options].forEach(o=>{if(o.value===(uom||'Nos')){o.selected=true;found=true;}});if(!found&&uom){const opt=document.createElement('option');opt.value=uom;opt.textContent=uom;opt.selected=true;uomSel.appendChild(opt);}}
     tr.querySelector('[data-f="rate"]').value = rate || 0;
+    const btn2 = document.getElementById('pickbtn-'+rid);
+    if(btn2) btn2.innerHTML = `<svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`;
     recalcRow(rid);
 }
 
@@ -1409,7 +2353,7 @@ async function loadMetalRates(){
         const h = {'Authorization': getDevHeaders().Authorization, 'Accept':'application/json'};
         const fields  = encodeURIComponent(JSON.stringify(['metal_type','rate','date']));
         const filters = encodeURIComponent(JSON.stringify([['Metal Price List','metal_type','in',['Gold','Silver','Platinum']]]));
-        const res = await fetch(`${DEV1}/api/resource/Metal Price List?fields=${fields}&filters=${filters}&order_by=date+desc&limit_page_length=50`,{headers:h});
+        const res = await fetch(`${cdGetInstanceUrl()}/api/resource/Metal%20Price%20List?fields=${fields}&filters=${filters}&order_by=date%20desc&limit_page_length=50`,{headers:h});
         if(!res.ok) return;
         const d = await res.json();
         (d?.data||d?.message||[]).forEach(row=>{
@@ -1471,9 +2415,127 @@ function saveTaxDialog(){
 
 function deleteTaxRowFromDialog(){ TAX_DETAILS.splice(currentTaxIdx, 1); renderTaxes(); recalc(); closeTaxDialog(); }
 
-// Excel dummy functions
-function downloadExcel(){ showToast('Generating Excel...', 'info'); }
-function uploadExcel(e){ showToast('Parsing Excel...', 'info'); }
+// ── CSV Utilities ──
+function csvEscape(val){
+  const s=String(val??'');
+  return(s.includes(',')||s.includes('"')||s.includes('\n'))?'"'+s.replace(/"/g,'""')+'"':s;
+}
+function parseCsv(text){
+  const lines=text.replace(/\r\n/g,'\n').replace(/\r/g,'\n').split('\n');
+  function splitLine(line){
+    const cells=[]; let cur='',inQ=false;
+    for(let i=0;i<line.length;i++){
+      const ch=line[i];
+      if(ch==='"'){if(inQ&&line[i+1]==='"'){cur+='"';i++;}else{inQ=!inQ;}}
+      else if(ch===','&&!inQ){cells.push(cur);cur='';}
+      else cur+=ch;
+    }
+    cells.push(cur); return cells;
+  }
+  const[headerLine,...dataLines]=lines;
+  if(!headerLine) return{headers:[],rows:[]};
+  return{headers:splitLine(headerLine),rows:dataLines.filter(l=>l.trim()).map(splitLine)};
+}
+function downloadCsvGeneric(cols,tbodyId,attrName,filename){
+  const header=cols.map(c=>csvEscape(c.label)).join(',');
+  const dataRows=[];
+  document.querySelectorAll('#'+tbodyId+' tr').forEach(tr=>{
+    dataRows.push(cols.map(c=>{
+      if(c.getter) return csvEscape(c.getter(tr));
+      const el=tr.querySelector(`[${attrName}="${c.field}"]`);
+      return csvEscape(el?el.value:'');
+    }).join(','));
+  });
+  const csv=[header,...dataRows].join('\r\n');
+  const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));
+  const a=document.createElement('a'); a.href=url; a.download=filename; a.click();
+  URL.revokeObjectURL(url);
+  showToast('Downloaded '+dataRows.length+' row(s)','success');
+}
+let _csvParsed={headers:[],rows:[]},_csvTargetCols=[],_csvImportFn=null;
+function autoMapCol(h,cols){
+  const n=h.toLowerCase().replace(/[^a-z0-9]/g,'');
+  for(const c of cols){const l=c.label.toLowerCase().replace(/[^a-z0-9]/g,''),f=(c.field||'').toLowerCase().replace(/[^a-z0-9]/g,'');if(n===l||n===f)return c.field;}
+  for(const c of cols){const l=c.label.toLowerCase().replace(/[^a-z0-9]/g,'');if(l.includes(n)||n.includes(l.slice(0,5)))return c.field;}
+  return '';
+}
+function openCsvMapDialog(parsed,cols,importFn){
+  _csvParsed=parsed;_csvTargetCols=cols;_csvImportFn=importFn;
+  const mapHtml=parsed.headers.map((h,i)=>{
+    const auto=autoMapCol(h,cols);
+    const opts=cols.filter(c=>c.field).map(c=>`<option value="${c.field}"${c.field===auto?' selected':''}>${esc(c.label)}</option>`).join('');
+    return`<div style="display:grid;grid-template-columns:1fr 1fr;gap:0;padding:9px 24px;border-bottom:.5px solid var(--border);align-items:center"><div style="font-size:12.5px;color:var(--text-primary);font-weight:500;padding-right:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(h)}">${esc(h)}</div><select data-csv-idx="${i}" style="font-family:'DM Sans',sans-serif;font-size:12px;background:var(--bg);border:.5px solid var(--border-strong);border-radius:7px;padding:5px 8px;color:var(--text-primary);outline:none;width:100%;cursor:pointer"><option value="">-- Skip --</option>${opts}</select></div>`;
+  }).join('');
+  document.getElementById('csvMapRows').innerHTML=mapHtml;
+  document.getElementById('csvMapSubtitle').textContent=`${parsed.headers.length} column(s) detected · map each to a table field`;
+  document.getElementById('csvMapInfo').textContent=`${parsed.rows.length} data row(s) will be imported`;
+  document.getElementById('csvMapDialog').classList.add('open');
+  document.getElementById('csvMapOverlay').classList.add('open');
+}
+function closeCsvMapDialog(){
+  document.getElementById('csvMapDialog').classList.remove('open');
+  document.getElementById('csvMapOverlay').classList.remove('open');
+}
+function confirmCsvImport(){
+  const mapping={};
+  document.querySelectorAll('#csvMapRows select').forEach(sel=>{if(sel.value)mapping[parseInt(sel.dataset.csvIdx)]=sel.value;});
+  if(!_csvImportFn){closeCsvMapDialog();return;}
+  const imported=_csvImportFn(_csvParsed.rows,mapping);
+  closeCsvMapDialog();
+  showToast(`Imported ${imported} row(s)`,'success');
+}
+function readCsvFile(file,onParsed){
+  if(!file) return;
+  if(!file.name.endsWith('.csv')){showToast('Please upload a .csv file','error');return;}
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const parsed=parseCsv(e.target.result);
+    if(!parsed.headers.length){showToast('CSV is empty or invalid','error');return;}
+    onParsed(parsed);
+  };
+  reader.readAsText(file);
+}
+
+// ── PI Items CSV ──
+const PI_CSV_COLS=[
+  {label:'Item Code',  field:'code-vis' },
+  {label:'Item Name',  field:'item_name'},
+  {label:'UOM',        field:'uom'      },
+  {label:'Qty',        field:'qty'      },
+  {label:'Rate',       field:'rate'     },
+  {label:'Disc %',     field:'disc'     },
+  {label:'Amount',     field:'amt'      },
+  {label:'HSN',        field:'hsn'      },
+];
+function downloadExcel(){
+  downloadCsvGeneric(PI_CSV_COLS,'itemsTbody','data-f','purchase_invoice_items.csv');
+}
+function uploadExcel(event){
+  const file=event.target.files[0]; event.target.value='';
+  readCsvFile(file,parsed=>openCsvMapDialog(parsed,PI_CSV_COLS,importPIRows));
+}
+function importPIRows(rows,mapping){
+  const codeIdx=Object.keys(mapping).find(i=>mapping[i]==='code-vis');
+  if(codeIdx===undefined){showToast('Please map "Item Code" column','error');return 0;}
+  let imported=0;
+  rows.forEach(cells=>{
+    const itemCode=(cells[codeIdx]||'').trim(); if(!itemCode) return;
+    addRow();
+    const tr=document.querySelector('#itemsTbody tr:last-child'); if(!tr) return;
+    const nameIdx=Object.keys(mapping).find(i=>mapping[i]==='item_name');
+    const itemName=nameIdx?(cells[nameIdx]||'').trim():'';
+    const cached=ITEMS.find(i=>i.code.toLowerCase()===itemCode.toLowerCase());
+    fillRow(tr.id,cached?.code||itemCode,cached?.name||itemName||itemCode,cached?.hsn||'',cached?.uom||'Nos',cached?.rate||0);
+    Object.entries(mapping).forEach(([csvIdx,field])=>{
+      if(field==='code-vis'||field==='item_name') return;
+      const val=(cells[csvIdx]||'').trim(); if(!val) return;
+      const el=tr.querySelector(`[data-f="${field}"]`); if(el) el.value=val;
+    });
+    recalcRow(tr.id);
+    imported++;
+  });
+  return imported;
+}
 function syncBomFromItems(){
     document.querySelectorAll('#itemsTbody tr').forEach(tr => {
         const code = tr.querySelector('[data-f="code"]').value;
@@ -1485,6 +2547,565 @@ function syncBomFromItems(){
 }
 // END BOM TABLE
 
+// ══════════════════════════════════════════════════════
+// BHAV CUT — ported from Purchase Receipt (caratdesk-new-purchase-receipt.html)
+// ══════════════════════════════════════════════════════
+
+// Bhav Cut settlement items are always raw Gold/Silver templates — never finished goods,
+// diamonds, or other raw materials — so item selection here uses this restricted list.
+// Purchase Invoice's own item picker dialog (openItemDialog) is single-purpose for the main
+// Items table and has no per-call "context" concept like PR's dialog does, so Bhav Cut's item
+// selection is autocomplete-only here — no pick-via-dialog fallback button, unlike PR.
+let _bhavMetalItems = [];
+async function loadBhavMetalItems(){
+  try{
+    const headers = getDevHeaders(); if(!headers) return;
+    const filters = encodeURIComponent(JSON.stringify([
+      ['disabled','=',0], ['variant_of','=',''], ['item_group','in',['Gold','Silver']]
+    ]));
+    const fields = encodeURIComponent(JSON.stringify(['item_code','item_name','item_group','standard_rate']));
+    const res = await fetch(`${cdGetInstanceUrl()}/api/resource/Item?fields=${fields}&filters=${filters}&limit_page_length=100`, { headers });
+    if(!res.ok) return;
+    const d = await res.json();
+    _bhavMetalItems = (d?.data||d?.message||[]).map(i=>({
+      code: i.item_code||i.name, name: i.item_name||i.item_code||i.name, rate: parseFloat(i.standard_rate)||0,
+      _search: [i.item_code,i.item_name,i.item_group].map(v=>String(v||'')).join(' ').toLowerCase()
+    }));
+  }catch(e){ console.warn('loadBhavMetalItems error:', e.message); }
+}
+
+function bhavItemAc(inp, rowId){
+  const q = inp.value.toLowerCase().trim();
+  const list = document.getElementById('bhav-iac-' + rowId);
+  if(!list) return;
+  if(!q){ list.classList.remove('open'); return; }
+  // Bhav Cut settlement items are restricted to raw Gold/Silver templates
+  const results = _bhavMetalItems.filter(i =>
+    i.code.toLowerCase().includes(q) || i.name.toLowerCase().includes(q) || (i._search||'').includes(q)
+  ).slice(0, 10);
+  list.innerHTML = results.length
+    ? results.map(it =>
+        `<div class="cd-ac-item" onclick="fillBhavItem('${rowId}','${esc(it.code)}','${esc(it.name)}')">
+           <div class="main">${esc(it.code)}</div>
+           <div class="sub">${esc(it.name)}${it.rate ? ' · ' + it.rate.toLocaleString('en-IN') : ''}</div>
+         </div>`
+      ).join('')
+    : '<div class="cd-ac-empty">No item found</div>';
+  list.classList.add('open');
+}
+
+function closeBhavAc(rowId){
+  document.getElementById('bhav-iac-' + rowId)?.classList.remove('open');
+}
+
+function fillBhavItem(rowId, itemCode, itemName){
+  if(rowId === 'bhav-dlg'){
+    const itemEl = document.getElementById('bdlg-item');
+    if(itemEl) itemEl.value = itemCode;
+    calcBhavDlg();
+    closeBhavAc(rowId);
+    return;
+  }
+  const tr = document.getElementById(rowId); if(!tr) return;
+  const inp = tr.querySelector('[data-b="item"]');
+  if(inp) inp.value = itemCode;
+  closeBhavAc(rowId);
+}
+
+// ══════════════════════════════════════════════════════
+// BHAV CUT BREAKUP
+// ══════════════════════════════════════════════════════
+let bhavRowCount = 0;
+
+const BHAV_PURITY_OPTIONS = [
+  { value:'', label:'- Select -' },
+  { value:'99.9', label:'99.9' },
+  { value:'92.0', label:'92.0' },
+  { value:'91.6', label:'91.6' },
+  { value:'83.4', label:'83.4' },
+  { value:'75.0', label:'75.0' },
+  { value:'58.5', label:'58.5' },
+];
+const BHAV_PURITY_MAP = { '99.9':99.9, '92.0':92.0, '91.6':91.6, '83.4':83.4, '75.0':75.0, '58.5':58.5 };
+
+function bhavPurityOptions(selected){
+  return BHAV_PURITY_OPTIONS.map(o =>
+    `<option value="${o.value}"${o.value===selected?' selected':''}>${o.label}</option>`
+  ).join('');
+}
+
+function addBhavRow(data){
+  bhavRowCount++;
+  const n = bhavRowCount;
+  const d = data || {};
+  const goldRate = METAL_RATES['Gold'] || 0;
+  const tr = document.createElement('tr');
+  tr.id = 'bhav-r' + n;
+  tr.innerHTML = `
+    <td>${n}</td>
+    <td style="padding:0 4px">
+      <div class="cd-ac" style="position:relative">
+        <input data-b="item" value="${esc(d.settlement_item||'')}" placeholder="Item Code"
+          autocomplete="off" style="width:100%;height:26px;border:none;outline:none;padding:0 4px;font-size:11.5px;background:transparent;color:var(--text-primary);font-family:'DM Sans',sans-serif"
+          oninput="bhavItemAc(this,'bhav-r${n}')" onblur="setTimeout(()=>closeBhavAc('bhav-r${n}'),180)"/>
+        <div class="cd-ac-list" id="bhav-iac-bhav-r${n}" style="min-width:220px"></div>
+      </div>
+    </td>
+    <td><select data-b="purity" onchange="bhavOnPurityChange(this)">${bhavPurityOptions(d.settlement_purity||'')}</select></td>
+    <td><input type="number" data-b="input_wt" value="${d.input_weight||''}" step="0.001" oninput="calcBhavRow(this.closest('tr'))"></td>
+    <td><input type="number" data-b="input_pur" value="${d.input_purity||''}" step="0.001" oninput="calcBhavRow(this.closest('tr'))"></td>
+    <td><input type="number" data-b="pure_gold" value="${d.pure_gold_weight||''}" step="0.001" readonly></td>
+    <td><input type="number" data-b="pg_pur" value="${d.pg_purity||'99.5'}" step="0.001" oninput="calcBhavRow(this.closest('tr'))"></td>
+    <td><input type="number" data-b="pg_wt" value="${d.pg_weight||''}" step="0.001" readonly></td>
+    <td><input type="number" data-b="gold_rate" value="${d.gold_rate||goldRate||''}" step="0.01" oninput="calcBhavRow(this.closest('tr'))"></td>
+    <td>
+      <select data-b="labour_type" onchange="calcBhavRow(this.closest('tr'))">
+        <option value="">- None -</option>
+        <option value="Percentage"${(d.labour_type==='Percentage')?' selected':''}>Percentage</option>
+        <option value="Per Gram"${(d.labour_type==='Per Gram')?' selected':''}>Per Gram</option>
+      </select>
+    </td>
+    <td><input type="number" data-b="labour_val" value="${d.labour_value||''}" step="0.01" oninput="calcBhavRow(this.closest('tr'))"></td>
+    <td><input type="number" data-b="labour_gold" value="${d.labour_gold_equivalent||''}" step="0.001" readonly></td>
+    <td><input type="number" data-b="final_qty" value="${d.final_settlement_qty||''}" step="0.001" readonly></td>
+    <td><input type="number" data-b="amount" value="${d.amount||''}" step="0.01" readonly></td>
+    <td><input type="text" data-b="remarks" value="${esc(d.remarks||'')}" placeholder="Optional notes"></td>
+    <td style="text-align:center">
+      <button class="cd-del-btn" onclick="delBhavRow(this)" title="Remove row">
+        <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
+      </button>
+    </td>
+  `;
+  document.getElementById('bhavTbody').appendChild(tr);
+  if(data) calcBhavRow(tr);
+}
+
+function bhavOnPurityChange(sel){
+  const tr = sel.closest('tr');
+  const purVal = sel.value;
+  const purPct = BHAV_PURITY_MAP[purVal];
+  if(purPct){
+    const inpEl = tr.querySelector('[data-b="input_pur"]');
+    if(inpEl && !inpEl.value) inpEl.value = purPct;
+  }
+  calcBhavRow(tr);
+}
+
+function calcBhavRow(tr){
+  const g = k => parseFloat(tr.querySelector(`[data-b="${k}"]`)?.value || 0) || 0;
+
+  const inputWt  = g('input_wt');
+  const inputPur = g('input_pur');   // e.g. 91.6
+  const pgPur    = g('pg_pur') || 99.5; // e.g. 99.5
+  const goldRate = g('gold_rate');
+  const labType  = tr.querySelector('[data-b="labour_type"]')?.value || '';
+  const labVal   = g('labour_val');
+
+  // Step 1: Pure Gold
+  const pureGold = inputWt * (inputPur / 100);
+
+  // Step 2: PG Weight
+  const pgWt = pgPur > 0 ? pureGold / (pgPur / 100) : 0;
+
+  // Step 3: Labour
+  let labGold = 0;
+  if(labType === 'Percentage'){
+    labGold = inputWt * (labVal / 100);
+  } else if(labType === 'Per Gram'){
+    const labAmt = inputWt * labVal;
+    labGold = goldRate > 0 ? labAmt / goldRate : 0;
+  }
+
+  const finalQty = pgWt + labGold;
+  const amount   = finalQty * goldRate;
+
+  const set = (k, v) => {
+    const el = tr.querySelector(`[data-b="${k}"]`);
+    if(el) el.value = v > 0 ? v.toFixed(3) : '';
+  };
+  const setAmt = (k, v) => {
+    const el = tr.querySelector(`[data-b="${k}"]`);
+    if(el) el.value = v > 0 ? v.toFixed(2) : '';
+  };
+
+  set('pure_gold',  pureGold);
+  set('pg_wt',      pgWt);
+  set('labour_gold', labGold);
+  set('final_qty',  finalQty);
+  setAmt('amount',  amount);
+
+  updateBhavTotals();
+}
+
+function updateBhavTotals(){
+  let totQty = 0, totAmt = 0;
+  document.querySelectorAll('#bhavTbody tr').forEach(tr => {
+    totQty += parseFloat(tr.querySelector('[data-b="final_qty"]')?.value || 0) || 0;
+    totAmt += parseFloat(tr.querySelector('[data-b="amount"]')?.value || 0) || 0;
+  });
+  const fmtAmt = v => '' + v.toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2});
+  document.getElementById('bhavTotQty').textContent     = totQty.toFixed(3);
+  document.getElementById('bhavTotAmt').textContent     = fmtAmt(totAmt);
+  document.getElementById('bhavSummaryQty').textContent = totQty.toFixed(3);
+  document.getElementById('bhavSummaryAmt').textContent = fmtAmt(totAmt);
+}
+
+function delBhavRow(btn){
+  btn.closest('tr').remove();
+  updateBhavTotals();
+  persistBhavCutIfSubmitted();
+}
+
+// Once a PI is submitted there's no "Save" button anymore, so Bhav Cut changes made
+// post-submit need to be pushed to the backend immediately.
+// Requires custom_bhav_cut to have "Allow on Submit" enabled on the Purchase Invoice doctype.
+async function persistBhavCutIfSubmitted(){
+  if(!submitted || !window.currentPIName) return;
+  try{
+    await dev1Put(`/api/resource/Purchase Invoice/${encodeURIComponent(window.currentPIName)}`, { custom_bhav_cut: getBhavRows() });
+    showToast('Bhav Cut saved', 'success');
+  }catch(e){
+    showToast('Failed to save Bhav Cut: ' + String(e.message).slice(0,150), 'error');
+    console.error('persistBhavCutIfSubmitted error:', e);
+  }
+}
+
+// ── BHAV CUT ENTRY DIALOG ──
+async function openBhavEntryDialog(){
+  const supplierName = getCurrentSupplierName();
+  if(!supplierName){ showToast('Please select a supplier first', 'error'); return; }
+  const linkedCustomer = await getLinkedCustomerForSupplier(supplierName);
+  if(!linkedCustomer){ showToast('Customer is not Link with this Supplier', 'error'); return; }
+
+  // Expand the bhav section so the user can see the table after adding
+  const sec=document.getElementById('bhavCutSection');
+  if(sec) expandSection(sec);
+
+  // Reset dialog fields
+  document.getElementById('bdlg-item').value='';
+  document.getElementById('bdlg-purity').innerHTML = bhavPurityOptions('99.9');
+  document.getElementById('bdlg-input-wt').value = '';
+  document.getElementById('bdlg-input-pur').innerHTML = bhavPurityOptions('99.9');
+  document.getElementById('bdlg-pure-gold').value='';
+  document.getElementById('bdlg-pg-pur').value='99.5';
+  document.getElementById('bdlg-pg-wt').value='';
+  document.getElementById('bdlg-gold-rate').value=METAL_RATES['Gold']||'';
+  document.getElementById('bdlg-labour-type').value='';
+  document.getElementById('bdlg-labour-val').value='';
+  document.getElementById('bdlg-labour-gold').value='';
+  document.getElementById('bdlg-final-qty').value='';
+  document.getElementById('bdlg-amount').value='';
+  document.getElementById('bdlg-remarks').value='';
+
+  calcBhavDlg();
+  document.getElementById('bhavEntryOverlay').classList.add('open');
+  document.getElementById('bhavEntryDialog').classList.add('open');
+  setTimeout(()=>document.getElementById('bdlg-item').focus(), 80);
+}
+function closeBhavEntryDialog(){
+  document.getElementById('bhavEntryOverlay').classList.remove('open');
+  document.getElementById('bhavEntryDialog').classList.remove('open');
+}
+function bhavDlgOnPurityChange(){
+  const purVal=document.getElementById('bdlg-purity').value;
+  const inpEl=document.getElementById('bdlg-input-pur');
+  if(inpEl) inpEl.value=purVal;
+  calcBhavDlg();
+}
+function calcBhavDlg(){
+  const g=id=>parseFloat(document.getElementById(id)?.value||0)||0;
+  const inputWt=g('bdlg-input-wt');
+  const inputPur=g('bdlg-input-pur');
+  const pgPur=g('bdlg-pg-pur')||99.5;
+  const goldRate=g('bdlg-gold-rate');
+  const labType=document.getElementById('bdlg-labour-type')?.value||'';
+  const labVal=g('bdlg-labour-val');
+
+  const pureGold=inputWt*(inputPur/100);
+  const pgWt=pgPur>0?pureGold/(pgPur/100):0;
+  let labGold=0;
+  if(labType==='Percentage'){ labGold=inputWt*(labVal/100); }
+  else if(labType==='Per Gram'){ const labAmt=inputWt*labVal; labGold=goldRate>0?labAmt/goldRate:0; }
+  const finalQty=pgWt+labGold;
+  const amount=finalQty*goldRate;
+
+  const set=(id,v,dec=3)=>{ const el=document.getElementById(id); if(el) el.value=v>0?v.toFixed(dec):''; };
+  set('bdlg-pure-gold',pureGold);
+  set('bdlg-pg-wt',pgWt);
+  set('bdlg-labour-gold',labGold);
+  set('bdlg-final-qty',finalQty);
+  set('bdlg-amount',amount,2);
+}
+function saveBhavEntryDialog(){
+  const g=id=>parseFloat(document.getElementById(id)?.value||0)||0;
+  const data={
+    settlement_item:   document.getElementById('bdlg-item')?.value?.trim()||'',
+    settlement_purity: document.getElementById('bdlg-purity')?.value||'',
+    input_weight:      g('bdlg-input-wt'),
+    input_purity:      g('bdlg-input-pur'),
+    pure_gold_weight:  g('bdlg-pure-gold'),
+    pg_purity:         g('bdlg-pg-pur')||99.5,
+    pg_weight:         g('bdlg-pg-wt'),
+    gold_rate:         g('bdlg-gold-rate'),
+    labour_type:       document.getElementById('bdlg-labour-type')?.value||'',
+    labour_value:      g('bdlg-labour-val'),
+    labour_gold_equivalent: g('bdlg-labour-gold'),
+    final_settlement_qty:   g('bdlg-final-qty'),
+    amount:            g('bdlg-amount'),
+    remarks:           document.getElementById('bdlg-remarks')?.value?.trim()||'',
+  };
+  addBhavRow(data);
+  closeBhavEntryDialog();
+  showToast('Bhav Cut row added','success');
+  document.getElementById('bhavCutSection')?.scrollIntoView({behavior:'smooth',block:'start'});
+  persistBhavCutIfSubmitted();
+}
+
+function getBhavRows(){
+  const rows = [];
+  document.querySelectorAll('#bhavTbody tr').forEach((tr, idx) => {
+    const g = k => tr.querySelector(`[data-b="${k}"]`)?.value?.trim() || '';
+    const gf = k => parseFloat(g(k)) || 0;
+    rows.push({
+      doctype: 'Bhav Cut Breakup',
+      idx: idx + 1,
+      settlement_item:        g('item'),
+      settlement_purity:      g('purity'),
+      input_weight:           gf('input_wt'),
+      input_purity:           gf('input_pur'),
+      pure_gold_weight:       gf('pure_gold'),
+      pg_purity:              gf('pg_pur'),
+      pg_weight:              gf('pg_wt'),
+      gold_rate:              gf('gold_rate'),
+      labour_type:            g('labour_type'),
+      labour_value:           gf('labour_val'),
+      labour_gold_equivalent: gf('labour_gold'),
+      final_settlement_qty:   gf('final_qty'),
+      amount:                 gf('amount'),
+      remarks:                g('remarks'),
+    });
+  });
+  return rows;
+}
+
+function loadBhavRows(rows){
+  document.getElementById('bhavTbody').innerHTML = '';
+  bhavRowCount = 0;
+  (rows || []).forEach(r => addBhavRow({
+    settlement_item:        r.settlement_item || '',
+    settlement_purity:      r.settlement_purity || '',
+    input_weight:           r.input_weight || 0,
+    input_purity:           r.input_purity || 0,
+    pure_gold_weight:       r.pure_gold_weight || 0,
+    pg_purity:              r.pg_purity || 99.5,
+    pg_weight:              r.pg_weight || 0,
+    gold_rate:              r.gold_rate || 0,
+    labour_type:            r.labour_type || '',
+    labour_value:           r.labour_value || 0,
+    labour_gold_equivalent: r.labour_gold_equivalent || 0,
+    final_settlement_qty:   r.final_settlement_qty || 0,
+    amount:                 r.amount || 0,
+    remarks:                r.remarks || '',
+  }));
+  updateBhavTotals();
+}
+
+// Resolves the currently-selected supplier's actual `name` (not display label) from the
+// SUPPLIERS array — same pattern buildInvoicePayload()/saveDoc() already inline elsewhere in
+// this file, pulled out here for the Bhav Cut functions to share.
+function getCurrentSupplierName(){
+  const supplierInput = document.getElementById('supplier')?.value?.trim() || '';
+  const supplierObj = SUPPLIERS.find(s => s.name === supplierInput || s.display === supplierInput);
+  return supplierObj?.name || document.getElementById('supplier')?.dataset?.id || supplierInput;
+}
+
+// Resolves the Customer linked to a Supplier via a "Party Link" record (Common Party Accounting).
+// Checks both directions since the link may have been created with the Supplier as either
+// primary_party or secondary_party. Returns the linked Customer name, or null if none exists.
+async function getLinkedCustomerForSupplier(supplierName){
+  if(!supplierName) return null;
+  try{
+    const fields = encodeURIComponent(JSON.stringify(['primary_party','primary_role','secondary_party','secondary_role']));
+    let filters = encodeURIComponent(JSON.stringify([['primary_party','=',supplierName]]));
+    let res = await dev1Get(`/api/resource/Party Link?filters=${filters}&fields=${fields}&limit_page_length=1`);
+    let rows = res.data || res.message || [];
+    if(!rows.length){
+      filters = encodeURIComponent(JSON.stringify([['secondary_party','=',supplierName]]));
+      res = await dev1Get(`/api/resource/Party Link?filters=${filters}&fields=${fields}&limit_page_length=1`);
+      rows = res.data || res.message || [];
+    }
+    if(!rows.length) return null;
+    const row = rows[0];
+    if(row.primary_party === supplierName) return row.secondary_role === 'Customer' ? row.secondary_party : null;
+    return row.primary_role === 'Customer' ? row.primary_party : null;
+  }catch(e){
+    console.warn('getLinkedCustomerForSupplier error:', e.message);
+    return null;
+  }
+}
+
+async function createBhavCutSalesOrder(){
+  if(!window.currentPIName){ showToast('Purchase Invoice not saved', 'error'); return; }
+
+  const rows = [];
+  document.querySelectorAll('#bhavTbody tr').forEach(tr => {
+    const g  = k => tr.querySelector(`[data-b="${k}"]`)?.value?.trim() || '';
+    const gf = k => parseFloat(g(k)) || 0;
+    const item     = g('item');
+    const finalQty = gf('final_qty');
+    const rate     = gf('gold_rate');
+    const amount   = gf('amount');
+    if(!item || finalQty <= 0) return;
+    rows.push({ item, finalQty, rate, amount });
+  });
+
+  if(!rows.length){
+    showToast('No rows with a Settlement Item and Final Qty found', 'error');
+    return;
+  }
+
+  const supplierName = getCurrentSupplierName();
+  if(!supplierName){ showToast('Please select a supplier first', 'error'); return; }
+  const customer = await getLinkedCustomerForSupplier(supplierName);
+  if(!customer){ showToast('Customer is not Link with this Supplier', 'error'); return; }
+
+  try{
+    showToast('Creating Bhav Cut Sales Order…', 'info');
+
+    const soItems = rows.map((r, idx) => ({
+      doctype:   'Sales Order Item',
+      idx:       idx + 1,
+      item_code: r.item,
+      item_name: r.item,
+      description: r.item,
+      qty:       r.finalQty,
+      rate:      r.rate,
+      amount:    r.amount,
+      uom:       'Gram',
+      stock_uom: 'Gram',
+      conversion_factor: 1,
+    }));
+
+    const payload = {
+      doctype:        'Sales Order',
+      customer:        customer,
+      transaction_date: new Date().toISOString().slice(0, 10),
+      delivery_date:    new Date().toISOString().slice(0, 10),
+      company:          COMPANY,
+      po_no:                   window.currentPIName,
+      order_type:              'Sales',
+      items:                   soItems,
+      custom_purchase_invoice: window.currentPIName,
+    };
+
+    const res = await dev1Post('/api/resource/Sales Order', payload);
+    const soName = res?.data?.name || res?.name;
+    if(!soName) throw new Error('Sales Order creation failed');
+
+    await dev1Put(`/api/resource/Purchase Invoice/${encodeURIComponent(window.currentPIName)}`, { custom_sales_order: soName });
+    showToast('Bhav Cut Sales Order created: ' + soName, 'success');
+  }catch(e){ showToast('Error: ' + String(e.message).slice(0, 100), 'error'); }
+}
+
+// Hide the Bhav Cut entry button and the (auto-triggered-on-submit) Create Bhav Cut Sales
+// Order button once the PI is cancelled — nothing left to enter or trigger manually.
+function hideBhavButtons(){
+  const bhavCutBtn = document.getElementById('bhavCutBtn');
+  if(bhavCutBtn) bhavCutBtn.style.display = 'none';
+  const bhavSOBtn = document.getElementById('createBhavSOBtn');
+  if(bhavSOBtn) bhavSOBtn.style.display = 'none';
+}
+
+// ── BHAV CUT CSV ──
+const BHAV_CSV_COLS = [
+  { label:'Settlement Item',      field:'item'         },
+  { label:'Settlement Purity',    field:'purity'       },
+  { label:'Input Weight (g)',     field:'input_wt'     },
+  { label:'Input Purity %',       field:'input_pur'    },
+  { label:'Pure Gold Weight (g)', field:'pure_gold'    },
+  { label:'PG Purity %',          field:'pg_pur'       },
+  { label:'PG Weight (g)',         field:'pg_wt'        },
+  { label:'Gold Rate',            field:'gold_rate'    },
+  { label:'Labour Type',          field:'labour_type'  },
+  { label:'Labour/Wastage Value', field:'labour_val'   },
+  { label:'Labour Gold (g)',      field:'labour_gold'  },
+  { label:'Final Settlement Qty', field:'final_qty'    },
+  { label:'Amount',               field:'amount'       },
+  { label:'Remarks',              field:'remarks'      },
+];
+
+function downloadBhavCsv(){
+  downloadCsvGeneric(BHAV_CSV_COLS, 'bhavTbody', 'data-b', 'bhav_cut_breakup.csv');
+}
+
+function uploadBhavCsv(event){
+  const file = event.target.files[0]; event.target.value='';
+  readCsvFile(file, parsed => openCsvMapDialog(parsed, BHAV_CSV_COLS, importBhavRows));
+}
+
+function importBhavRows(rows, mapping){
+  let imported = 0;
+  rows.forEach(cells => {
+    const g = field => {
+      const idx = Object.keys(mapping).find(i => mapping[i]===field);
+      return idx !== undefined ? (cells[idx]||'').trim() : '';
+    };
+    addBhavRow({
+      settlement_item:     g('item'),
+      settlement_purity:   g('purity'),
+      input_weight:        parseFloat(g('input_wt'))    || 0,
+      input_purity:        parseFloat(g('input_pur'))   || 0,
+      pg_purity:           parseFloat(g('pg_pur'))      || 99.5,
+      gold_rate:           parseFloat(g('gold_rate'))   || 0,
+      labour_type:         g('labour_type'),
+      labour_value:        parseFloat(g('labour_val'))  || 0,
+      remarks:             g('remarks'),
+    });
+    imported++;
+  });
+  return imported;
+}
+// END BHAV CUT
+
+// ══ INSTANCE HELPERS ══
+const DEV2 = 'https://ppj-dev2.m.frappe.cloud';
+function cdGetActiveInstance(){ return localStorage.getItem('cd_active_instance')||'PP'; }
+function cdGetAvailableInstances(){ return (localStorage.getItem('cd_available_instances')||'PP').split(',').filter(Boolean); }
+function cdGetInstanceUrl(inst){ return (inst||cdGetActiveInstance())==='PC'?DEV2:DEV1; }
+function cdGetInstanceHeaders(inst){
+  const i=inst||cdGetActiveInstance();
+  const key=i==='PC'?localStorage.getItem('cd_pc_key'):localStorage.getItem('cd_pp_key');
+  const sec=i==='PC'?localStorage.getItem('cd_pc_secret'):localStorage.getItem('cd_pp_secret');
+  if(!key||!sec) return null;
+  return{'Authorization':`token ${key}:${sec}`,'Content-Type':'application/json','Accept':'application/json'};
+}
+function cdSwitchInstance(inst){
+  const available=cdGetAvailableInstances();
+  if(!available.includes(inst)) return;
+  const key=inst==='PC'?localStorage.getItem('cd_pc_key'):localStorage.getItem('cd_pp_key');
+  const sec=inst==='PC'?localStorage.getItem('cd_pc_secret'):localStorage.getItem('cd_pp_secret');
+  localStorage.setItem('cd_active_instance',inst);
+  localStorage.setItem('cd_api_key',key);
+  localStorage.setItem('cd_api_secret',sec);
+  window.location.reload();
+}
+function cdInitInstanceToggle(){
+  const available=cdGetAvailableInstances();
+  const active=cdGetActiveInstance();
+  const bar=document.getElementById('cdInstanceBar');
+  if(!bar) return;
+  if(available.length<2){ bar.style.display='none'; return; }
+  bar.style.display='flex';
+  ['PP','PC'].forEach(inst=>{
+    const btn=document.getElementById('cdInst'+inst);
+    if(!btn) return;
+    btn.classList.toggle('active',inst===active);
+    btn.style.display=available.includes(inst)?'':'none';
+  });
+  const roleEl=document.getElementById('cdUserRole');
+  if(roleEl) roleEl.textContent='Active: '+active;
+}
+
 // ══ THEME / SIDEBAR / AUTH ══
     const moonIcon='<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
     const sunIcon='<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
@@ -1494,4 +3115,26 @@ function syncBomFromItems(){
     const sidebar=document.getElementById('cdSidebar');
     document.getElementById('cdMenuToggle').addEventListener('click',()=>sidebar.classList.toggle('mobile-open'));
     document.querySelectorAll('.cd-nav-item').forEach(l=>l.addEventListener('click',()=>{if(window.innerWidth<=768)sidebar.classList.remove('mobile-open');}));
+(function(){
+  const hasSession=localStorage.getItem('cd_pp_key')||localStorage.getItem('cd_pc_key');
+  if(!hasSession){ window.location.replace('/caratdesk-login?logout=1'); return; }
+  const active=cdGetActiveInstance();
+  const key=active==='PC'?localStorage.getItem('cd_pc_key'):localStorage.getItem('cd_pp_key');
+  const sec=active==='PC'?localStorage.getItem('cd_pc_secret'):localStorage.getItem('cd_pp_secret');
+  if(key&&sec){ localStorage.setItem('cd_api_key',key); localStorage.setItem('cd_api_secret',sec); }
+  const name=localStorage.getItem('cd_user')||localStorage.getItem('cd_user_email')||'User';
+  document.getElementById('cdUserName').textContent=name;
+  document.getElementById('cdAvatar').textContent=name.split('@')[0].split(/[\s.]+/).map(w=>w[0]||'').join('').slice(0,2).toUpperCase()||'U';
+  cdInitInstanceToggle();
+})();
+
+document.getElementById('cdLogoutBtn').addEventListener('click',async()=>{
+  const ppK=localStorage.getItem('cd_pp_key'), ppS=localStorage.getItem('cd_pp_secret');
+  const pcK=localStorage.getItem('cd_pc_key'), pcS=localStorage.getItem('cd_pc_secret');
+  try{ if(ppK&&ppS) await fetch(`${DEV1}/api/method/logout`,{method:'POST',headers:{Authorization:`token ${ppK}:${ppS}`}}); }catch(e){}
+  try{ if(pcK&&pcS) await fetch(`${DEV2}/api/method/logout`,{method:'POST',headers:{Authorization:`token ${pcK}:${pcS}`}}); }catch(e){}
+  ['cd_api_key','cd_api_secret','cd_pp_key','cd_pp_secret','cd_pc_key','cd_pc_secret',
+   'cd_user','cd_user_email','cd_active_instance','cd_available_instances'].forEach(k=>localStorage.removeItem(k));
+  window.location.replace('/caratdesk-login?logout=1');
+});
 </script>

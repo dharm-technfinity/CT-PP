@@ -1,0 +1,1780 @@
+<!-- CaratDesk – New Multi-PR Bhav Cut (Token Auth) -->
+<head>
+  <meta charset="UTF-8">
+</head>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap');
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    .navbar,.page-header,footer.web-footer,.container>.row>.col-sm-10,.frappe-footer{display:none!important}
+    .web-page-container,.container{padding:0!important;max-width:100%!important}
+    body{overflow-x:hidden}
+    :root{
+      --bg:#F7F6F3;--surface:#FFFFFF;--border:rgba(0,0,0,.07);--border-strong:rgba(0,0,0,.12);
+      --text-primary:#1A1A18;--text-secondary:#6B6B65;--text-muted:#A8A8A2;
+      --accent:#1A1A18;--accent-light:#F0EFE9;--nav-hover:#F7F6F3;--nav-active-bg:#EBEBE5;
+      --pill-green-bg:#EAF3DE;--pill-green-txt:#3B6D11;--pill-green-bg-hover:#d8edca;
+      --pill-red-bg:#FCEBEB;--pill-red-txt:#A32D2D;--pill-red-bg-hover:#f8d7d7;
+      --pill-amber-bg:#FAEEDA;--pill-amber-txt:#854F0B;--pill-amber-bg-hover:#f5e4c5;
+      --pill-blue-bg:#E8F0FD;--pill-blue-txt:#1A4A8A;
+      --toast-success-bg:#2D6A4F;--toast-info-bg:#1A4A8A;
+      --shadow-sm:0 2px 12px rgba(0,0,0,.04),0 0 0 .5px rgba(0,0,0,.03);
+      --shadow-md:0 4px 24px rgba(0,0,0,.08)
+    }
+    .dark{--bg:#121212;--surface:#1E1E1E;--border:rgba(255,255,255,.08);--border-strong:rgba(255,255,255,.15);--text-primary:#EDEDED;--text-secondary:#A0A0A0;--text-muted:#6E6E6E;--accent:#D4D4D4;--accent-light:#2C2C2C;--nav-hover:#252525;--nav-active-bg:#2D2D2D;--pill-green-bg:#1E3A2E;--pill-green-txt:#9CD45E;--pill-green-bg-hover:#2a4a3a;--pill-red-bg:#3E1E1E;--pill-red-txt:#F28B82;--pill-red-bg-hover:#4a2626;--pill-amber-bg:#3E2E1E;--pill-amber-txt:#FDBF6B;--pill-amber-bg-hover:#4a3826;--pill-blue-bg:#1A2A3E;--pill-blue-txt:#7AABF0;--toast-success-bg:#1f5f3f;--toast-info-bg:#2a5a9a;--shadow-sm:0 2px 12px rgba(0,0,0,.3),0 0 0 .5px rgba(255,255,255,.05);--shadow-md:0 4px 24px rgba(0,0,0,.3)}
+    html,body{color:var(--text-primary)}
+    *{transition:background-color .2s,border-color .2s,color .2s}
+    .cd-app{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);min-height:100vh;display:flex;-webkit-font-smoothing:antialiased;color:var(--text-primary)}
+    .cd-sidebar{width:260px;background:var(--surface);border-right:.5px solid var(--border);display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;z-index:200;box-shadow:var(--shadow-sm);transform:translateX(0);transition:transform .3s cubic-bezier(.2,.9,.4,1.1)}
+    @media(max-width:768px){.cd-sidebar{transform:translateX(-100%)}.cd-sidebar.mobile-open{transform:translateX(0);width:80%;max-width:280px}}
+    .cd-sidebar-logo{display:flex;align-items:center;gap:11px;padding:20px 16px 18px;border-bottom:.5px solid var(--border);text-decoration:none;color:inherit}
+    .cd-sidebar-logo img{width:30px;height:30px;object-fit:contain;border-radius:9px}
+    .cd-logo-name{font-family:'DM Serif Display',serif;font-size:17px;letter-spacing:-.2px}
+    .cd-logo-sub{font-size:10px;color:var(--text-muted);font-weight:300;letter-spacing:.07em;text-transform:uppercase}
+    .cd-nav{flex:1;padding:10px 8px;overflow-y:auto}
+    .cd-nav-section{font-size:10px;font-weight:500;color:var(--text-muted);letter-spacing:.08em;text-transform:uppercase;padding:14px 8px 5px}
+    .cd-nav-item{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:9px;margin-bottom:1px;text-decoration:none;color:var(--text-secondary);font-size:13.5px;transition:background .14s,color .14s}
+    .cd-nav-item:hover{background:var(--nav-hover);color:var(--text-primary)}
+    .cd-nav-item.active{background:var(--nav-active-bg);color:var(--text-primary);font-weight:500}
+    .cd-nav-icon{width:20px;height:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .cd-nav-icon svg{width:15px;height:15px;stroke:currentColor;stroke-width:1.75;fill:none;stroke-linecap:round;stroke-linejoin:round}
+    .cd-sidebar-bottom{padding:10px 8px;border-top:.5px solid var(--border)}
+    .cd-user-card{display:flex;align-items:center;gap:10px;padding:10px;border-radius:9px;cursor:pointer;transition:background .14s}
+    .cd-user-card:hover{background:var(--nav-hover)}
+    .cd-avatar{width:32px;height:32px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:var(--surface);flex-shrink:0}
+    .cd-user-name{font-size:13px;font-weight:500}
+    .cd-user-role{font-size:11px;color:var(--text-muted);font-weight:300}
+    .cd-logout-btn{display:flex;align-items:center;gap:7px;padding:9px 10px;border-radius:9px;cursor:pointer;font-size:13px;color:var(--text-secondary);margin-top:3px;border:none;background:none;font-family:'DM Sans',sans-serif;width:100%;transition:background .14s,color .14s}
+    .cd-logout-btn:hover{background:var(--pill-red-bg);color:var(--pill-red-txt)}
+    .cd-instance-bar{display:flex;align-items:center;gap:6px;padding:8px 10px 4px}
+    .cd-instance-label{font-size:10px;font-weight:500;color:var(--text-muted);letter-spacing:.07em;text-transform:uppercase;flex:1}
+    .cd-instance-pills{display:flex;gap:4px}
+    .cd-instance-pill{font-size:11px;font-weight:500;padding:3px 10px;border-radius:6px;border:.5px solid var(--border);background:var(--input-bg);color:var(--text-secondary);cursor:pointer;transition:background .14s,color .14s,border-color .14s;font-family:'DM Sans',sans-serif}
+    .cd-instance-pill:hover{background:var(--nav-hover);color:var(--text-primary)}
+    .cd-instance-pill.active{background:var(--accent);color:var(--surface);border-color:var(--accent)}
+    .cd-main{margin-left:260px;flex:1;min-height:100vh;display:flex;flex-direction:column;min-width:0;overflow-x:hidden}
+    @media(max-width:768px){.cd-main{margin-left:0}}
+    .cd-topbar{height:58px;background:var(--surface);border-bottom:.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 20px;position:sticky;top:0;z-index:100}
+    .cd-menu-btn{display:none;background:none;border:none;cursor:pointer;color:var(--text-secondary);margin-right:12px}
+    @media(max-width:768px){.cd-menu-btn{display:flex;align-items:center;justify-content:center}}
+    .cd-topbar-left{display:flex;align-items:center;gap:10px}
+    .cd-breadcrumb{display:flex;align-items:center;gap:6px;font-size:13.5px}
+    .cd-breadcrumb a{color:var(--text-muted);text-decoration:none;transition:color .14s}
+    .cd-breadcrumb a:hover{color:var(--text-primary)}
+    .cd-breadcrumb-sep{color:var(--text-muted);font-size:12px}
+    .cd-breadcrumb-cur{color:var(--text-primary);font-weight:500}
+    .cd-topbar-right{display:flex;align-items:center;gap:8px;min-width:0;overflow:hidden}
+    @media(max-width:1100px){.cd-topbar-right .cd-chip{display:none}}
+    .cd-icon-btn{width:34px;height:34px;border-radius:9px;border:.5px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-secondary);transition:background .14s,color .14s}
+    .cd-icon-btn:hover{background:var(--nav-hover);color:var(--text-primary)}
+    .cd-icon-btn svg{width:15px;height:15px;stroke:currentColor;stroke-width:1.75;fill:none;stroke-linecap:round;stroke-linejoin:round}
+    .cd-form-content{padding:24px 28px 90px;flex:1;animation:fadeUp .35s cubic-bezier(.16,1,.3,1) both;min-width:0;max-width:100%}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+    .cd-btn{font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;padding:8px 16px;border-radius:9px;border:none;cursor:pointer;transition:background .14s,transform .1s,opacity .14s;display:inline-flex;align-items:center;gap:7px}
+    .cd-btn:active{transform:scale(.98)}
+    .cd-btn:disabled{opacity:.45;cursor:not-allowed}
+    .cd-btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+    .cd-btn-primary{background:var(--text-primary);color:var(--surface)}.cd-btn-primary:hover{opacity:.85}
+    .cd-btn-secondary{background:var(--surface);color:var(--text-primary);border:.5px solid var(--border-strong)}.cd-btn-secondary:hover{background:var(--accent-light)}
+    .cd-btn-green{background:var(--pill-green-bg);color:var(--pill-green-txt);border:.5px solid rgba(59,109,17,.15)}.cd-btn-green:hover{background:var(--pill-green-bg-hover)}
+    .cd-section{background:var(--surface);border:.5px solid var(--border);border-radius:14px;margin-bottom:16px;overflow:visible;box-shadow:var(--shadow-sm)}
+    .cd-section-header{padding:14px 20px;border-bottom:.5px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+    .cd-sec-title{font-size:13px;font-weight:500;display:flex;align-items:center;gap:8px}
+    .cd-sec-title svg{width:14px;height:14px;stroke:var(--text-muted);fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+    .cd-section-body{padding:20px}
+    .cd-field{display:flex;flex-direction:column;gap:5px}
+    .cd-label{font-size:11.5px;font-weight:500;color:var(--text-secondary);letter-spacing:.01em;margin-top:10px;margin-bottom:0px}
+    .cd-label .req{color:var(--pill-red-txt);margin-left:2px}
+    .cd-input,.cd-select,.cd-textarea{font-family:'DM Sans',sans-serif;font-size:13px;background:var(--bg);border:0.5px solid var(--border-strong);border-radius:9px;padding:9px 12px;color:var(--text-primary);outline:none;transition:border-color .14s,box-shadow .14s;width:100%}
+    .cd-input:focus,.cd-select:focus,.cd-textarea:focus{border-color:var(--text-secondary);box-shadow:0 0 0 3px rgba(0,0,0,.05);background:var(--surface)}
+    .cd-input::placeholder{color:var(--text-muted)}
+    .cd-readonly{opacity:.65;cursor:not-allowed;background:var(--accent-light)!important}
+    .cd-ac{position:relative}
+    .cd-ac-list{position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--surface);border:.5px solid var(--border-strong);border-radius:10px;box-shadow:var(--shadow-md);z-index:500;max-height:220px;overflow-y:auto;display:none}
+    .dark .cd-ac-list{box-shadow:0 8px 32px rgba(0,0,0,.5),0 0 0 1px var(--border-strong)}
+    .cd-ac-list.open{display:block}
+    .cd-ac-hint{padding:10px 14px;font-size:11px;font-weight:500;color:var(--text-secondary);letter-spacing:.03em;text-transform:uppercase;background:var(--bg);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:1}
+    .cd-ac-item{padding:9px 12px;font-size:13px;cursor:pointer;transition:background .1s;border-bottom:.5px solid var(--border)}
+    .cd-ac-item:last-child{border-bottom:none}
+    .cd-ac-item:hover{background:var(--nav-hover)}
+    .cd-ac-item .main{font-weight:500}
+    .cd-ac-item .sub{font-size:11px;color:var(--text-muted);margin-top:1px}
+    .cd-ac-empty{padding:12px;font-size:12.5px;color:var(--text-muted);text-align:center}
+    .cd-pick-btn{height:24px;padding:0 8px;border-radius:5px;font-family:'DM Sans',sans-serif;font-weight:500;font-size:11px;border:.5px solid var(--border-strong);background:var(--surface);color:var(--text-secondary);cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:background .14s,color .14s;white-space:nowrap}
+    .cd-pick-btn:hover{background:var(--accent-light);color:var(--text-primary)}
+    .cd-pick-btn svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+    .cd-idialog-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:800;opacity:0;pointer-events:none;transition:opacity .22s;backdrop-filter:blur(3px)}
+    .cd-idialog-overlay.open{opacity:1;pointer-events:all}
+    .cd-idialog{position:fixed;top:50%;left:50%;transform:translate(-50%,-46%);width:520px;max-width:96vw;max-height:80vh;background:var(--surface);border-radius:16px;border:.5px solid var(--border);box-shadow:0 20px 60px rgba(0,0,0,.2);z-index:801;display:flex;flex-direction:column;opacity:0;pointer-events:none;transition:opacity .22s,transform .22s}
+    .cd-idialog.open{opacity:1;pointer-events:all;transform:translate(-50%,-50%)}
+    .cd-idialog-header{padding:16px 20px 12px;border-bottom:.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+    .cd-idialog-title{font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px}
+    .cd-idialog-title svg{width:14px;height:14px;stroke:var(--text-muted);fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+    .cd-idialog-close{width:26px;height:26px;border-radius:7px;border:.5px solid var(--border);background:var(--bg);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-secondary);transition:background .14s}
+    .cd-idialog-close:hover{background:var(--pill-red-bg);color:var(--pill-red-txt)}
+    .cd-idialog-close svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2}
+    .cd-idialog-body{flex:1;overflow-y:auto;padding:12px 20px}
+    .cd-idialog-footer{padding:12px 20px;border-top:.5px solid var(--border);display:flex;gap:8px;flex-shrink:0;align-items:center;justify-content:flex-end}
+    .cd-item-pick-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;transition:background .1s}
+    .cd-item-pick-row:hover{background:var(--nav-hover)}
+    .cd-item-pick-row .main{font-weight:500;font-size:13px}
+    .cd-item-pick-row .sub{font-size:11px;color:var(--text-muted);margin-top:1px}
+    .cd-item-pick-row .rate{font-size:12px;color:var(--text-secondary);font-variant-numeric:tabular-nums}
+    .cd-search-wrap{position:relative}
+    .cd-search-wrap svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:14px;height:14px;stroke:var(--text-muted);fill:none;stroke-width:1.8;pointer-events:none}
+    .cd-search-input{width:100%;font-family:'DM Sans',sans-serif;font-size:13px;background:var(--bg);border:.5px solid var(--border-strong);border-radius:9px;padding:9px 12px 9px 34px;color:var(--text-primary);outline:none;transition:border-color .14s,box-shadow .14s}
+    .cd-search-input:focus{border-color:var(--text-secondary);box-shadow:0 0 0 3px rgba(0,0,0,.05)}
+    .cd-search-input::placeholder{color:var(--text-muted)}
+    .rm-row{display:flex;align-items:flex-start;gap:16px;padding:12px 24px;border-bottom:.5px solid var(--border)}
+    .rm-row-label{min-width:120px;font-size:10.5px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.07em;padding-top:6px;flex-shrink:0}
+    .rm-pills{display:flex;flex-wrap:wrap;gap:6px;flex:1}
+    .rm-pill{padding:5px 16px;border-radius:20px;border:.5px solid var(--border-strong);background:var(--bg);color:var(--text-secondary);font-size:12.5px;cursor:pointer;transition:all .12s;user-select:none;white-space:nowrap;font-family:'DM Sans',sans-serif}
+    .rm-pill:hover{border-color:var(--text-primary);color:var(--text-primary);background:var(--accent-light)}
+    .rm-pill.selected{background:var(--text-primary);border-color:var(--text-primary);color:var(--surface);font-weight:500}
+    .rm-loading{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--text-muted);padding-top:4px}
+    .rm-spinner{width:14px;height:14px;border:2px solid var(--border-strong);border-top-color:var(--text-secondary);border-radius:50%;animation:rm-spin .6s linear infinite;flex-shrink:0}
+    @keyframes rm-spin{to{transform:rotate(360deg)}}
+    .cd-dlg-result{display:none;align-items:center;gap:12px;background:var(--pill-green-bg);border:.5px solid rgba(59,109,17,.2);border-radius:10px;padding:12px 14px;margin:0 20px 14px}
+    .cd-dlg-result-icon{width:32px;height:32px;border-radius:8px;background:var(--pill-green-txt);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .cd-dlg-result-icon svg{width:15px;height:15px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+    .cd-dlg-result-code{font-size:13px;font-weight:600;color:var(--pill-green-txt)}
+    .cd-dlg-result-name{font-size:12px;color:var(--pill-green-txt);opacity:.85;margin-top:2px}
+    .cd-dlg-error{display:none;font-size:12.5px;color:var(--pill-red-txt);background:var(--pill-red-bg);border:.5px solid rgba(163,45,45,.15);border-radius:8px;padding:9px 12px;margin:0 20px 10px}
+    .cd-supplier-card{background:var(--pill-blue-bg);border-radius:10px;padding:12px 16px;margin-top:10px;display:none;align-items:center;gap:12px}
+    .cd-supplier-card.show{display:flex}
+    .cd-supplier-card-icon{width:36px;height:36px;border-radius:9px;background:var(--pill-blue-txt);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .cd-supplier-card-icon svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+    .cd-supplier-card-name{font-size:13px;font-weight:500;color:var(--pill-blue-txt)}
+    .cd-supplier-card-sub{font-size:11.5px;color:var(--pill-blue-txt);opacity:.8;margin-top:2px}
+    .cd-warning-card{background:var(--pill-red-bg);border-radius:10px;padding:12px 16px;margin-top:10px;display:none;align-items:center;gap:12px;color:var(--pill-red-txt);font-size:12.5px}
+    .cd-items-wrap{overflow-x:auto;border-radius:10px;border:.5px solid var(--border);margin-bottom:14px;width:100%;display:block}
+    .cd-items-tbl{width:100%;border-collapse:collapse}
+    .cd-items-tbl th{font-size:11px;font-weight:500;color:var(--text-muted);text-align:left;padding:10px 12px;letter-spacing:.05em;text-transform:uppercase;background:var(--bg);border-bottom:.5px solid var(--border);white-space:nowrap}
+    .cd-items-tbl td{padding:8px 12px;height:30px;border-bottom:1px solid var(--border);vertical-align:middle;font-size:12.5px}
+    .cd-items-tbl tbody tr:hover td{background:var(--nav-hover)}
+    .cd-add-row{display:flex;align-items:center;gap:7px;font-family:'DM Sans',sans-serif;font-size:12.5px;font-weight:500;color:var(--text-secondary);background:none;border:none;cursor:pointer;padding:8px 12px;border-radius:8px;transition:background .14s,color .14s}
+    .cd-add-row:hover{background:var(--accent-light);color:var(--text-primary)}
+    .cd-add-row:disabled{opacity:.4;cursor:not-allowed}
+    .cd-add-row svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2}
+    /* Same light-grey button used on POS Billing's bottom bar, so this "load into" action reads
+       as a clear, solid button rather than the plain text-link style used by "Add Row". */
+    .cd-load-pr-btn{display:flex;align-items:center;gap:7px;font-family:'DM Sans',sans-serif;font-size:12.5px;font-weight:500;color:#1A1A18;background:#D9D7D2;border:0.5px solid #C8C5BF;cursor:pointer;padding:9px 14px;border-radius:9px;transition:background .14s}
+    .cd-load-pr-btn:hover:not(:disabled){background:#C8C5BF}
+    .cd-load-pr-btn:disabled{opacity:.4;cursor:not-allowed}
+    .cd-load-pr-btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2}
+    .cd-chip{display:inline-flex;align-items:center;gap:6px;background:var(--pill-amber-bg);color:var(--pill-amber-txt);font-size:12px;padding:5px 12px;border-radius:7px}
+    .cd-chip svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0}
+    .cd-footer{position:fixed;bottom:0;left:260px;right:0;background:var(--surface);border-top:.5px solid var(--border);padding:12px 28px;display:flex;align-items:center;justify-content:flex-end;gap:10px;z-index:90;box-shadow:0 -4px 20px rgba(0,0,0,.05)}
+    @media(max-width:768px){.cd-footer{left:0;padding:12px 16px}}
+    .cd-toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--text-primary);color:var(--surface);padding:11px 20px;border-radius:10px;font-size:13px;font-weight:500;box-shadow:var(--shadow-md);z-index:600;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;white-space:nowrap;display:flex;align-items:center;gap:8px}
+    .cd-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+    .cd-toast.success{background:var(--toast-success-bg)}.cd-toast.error{background:var(--pill-red-txt)}.cd-toast.info{background:var(--toast-info-bg)}
+    /* ── Bhav Cut Breakup table ── */
+    .bhav-tbl{width:100%;border-collapse:collapse;min-width:1500px}
+    .bhav-tbl th{font-size:10.5px;font-weight:600;color:var(--text-muted);text-align:left;padding:9px 8px;letter-spacing:.05em;text-transform:uppercase;background:var(--bg);border-bottom:.5px solid var(--border);white-space:nowrap}
+    .bhav-tbl td{padding:0;height:30px;border-bottom:.5px solid var(--border);border-right:.5px solid var(--border);vertical-align:middle}
+    .bhav-tbl td:nth-child(2){width:36px;text-align:center;font-size:12px;font-weight:600;color:var(--text-secondary)}
+    .bhav-tbl td input,.bhav-tbl td select{width:100%;height:28px;border:none;outline:none;padding:0 6px;font-size:11.5px;background:var(--bg);color:var(--text-primary);font-family:'DM Sans',sans-serif}
+    .bhav-tbl td input[type=checkbox]{width:14px;height:14px;padding:0;flex-shrink:0}
+    .dark .bhav-tbl td select{color-scheme:dark}
+    .bhav-tbl td input[readonly]{background:var(--accent-light);cursor:not-allowed;color:var(--text-secondary)}
+    .bhav-tbl td input:disabled,.bhav-tbl td select:disabled{background:var(--accent-light);cursor:not-allowed;color:var(--text-secondary)}
+    .bhav-tbl td input[type=number]{text-align:right}
+    .bhav-tbl td input[type=number]::-webkit-inner-spin-button,.bhav-tbl td input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+    .bhav-tbl td input[type=number]{-moz-appearance:textfield;appearance:textfield}
+    .bhav-tbl tbody tr:hover td{background:var(--nav-hover)}
+    .bhav-tbl tfoot td{background:var(--bg);font-size:12px;font-weight:600;color:var(--text-primary);padding:8px 8px;border-top:.5px solid var(--border-strong)}
+    .bhav-tbl tfoot td.bhav-tot-label{color:var(--text-secondary);font-size:11px;text-transform:uppercase;letter-spacing:.05em}
+    .cd-del-btn{width:20px;height:20px;border-radius:7px;border:none;background:none;cursor:pointer;color:var(--text-muted);display:flex;align-items:center;justify-content:center;transition:background .12s,color .12s;flex-shrink:0}
+    .cd-del-btn:hover{background:var(--pill-red-bg);color:var(--pill-red-txt)}
+    .cd-del-btn svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2}
+</style>
+
+<div class="cd-app" id="cdApp">
+  <nav class="cd-sidebar" id="cdSidebar">
+    <a class="cd-sidebar-logo" href="/caratdesk">
+      <img src="https://i.postimg.cc/NMgHCKvC/letter-cc-cd-diamond-initial-600nw-2206465849.png" alt="CaratDesk"/>
+      <div><div class="cd-logo-name">PPJ Retail</div><div class="cd-logo-sub">Jewellery POS</div></div>
+    </a>
+    <div class="cd-nav">
+      <div class="cd-nav-section">Main</div>
+      <a href="/caratdesk" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>Dashboard</a>
+      <div class="cd-nav-section">Operations</div>
+      <a href="/caratdesk-pos" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>POS Billing</a>
+      <a href="/caratdesk-selling" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg></span>Selling</a>
+      <a href="/caratdesk-buying" class="cd-nav-item active"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></span>Buying</a>
+      <a href="/caratdesk-stock" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg></span>Stock</a>
+      <a href="/caratdesk-items" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></span>Items</a>
+      <div class="cd-nav-section">Finance</div>
+      <a href="/caratdesk-finance" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></span>Finance</a>
+      <a href="/caratdesk-accounts" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg></span>Accounts</a>
+      <a href="/caratdesk-reports" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>Reports</a>
+      <div class="cd-nav-section">System</div>
+      <a href="/caratdesk-settings" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M12 2v2M12 20v2M2 12h2M20 12h2M4.93 19.07l1.41-1.41M19.07 19.07l-1.41-1.41"/></svg></span>Settings</a>
+    </div>
+    <div class="cd-sidebar-bottom">
+      <div class="cd-instance-bar" id="cdInstanceBar" style="display:none">
+        <span class="cd-instance-label">Instance</span>
+        <div class="cd-instance-pills">
+          <button class="cd-instance-pill" id="cdInstPP" onclick="cdSwitchInstance('PP')">PP</button>
+          <button class="cd-instance-pill" id="cdInstPC" onclick="cdSwitchInstance('PC')">PC</button>
+        </div>
+      </div>
+      <div class="cd-user-card"><div class="cd-avatar" id="cdAvatar">-</div><div><div class="cd-user-name" id="cdUserName">Loading…</div><div class="cd-user-role" id="cdUserRole">POS Manager</div></div></div>
+      <button class="cd-logout-btn" id="cdLogoutBtn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign out</button>
+    </div>
+  </nav>
+
+  <div class="cd-main">
+    <div class="cd-topbar">
+      <div class="cd-topbar-left">
+        <button class="cd-menu-btn" id="cdMenuToggle"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+        <div class="cd-breadcrumb">
+          <a href="/caratdesk-buying">Buying</a><span class="cd-breadcrumb-sep">></span>
+          <span class="cd-breadcrumb-cur">New Multi-PR Bhav Cut</span>
+        </div>
+      </div>
+      <div class="cd-topbar-right">
+        <div class="cd-chip" style="margin-bottom:0">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          Current Gold Rate: <strong>-</strong> / g &nbsp;Silver: <strong>-</strong> / g
+        </div>
+        <div class="cd-icon-btn" id="cdThemeToggle"><svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div>
+      </div>
+    </div>
+
+    <div class="cd-form-content">
+
+      <!-- SECTION 1: Supplier & Settlement Info -->
+      <div class="cd-section">
+        <div class="cd-section-header">
+          <div class="cd-sec-title"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>Supplier & Settlement Info</div>
+        </div>
+        <div class="cd-section-body">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:16px">
+            <div class="cd-field">
+              <label class="cd-label">Company</label>
+              <input class="cd-input cd-readonly" id="companyDisplay" value="P.P. Jewellers Retail Pvt. Ltd." readonly/>
+            </div>
+            <div class="cd-field">
+              <label class="cd-label">Supplier <span class="req">*</span></label>
+              <div class="cd-ac" id="supplierAcWrap">
+                <input class="cd-input" id="supplier" placeholder="Click to browse or type supplier name" autocomplete="off"
+                  oninput="acSupplier(this.value)" onfocus="acSupplier(this.value,true)" onclick="acSupplier(this.value,true)"/>
+                <div class="cd-ac-list" id="ac-supplier" role="listbox"></div>
+              </div>
+            </div>
+            <div class="cd-field">
+              <label class="cd-label">Bhav Cut Date <span class="req">*</span></label>
+              <input class="cd-input" type="date" id="bhavDate"/>
+            </div>
+            <div class="cd-field">
+              <label class="cd-label">Branch</label>
+              <select class="cd-select" id="branch">
+                <option value="">- Select Branch -</option>
+              </select>
+            </div>
+          </div>
+          <div class="cd-supplier-card" id="customerCard">
+            <div class="cd-supplier-card-icon"><svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg></div>
+            <div><div class="cd-supplier-card-name">Billed to: <span id="customerCardName"></span></div><div class="cd-supplier-card-sub">Sales Order will be raised against this linked Customer</div></div>
+          </div>
+          <div class="cd-warning-card" id="customerWarning">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;flex-shrink:0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <span>Customer is not linked with this Supplier. Link a Customer via Party Link before doing Bhav Cut.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 2: Eligible Purchase Receipts -->
+      <div class="cd-section" id="prListSection" style="display:none">
+        <div class="cd-section-header">
+          <div class="cd-sec-title"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>Eligible Purchase Receipts<span style="font-size:10px;font-weight:400;color:var(--text-muted);margin-left:4px">(not yet settled)</span></div>
+        </div>
+        <div class="cd-section-body">
+          <div class="cd-items-wrap">
+            <table class="cd-items-tbl" id="prListTbl">
+              <thead><tr>
+                <th style="width:36px"><input type="checkbox" id="prSelAll" onchange="toggleAllPRs(this)"></th>
+                <th>Purchase Receipt</th>
+                <th>Posting Date</th>
+                <th style="text-align:right">Grand Total</th>
+                <th style="text-align:right">Pure Wt (g)</th>
+                <th style="text-align:right">Pending Amount</th>
+                <th>Status</th>
+              </tr></thead>
+              <tbody id="prListTbody"></tbody>
+              <tfoot id="prListTfoot" style="display:none">
+                <tr style="font-weight:600;border-top:1px solid var(--border-color)">
+                  <td></td>
+                  <td colspan="2">Total</td>
+                  <td style="text-align:right" id="prListTotAmt">0.00</td>
+                  <td style="text-align:right" id="prListTotPureWt">0.000</td>
+                  <td style="text-align:right" id="prListTotPending">0.00</td>
+                  <td></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+          <div id="prHiddenNote" style="font-size:11.5px;color:var(--text-muted);margin:6px 4px 10px"></div>
+          <button class="cd-load-pr-btn" id="loadPrsBtn" disabled onclick="loadBhavRowsFromSelectedPRs()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
+            Load Selected PRs into Bhav Cut
+          </button>
+        </div>
+      </div>
+
+      <!-- SECTION 3: Bhav Cut Breakup -->
+      <div class="cd-section" id="bhavCutSection">
+        <div class="cd-section-header">
+          <div class="cd-sec-title">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+            Consolidated Bhav Cut Breakup
+            <span style="font-size:10px;font-weight:400;color:var(--text-muted);margin-left:4px">(Gold Settlement Across Selected Purchase Receipts)</span>
+          </div>
+        </div>
+        <div class="cd-section-body">
+          <div class="cd-items-wrap">
+            <table class="bhav-tbl" id="bhavTbl">
+              <thead><tr>
+                <th style="width:30px"><input type="checkbox" id="bhavSelAll" checked onchange="toggleAllBhavSelect(this)" title="Select all"></th>
+                <th style="width:36px">#</th>
+                <th style="width:150px">Source PR</th>
+                <th style="width:140px">Settlement Item</th>
+                <th style="width:110px">Settlement Purity</th>
+                <th style="width:100px">Input Weight (g)</th>
+                <th style="width:90px">Input Purity %</th>
+                <th style="width:110px">Pure Gold Wt (g)</th>
+                <th style="width:80px">PG Purity %</th>
+                <th style="width:100px">PG Weight (g)</th>
+                <th style="width:110px">Gold Rate</th>
+                <th style="width:110px">Labour Type</th>
+                <th style="width:100px">Labour/Wastage Value</th>
+                <th style="width:120px">Labour Gold (g)</th>
+                <th style="width:120px">Final Settle Qty</th>
+                <th style="width:120px">Amount</th>
+                <th style="width:160px">Remarks</th>
+                <th style="width:34px"></th>
+              </tr></thead>
+              <tbody id="bhavTbody"></tbody>
+              <tfoot id="bhavTfoot">
+                <tr>
+                  <td colspan="14" class="bhav-tot-label" style="text-align:right;padding-right:10px">Total</td>
+                  <td style="text-align:right;padding-right:8px;font-variant-numeric:tabular-nums" id="bhavTotQty">0.000</td>
+                  <td style="text-align:right;padding-right:8px;font-variant-numeric:tabular-nums" id="bhavTotAmt">0.00</td>
+                  <td colspan="2"></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+          <!-- Partial Bhav Cut — Total Payable (selected PRs) vs. what's actually selected for settlement -->
+          <div id="bhavRemainingPayable" style="background:var(--accent-light);border-radius:8px;padding:8px 14px;margin:0 0 10px;font-size:12px;color:var(--text-secondary)"></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin:8px 4px;flex-wrap:wrap;gap:10px">
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+              <button class="cd-add-row" id="addBhavRowBtn" onclick="openBhavEntryDialog()">
+                <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Add Row Manually
+              </button>
+            </div>
+            <div style="font-size:11.5px;color:var(--text-muted)">
+              Final Qty: <strong id="bhavSummaryQty" style="color:var(--text-primary)">0.000</strong> g &nbsp;|&nbsp;
+              Amount: <strong id="bhavSummaryAmt" style="color:var(--text-primary)">0.00</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="cd-footer">
+  <button class="cd-btn cd-btn-primary" id="saveMultiBhavBtn" onclick="saveMultiBhavCut()">Save Bhav Cut</button>
+  <button class="cd-btn cd-btn-green" id="submitBhavBtn" disabled onclick="submitMultiBhavCut()">Submit Bhav Cut</button>
+</div>
+
+<div class="cd-toast" id="cdToast"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span id="cdToastMsg"></span></div>
+
+<!-- Bhav Cut Entry Dialog (ported from Purchase Receipt's own Bhav Cut dialog) -->
+<div class="cd-idialog-overlay" id="bhavEntryOverlay" onclick="closeBhavEntryDialog()"></div>
+<div class="cd-idialog" id="bhavEntryDialog" style="width:1000px;max-width:96vw">
+  <div class="cd-idialog-header">
+    <div class="cd-idialog-title">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      Bhav Cut
+    </div>
+    <div class="cd-idialog-close" onclick="closeBhavEntryDialog()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+  </div>
+  <div class="cd-idialog-body" style="padding:20px 24px">
+    <!-- Row 1: Settlement Item + Purity -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+      <div class="cd-field">
+        <label class="cd-label" style="margin-top:0">Settlement Item</label>
+        <div style="display:flex;align-items:center;gap:6px;margin-top:4px">
+          <button class="cd-pick-btn" onclick="openBhavItemPicker('bhav-dlg')" style="flex-shrink:0;height:32px;padding:0 8px;border-radius:6px;font-size:11px">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </button>
+          <div class="cd-ac" style="flex:1;position:relative">
+            <input class="cd-input" id="bdlg-item" placeholder="Item Code…" autocomplete="off"
+              oninput="bhavItemAc(this,'bhav-dlg')" onblur="setTimeout(()=>closeBhavAc('bhav-dlg'),180)" style="margin-top:0"/>
+            <div class="cd-ac-list" id="bhav-iac-bhav-dlg" style="min-width:260px"></div>
+          </div>
+        </div>
+      </div>
+      <div class="cd-field">
+        <label class="cd-label" style="margin-top:0">Settlement Purity</label>
+        <select class="cd-select" id="bdlg-purity" onchange="bhavDlgOnPurityChange()" style="margin-top:4px"></select>
+      </div>
+    </div>
+    <!-- Row 2: Input fields -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px">
+      <div class="cd-field">
+        <label class="cd-label" style="margin-top:0">Input Weight (g)</label>
+        <input class="cd-input" type="number" id="bdlg-input-wt" step="0.001" placeholder="0.000" oninput="calcBhavDlg()" style="margin-top:4px"/>
+      </div>
+      <div class="cd-field">
+        <label class="cd-label" style="margin-top:0">Input Purity %</label>
+        <select class="cd-select" id="bdlg-input-pur" onchange="calcBhavDlg()" style="margin-top:4px"></select>
+      </div>
+      <div class="cd-field">
+        <label class="cd-label" style="margin-top:0">Pure Gold Wt (g)</label>
+        <input class="cd-input cd-readonly" type="number" id="bdlg-pure-gold" readonly style="margin-top:4px;background:var(--accent-light)"/>
+      </div>
+    </div>
+    <!-- Row 3: PG fields + Gold Rate -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px">
+      <div class="cd-field">
+        <label class="cd-label" style="margin-top:0">PG Purity %</label>
+        <input class="cd-input" type="number" id="bdlg-pg-pur" step="0.001" value="99.5" oninput="calcBhavDlg()" style="margin-top:4px"/>
+      </div>
+      <div class="cd-field">
+        <label class="cd-label" style="margin-top:0">PG Weight (g)</label>
+        <input class="cd-input cd-readonly" type="number" id="bdlg-pg-wt" readonly style="margin-top:4px;background:var(--accent-light)"/>
+      </div>
+      <div class="cd-field">
+        <label class="cd-label" style="margin-top:0">Gold Rate</label>
+        <input class="cd-input" type="number" id="bdlg-gold-rate" step="0.01" placeholder="0.00" oninput="calcBhavDlg()" style="margin-top:4px"/>
+      </div>
+    </div>
+    <!-- Row 4: Labour -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px">
+      <div class="cd-field">
+        <label class="cd-label" style="margin-top:0">Labour Type</label>
+        <select class="cd-select" id="bdlg-labour-type" onchange="calcBhavDlg()" style="margin-top:4px">
+          <option value="">- None -</option>
+          <option value="Percentage">Percentage</option>
+          <option value="Per Gram">Per Gram</option>
+        </select>
+      </div>
+      <div class="cd-field">
+        <label class="cd-label" style="margin-top:0">Labour/Wastage Value</label>
+        <input class="cd-input" type="number" id="bdlg-labour-val" step="0.01" placeholder="0.00" oninput="calcBhavDlg()" style="margin-top:4px"/>
+      </div>
+      <div class="cd-field">
+        <label class="cd-label" style="margin-top:0">Labour Gold (g)</label>
+        <input class="cd-input cd-readonly" type="number" id="bdlg-labour-gold" readonly style="margin-top:4px;background:var(--accent-light)"/>
+      </div>
+    </div>
+    <!-- Partial Bhav Cut — optional: settle by a target ₹ amount instead of by weight -->
+    <div class="cd-field" style="margin-bottom:14px">
+      <label class="cd-label" style="margin-top:0">Settlement Amount (₹) — optional, settle by amount instead of weight</label>
+      <input class="cd-input" type="number" id="bdlg-settlement-amt" step="0.01" placeholder="e.g. 80000 — leave blank to settle by weight above" oninput="calcBhavDlg()" style="margin-top:4px"/>
+    </div>
+    <!-- Row 5: Results -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+      <div class="cd-field">
+        <label class="cd-label" style="margin-top:0">Final Settle Qty (g)</label>
+        <input class="cd-input cd-readonly" type="number" id="bdlg-final-qty" readonly style="margin-top:4px;background:var(--accent-light);font-weight:600"/>
+      </div>
+      <div class="cd-field">
+        <label class="cd-label" style="margin-top:0">Amount</label>
+        <input class="cd-input cd-readonly" type="number" id="bdlg-amount" readonly style="margin-top:4px;background:var(--accent-light);font-weight:600"/>
+      </div>
+    </div>
+    <!-- Remarks -->
+    <div class="cd-field">
+      <label class="cd-label" style="margin-top:0">Remarks</label>
+      <input class="cd-input" id="bdlg-remarks" placeholder="Optional notes…" style="margin-top:4px"/>
+    </div>
+  </div>
+  <div class="cd-idialog-footer">
+    <button class="cd-btn cd-btn-secondary" onclick="closeBhavEntryDialog()">Cancel</button>
+    <div style="margin-left:auto">
+      <button class="cd-btn cd-btn-primary" onclick="saveBhavEntryDialog()">
+        <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add to Table
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Settlement Item Picker Dialog (Template + Attribute pills, same mechanism as Purchase Receipt's Bhav Cut item picker) -->
+<div class="cd-idialog-overlay" id="bhavItemPickerOverlay" onclick="closeBhavItemPicker()"></div>
+<div class="cd-idialog" id="bhavItemPickerDialog" style="width:660px;max-width:96vw">
+  <div class="cd-idialog-header">
+    <div class="cd-idialog-title"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>Select Item</div>
+    <div class="cd-idialog-close" onclick="closeBhavItemPicker()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+  </div>
+  <div class="cd-idialog-body" id="bhavRmDialogRoot" style="padding:8px 0"></div>
+  <div class="cd-dlg-error" id="bhav-dlg-error"></div>
+  <div class="cd-dlg-result" id="bhav-dlg-result">
+    <div class="cd-dlg-result-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+    <div><div class="cd-dlg-result-code" id="bhav-dlg-result-code">-</div><div class="cd-dlg-result-name" id="bhav-dlg-result-name">-</div></div>
+  </div>
+  <div class="cd-idialog-footer">
+    <button class="cd-btn cd-btn-secondary" onclick="closeBhavItemPicker()">Cancel</button>
+    <div style="margin-left:auto"><button class="cd-btn cd-btn-primary" id="bhav-dlg-add-btn" onclick="addBhavItemFromPicker()"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Item</button></div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+//  CONFIG
+// ══════════════════════════════════════════
+const COMPANY = 'P.P. Jewellers Retail Pvt. Ltd.';
+const DEV1    = 'https://ppj-dev1.m.frappe.cloud';
+const DEV2    = 'https://ppj-dev2.m.frappe.cloud';
+
+let SUPPLIERS = [];
+let BRANCHES = [];
+let METAL_RATES = {};
+let _bhavMetalItems = [];
+let bhavRowCount = 0;
+let SELECTED_PRS = new Set();
+let PR_GRAND_TOTALS = new Map();
+let PR_INVOICE_INFO = new Map();
+let PR_PURE_WT = new Map();
+let bhavCutFrozen = false;
+window.currentMultiBhavCutName = null;
+
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ══════════════════════════════════════════
+//  TOKEN AUTH
+// ══════════════════════════════════════════
+function getDevHeaders(){
+  const key    = localStorage.getItem('cd_api_key');
+  const secret = localStorage.getItem('cd_api_secret');
+  if(!key || !secret) return null;
+  return {
+    'Authorization': `token ${key}:${secret}`,
+    'Content-Type' : 'application/json',
+    'Accept'       : 'application/json',
+  };
+}
+
+async function dev1Post(endpoint, body){
+  const res = await fetch(`${cdGetInstanceUrl()}${endpoint}`, { method:'POST', headers:getDevHeaders(), body:JSON.stringify(body) });
+  if(res.status===401){ _handle401(); throw new Error('Session expired'); }
+  const d = await res.json();
+  if(!res.ok){ const msg=d?.exception||d?.message||('HTTP '+res.status); throw new Error(String(msg).split('\n')[0].slice(0,300)); }
+  return d;
+}
+
+async function dev1Put(endpoint, body){
+  const res = await fetch(`${cdGetInstanceUrl()}${endpoint}`, { method:'PUT', headers:getDevHeaders(), body:JSON.stringify(body) });
+  if(res.status===401){ _handle401(); throw new Error('Session expired'); }
+  const d = await res.json();
+  if(!res.ok){ const msg=d?.exception||d?.message||('HTTP '+res.status); throw new Error(String(msg).split('\n')[0].slice(0,300)); }
+  return d;
+}
+
+async function dev1Get(endpoint){
+  const res = await fetch(`${cdGetInstanceUrl()}${endpoint}`, { headers: getDevHeaders() });
+  if(res.status===401){ _handle401(); throw new Error('Session expired'); }
+  const d = await res.json();
+  if(!res.ok){ const msg=d?.exception||d?.message||('HTTP '+res.status); throw new Error(String(msg).split('\n')[0].slice(0,300)); }
+  return d;
+}
+
+function _handle401(){
+  const active = typeof cdGetActiveInstance==='function' ? cdGetActiveInstance() : 'PP';
+  if(active==='PC'){
+    showToast('PC session expired — switching back to PP','error');
+    const ppKey=localStorage.getItem('cd_pp_key'), ppSec=localStorage.getItem('cd_pp_secret');
+    if(ppKey&&ppSec){
+      localStorage.setItem('cd_active_instance','PP');
+      localStorage.setItem('cd_api_key',ppKey);
+      localStorage.setItem('cd_api_secret',ppSec);
+    }
+    setTimeout(()=>window.location.reload(),1800);
+  } else {
+    showToast('Session expired - please log in again','error');
+    setTimeout(()=>window.location.href='/caratdesk-login',1500);
+  }
+}
+
+async function pubGet(script){
+  const proxyMap={
+    'caratdesk_get_suppliers':'/api/resource/Supplier?fields=["name","supplier_name","supplier_type","mobile_no","tax_id"]&limit=500',
+  };
+  if(proxyMap[script]) return dev1Get(proxyMap[script]);
+  return dev1Get(`/api/method/${script}`);
+}
+
+function showToast(msg,type='info',duration=3500){
+  const t=document.getElementById('cdToast');
+  document.getElementById('cdToastMsg').textContent=msg;
+  t.className='cd-toast show '+type;
+  clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),duration);
+}
+
+// ══════════════════════════════════════════
+//  MASTER DATA
+// ══════════════════════════════════════════
+async function loadSuppliers(){
+  try{
+    const r = await pubGet('caratdesk_get_suppliers');
+    SUPPLIERS = (r.data||r.message||[]).map(s=>({name:s.name,display:s.supplier_name||s.name,type:s.supplier_type||'',phone:s.mobile_no||'',gstin:s.tax_id||'',_search:Object.values(s).map(v=>String(v==null?'':v)).join(' ').toLowerCase()}));
+  }catch(e){ showToast('Failed to load suppliers: '+e.message,'error'); }
+}
+
+async function loadBranches(){
+  try{
+    const d = await dev1Get('/api/resource/Branch?fields=["name"]&limit_page_length=100');
+    BRANCHES = (d.data || d.message || []).map(b => b.name).filter(Boolean);
+    const sel = document.getElementById('branch');
+    if(sel){
+      const cur = sel.value;
+      sel.innerHTML = '<option value="">- Select Branch -</option>' + BRANCHES.map(b=>`<option value="${b}">${b}</option>`).join('');
+      if(cur) sel.value = cur;
+    }
+  }catch(e){ console.warn('Failed to load branches:', e.message); }
+}
+
+// Bhav Cut settlement items are always raw Gold/Silver templates — never finished goods.
+async function loadBhavMetalItems(){
+  try{
+    const headers = getDevHeaders(); if(!headers) return;
+    const filters = encodeURIComponent(JSON.stringify([
+      ['disabled','=',0], ['variant_of','=',''], ['item_group','in',['Gold','Silver']]
+    ]));
+    const fields = encodeURIComponent(JSON.stringify(['item_code','item_name','item_group','standard_rate']));
+    const res = await fetch(`${cdGetInstanceUrl()}/api/resource/Item?fields=${fields}&filters=${filters}&limit_page_length=200`, { headers });
+    if(!res.ok) return;
+    const d = await res.json();
+    const rows = d?.data || d?.message || [];
+    _bhavMetalItems = rows.map(i=>({code:i.item_code,name:i.item_name||i.item_code,rate:parseFloat(i.standard_rate)||0,_search:Object.values(i).map(v=>String(v==null?'':v)).join(' ').toLowerCase()}));
+  }catch(e){ console.warn('loadBhavMetalItems error:', e.message); }
+}
+
+async function loadMetalRates(){
+  try{
+    const headers = getDevHeaders();
+    if(!headers) return;
+    const fields = encodeURIComponent(JSON.stringify(['metal_type','rate','date']));
+    const filters = encodeURIComponent(JSON.stringify([['Metal Price List','metal_type','in',['Gold','Silver','Platinum']]]));
+    const res = await fetch(`${cdGetInstanceUrl()}/api/resource/Metal%20Price%20List?fields=${fields}&filters=${filters}&order_by=date%20desc&limit_page_length=50`, { headers });
+    if(!res.ok) return;
+    const d = await res.json();
+    const rows = d?.data || d?.message || [];
+    rows.forEach(row => {
+      if(row.metal_type && row.rate && !METAL_RATES[row.metal_type]) METAL_RATES[row.metal_type] = parseFloat(row.rate) || 0;
+    });
+    updateGoldRateChip();
+  }catch(e){ console.warn('loadMetalRates error:', e.message); }
+}
+
+function updateGoldRateChip(){
+  const strongs = document.querySelectorAll('.cd-chip strong');
+  const goldRate = METAL_RATES['Gold'] || 0;
+  const silverRate = METAL_RATES['Silver'] || 0;
+  if(strongs[0] && goldRate) strongs[0].textContent = goldRate.toLocaleString('en-IN');
+  if(strongs[1] && silverRate) strongs[1].textContent = silverRate.toLocaleString('en-IN');
+}
+
+// ══════════════════════════════════════════
+//  SUPPLIER AUTOCOMPLETE
+// ══════════════════════════════════════════
+const SUPPLIER_AC_LIMIT=10;
+function supplierAcSorted(){ return [...SUPPLIERS].sort((a,b)=>(a.display||a.name).localeCompare(b.display||b.name,'en',{sensitivity:'base'})); }
+function getSupplierResults(q){
+  const query=(q||'').trim().toLowerCase();
+  const sorted=supplierAcSorted();
+  if(!query) return sorted.slice(0,SUPPLIER_AC_LIMIT);
+  return sorted.filter(s=>(s.display||'').toLowerCase().includes(query)||(s.name||'').toLowerCase().includes(query)||(s.phone||'').includes(query)||(s.gstin||'').toLowerCase().includes(query)||(s._search||'').includes(query)).slice(0,SUPPLIER_AC_LIMIT);
+}
+function setSupplierAcOpen(open){
+  const list=document.getElementById('ac-supplier');
+  const wrap=document.getElementById('supplierAcWrap');
+  if(open){ list?.classList.add('open'); wrap?.classList.add('open'); }
+  else{ list?.classList.remove('open'); wrap?.classList.remove('open'); }
+}
+function renderSupplierAcItem(s){
+  const sub=[s.type,s.phone,s.gstin?'GSTIN: '+s.gstin:''].filter(Boolean).join(' · ');
+  return `<div class="cd-ac-item" role="option" data-name="${encodeURIComponent(s.name)}"><div class="main">${esc(s.display)}</div><div class="sub">${esc(sub)||'Supplier'}</div></div>`;
+}
+function supplierAcHint(query,count,total){
+  if(!query) return 'Select a supplier · showing '+Math.min(SUPPLIER_AC_LIMIT,total)+' of '+total;
+  return count?(count+' match'+(count>1?'es':'')+' found · type to narrow'):'No matches · type to narrow';
+}
+function acSupplier(q, forceShow){
+  const list=document.getElementById('ac-supplier');
+  const query=(q||'').trim();
+  if(!forceShow && !query){ setSupplierAcOpen(false); return; }
+  if(!SUPPLIERS.length){ list.innerHTML='<div class="cd-ac-hint">Suppliers</div><div class="cd-ac-empty">Loading suppliers…</div>'; setSupplierAcOpen(true); return; }
+  const results=getSupplierResults(query);
+  const hint='<div class="cd-ac-hint">'+supplierAcHint(query,results.length,SUPPLIERS.length)+'</div>';
+  list.innerHTML=results.length?hint+results.map(renderSupplierAcItem).join(''):hint+'<div class="cd-ac-empty">No supplier found'+(query?' for "'+esc(query)+'"':'')+'</div>';
+  setSupplierAcOpen(true);
+}
+document.getElementById('ac-supplier').addEventListener('click',function(e){
+  const item=e.target.closest('.cd-ac-item'); if(!item) return;
+  selSupplier(decodeURIComponent(item.dataset.name));
+});
+
+async function selSupplier(name){
+  const s=SUPPLIERS.find(x=>x.name===name);
+  document.getElementById('supplier').value=s?s.display:name;
+  setSupplierAcOpen(false);
+  if(!s) return;
+
+  resetMultiBhavState();
+  document.getElementById('customerCard').classList.remove('show');
+  document.getElementById('customerWarning').style.display='none';
+  document.getElementById('prListSection').style.display='none';
+
+  const customer = await getLinkedCustomerForSupplier(name);
+  if(customer){
+    document.getElementById('customerCardName').textContent = customer;
+    document.getElementById('customerCard').classList.add('show');
+    await loadEligiblePRs(name);
+  } else {
+    document.getElementById('customerWarning').style.display='flex';
+  }
+}
+
+function getCurrentSupplierName(){
+  const supplierInput = document.getElementById('supplier')?.value?.trim() || '';
+  const supplierObj = SUPPLIERS.find(s => s.name === supplierInput || s.display === supplierInput);
+  return supplierObj?.name || supplierInput;
+}
+
+// Resolves the Customer linked to a Supplier via a "Party Link" record (Common Party Accounting).
+// Checks both directions since the link may have been created with the Supplier as either
+// primary_party or secondary_party. Returns the linked Customer name, or null if none exists.
+async function getLinkedCustomerForSupplier(supplierName){
+  if(!supplierName) return null;
+  try{
+    const fields = encodeURIComponent(JSON.stringify(['primary_party','primary_role','secondary_party','secondary_role']));
+    let filters = encodeURIComponent(JSON.stringify([['primary_party','=',supplierName]]));
+    let res = await dev1Get(`/api/resource/Party Link?filters=${filters}&fields=${fields}&limit_page_length=1`);
+    let rows = res.data || res.message || [];
+    if(!rows.length){
+      filters = encodeURIComponent(JSON.stringify([['secondary_party','=',supplierName]]));
+      res = await dev1Get(`/api/resource/Party Link?filters=${filters}&fields=${fields}&limit_page_length=1`);
+      rows = res.data || res.message || [];
+    }
+    if(!rows.length) return null;
+    const row = rows[0];
+    if(row.primary_party === supplierName) return row.secondary_role === 'Customer' ? row.secondary_party : null;
+    return row.primary_role === 'Customer' ? row.primary_party : null;
+  }catch(e){
+    console.warn('getLinkedCustomerForSupplier error:', e.message);
+    return null;
+  }
+}
+
+// ══════════════════════════════════════════
+//  ELIGIBLE PURCHASE RECEIPTS (checklist)
+// ══════════════════════════════════════════
+// A PR can have a submitted Purchase Invoice and still be unpaid, so "paid" is judged by the
+// linked invoice(s)' outstanding_amount, not just whether a PI exists. Frappe lets you filter
+// the parent (Purchase Invoice) list by a child-table condition, so this one call gets both the
+// submitted-PI check and each invoice's outstanding_amount in a single query per PR.
+async function getPurchaseInvoiceInfoForPR(prName){
+  if(!prName) return { billed:false, outstanding:0, paid:false };
+  try{
+    const filters = encodeURIComponent(JSON.stringify([
+      ['Purchase Invoice Item', 'purchase_receipt', '=', prName],
+      ['Purchase Invoice', 'docstatus', '=', 1],
+    ]));
+    const fields = encodeURIComponent(JSON.stringify(['name','outstanding_amount']));
+    const res = await dev1Get(`/api/resource/Purchase Invoice?filters=${filters}&fields=${fields}&limit_page_length=20`);
+    const rows = res.data || res.message || [];
+    if(!rows.length) return { billed:false, outstanding:0, paid:false };
+    const outstanding = rows.reduce((s,r)=>s+(parseFloat(r.outstanding_amount)||0),0);
+    return { billed:true, outstanding, paid: outstanding <= 0.01 };
+  }catch(e){
+    console.warn('Failed to check Purchase Invoice info for PR', prName, ':', e.message);
+    return { billed:false, outstanding:0, paid:false };
+  }
+}
+async function getPurchaseInvoiceInfoForPRs(prNames){
+  const results = await Promise.all(prNames.map(async n => ({ n, info: await getPurchaseInvoiceInfoForPR(n) })));
+  const map = new Map();
+  results.forEach(r => map.set(r.n, r.info));
+  return map;
+}
+
+// Pure Wt per PR = sum of each item row's custom_pure_wt (stored on the Purchase Receipt Item),
+// falling back to net_wt x tounch/100 — same formula the Purchase Receipt page itself uses
+// (recalcPureWt) — for older rows saved before custom_pure_wt existed.
+// Pending Amount per PR = each item row's own (amount - billed_amt), summed. billed_amt is a
+// standard ERPNext field maintained automatically the moment a Purchase Invoice links back to
+// this row via purchase_receipt + pr_detail (exactly the link submitMultiBhavCut() creates) —
+// so this reflects partial settlement for free, no separate Purchase Invoice query needed, and
+// stays correct for non-Bhav-Cut invoices against the same PR too.
+// NOTE: querying the "Purchase Receipt Item" child doctype directly (e.g. via filters on
+// `parent in [...]`) hits a PermissionError — child tables aren't independently list-readable
+// unless a role grant explicitly allows it. Reading each PR's full document instead works fine,
+// since child-table rows come back with any doc you already have read permission on (same
+// pattern used by loadBhavRowsFromSelectedPRs below). One request per PR, run in parallel.
+async function getPureWtForPRs(prNames){
+  const map = new Map();
+  prNames.forEach(n => map.set(n, { pureWt: 0, pendingAmount: 0 }));
+  if(!prNames.length) return map;
+  await Promise.all(prNames.map(async name => {
+    try{
+      const res = await dev1Get(`/api/resource/Purchase Receipt/${encodeURIComponent(name)}`);
+      const doc = res.data || res.message || {};
+      const items = doc.items || [];
+      let pureWt = 0, pendingAmount = 0;
+      items.forEach(item => {
+        const storedPureWt = parseFloat(item.custom_pure_wt || 0) || 0;
+        let itemPureWt = storedPureWt;
+        if(itemPureWt <= 0){
+          const netWt  = parseFloat(item.custom_net_weight || 0) || 0;
+          const tounch = parseFloat(item.custom_tounch || 0) || 0;
+          itemPureWt = (netWt > 0 && tounch > 0) ? netWt * (tounch / 100) : 0;
+        }
+        pureWt += itemPureWt;
+        const amount = parseFloat(item.amount || 0) || 0;
+        const billedAmt = parseFloat(item.billed_amt || 0) || 0;
+        pendingAmount += Math.max(amount - billedAmt, 0);
+      });
+      map.set(name, { pureWt, pendingAmount });
+    }catch(e){
+      console.warn('Failed to compute Pure Wt / Pending Amount for PR', name, ':', e.message);
+    }
+  }));
+  return map;
+}
+
+async function loadEligiblePRs(supplierName){
+  const section = document.getElementById('prListSection');
+  const tbody = document.getElementById('prListTbody');
+  section.style.display='';
+  tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:14px;color:var(--text-muted)">Loading…</td></tr>';
+  document.getElementById('prHiddenNote').textContent='';
+  try{
+    const filters = encodeURIComponent(JSON.stringify([["docstatus","=",1],["supplier","=",supplierName],["status","!=","Closed"]]));
+    const fields = encodeURIComponent(JSON.stringify(["name","posting_date","grand_total","status"]));
+    const res = await dev1Get(`/api/resource/Purchase Receipt?filters=${filters}&fields=${fields}&order_by=posting_date desc&limit_page_length=200`);
+    const all = res.data || res.message || [];
+    const invoiceInfo = await getPurchaseInvoiceInfoForPRs(all.map(r=>r.name));
+    // Show any PR that isn't fully paid yet — including ones with no Purchase Invoice
+    // created at all (getPurchaseInvoiceInfoForPR already returns paid:false for those, so
+    // they qualify here too, same as invoiced-but-outstanding ones). Only fully-paid PRs
+    // are excluded — this now also covers PRs already settled via a submitted Bhav Cut,
+    // since that creates a real linked Purchase Invoice the same check already looks for.
+    const shown = all.filter(r => !invoiceInfo.get(r.name)?.paid);
+    const hiddenCount = all.length - shown.length;
+    PR_INVOICE_INFO = invoiceInfo;
+    PR_PURE_WT = await getPureWtForPRs(shown.map(r=>r.name));
+    renderPrChecklist(shown, hiddenCount);
+  }catch(e){
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:14px;color:var(--pill-red-txt)">Failed to load Purchase Receipts: ${esc(e.message)}</td></tr>`;
+  }
+  updateLoadBtnState();
+}
+
+function renderPrChecklist(rows, hiddenCount){
+  const tbody = document.getElementById('prListTbody');
+  const tfoot = document.getElementById('prListTfoot');
+  rows.forEach(pr => PR_GRAND_TOTALS.set(pr.name, parseFloat(pr.grand_total) || 0));
+  if(!rows.length){
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:14px;color:var(--text-muted)">No eligible Purchase Receipts found for this supplier</td></tr>';
+    if(tfoot) tfoot.style.display='none';
+  } else {
+    tbody.innerHTML = rows.map(pr=>{
+      const info = PR_INVOICE_INFO.get(pr.name) || { billed:false, outstanding:0 };
+      const badge = info.billed
+        ? `<span class="cd-chip" style="background:var(--pill-amber-bg);color:var(--pill-amber-txt)" title="Outstanding amount on the linked Purchase Invoice(s)">Unpaid · ${info.outstanding.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2})}</span>`
+        : `<span class="cd-chip" style="background:var(--pill-blue-bg);color:var(--pill-blue-txt)" title="No Purchase Invoice created yet">Not Invoiced</span>`;
+      const amt = (parseFloat(pr.grand_total)||0).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+      const prInfo = PR_PURE_WT.get(pr.name) || { pureWt:0, pendingAmount:0 };
+      const pureWt = prInfo.pureWt.toLocaleString('en-IN',{minimumFractionDigits:3,maximumFractionDigits:3});
+      const pending = prInfo.pendingAmount.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+      return `<tr>
+        <td style="text-align:center"><input type="checkbox" class="pr-chk" data-name="${esc(pr.name)}" onchange="rebuildSelectedSet()"></td>
+        <td>${esc(pr.name)}</td>
+        <td>${esc(pr.posting_date||'')}</td>
+        <td style="text-align:right">${amt}</td>
+        <td style="text-align:right">${pureWt}</td>
+        <td style="text-align:right" title="Un-invoiced amount remaining on this Purchase Receipt">${pending}</td>
+        <td>${badge}</td>
+      </tr>`;
+    }).join('');
+    const totAmt     = rows.reduce((s,pr)=>s+(parseFloat(pr.grand_total)||0),0);
+    const totPureWt  = rows.reduce((s,pr)=>s+(PR_PURE_WT.get(pr.name)?.pureWt||0),0);
+    const totPending = rows.reduce((s,pr)=>s+(PR_PURE_WT.get(pr.name)?.pendingAmount||0),0);
+    document.getElementById('prListTotAmt').textContent     = totAmt.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+    document.getElementById('prListTotPureWt').textContent  = totPureWt.toLocaleString('en-IN',{minimumFractionDigits:3,maximumFractionDigits:3});
+    document.getElementById('prListTotPending').textContent = totPending.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+    if(tfoot) tfoot.style.display='';
+  }
+  document.getElementById('prSelAll').checked=false;
+  rebuildSelectedSet();
+}
+
+function toggleAllPRs(chk){
+  document.querySelectorAll('.pr-chk:not(:disabled)').forEach(c=>c.checked=chk.checked);
+  rebuildSelectedSet();
+}
+function rebuildSelectedSet(){
+  SELECTED_PRS = new Set([...document.querySelectorAll('.pr-chk:checked')].map(c=>c.dataset.name));
+  updateLoadBtnState();
+  updateBhavRemainingPayable();
+}
+function updateLoadBtnState(){
+  const btn = document.getElementById('loadPrsBtn');
+  if(btn) btn.disabled = SELECTED_PRS.size===0 || bhavCutFrozen;
+}
+
+// ══════════════════════════════════════════
+//  BHAV CUT BREAKUP
+// ══════════════════════════════════════════
+function nearestPurity(val){
+  if(!val) return '';
+  const opts = [99.9, 92.0, 91.6, 83.4, 75.0, 58.5];
+  return String(opts.reduce((best, v) => Math.abs(v - val) < Math.abs(best - val) ? v : best));
+}
+const BHAV_PURITY_OPTIONS = [
+  { value:'', label:'- Select -' },
+  { value:'99.9', label:'99.9' },
+  { value:'92.0', label:'92.0' },
+  { value:'91.6', label:'91.6' },
+  { value:'83.4', label:'83.4' },
+  { value:'75.0', label:'75.0' },
+  { value:'58.5', label:'58.5' },
+];
+function bhavPurityOptions(selected){
+  return BHAV_PURITY_OPTIONS.map(o =>
+    `<option value="${o.value}"${o.value===selected?' selected':''}>${o.label}</option>`
+  ).join('');
+}
+
+function bhavItemAc(inp, rowId){
+  const q = inp.value.toLowerCase().trim();
+  const list = document.getElementById('bhav-iac-' + rowId);
+  if(!list) return;
+  if(!q){ list.classList.remove('open'); return; }
+  const results = _bhavMetalItems.filter(i =>
+    i.code.toLowerCase().includes(q) || i.name.toLowerCase().includes(q) || (i._search||'').includes(q)
+  ).slice(0, 10);
+  list.innerHTML = results.length
+    ? results.map(it =>
+        `<div class="cd-ac-item" data-bhavrowid="${rowId}" data-code="${esc(it.code)}">
+           <div class="main">${esc(it.code)}</div>
+           <div class="sub">${esc(it.name)}${it.rate ? ' · ' + it.rate.toLocaleString('en-IN') : ''}</div>
+         </div>`
+      ).join('')
+    : '<div class="cd-ac-empty">No item found</div>';
+  list.classList.add('open');
+  list.querySelectorAll('.cd-ac-item').forEach(el=>{
+    el.addEventListener('mousedown', ev=>{
+      ev.preventDefault();
+      fillBhavItem(rowId, el.dataset.code);
+    });
+  });
+}
+function closeBhavAc(rowId){
+  document.getElementById('bhav-iac-' + rowId)?.classList.remove('open');
+}
+function fillBhavItem(rowId, itemCode){
+  if(rowId === 'bhav-dlg'){
+    const itemEl = document.getElementById('bdlg-item');
+    if(itemEl) itemEl.value = itemCode;
+    // If the item picker resolved a variant, its attribute values might include a valid
+    // settlement purity (e.g. "999" for a Purity attribute) — carry it straight into the
+    // entry dialog so the user doesn't have to re-pick it.
+    const validPurities = BHAV_PURITY_OPTIONS.map(o => o.value).filter(Boolean);
+    const attrValues = Object.values(_bhavDlgAttrVals || {});
+    const matchedPurity = attrValues.find(v => validPurities.includes(String(v)));
+    if(matchedPurity){
+      const purSel = document.getElementById('bdlg-purity');
+      const inpSel = document.getElementById('bdlg-input-pur');
+      if(purSel) purSel.value = matchedPurity;
+      if(inpSel) inpSel.value = matchedPurity;
+    }
+    calcBhavDlg();
+    return;
+  }
+  const tr = document.getElementById(rowId); if(!tr) return;
+  const inp = tr.querySelector('[data-b="item"]');
+  if(inp) inp.value = itemCode;
+  closeBhavAc(rowId);
+}
+
+// ══════════════════════════════════════════════════════
+// BHAV CUT ENTRY DIALOG — same form-based single-row entry as Purchase Receipt's own Bhav
+// Cut dialog (openBhavEntryDialog/calcBhavDlg/saveBhavEntryDialog there), so filling in one
+// settlement here behaves identically. "Add Row Manually" opens this instead of a blank
+// inline table row.
+// ══════════════════════════════════════════════════════
+function openBhavEntryDialog(){
+  document.getElementById('bdlg-item').value = '';
+  document.getElementById('bdlg-purity').innerHTML = bhavPurityOptions('99.9');
+  document.getElementById('bdlg-input-wt').value = '';
+  document.getElementById('bdlg-input-pur').innerHTML = bhavPurityOptions('99.9');
+  document.getElementById('bdlg-pure-gold').value = '';
+  document.getElementById('bdlg-pg-pur').value = '99.5';
+  document.getElementById('bdlg-pg-wt').value = '';
+  document.getElementById('bdlg-gold-rate').value = METAL_RATES['Gold'] || '';
+  document.getElementById('bdlg-labour-type').value = '';
+  document.getElementById('bdlg-labour-val').value = '';
+  document.getElementById('bdlg-labour-gold').value = '';
+  document.getElementById('bdlg-final-qty').value = '';
+  document.getElementById('bdlg-amount').value = '';
+  document.getElementById('bdlg-remarks').value = '';
+  document.getElementById('bdlg-settlement-amt').value = '';
+
+  calcBhavDlg();
+  document.getElementById('bhavEntryOverlay').classList.add('open');
+  document.getElementById('bhavEntryDialog').classList.add('open');
+  setTimeout(() => document.getElementById('bdlg-item')?.focus(), 80);
+}
+function closeBhavEntryDialog(){
+  document.getElementById('bhavEntryOverlay').classList.remove('open');
+  document.getElementById('bhavEntryDialog').classList.remove('open');
+}
+// Settlement Purity always drives Input Purity (unconditional overwrite, not just when
+// empty) — this is what makes changing Settlement Purity actually affect the calculation.
+function bhavDlgOnPurityChange(){
+  const purVal = document.getElementById('bdlg-purity').value;
+  const inpEl = document.getElementById('bdlg-input-pur');
+  if(inpEl) inpEl.value = purVal;
+  calcBhavDlg();
+}
+function calcBhavDlg(){
+  const g = id => parseFloat(document.getElementById(id)?.value || 0) || 0;
+  const inputWt = g('bdlg-input-wt');
+  const inputPur = g('bdlg-input-pur');
+  const pgPur = g('bdlg-pg-pur') || 99.5;
+  const goldRate = g('bdlg-gold-rate');
+  const labType = document.getElementById('bdlg-labour-type')?.value || '';
+  const labVal = g('bdlg-labour-val');
+  const settlementAmt = g('bdlg-settlement-amt');
+
+  const pureGold = inputWt * (inputPur / 100);
+  const pgWt = pgPur > 0 ? pureGold / (pgPur / 100) : 0;
+  let labGold = 0;
+  if(labType === 'Percentage'){ labGold = inputWt * (labVal / 100); }
+  else if(labType === 'Per Gram'){ const labAmt = inputWt * labVal; labGold = goldRate > 0 ? labAmt / goldRate : 0; }
+
+  // Partial Bhav Cut: a Settlement Amount overrides the weight-derived Final Qty/Amount —
+  // PG Qty = Amount / Gold Rate — instead of deriving them from Input Weight/Purity.
+  let finalQty, amount;
+  if(settlementAmt > 0 && goldRate > 0){
+    finalQty = settlementAmt / goldRate;
+    amount = settlementAmt;
+  } else {
+    finalQty = pgWt + labGold;
+    amount = finalQty * goldRate;
+  }
+
+  const set = (id, v, dec=3) => { const el = document.getElementById(id); if(el) el.value = v > 0 ? v.toFixed(dec) : ''; };
+  set('bdlg-pure-gold', pureGold);
+  set('bdlg-pg-wt', pgWt);
+  set('bdlg-labour-gold', labGold);
+  set('bdlg-final-qty', finalQty);
+  set('bdlg-amount', amount, 2);
+}
+function saveBhavEntryDialog(){
+  const g = id => parseFloat(document.getElementById(id)?.value || 0) || 0;
+  const itemCode = document.getElementById('bdlg-item')?.value?.trim() || '';
+  if(!itemCode){ showToast('Select a Settlement Item first', 'error'); return; }
+  const data = {
+    settlement_item: itemCode,
+    settlement_purity: document.getElementById('bdlg-purity')?.value || '',
+    input_weight: g('bdlg-input-wt'),
+    input_purity: g('bdlg-input-pur'),
+    pure_gold_weight: g('bdlg-pure-gold'),
+    pg_purity: g('bdlg-pg-pur') || 99.5,
+    pg_weight: g('bdlg-pg-wt'),
+    gold_rate: g('bdlg-gold-rate'),
+    labour_type: document.getElementById('bdlg-labour-type')?.value || '',
+    labour_value: g('bdlg-labour-val'),
+    labour_gold_equivalent: g('bdlg-labour-gold'),
+    final_settlement_qty: g('bdlg-final-qty'),
+    amount: g('bdlg-amount'),
+    remarks: document.getElementById('bdlg-remarks')?.value?.trim() || '',
+  };
+  addBhavRow(data);
+  closeBhavEntryDialog();
+  showToast('Bhav Cut row added', 'success');
+  updateBhavTotals();
+}
+
+// ══════════════════════════════════════════════════════
+// SETTLEMENT ITEM PICKER — Template + Attribute pill dialog, same mechanism as Purchase
+// Receipt's own Bhav Cut item picker (openBhavItemDialog/initDialog there). This page is
+// always in the "bhav" context, so there's no Type-selection step — it goes straight to
+// Gold/Silver templates, same as loadBhavTemplateRow does over there.
+// ══════════════════════════════════════════════════════
+function getCsrf(){ if(typeof frappe!=='undefined'&&frappe.csrf_token) return frappe.csrf_token; const m=document.cookie.match(/csrf_token=([^;]+)/); return m?m[1]:''; }
+
+let _bhavPickerRowId = null;
+let _bhavDlgSelected = { template:null };
+let _bhavDlgAttrVals = {};
+let _bhavDlgAttrs = [];
+let _bhavMatchedItem = null;
+
+function openBhavItemPicker(rowId){
+  _bhavPickerRowId = rowId;
+  _bhavDlgSelected = { template:null }; _bhavDlgAttrVals = {}; _bhavDlgAttrs = []; _bhavMatchedItem = null;
+  clearBhavDialogError(); hideBhavDialogResult();
+  document.getElementById('bhavItemPickerDialog').classList.add('open');
+  document.getElementById('bhavItemPickerOverlay').classList.add('open');
+  initBhavItemPicker();
+}
+function closeBhavItemPicker(){
+  document.getElementById('bhavItemPickerDialog').classList.remove('open');
+  document.getElementById('bhavItemPickerOverlay').classList.remove('open');
+  _bhavPickerRowId = null;
+}
+function getBhavRoot(){ return document.getElementById('bhavRmDialogRoot'); }
+function makeBhavRow(id,labelText,content){ const row=document.createElement('div'); row.className='rm-row'; if(id) row.id=id; const label=document.createElement('div'); label.className='rm-row-label'; label.textContent=labelText; row.appendChild(label); row.appendChild(content); return row; }
+function bhavLoadingEl(text='Loading…'){ const el=document.createElement('div'); el.className='rm-loading'; el.innerHTML=`<div class="rm-spinner"></div><span>${text}</span>`; return el; }
+function makeBhavPillsWithAbbr(entries,selectedAbbr,onSelect){
+  const wrap=document.createElement('div'); wrap.className='rm-pills';
+  entries.forEach(entry=>{
+    const pill=document.createElement('div');
+    pill.className='rm-pill'+(entry.abbr===selectedAbbr?' selected':'');
+    pill.textContent=entry.value; pill.title=entry.abbr;
+    pill.addEventListener('click',()=>{ wrap.querySelectorAll('.rm-pill').forEach(p=>p.classList.remove('selected')); pill.classList.add('selected'); onSelect(entry.abbr,entry.value); });
+    wrap.appendChild(pill);
+  });
+  return wrap;
+}
+async function bhavGetChildGroups(parentGroup){
+  try{
+    const headers=getDevHeaders(); if(!headers) return [];
+    const fields=encodeURIComponent(JSON.stringify(['name']));
+    const filters=encodeURIComponent(JSON.stringify([['Item Group','parent_item_group','=',parentGroup]]));
+    const res=await fetch(`${cdGetInstanceUrl()}/api/resource/Item Group?fields=${fields}&filters=${filters}&limit_page_length=100`,{headers});
+    if(!res.ok) return [];
+    const d=await res.json(); return (d?.data||d?.message||[]).map(g=>g.name).filter(Boolean);
+  }catch(e){ return []; }
+}
+async function bhavGetAllDescendantGroups(parentGroup){
+  const allGroups=[];
+  async function fetchChildren(group){ const children=await bhavGetChildGroups(group); await Promise.all(children.map(async child=>{ allGroups.push(child); await fetchChildren(child); })); }
+  await fetchChildren(parentGroup); return allGroups;
+}
+async function bhavFetchTemplatesByGroups(groupNames){
+  if(!groupNames.length) return [];
+  try{
+    const headers=getDevHeaders(); if(!headers) return [];
+    const filters=[['Item','disabled','=',0],['Item','variant_of','=',''],['Item','item_group','in',groupNames]];
+    const fields=['name','item_name','item_group','has_variants'];
+    const url=`${cdGetInstanceUrl()}/api/resource/Item?fields=${encodeURIComponent(JSON.stringify(fields))}&filters=${encodeURIComponent(JSON.stringify(filters))}&limit_page_length=500`;
+    const res=await fetch(url,{headers}); if(!res.ok) return [];
+    const d=await res.json(); return d?.data||d?.message||[];
+  }catch(e){ return []; }
+}
+async function initBhavItemPicker(){
+  const root=getBhavRoot(); root.innerHTML='';
+  const content=bhavLoadingEl('Loading templates…'); root.appendChild(makeBhavRow('bhav-rm-row-template','Template',content));
+  try{
+    const groups=['Gold','Silver'];
+    const descendantLists=await Promise.all(groups.map(g=>bhavGetAllDescendantGroups(g)));
+    const groupsToSearch=[...groups,...descendantLists.flat()].filter(g=>typeof g==='string'&&g.trim());
+    const templates=await bhavFetchTemplatesByGroups(groupsToSearch);
+    if(!templates.length){ content.replaceWith(Object.assign(document.createElement('div'),{className:'cd-ac-empty',textContent:'No Gold/Silver templates found'})); return; }
+    const templateMeta={};
+    templates.forEach(t=>{ templateMeta[t.name]={item_name:t.item_name||t.name,has_variants:t.has_variants}; });
+    const entries=templates.map(t=>({value:t.item_name||t.name,abbr:t.name}));
+    const pills=makeBhavPillsWithAbbr(entries,_bhavDlgSelected.template,(abbr,value)=>{
+      _bhavDlgSelected.template=abbr; _bhavDlgAttrVals={}; _bhavDlgAttrs=[]; _bhavMatchedItem=null; hideBhavDialogResult(); clearBhavDialogError();
+      root.querySelectorAll('[id^="bhav-rm-row-attr"]').forEach(r=>r.remove());
+      const meta=templateMeta[abbr]||{};
+      if(meta.has_variants){ loadBhavAttrRows(root,abbr); }
+      else{ _bhavMatchedItem={item_code:abbr,item_name:meta.item_name||abbr}; showBhavDialogResult(_bhavMatchedItem); }
+    });
+    content.replaceWith(pills);
+  }catch(e){ content.replaceWith(Object.assign(document.createElement('div'),{className:'cd-ac-empty',textContent:'Failed to load templates'})); }
+}
+async function loadBhavAttrRows(root,templateItemCode){
+  const loadRow=document.createElement('div'); loadRow.className='rm-row'; loadRow.id='bhav-rm-row-attr-loading';
+  loadRow.appendChild(bhavLoadingEl('Loading attributes…')); root.appendChild(loadRow);
+  try{
+    const form=new FormData(); form.append('template_name',templateItemCode);
+    const res=await fetch('/api/method/caratdesk_get_template_attributes',{method:'POST',credentials:'same-origin',headers:{'X-Frappe-CSRF-Token':getCsrf()},body:form});
+    const d=await res.json(); loadRow.remove();
+    const attrs=d.message?.attributes||[]; if(!attrs.length) return;
+    _bhavDlgAttrs=attrs;
+    _bhavDlgAttrs.forEach((attr,i)=>{
+      const entries=(attr.values||[]).map(v=>typeof v==='object'?v:{value:v,abbr:v});
+      const pills=makeBhavPillsWithAbbr(entries,null,(abbr,value)=>{ _bhavDlgAttrVals[attr.attribute]=abbr; hideBhavDialogResult(); clearBhavDialogError(); if(_bhavDlgAttrs.every(a=>_bhavDlgAttrVals[a.attribute])) bhavAutoSearch(); });
+      root.appendChild(makeBhavRow('bhav-rm-row-attr-'+i,attr.label||attr.attribute,pills));
+    });
+  }catch(e){ loadRow.remove(); }
+}
+async function bhavAutoSearch(){
+  hideBhavDialogResult(); clearBhavDialogError();
+  const btn=document.getElementById('bhav-dlg-add-btn'); btn.disabled=true; btn.textContent='Searching…';
+  try{
+    const form=new FormData(); form.append('template_item_code',_bhavDlgSelected.template); form.append('attributes',JSON.stringify(_bhavDlgAttrVals));
+    const res=await fetch('/api/method/caratdesk_find_item_variant',{method:'POST',credentials:'same-origin',headers:{'X-Frappe-CSRF-Token':getCsrf()},body:form});
+    const d=await res.json();
+    if(!d.message){ showBhavDialogError('No item found. Check abbreviations or item setup.'); _bhavMatchedItem=null; }
+    else{ _bhavMatchedItem=d.message; showBhavDialogResult(d.message); }
+  }catch(e){ showBhavDialogError('Search failed.'); }
+  finally{ btn.disabled=false; btn.innerHTML='<svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Item'; }
+}
+function addBhavItemFromPicker(){
+  if(!_bhavMatchedItem){ showBhavDialogError('Select all attributes - item will be found automatically.'); return; }
+  if(!_bhavPickerRowId) return;
+  fillBhavItem(_bhavPickerRowId, _bhavMatchedItem.item_code);
+  closeBhavItemPicker();
+  showToast(_bhavMatchedItem.item_code+' selected','success');
+}
+function showBhavDialogResult(item){ document.getElementById('bhav-dlg-result-code').textContent=item.item_code; document.getElementById('bhav-dlg-result-name').textContent=item.item_name; document.getElementById('bhav-dlg-result').style.display='flex'; }
+function hideBhavDialogResult(){ const el=document.getElementById('bhav-dlg-result'); if(el) el.style.display='none'; _bhavMatchedItem=null; }
+function showBhavDialogError(msg){ const el=document.getElementById('bhav-dlg-error'); if(el){ el.textContent=msg; el.style.display='block'; } }
+function clearBhavDialogError(){ const el=document.getElementById('bhav-dlg-error'); if(el){ el.textContent=''; el.style.display='none'; } }
+
+function addBhavRow(data){
+  bhavRowCount++;
+  const n = bhavRowCount;
+  const d = data || {};
+  const goldRate = METAL_RATES['Gold'] || 0;
+  const tr = document.createElement('tr');
+  tr.id = 'bhav-r' + n;
+  tr.innerHTML = `
+    <td style="text-align:center"><input type="checkbox" data-b="select" ${d.select===0?'':'checked'} onchange="updateBhavTotals()"></td>
+    <td>${n}</td>
+    <td><input type="text" data-b="source_pr" value="${esc(d.source_pr||'')}" placeholder="Manual"></td>
+    <td style="display:none"><input value="${esc(d.pr_item_detail||'')}" data-b="pr_item_detail"></td>
+    <td style="padding:0 4px">
+      <div style="display:flex;align-items:center;gap:3px">
+        <button type="button" class="cd-pick-btn" onclick="openBhavItemPicker('bhav-r${n}')" title="Browse items">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </button>
+        <div class="cd-ac" style="position:relative;flex:1;min-width:0">
+          <input data-b="item" value="${esc(d.settlement_item||'')}" placeholder="Item Code"
+            autocomplete="off" style="width:100%;height:26px;border:none;outline:none;padding:0 4px;font-size:11.5px;background:transparent;color:var(--text-primary);font-family:'DM Sans',sans-serif"
+            oninput="bhavItemAc(this,'bhav-r${n}')" onblur="setTimeout(()=>closeBhavAc('bhav-r${n}'),180)"/>
+          <div class="cd-ac-list" id="bhav-iac-bhav-r${n}" style="min-width:220px"></div>
+        </div>
+      </div>
+    </td>
+    <td><select data-b="purity" onchange="bhavOnPurityChange(this)">${bhavPurityOptions(d.settlement_purity||'')}</select></td>
+    <td><input type="number" data-b="input_wt" value="${d.input_weight||''}" step="0.001" oninput="calcBhavRow(this.closest('tr'))"></td>
+    <td><input type="number" data-b="input_pur" value="${d.input_purity||''}" step="0.001" oninput="calcBhavRow(this.closest('tr'))"></td>
+    <td><input type="number" data-b="pure_gold" value="${d.pure_gold_weight||''}" step="0.001" readonly></td>
+    <td><input type="number" data-b="pg_pur" value="${d.pg_purity||'99.5'}" step="0.001" oninput="calcBhavRow(this.closest('tr'))"></td>
+    <td><input type="number" data-b="pg_wt" value="${d.pg_weight||''}" step="0.001" readonly></td>
+    <td><input type="number" data-b="gold_rate" value="${d.gold_rate||goldRate||''}" step="0.01" oninput="calcBhavRow(this.closest('tr'))"></td>
+    <td>
+      <select data-b="labour_type" onchange="calcBhavRow(this.closest('tr'))">
+        <option value="">- None -</option>
+        <option value="Percentage"${(d.labour_type==='Percentage')?' selected':''}>Percentage</option>
+        <option value="Per Gram"${(d.labour_type==='Per Gram')?' selected':''}>Per Gram</option>
+      </select>
+    </td>
+    <td><input type="number" data-b="labour_val" value="${d.labour_value||''}" step="0.01" oninput="calcBhavRow(this.closest('tr'))"></td>
+    <td><input type="number" data-b="labour_gold" value="${d.labour_gold_equivalent||''}" step="0.001" readonly></td>
+    <td><input type="number" data-b="final_qty" value="${d.final_settlement_qty||''}" step="0.001" readonly></td>
+    <td><input type="number" data-b="amount" value="${d.amount||''}" step="0.01" readonly></td>
+    <td><input type="text" data-b="remarks" value="${esc(d.remarks||'')}" placeholder="Optional notes"></td>
+    <td style="text-align:center">
+      <button class="cd-del-btn" onclick="delBhavRow(this)" title="Remove row">
+        <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
+      </button>
+    </td>
+  `;
+  document.getElementById('bhavTbody').appendChild(tr);
+  if(data) calcBhavRow(tr);
+}
+
+// Settlement Purity always drives Input Purity (unconditional overwrite, matching the Bhav
+// Cut entry dialog's bhavDlgOnPurityChange) — otherwise changing it after the row already has
+// an Input Purity value silently does nothing to the calculation.
+function bhavOnPurityChange(sel){
+  const tr = sel.closest('tr');
+  const purVal = sel.value;
+  const purPct = parseFloat(purVal) || 0;
+  if(purPct){
+    const inpEl = tr.querySelector('[data-b="input_pur"]');
+    if(inpEl) inpEl.value = purPct;
+  }
+  calcBhavRow(tr);
+}
+
+function calcBhavRow(tr){
+  const g = k => parseFloat(tr.querySelector(`[data-b="${k}"]`)?.value || 0) || 0;
+
+  const inputWt  = g('input_wt');
+  const inputPur = g('input_pur');
+  const pgPur    = g('pg_pur') || 99.5;
+  const goldRate = g('gold_rate');
+  const labType  = tr.querySelector('[data-b="labour_type"]')?.value || '';
+  const labVal   = g('labour_val');
+
+  const pureGold = inputWt * (inputPur / 100);
+  const pgWt = pgPur > 0 ? pureGold / (pgPur / 100) : 0;
+
+  let labGold = 0;
+  if(labType === 'Percentage'){
+    labGold = inputWt * (labVal / 100);
+  } else if(labType === 'Per Gram'){
+    const labAmt = inputWt * labVal;
+    labGold = goldRate > 0 ? labAmt / goldRate : 0;
+  }
+
+  const finalQty = pgWt + labGold;
+  const amount   = finalQty * goldRate;
+
+  const set = (k, v) => {
+    const el = tr.querySelector(`[data-b="${k}"]`);
+    if(el) el.value = v > 0 ? v.toFixed(3) : '';
+  };
+  const setAmt = (k, v) => {
+    const el = tr.querySelector(`[data-b="${k}"]`);
+    if(el) el.value = v > 0 ? v.toFixed(2) : '';
+  };
+
+  set('pure_gold',  pureGold);
+  set('pg_wt',      pgWt);
+  set('labour_gold', labGold);
+  set('final_qty',  finalQty);
+  setAmt('amount',  amount);
+
+  updateBhavTotals();
+}
+
+function updateBhavTotals(){
+  let totQty = 0, totAmt = 0;
+  document.querySelectorAll('#bhavTbody tr').forEach(tr => {
+    totQty += parseFloat(tr.querySelector('[data-b="final_qty"]')?.value || 0) || 0;
+    totAmt += parseFloat(tr.querySelector('[data-b="amount"]')?.value || 0) || 0;
+  });
+  const fmtAmt = v => '' + v.toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2});
+  document.getElementById('bhavTotQty').textContent     = totQty.toFixed(3);
+  document.getElementById('bhavTotAmt').textContent     = fmtAmt(totAmt);
+  document.getElementById('bhavSummaryQty').textContent = totQty.toFixed(3);
+  document.getElementById('bhavSummaryAmt').textContent = fmtAmt(totAmt);
+  updateBhavRemainingPayable();
+}
+function toggleAllBhavSelect(sel){
+  document.querySelectorAll('#bhavTbody [data-b="select"]').forEach(cb => cb.checked = sel.checked);
+  updateBhavTotals();
+}
+// "Select" governs which rows are actually being settled right now — Create Sales Order only
+// picks up checked rows, and Remaining Payable is Total Payable (sum of selected PRs' grand
+// totals) minus the sum of checked breakup rows' Amount.
+function sumSelectedBhavAmount(){
+  let sum = 0;
+  document.querySelectorAll('#bhavTbody tr').forEach(tr => {
+    if(!tr.querySelector('[data-b="select"]')?.checked) return;
+    sum += parseFloat(tr.querySelector('[data-b="amount"]')?.value || 0) || 0;
+  });
+  return sum;
+}
+function updateBhavRemainingPayable(){
+  const el = document.getElementById('bhavRemainingPayable');
+  if(!el) return;
+  let totalPayable = 0;
+  SELECTED_PRS.forEach(pr => { totalPayable += PR_GRAND_TOTALS.get(pr) || 0; });
+  const settled = sumSelectedBhavAmount();
+  const remaining = Math.max(0, totalPayable - settled);
+  const fmtAmt = v => '₹' + Math.round(v||0).toLocaleString('en-IN');
+  el.innerHTML = `Total Payable (selected PRs): <strong>${fmtAmt(totalPayable)}</strong> &nbsp;·&nbsp; Settled via Bhav Cut: <strong>${fmtAmt(settled)}</strong> &nbsp;·&nbsp; Remaining Payable: <strong>${fmtAmt(remaining)}</strong>`;
+}
+
+function delBhavRow(btn){
+  btn.closest('tr').remove();
+  updateBhavTotals();
+}
+
+// Loads FG-item rows from every checked Purchase Receipt, appending them into the shared
+// breakup table so multiple PRs consolidate into one Bhav Cut. Each row is tagged with its
+// source PR (data-b="source_pr") so Save/Create-SO can trace it back and PRs with no
+// eligible (Net Weight > 0) items don't block the rest of the batch from loading.
+// Tracks PRs already loaded into the breakup table so clicking "Load" again (with the same
+// PRs still checked) doesn't re-append duplicate rows for them.
+let LOADED_BHAV_PRS = new Set();
+
+async function loadBhavRowsFromSelectedPRs(){
+  if(!SELECTED_PRS.size){ showToast('Select at least one Purchase Receipt','error'); return; }
+  const prNames = [...SELECTED_PRS].filter(pr => !LOADED_BHAV_PRS.has(pr));
+  if(!prNames.length){ showToast('Selected Purchase Receipt(s) are already loaded','info'); return; }
+  showToast('Loading items from '+prNames.length+' Purchase Receipt(s)…','info');
+
+  const results = await Promise.all(prNames.map(async prName => {
+    try{
+      const res = await dev1Get(`/api/resource/Purchase Receipt/${encodeURIComponent(prName)}`);
+      const doc = res.data || res.message || {};
+      const items = doc.items || [];
+      const rows = items.map(it => ({
+        itemCode: it.item_code,
+        netWt: parseFloat(it.custom_net_weight || it.net_weight || 0) || 0,
+        tounch: parseFloat(it.custom_tounch || 0) || 0,
+        prItemDetail: it.name,
+      })).filter(r => r.netWt > 0);
+      return { prName, rows };
+    }catch(e){
+      console.warn('Failed to load PR', prName, e.message);
+      return { prName, rows: [], failed: true };
+    }
+  }));
+
+  const goldRate = METAL_RATES['Gold'] || 0;
+  let loadedCount = 0;
+  const emptyPrs = [], failedPrs = [];
+  results.forEach(({ prName, rows, failed }) => {
+    if(failed){ failedPrs.push(prName); return; }
+    if(!rows.length){ emptyPrs.push(prName); return; }
+    rows.forEach(r => {
+      const purity = nearestPurity(r.tounch);
+      addBhavRow({
+        settlement_purity: purity,
+        input_weight: r.netWt,
+        input_purity: r.tounch || (purity ? parseFloat(purity) : ''),
+        pg_purity: 99.5,
+        gold_rate: goldRate,
+        remarks: r.itemCode,
+        source_pr: prName,
+        pr_item_detail: r.prItemDetail,
+      });
+      loadedCount++;
+    });
+    LOADED_BHAV_PRS.add(prName);
+  });
+  updateBhavTotals();
+
+  const okCount = prNames.length - emptyPrs.length - failedPrs.length;
+  let msg = loadedCount ? `${loadedCount} row(s) loaded from ${okCount} Purchase Receipt(s)` : 'No FG items with Net Weight found';
+  if(emptyPrs.length) msg += `; no eligible items in: ${emptyPrs.join(', ')}`;
+  if(failedPrs.length) msg += `; failed to load: ${failedPrs.join(', ')}`;
+  showToast(msg, loadedCount ? 'success' : 'error');
+}
+
+function buildMultiBhavCutDetailRows(){
+  const rows = [];
+  document.querySelectorAll('#bhavTbody tr').forEach((tr, idx) => {
+    const g = k => tr.querySelector(`[data-b="${k}"]`)?.value?.trim() || '';
+    const gf = k => parseFloat(g(k)) || 0;
+    rows.push({
+      doctype: 'Bhav Cut Details',
+      idx: idx + 1,
+      purchase_receipt:       g('source_pr'),
+      pr_item_detail:         g('pr_item_detail'),
+      settlement_item:        g('item'),
+      settlement_purity:      g('purity'),
+      input_weight:           gf('input_wt'),
+      input_purity:           gf('input_pur'),
+      pure_gold_weight:       gf('pure_gold'),
+      pg_purity:              gf('pg_pur'),
+      pg_weight:              gf('pg_wt'),
+      gold_rate:              gf('gold_rate'),
+      labour_type:            g('labour_type'),
+      labour_value:           gf('labour_val'),
+      labour_gold_equivalent: gf('labour_gold'),
+      final_settlement_qty:   gf('final_qty'),
+      amount:                 gf('amount'),
+      remarks:                g('remarks'),
+      select:                 tr.querySelector('[data-b="select"]')?.checked ? 1 : 0,
+    });
+  });
+  return rows;
+}
+
+async function saveMultiBhavCut(){
+  const supplierName = getCurrentSupplierName();
+  if(!supplierName){ showToast('Please select a supplier first','error'); return; }
+  const rows = buildMultiBhavCutDetailRows();
+  if(!rows.length){ showToast('Add at least one Bhav Cut row before saving','error'); return; }
+
+  const totalAmount = rows.reduce((s,r)=>s+(r.amount||0),0);
+  const payload = {
+    doctype: 'Multiple Bhav Cut',
+    date: document.getElementById('bhavDate')?.value || new Date().toISOString().slice(0,10),
+    supplier: supplierName,
+    branch: document.getElementById('branch')?.value || '',
+    amount: totalAmount,
+    bhav_cut_details: rows,
+  };
+
+  try{
+    showToast(window.currentMultiBhavCutName ? 'Updating Bhav Cut…' : 'Saving Bhav Cut…','info');
+    let name;
+    if(window.currentMultiBhavCutName){
+      await dev1Put('/api/resource/Multiple Bhav Cut/'+encodeURIComponent(window.currentMultiBhavCutName), payload);
+      name = window.currentMultiBhavCutName;
+    } else {
+      const res = await dev1Post('/api/resource/Multiple Bhav Cut', payload);
+      name = res?.data?.name || res?.name;
+      window.currentMultiBhavCutName = name;
+      // Back-fill the URL so a refresh from here on reopens this same doc in edit mode,
+      // same pattern as Purchase Receipt's create flow.
+      const url = new URL(window.location.href);
+      url.searchParams.set('name', name);
+      window.history.replaceState({}, '', url.toString());
+    }
+    showToast('Bhav Cut saved: ' + name, 'success');
+    freezeBhavCut();
+  }catch(e){
+    showToast('Failed to save Bhav Cut: ' + String(e.message).slice(0,150), 'error');
+  }
+}
+
+// Locks the Purchase Receipt selection and breakup table once the consolidated Bhav Cut is
+// saved, so the Purchase Invoice(s) created on Submit can't drift out of sync with what was
+// persisted.
+function freezeBhavCut(){
+  bhavCutFrozen = true;
+  document.querySelectorAll('#bhavTbody input, #bhavTbody select, #bhavTbody button').forEach(el => el.disabled = true);
+  document.querySelectorAll('.pr-chk').forEach(c => c.disabled = true);
+  const selAll = document.getElementById('prSelAll'); if(selAll) selAll.disabled = true;
+  const loadBtn = document.getElementById('loadPrsBtn'); if(loadBtn) loadBtn.disabled = true;
+  const addBtn = document.getElementById('addBhavRowBtn'); if(addBtn) addBtn.disabled = true;
+  const saveBtn = document.getElementById('saveMultiBhavBtn'); if(saveBtn){ saveBtn.disabled = true; saveBtn.textContent = 'Bhav Cut Saved ✓'; }
+  document.getElementById('submitBhavBtn').disabled = false;
+}
+
+function resetMultiBhavState(){
+  window.currentMultiBhavCutName = null;
+  bhavCutFrozen = false;
+  SELECTED_PRS = new Set();
+  document.getElementById('bhavTbody').innerHTML = '';
+  bhavRowCount = 0;
+  updateBhavTotals();
+  document.getElementById('submitBhavBtn').disabled = true;
+  const saveBtn = document.getElementById('saveMultiBhavBtn'); saveBtn.disabled = false; saveBtn.textContent = 'Save Bhav Cut';
+  const addBtn = document.getElementById('addBhavRowBtn'); if(addBtn) addBtn.disabled = false;
+  const loadBtn = document.getElementById('loadPrsBtn'); if(loadBtn) loadBtn.disabled = true;
+  const selAll = document.getElementById('prSelAll'); if(selAll){ selAll.disabled = false; selAll.checked = false; }
+}
+
+// Rebuilds the breakup table from a saved Bhav Cut's rows. Unlike calling addBhavRow(data)
+// alone, this re-asserts the saved Final Qty / Amount after each row's auto-calc runs —
+// calcBhavRow can't reproduce a manually-entered "settle by amount" override (only the
+// dialog's calculator supports that), so left alone it would silently recompute, and discard,
+// that override from weight × rate the moment a saved row is reloaded.
+function loadBhavRows(rows){
+  document.getElementById('bhavTbody').innerHTML = '';
+  bhavRowCount = 0;
+  (rows||[]).forEach(r=>{
+    addBhavRow(r);
+    const tr = document.getElementById('bhav-r'+bhavRowCount);
+    if(!tr) return;
+    const finalQtyEl = tr.querySelector('[data-b="final_qty"]');
+    const amountEl = tr.querySelector('[data-b="amount"]');
+    if(finalQtyEl && r.final_settlement_qty !== undefined) finalQtyEl.value = r.final_settlement_qty;
+    if(amountEl && r.amount !== undefined) amountEl.value = r.amount;
+  });
+  updateBhavTotals();
+}
+
+// Loads an existing Multiple Bhav Cut record for full editing — the counterpart to Purchase
+// Receipt's loadExistingPR(). Reached via ?name= on this page's URL (see DOMContentLoaded
+// below), which the list page now navigates to instead of opening raw Frappe desk.
+async function loadExistingMultiBhavCut(name){
+  try{
+    const res = await dev1Get('/api/resource/Multiple%20Bhav%20Cut/'+encodeURIComponent(name));
+    const doc = res.data || res.message || res;
+    window.currentMultiBhavCutName = doc.name || name;
+    document.getElementById('bhavDate').value = doc.date || '';
+    if(document.getElementById('branch')) document.getElementById('branch').value = doc.branch || '';
+
+    // Populate Supplier directly instead of going through selSupplier() — that function
+    // unconditionally calls resetMultiBhavState(), which would wipe the rows we're about to
+    // load. The rest of selSupplier's side effects (customer card, eligible PRs) are
+    // replicated here instead.
+    const supplierName = doc.supplier || '';
+    const s = SUPPLIERS.find(x=>x.name===supplierName);
+    document.getElementById('supplier').value = s ? s.display : supplierName;
+    document.getElementById('customerCard').classList.remove('show');
+    document.getElementById('customerWarning').style.display='none';
+    document.getElementById('prListSection').style.display='none';
+    if(supplierName){
+      const customer = await getLinkedCustomerForSupplier(supplierName);
+      if(customer){
+        document.getElementById('customerCardName').textContent = customer;
+        document.getElementById('customerCard').classList.add('show');
+        await loadEligiblePRs(supplierName);
+      } else {
+        document.getElementById('customerWarning').style.display='flex';
+      }
+    }
+
+    loadBhavRows(doc.bhav_cut_details || []);
+
+    if(doc.docstatus === 1){
+      // Already submitted — its Purchase Invoice(s) already exist, nothing left to do here.
+      freezeBhavCut();
+      const saveBtn = document.getElementById('saveMultiBhavBtn'); if(saveBtn) saveBtn.textContent = 'Bhav Cut Saved ✓';
+      document.getElementById('submitBhavBtn').disabled = true;
+      document.getElementById('submitBhavBtn').textContent = 'Bhav Cut Submitted ✓';
+      showToast('This Bhav Cut is already submitted — read-only.', 'info', 5000);
+    } else {
+      // Editable — this whole flow exists so a saved Bhav Cut can be reopened and changed
+      // before it's submitted. Save now updates this same document (see saveMultiBhavCut)
+      // instead of creating a new one.
+      const saveBtn = document.getElementById('saveMultiBhavBtn');
+      if(saveBtn){ saveBtn.disabled = false; saveBtn.textContent = 'Update Bhav Cut'; }
+      const addBtn = document.getElementById('addBhavRowBtn'); if(addBtn) addBtn.disabled = false;
+      document.getElementById('submitBhavBtn').disabled = !(doc.bhav_cut_details||[]).length;
+    }
+  }catch(e){
+    showToast('Failed to load Bhav Cut: ' + String(e.message).slice(0,150), 'error');
+  }
+}
+
+// Real submit (docstatus:1) on the Multiple Bhav Cut doc, then one Purchase Invoice per
+// source Purchase Receipt — every item row linked to the exact Purchase Receipt Item it came
+// from (purchase_receipt + pr_detail), ERPNext's own native PR->PI linking, so the PR's
+// Billed Amount reflects it automatically (see getPurchaseInvoiceInfoForPR, which already
+// checks this same link — that's also what keeps a settled PR off the eligible list next
+// time). Uses every saved row with a source PR, not just checked ones — Submit acts on the
+// whole persisted document. Requires Save to have already succeeded.
+async function submitMultiBhavCut(){
+  if(!window.currentMultiBhavCutName){ showToast('Save the Bhav Cut before submitting','error'); return; }
+  const supplierName = getCurrentSupplierName();
+  if(!supplierName){ showToast('Please select a supplier first','error'); return; }
+  if(!confirm('Submit this Bhav Cut? This cannot be undone.')) return;
+
+  try{
+    showToast('Submitting Bhav Cut…','info');
+    await dev1Put('/api/resource/Multiple Bhav Cut/'+encodeURIComponent(window.currentMultiBhavCutName), {docstatus:1});
+  }catch(e){
+    showToast('Failed to submit Bhav Cut: '+String(e.message).slice(0,150),'error');
+    return;
+  }
+
+  const rows = [];
+  document.querySelectorAll('#bhavTbody tr').forEach(tr => {
+    const g  = k => tr.querySelector(`[data-b="${k}"]`)?.value?.trim() || '';
+    const gf = k => parseFloat(g(k)) || 0;
+    const item     = g('item');
+    const finalQty = gf('final_qty');
+    const sourcePr = g('source_pr');
+    if(!item || finalQty <= 0 || !sourcePr) return; // only PR-sourced rows can link to a Purchase Invoice
+    rows.push({ item, finalQty, rate: gf('gold_rate'), amount: gf('amount'), sourcePr, prItemDetail: g('pr_item_detail') });
+  });
+
+  if(!rows.length){
+    showToast('Bhav Cut submitted — no Purchase-Receipt-linked rows to invoice','success');
+    document.getElementById('submitBhavBtn').disabled = true;
+    return;
+  }
+
+  const byPr = new Map();
+  rows.forEach(r => { if(!byPr.has(r.sourcePr)) byPr.set(r.sourcePr, []); byPr.get(r.sourcePr).push(r); });
+
+  const created = [], failed = [];
+  for(const [prName, prRows] of byPr){
+    try{
+      const items = prRows.map((r, idx) => ({
+        doctype:'Purchase Invoice Item', idx: idx+1,
+        item_code: r.item, item_name: r.item, description: r.item,
+        qty: r.finalQty, rate: r.rate, amount: r.amount,
+        uom:'Gram', stock_uom:'Gram', conversion_factor:1,
+        purchase_receipt: prName,
+        ...(r.prItemDetail ? {pr_detail: r.prItemDetail} : {}),
+      }));
+      const payload = {
+        doctype:'Purchase Invoice', supplier: supplierName, company: COMPANY,
+        posting_date: new Date().toISOString().slice(0,10),
+        bill_no: window.currentMultiBhavCutName+'-'+prName,
+        bill_date: new Date().toISOString().slice(0,10),
+        items,
+      };
+      const res = await dev1Post('/api/resource/Purchase Invoice', payload);
+      const piName = res?.data?.name || res?.name;
+      if(!piName) throw new Error('Purchase Invoice creation failed');
+      await dev1Put('/api/resource/Purchase Invoice/'+encodeURIComponent(piName), {docstatus:1});
+      created.push({prName, piName});
+    }catch(e){
+      console.error('Bhav Cut Purchase Invoice creation failed for PR', prName, ':', e.message);
+      failed.push(prName);
+    }
+  }
+
+  document.getElementById('submitBhavBtn').disabled = true;
+  let msg = created.length ? `Bhav Cut submitted — ${created.length} Purchase Invoice(s) created: ${created.map(c=>c.piName).join(', ')}` : 'Bhav Cut submitted';
+  if(failed.length) msg += ` — failed for: ${failed.join(', ')}`;
+  showToast(msg, failed.length ? 'error' : 'success', 8000);
+}
+
+// ══ INSTANCE HELPERS ══
+function cdGetActiveInstance(){ return localStorage.getItem('cd_active_instance')||'PP'; }
+function cdGetAvailableInstances(){ return (localStorage.getItem('cd_available_instances')||'PP').split(',').filter(Boolean); }
+function cdGetInstanceUrl(inst){ return (inst||cdGetActiveInstance())==='PC'?DEV2:DEV1; }
+function cdSwitchInstance(inst){
+  const available=cdGetAvailableInstances();
+  if(!available.includes(inst)) return;
+  const key=inst==='PC'?localStorage.getItem('cd_pc_key'):localStorage.getItem('cd_pp_key');
+  const sec=inst==='PC'?localStorage.getItem('cd_pc_secret'):localStorage.getItem('cd_pp_secret');
+  localStorage.setItem('cd_active_instance',inst);
+  localStorage.setItem('cd_api_key',key);
+  localStorage.setItem('cd_api_secret',sec);
+  window.location.reload();
+}
+function cdInitInstanceToggle(){
+  const available=cdGetAvailableInstances();
+  const active=cdGetActiveInstance();
+  const bar=document.getElementById('cdInstanceBar');
+  if(!bar) return;
+  if(available.length<2){ bar.style.display='none'; return; }
+  bar.style.display='flex';
+  ['PP','PC'].forEach(inst=>{
+    const btn=document.getElementById('cdInst'+inst);
+    if(!btn) return;
+    btn.classList.toggle('active',inst===active);
+    btn.style.display=available.includes(inst)?'':'none';
+  });
+  const roleEl=document.getElementById('cdUserRole');
+  if(roleEl) roleEl.textContent='Active: '+active;
+}
+
+// ══ THEME / SIDEBAR ══
+const moonIcon='<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+const sunIcon='<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+function initTheme(){ const s=localStorage.getItem('cdTheme'); if(s==='dark'){document.documentElement.classList.add('dark');document.getElementById('themeIcon').innerHTML=sunIcon}else{document.documentElement.classList.remove('dark');document.getElementById('themeIcon').innerHTML=moonIcon} }
+function toggleTheme(){ const d=document.documentElement.classList.toggle('dark'); localStorage.setItem('cdTheme',d?'dark':'light'); document.getElementById('themeIcon').innerHTML=d?sunIcon:moonIcon; }
+document.getElementById('cdThemeToggle').addEventListener('click',toggleTheme); initTheme();
+const sidebar=document.getElementById('cdSidebar');
+document.getElementById('cdMenuToggle').addEventListener('click',()=>sidebar.classList.toggle('mobile-open'));
+document.querySelectorAll('.cd-nav-item').forEach(l=>l.addEventListener('click',()=>{ if(window.innerWidth<=768) sidebar.classList.remove('mobile-open'); }));
+
+(function(){
+  const hasSession=localStorage.getItem('cd_pp_key')||localStorage.getItem('cd_pc_key');
+  if(!hasSession){ window.location.replace('/caratdesk-login?logout=1'); return; }
+  const active=cdGetActiveInstance();
+  const key=active==='PC'?localStorage.getItem('cd_pc_key'):localStorage.getItem('cd_pp_key');
+  const sec=active==='PC'?localStorage.getItem('cd_pc_secret'):localStorage.getItem('cd_pp_secret');
+  if(key&&sec){ localStorage.setItem('cd_api_key',key); localStorage.setItem('cd_api_secret',sec); }
+  const name=localStorage.getItem('cd_user')||localStorage.getItem('cd_user_email')||'User';
+  document.getElementById('cdUserName').textContent=name;
+  document.getElementById('cdAvatar').textContent=name.split('@')[0].split(/[\s.]+/).map(w=>w[0]||'').join('').slice(0,2).toUpperCase()||'U';
+  cdInitInstanceToggle();
+})();
+
+document.getElementById('cdLogoutBtn').addEventListener('click',async()=>{
+  const ppK=localStorage.getItem('cd_pp_key'), ppS=localStorage.getItem('cd_pp_secret');
+  const pcK=localStorage.getItem('cd_pc_key'), pcS=localStorage.getItem('cd_pc_secret');
+  try{ if(ppK&&ppS) await fetch(`${DEV1}/api/method/logout`,{method:'POST',headers:{Authorization:`token ${ppK}:${ppS}`}}); }catch(e){}
+  try{ if(pcK&&pcS) await fetch(`${DEV2}/api/method/logout`,{method:'POST',headers:{Authorization:`token ${pcK}:${pcS}`}}); }catch(e){}
+  ['cd_api_key','cd_api_secret','cd_pp_key','cd_pp_secret','cd_pc_key','cd_pc_secret',
+   'cd_user','cd_user_email','cd_active_instance','cd_available_instances'].forEach(k=>localStorage.removeItem(k));
+  window.location.replace('/caratdesk-login?logout=1');
+});
+
+// ══════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', async () => {
+  document.getElementById('bhavDate').value = new Date().toISOString().slice(0,10);
+  await loadSuppliers();
+  try{ await loadBranches(); }catch(e){ console.warn('Branches load failed:', e.message); }
+  try{ await loadMetalRates(); }catch(e){ console.warn('Metal rates load failed:', e.message); }
+  try{ await loadBhavMetalItems(); }catch(e){ console.warn('Bhav metal items load failed:', e.message); }
+  const params = new URLSearchParams(window.location.search);
+  const bcName = params.get('name');
+  if(bcName) await loadExistingMultiBhavCut(bcName);
+});
+</script>

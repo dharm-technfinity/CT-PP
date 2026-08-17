@@ -8,6 +8,7 @@
   body{overflow-x:hidden}
   :root{--bg:#F7F6F3;--surface:#FFF;--border:rgba(0,0,0,.07);--border-strong:rgba(0,0,0,.12);--text-primary:#1A1A18;--text-secondary:#6B6B65;--text-muted:#A8A8A2;--accent:#1A1A18;--accent-light:#F0EFE9;--nav-hover:#F7F6F3;--nav-active-bg:#EBEBE5;--pill-green-bg:#EAF3DE;--pill-green-txt:#3B6D11;--pill-red-bg:#FCEBEB;--pill-red-txt:#A32D2D;--pill-amber-bg:#FAEEDA;--pill-amber-txt:#854F0B;--pill-blue-bg:#E8F0FD;--pill-blue-txt:#1A4A8A;--shadow-sm:0 2px 12px rgba(0,0,0,.04),0 0 0 .5px rgba(0,0,0,.03)}
   .dark{--bg:#121212;--surface:#1E1E1E;--border:rgba(255,255,255,.08);--border-strong:rgba(255,255,255,.15);--text-primary:#EDEDED;--text-secondary:#A0A0A0;--text-muted:#6E6E6E;--accent:#D4D4D4;--accent-light:#2C2C2C;--nav-hover:#252525;--nav-active-bg:#2D2D2D;--pill-green-bg:#1E3A2E;--pill-green-txt:#9CD45E;--pill-red-bg:#3E1E1E;--pill-red-txt:#F28B82;--pill-amber-bg:#3E2E1E;--pill-amber-txt:#FDBF6B;--pill-blue-bg:#1A2A3E;--pill-blue-txt:#7AABF0;--shadow-sm:0 2px 12px rgba(0,0,0,.3),0 0 0 .5px rgba(255,255,255,.05)}
+  html,body{color:var(--text-primary)}
   *{transition:background-color .2s,border-color .2s,color .2s}
   .cd-app{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);min-height:100vh;display:flex;-webkit-font-smoothing:antialiased;color:var(--text-primary)}
   .cd-sidebar{width:260px;background:var(--surface);border-right:.5px solid var(--border);display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;z-index:200;box-shadow:var(--shadow-sm);transform:translateX(0);transition:transform .3s cubic-bezier(.2,.9,.4,1.1)}
@@ -99,6 +100,21 @@
   .cd-progress-fill{height:100%;border-radius:999px;transition:width .4s ease}
   .cd-empty{text-align:center;padding:60px 20px;color:var(--text-muted)}
   .cd-empty-title{font-size:14px;font-weight:500;color:var(--text-secondary);margin-bottom:5px}
+  /* Create dropdown */
+  .cd-create-wrap{position:relative;display:none}
+  .cd-create-wrap.visible{display:inline-flex;align-items:center}
+  .cd-create-btn{display:inline-flex;align-items:stretch;background:var(--text-primary);color:var(--surface);border-radius:9px;border:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;overflow:hidden;line-height:1}
+  .cd-create-btn:hover{opacity:.85}
+  .cd-create-lbl{padding:8px 12px;display:flex;align-items:center;gap:7px}
+  .cd-create-lbl svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .cd-create-sep{width:.5px;background:rgba(255,255,255,.25);flex-shrink:0}
+  .cd-create-caret{padding:8px 9px;display:flex;align-items:center}
+  .cd-create-caret svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+  .cd-create-pop{position:absolute;top:calc(100% + 6px);right:0;background:var(--surface);border:.5px solid var(--border-strong);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.12);min-width:180px;z-index:500;display:none;overflow:hidden}
+  .cd-create-pop.open{display:block}
+  .cd-create-opt{padding:10px 14px;font-size:13px;font-weight:500;color:var(--text-primary);cursor:pointer;display:flex;align-items:center;gap:9px;transition:background .12s}
+  .cd-create-opt:hover{background:var(--accent-light)}
+  .cd-create-opt svg{width:13px;height:13px;stroke:var(--text-muted);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
 </style>
 
 <div class="cd-app" id="cdApp">
@@ -111,6 +127,10 @@
       <div class="cd-nav-section">Main</div>
       <a href="/caratdesk" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>Dashboard</a>
       <div class="cd-nav-section">Operations</div>
+      <a href="/caratdesk-pos" class="cd-nav-item">
+        <span class="cd-nav-icon"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>
+        POS Billing
+      </a>
       <a href="/caratdesk-selling" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg></span>Selling</a>
       <a href="/caratdesk-buying" class="cd-nav-item active"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></span>Buying</a>
       <a href="/caratdesk-stock" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg></span>Stock</a>
@@ -138,8 +158,25 @@
           <span class="cd-breadcrumb-sep">›</span>
           <span class="cd-breadcrumb-cur" id="bcName">—</span>
         </div>
+        <div id="poStatus"></div>
       </div>
       <div class="cd-topbar-right">
+        <!-- Create dropdown — visible only after submission -->
+        <div class="cd-create-wrap" id="createWrap">
+          <div class="cd-create-btn" onclick="toggleCreatePop(event)">
+            <div class="cd-create-lbl">
+              <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Create
+            </div>
+            <div class="cd-create-sep"></div>
+            <div class="cd-create-caret"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+          </div>
+          <div class="cd-create-pop" id="createPop">
+            <div class="cd-create-opt" onclick="createFromPO('pr')">
+              <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              Purchase Receipt
+            </div>
+          </div>
+        </div>
         <div class="cd-icon-btn" id="cdThemeToggle"><svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div>
       </div>
     </div>
@@ -153,7 +190,6 @@
           <div class="cd-page-sub">Purchase Order Details</div>
         </div>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-          <div id="poStatus"></div>
           <button class="cd-btn cd-btn-secondary" onclick="window.location.href='/caratdesk-purchase-order'">
             <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>Back
           </button>
@@ -396,6 +432,10 @@
       if(doc.docstatus === 0){
         document.getElementById('submitBtn').style.display = '';
       }
+      // Show Create dropdown only when submitted
+      if(doc.docstatus === 1){
+        document.getElementById('createWrap').classList.add('visible');
+      }
 
       // Summary cards
       document.getElementById('s_grand').textContent    = fmt(grandTotal);
@@ -494,6 +534,15 @@
       btn.innerHTML='<svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2"><polyline points="20 6 9 17 4 12"/></svg> Submit';
     }
   }
+
+  function toggleCreatePop(e){
+    e.stopPropagation();
+    document.getElementById('createPop').classList.toggle('open');
+  }
+  function createFromPO(type){
+    if(type==='pr') window.location.href='/caratdesk-new-purchase-receipt?po='+encodeURIComponent(poName);
+  }
+  document.addEventListener('click',()=>{ document.getElementById('createPop')?.classList.remove('open'); });
 
   loadDetails();
 </script>

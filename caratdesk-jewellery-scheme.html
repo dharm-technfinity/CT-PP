@@ -1,0 +1,1983 @@
+<!-- CaratDesk – Jewellery Schemes -->
+<head>
+  <meta charset="UTF-8">
+</head>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap');
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  .navbar,.page-header,footer.web-footer,.container>.row>.col-sm-10,.frappe-footer{display:none!important}
+  .web-page-container,.container{padding:0!important;max-width:100%!important}
+  body{overflow-x:hidden}
+  :root{--bg:#F7F6F3;--surface:#FFF;--border:rgba(0,0,0,.07);--border-strong:rgba(0,0,0,.12);--text-primary:#1A1A18;--text-secondary:#6B6B65;--text-muted:#A8A8A2;--accent:#1A1A18;--accent-light:#F0EFE9;--nav-hover:#F7F6F3;--nav-active-bg:#EBEBE5;--pill-green-bg:#EAF3DE;--pill-green-txt:#3B6D11;--pill-red-bg:#FCEBEB;--pill-red-txt:#A32D2D;--pill-amber-bg:#FAEEDA;--pill-amber-txt:#854F0B;--pill-blue-bg:#E8F0FD;--pill-blue-txt:#1A4A8A;--shadow-sm:0 2px 12px rgba(0,0,0,.04),0 0 0 .5px rgba(0,0,0,.03);--shadow-md:0 4px 24px rgba(0,0,0,.08)}
+  .dark{--bg:#121212;--surface:#1E1E1E;--border:rgba(255,255,255,.08);--border-strong:rgba(255,255,255,.15);--text-primary:#EDEDED;--text-secondary:#A0A0A0;--text-muted:#6E6E6E;--accent:#D4D4D4;--accent-light:#2C2C2C;--nav-hover:#252525;--nav-active-bg:#2D2D2D;--pill-green-bg:#1E3A2E;--pill-green-txt:#9CD45E;--pill-red-bg:#3E1E1E;--pill-red-txt:#F28B82;--pill-amber-bg:#3E2E1E;--pill-amber-txt:#FDBF6B;--pill-blue-bg:#1A2A3E;--pill-blue-txt:#7AABF0;--shadow-sm:0 2px 12px rgba(0,0,0,.3),0 0 0 .5px rgba(255,255,255,.05);--shadow-md:0 4px 24px rgba(0,0,0,.3)}
+  html,body{color:var(--text-primary)}
+  *{transition:background-color .2s ease,border-color .2s ease,color .2s ease,box-shadow .2s ease}
+  .cd-app{font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);min-height:100vh;display:flex;-webkit-font-smoothing:antialiased;color:var(--text-primary)}
+  .cd-sidebar{width:260px;background:var(--surface);border-right:.5px solid var(--border);display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;z-index:200;transform:translateX(0);transition:transform .3s cubic-bezier(.2,.9,.4,1.1);box-shadow:var(--shadow-sm)}
+  @media(max-width:768px){.cd-sidebar{transform:translateX(-100%)}.cd-sidebar.mobile-open{transform:translateX(0);width:80%;max-width:280px}}
+  .cd-sidebar-logo{display:flex;align-items:center;gap:11px;padding:20px 16px 18px;border-bottom:.5px solid var(--border);text-decoration:none;color:inherit}
+  .cd-sidebar-logo img{width:30px;height:30px;object-fit:contain;border-radius:9px}
+  .cd-logo-name{font-family:'DM Serif Display',Georgia,serif;font-size:19px;color:var(--text-primary);letter-spacing:-.2px}
+  .cd-logo-sub{font-size:12px;color:var(--text-muted);font-weight:300;letter-spacing:.07em;text-transform:uppercase}
+  .cd-nav{flex:1;padding:10px 8px;overflow-y:auto}
+  .cd-nav-section{font-size:12px;font-weight:500;color:var(--text-muted);letter-spacing:.08em;text-transform:uppercase;padding:14px 8px 5px}
+  .cd-nav-item{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:9px;cursor:pointer;margin-bottom:1px;text-decoration:none;color:var(--text-secondary);font-size:15.5px;font-weight:400;transition:background .14s,color .14s}
+  .cd-nav-item:hover{background:var(--nav-hover);color:var(--text-primary)}
+  .cd-nav-item.active{background:var(--nav-active-bg);color:var(--text-primary);font-weight:500}
+  .cd-nav-icon{width:20px;height:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:inherit}
+  .cd-nav-icon svg{width:15px;height:15px;stroke:currentColor;stroke-width:1.75;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .cd-sidebar-bottom{padding:10px 8px;border-top:.5px solid var(--border)}
+  .cd-user-card{display:flex;align-items:center;gap:10px;padding:10px;border-radius:9px;cursor:pointer;transition:background .14s}
+  .cd-user-card:hover{background:var(--nav-hover)}
+  .cd-avatar{width:32px;height:32px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:var(--surface);flex-shrink:0}
+  .cd-user-name{font-size:15px;font-weight:500;color:var(--text-primary)}
+  .cd-user-role{font-size:13px;color:var(--text-muted);font-weight:300}
+  .cd-logout-btn{display:flex;align-items:center;gap:7px;padding:9px 10px;border-radius:9px;cursor:pointer;font-size:15px;color:var(--text-secondary);margin-top:3px;border:none;background:none;font-family:'DM Sans',sans-serif;width:100%;transition:background .14s,color .14s}
+  .cd-logout-btn:hover{background:var(--pill-red-bg);color:var(--pill-red-txt)}
+  .cd-instance-bar{display:flex;align-items:center;gap:6px;padding:8px 10px 4px}
+  .cd-instance-label{font-size:12px;font-weight:500;color:var(--text-muted);letter-spacing:.07em;text-transform:uppercase;flex:1}
+  .cd-instance-pills{display:flex;gap:4px}
+  .cd-instance-pill{font-size:13px;font-weight:500;padding:3px 10px;border-radius:6px;border:.5px solid var(--border);color:var(--text-secondary);cursor:pointer;transition:background .14s,color .14s,border-color .14s;font-family:'DM Sans',sans-serif;background:none}
+  .cd-instance-pill:hover{background:var(--nav-hover);color:var(--text-primary)}
+  .cd-instance-pill.active{background:var(--accent);color:var(--surface);border-color:var(--accent)}
+  .cd-main{margin-left:260px;flex:1;min-height:100vh;display:flex;flex-direction:column;width:100%}
+  @media(max-width:768px){.cd-main{margin-left:0}}
+  .cd-topbar{height:58px;background:var(--surface);border-bottom:.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 20px;position:sticky;top:0;z-index:100}
+  .cd-menu-btn{display:none;background:none;border:none;cursor:pointer;color:var(--text-secondary);margin-right:12px}
+  @media(max-width:768px){.cd-menu-btn{display:flex;align-items:center;justify-content:center}}
+  .cd-topbar-left{display:flex;align-items:center;gap:10px}
+  .cd-breadcrumb{display:flex;align-items:center;gap:6px;font-size:15.5px}
+  .cd-breadcrumb a{color:var(--text-muted);text-decoration:none;transition:color .14s}
+  .cd-breadcrumb a:hover{color:var(--text-primary)}
+  .cd-breadcrumb-sep{color:var(--text-muted);font-size:14px}
+  .cd-breadcrumb-cur{color:var(--text-primary);font-weight:500}
+  .cd-topbar-right{display:flex;align-items:center;gap:10px}
+  .cd-icon-btn{width:34px;height:34px;border-radius:9px;border:.5px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-secondary);transition:background .14s,color .14s}
+  .cd-icon-btn:hover{background:var(--nav-hover);color:var(--text-primary)}
+  .cd-icon-btn svg{width:15px;height:15px;stroke:currentColor;stroke-width:1.75;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .cd-content{padding:24px 28px 60px;flex:1;animation:fadeIn .35s cubic-bezier(.16,1,.3,1) both}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+  .cd-page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+  .cd-page-title{font-size:22px;font-weight:500;letter-spacing:-.3px}
+  .cd-page-sub{font-size:14.5px;color:var(--text-muted);margin-top:2px;font-weight:300}
+  .cd-btn{font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;padding:8px 16px;border-radius:9px;border:none;cursor:pointer;transition:background .14s,transform .1s;display:inline-flex;align-items:center;gap:7px}
+  .cd-btn:active{transform:scale(.98)}
+  .cd-btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .cd-btn-primary{background:var(--text-primary);color:var(--surface)}
+  .cd-btn-primary:hover{opacity:.85}
+  .cd-btn-secondary{background:var(--surface);color:var(--text-primary);border:.5px solid var(--border-strong)}
+  .cd-btn-secondary:hover{background:var(--accent-light)}
+  .cd-btn-danger{background:var(--pill-red-bg);color:var(--pill-red-txt);border:.5px solid rgba(163,45,45,.15)}
+  .cd-btn-danger:hover{opacity:.85}
+  .cd-btn-green{background:var(--pill-green-bg);color:var(--pill-green-txt);border:.5px solid rgba(59,109,17,.15)}
+  .cd-btn-green:hover:not(:disabled){filter:brightness(.97)}
+  .cd-toolbar{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+  .cd-search-wrap{position:relative;flex:1;min-width:200px;max-width:360px}
+  .cd-search-wrap svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:14px;height:14px;stroke:var(--text-muted);fill:none;stroke-width:1.8;pointer-events:none}
+  .cd-search-input{width:100%;font-family:'DM Sans',sans-serif;font-size:15px;background:var(--surface);border:.5px solid var(--border-strong);border-radius:9px;padding:8px 12px 8px 34px;color:var(--text-primary);outline:none;transition:border-color .14s,box-shadow .14s}
+  .cd-search-input:focus{border-color:var(--text-secondary);box-shadow:0 0 0 3px rgba(0,0,0,.05)}
+  .cd-search-input::placeholder{color:var(--text-muted)}
+  .cd-toolbar-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+  .cd-result-count{font-size:14px;color:var(--text-muted);white-space:nowrap}
+  .cd-fchip-wrap{position:relative;display:inline-flex}
+  .cd-fchip{font-family:'DM Sans',sans-serif;font-size:14.5px;font-weight:400;padding:7px 11px;border-radius:9px;border:.5px solid var(--border-strong);background:var(--surface);color:var(--text-secondary);cursor:pointer;display:inline-flex;align-items:center;gap:5px;white-space:nowrap;transition:background .14s,border-color .14s,color .14s;line-height:1}
+  .cd-fchip:hover{background:var(--nav-hover);color:var(--text-primary)}
+  .cd-fchip.active{background:var(--text-primary);color:var(--surface);border-color:var(--text-primary)}
+  .cd-fchip svg.caret{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0;transition:transform .14s}
+  .cd-fchip.open svg.caret{transform:rotate(180deg)}
+  .cd-fpop{position:absolute;top:calc(100% + 6px);left:0;background:var(--surface);border:.5px solid var(--border-strong);border-radius:12px;box-shadow:var(--shadow-md);z-index:600;min-width:210px;padding:14px;display:none}
+  .cd-fpop.open{display:block;animation:fadeIn .15s ease}
+  .cd-fpop-title{font-size:12.5px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px}
+  .cd-fpop label{font-size:14px;color:var(--text-secondary);display:block;margin-bottom:4px}
+  .cd-fpop input[type=date]{width:100%;font-family:'DM Sans',sans-serif;font-size:14.5px;background:var(--bg);border:.5px solid var(--border-strong);border-radius:8px;padding:7px 10px;color:var(--text-primary);outline:none;margin-bottom:10px;transition:border-color .14s}
+  .cd-fpop input[type=date]:focus{border-color:var(--text-secondary)}
+  .cd-fpop-acts{display:flex;gap:6px;justify-content:flex-end;margin-top:2px}
+  .cd-fpop-clear{font-family:'DM Sans',sans-serif;font-size:14px;padding:6px 11px;border-radius:7px;border:.5px solid var(--border-strong);background:none;color:var(--text-secondary);cursor:pointer;transition:background .14s}
+  .cd-fpop-clear:hover{background:var(--nav-hover)}
+  .cd-fpop-apply{font-family:'DM Sans',sans-serif;font-size:14px;padding:6px 11px;border-radius:7px;border:none;background:var(--text-primary);color:var(--surface);cursor:pointer;font-weight:500;transition:opacity .14s}
+  .cd-fpop-apply:hover{opacity:.85}
+  .cd-sc-wrap{position:relative;display:inline-flex;align-items:center;gap:3px}
+  .cd-sc{display:inline-flex;align-items:center;border-radius:9px;border:.5px solid var(--border-strong);background:var(--surface);overflow:hidden;transition:border-color .14s}
+  .cd-sc:hover{border-color:var(--text-secondary)}
+  .cd-sc-dir{padding:6px 9px;border-right:.5px solid var(--border);cursor:pointer;display:flex;align-items:center;color:var(--text-secondary);background:none;border-top:none;border-bottom:none;border-left:none;transition:background .14s,color .14s;font-family:'DM Sans',sans-serif}
+  .cd-sc-dir:hover{background:var(--nav-hover);color:var(--text-primary)}
+  .cd-sc-dir svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8;display:block}
+  .cd-sc-lbl{padding:6px 10px 6px 8px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14.5px;color:var(--text-secondary);display:inline-flex;align-items:center;gap:5px;background:none;border:none;transition:background .14s,color .14s;white-space:nowrap;line-height:1}
+  .cd-sc-lbl:hover{background:var(--nav-hover);color:var(--text-primary)}
+  .cd-sc-lbl svg.caret{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2;transition:transform .14s;flex-shrink:0}
+  .cd-sc-lbl.open svg.caret{transform:rotate(180deg)}
+  .cd-sc-pop{position:absolute;top:calc(100% + 6px);left:0;background:var(--surface);border:.5px solid var(--border-strong);border-radius:10px;box-shadow:var(--shadow-md);z-index:600;min-width:170px;padding:4px;display:none}
+  .cd-sc-pop.open{display:block;animation:fadeIn .15s ease}
+  .cd-sc-opt{font-family:'DM Sans',sans-serif;font-size:15px;padding:8px 12px;border-radius:7px;cursor:pointer;color:var(--text-secondary);transition:background .12s,color .12s;display:flex;align-items:center;gap:8px}
+  .cd-sc-opt:hover{background:var(--nav-hover);color:var(--text-primary)}
+  .cd-sc-opt.active{color:var(--text-primary);font-weight:500}
+  .cd-sc-opt::before{content:'';width:6px;height:6px;border-radius:50%;flex-shrink:0;background:transparent}
+  .cd-sc-opt.active::before{background:var(--text-primary)}
+  .cd-table-wrap{background:var(--surface);border:.5px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:var(--shadow-sm)}
+  .cd-table{width:100%;border-collapse:collapse}
+  .cd-table thead{background:var(--bg)}
+  .cd-table th{font-size:13px;font-weight:500;color:var(--text-muted);text-align:left;padding:11px 16px;letter-spacing:.05em;text-transform:uppercase;border-bottom:.5px solid var(--border);white-space:nowrap}
+  .cd-table td{font-size:15px;padding:13px 16px;border-bottom:.5px solid var(--border);vertical-align:middle}
+  .cd-table tr:last-child td{border-bottom:none}
+  .cd-table tbody tr{cursor:pointer;transition:background .1s}
+  .cd-table tbody tr:hover{background:var(--nav-hover)}
+  .doc-num{font-weight:500;font-size:15px}
+  .doc-sub{font-size:13px;color:var(--text-muted);margin-top:2px}
+  .cd-pill{display:inline-flex;align-items:center;gap:5px;font-size:13px;padding:3px 9px;border-radius:100px;font-weight:500;white-space:nowrap}
+  .cd-pill.green{background:var(--pill-green-bg);color:var(--pill-green-txt)}
+  .cd-pill.red{background:var(--pill-red-bg);color:var(--pill-red-txt)}
+  .cd-pill.blue{background:var(--pill-blue-bg);color:var(--pill-blue-txt)}
+  .cd-pill.amber{background:var(--pill-amber-bg);color:var(--pill-amber-txt)}
+  .cd-pill.grey{background:var(--accent-light);color:var(--text-secondary)}
+  .cd-row-actions{display:flex;align-items:center;gap:6px;opacity:0;transition:opacity .14s;justify-content:flex-end}
+  .cd-table tbody tr:hover .cd-row-actions{opacity:1}
+  .cd-act-btn{width:28px;height:28px;border-radius:7px;border:.5px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-secondary);transition:background .12s,color .12s}
+  .cd-act-btn:hover{background:var(--nav-active-bg);color:var(--text-primary)}
+  .cd-act-btn svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  .cd-empty{text-align:center;padding:50px 20px;color:var(--text-muted)}
+  .cd-empty svg{width:38px;height:38px;stroke:var(--text-muted);fill:none;stroke-width:1.2;margin:0 auto 12px;display:block}
+  .cd-empty-title{font-size:16px;font-weight:500;color:var(--text-secondary);margin-bottom:5px}
+  .cd-empty-sub{font-size:14.5px}
+  .cd-overlay{position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:400;opacity:0;pointer-events:none;transition:opacity .25s;backdrop-filter:blur(2px)}
+  .cd-overlay.open{opacity:1;pointer-events:all}
+  .cd-drawer{position:fixed;right:0;top:0;bottom:0;width:640px;max-width:95vw;background:var(--surface);border-left:.5px solid var(--border);z-index:401;transform:translateX(100%);transition:transform .3s cubic-bezier(.16,1,.3,1),width .2s;display:flex;flex-direction:column;box-shadow:-8px 0 40px rgba(0,0,0,.1)}
+  .cd-drawer.open{transform:translateX(0)}
+  .cd-drawer.full-page{width:100%;max-width:100vw;left:0;border-left:none}
+  .cd-drawer.full-page .cd-drawer-body{width:100%;padding-left:48px;padding-right:48px}
+  .cd-drawer.full-page .cd-drawer-actions{width:100%;box-sizing:border-box;padding-left:48px;padding-right:48px}
+  .cd-drawer.full-page .cd-drawer-header{padding-left:48px;padding-right:48px}
+  @media(max-width:768px){.cd-drawer.full-page .cd-drawer-body,.cd-drawer.full-page .cd-drawer-actions,.cd-drawer.full-page .cd-drawer-header{padding-left:20px;padding-right:20px}}
+  .cd-drawer-header{padding:18px 20px;border-bottom:.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+  .cd-drawer-title{font-size:17px;font-weight:500}
+  .cd-drawer-close{width:30px;height:30px;border-radius:8px;border:.5px solid var(--border);background:var(--bg);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-secondary);transition:background .14s}
+  .cd-drawer-close:hover{background:var(--nav-active-bg)}
+  .cd-drawer-close svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2}
+  .cd-drawer-body{flex:1;overflow-y:auto;padding:20px}
+  .cd-drawer-actions{padding:14px 20px;border-top:.5px solid var(--border);display:flex;gap:8px;flex-shrink:0}
+
+  /* Payment & Settlement dialog (matches POS Billing's Enter Payment modal) */
+  .cd-idialog-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:900;opacity:0;pointer-events:none;transition:opacity .22s;backdrop-filter:blur(3px)}
+  .cd-idialog-overlay.open{opacity:1;pointer-events:all}
+  .cd-idialog{position:fixed;top:50%;left:50%;transform:translate(-50%,-46%);width:520px;max-width:96vw;max-height:96vh;background:var(--surface);border-radius:16px;border:.5px solid var(--border);box-shadow:0 20px 60px rgba(0,0,0,.2);z-index:901;display:flex;flex-direction:column;opacity:0;pointer-events:none;transition:opacity .22s,transform .22s}
+  .cd-idialog.open{opacity:1;pointer-events:all;transform:translate(-50%,-50%)}
+  .cd-idialog.wide{width:640px}
+  .cd-idialog.xwide{width:960px}
+  .cd-idialog-header{padding:18px 24px 14px;border-bottom:.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+  .cd-idialog-title{font-size:17px;font-weight:600}
+  .cd-idialog-close{width:28px;height:28px;border-radius:7px;border:.5px solid var(--border);background:var(--bg);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-secondary);font-size:20px;line-height:1}
+  .cd-idialog-body{flex:1;overflow-y:auto;padding:20px 24px}
+  .cd-idialog-footer{padding:14px 24px;border-top:.5px solid var(--border);display:flex;gap:8px;justify-content:flex-end;flex-shrink:0}
+  .cd-payment-row{display:grid;grid-template-columns:3fr 2fr;gap:8px;align-items:center;margin-bottom:8px}
+  .cd-payment-row.removable{grid-template-columns:3fr 2fr 30px}
+  .cd-payment-entry{margin-bottom:14px;padding-bottom:14px;border-bottom:.5px solid var(--border)}
+  .cd-payment-entry:last-of-type{border-bottom:none;margin-bottom:0;padding-bottom:0}
+  .inst-chk{width:14px;height:14px;cursor:pointer;vertical-align:middle}
+  .cd-payment-totals{background:var(--bg);border-radius:10px;padding:14px;margin-bottom:16px;font-size:17px;line-height:1.8}
+  .cd-payment-totals .row{display:flex;justify-content:space-between}
+  .cd-denomination-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .cd-denomination-grid label{display:grid;grid-template-columns:48px 1fr 90px;align-items:center;gap:6px;font-size:16px}
+  .cd-denomination-grid label strong{text-align:right}
+  .cd-denomination-grid.compact{grid-template-columns:repeat(2,1fr)}
+  .cd-cash-box{margin-top:20px;padding:14px;background:var(--bg);border-radius:8px}
+  .cd-cash-declared{display:flex;justify-content:space-between;margin-top:10px;padding:10px 12px;background:var(--surface);border:.5px solid var(--border);border-radius:8px;font-size:16px}
+  .cd-payment-status-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+  .cd-payment-status-grid div{background:var(--bg);border:.5px solid var(--border);border-radius:9px;padding:10px 12px}
+  .cd-payment-status-grid span{display:block;font-size:13px;font-weight:600;color:var(--text-muted);letter-spacing:.05em;text-transform:uppercase;margin-bottom:3px}
+  .cd-payment-status-grid strong{font-size:19px;font-variant-numeric:tabular-nums;display:block;text-align:right}
+  @media(max-width:520px){.cd-denomination-grid,.cd-denomination-grid.compact{grid-template-columns:1fr}.cd-payment-row{grid-template-columns:1fr}}
+  .cd-dsec{font-size:13px;font-weight:500;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;margin-top:20px}
+  .cd-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .cd-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+  .cd-grid-4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:16px}
+  @media(max-width:900px){.cd-grid-4{grid-template-columns:1fr 1fr}}
+  @media(max-width:640px){.cd-grid,.cd-grid-3,.cd-grid-4{grid-template-columns:1fr}}
+  .cd-field{display:flex;flex-direction:column;gap:5px}
+  .cd-label{font-size:13.5px;font-weight:500;color:var(--text-secondary);letter-spacing:.01em}
+  .req{color:var(--pill-red-txt);margin-left:2px}
+  .cd-input,.cd-select{font-family:'DM Sans',sans-serif;font-size:15px;background:var(--bg);border:.5px solid var(--border-strong);border-radius:9px;padding:9px 12px;color:var(--text-primary);outline:none;transition:border-color .14s,box-shadow .14s;width:100%}
+  .cd-input:focus,.cd-select:focus{border-color:var(--text-secondary);box-shadow:0 0 0 3px rgba(0,0,0,.05);background:var(--surface)}
+  .cd-input::placeholder{color:var(--text-muted)}
+  input[type="number"]{text-align:right}
+  .cd-select{cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23A8A8A2' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:30px}
+  .cd-ac{position:relative}
+  .cd-ac-list{position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--surface);border:.5px solid var(--border-strong);border-radius:10px;box-shadow:var(--shadow-md);z-index:500;max-height:240px;overflow-y:auto;display:none}
+  .cd-ac-list.open{display:block}
+  .cd-ac-item{padding:10px 12px;cursor:pointer;border-bottom:.5px solid var(--border);transition:background .1s}
+  .cd-ac-item:hover{background:var(--nav-hover)}
+  .cd-ac-item:last-child{border-bottom:none}
+  .cd-ac-item .main{font-size:15px;font-weight:500;color:var(--text-primary)}
+  .cd-ac-item .sub{font-size:13px;color:var(--text-muted);margin-top:2px}
+  .cd-ac-empty{font-size:15px;color:var(--text-muted);padding:16px 12px;text-align:center}
+  .cd-items-wrap{overflow-x:auto;margin:0 -4px}
+  .cd-items-tbl{width:100%;border-collapse:collapse;min-width:420px}
+  .cd-items-tbl th{font-size:12.5px;font-weight:600;color:var(--text-muted);text-align:center;padding:9px 8px;border-bottom:.5px solid var(--border);letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}
+  .cd-items-tbl td{padding:5px 4px;border-bottom:.5px solid var(--border);vertical-align:middle;text-align:center}
+  .cd-items-tbl tr:last-child td{border-bottom:none}
+  .cd-items-tbl td input{width:100%;height:30px;border:none;outline:none;padding:0 8px;font-size:15px;background:var(--bg);color:var(--text-primary);font-family:'DM Sans',sans-serif;border-radius:6px;transition:background .14s,box-shadow .14s;text-align:center}
+  .cd-items-tbl td input:focus{background:var(--surface);box-shadow:0 0 0 2px rgba(0,0,0,.08)}
+  .cd-items-tbl td input[data-f="emi"]{width:110px;text-align:right}
+  .cd-row-num{font-size:13px;color:var(--text-muted);text-align:center;width:24px}
+  .cd-del-btn{width:26px;height:26px;border:none;background:none;cursor:pointer;color:var(--text-muted);display:flex;align-items:center;justify-content:center;border-radius:6px;transition:background .12s,color .12s;flex-shrink:0}
+  .cd-del-btn:hover{background:var(--pill-red-bg);color:var(--pill-red-txt)}
+  .cd-del-btn svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2}
+  .cd-add-row{font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;padding:6px 12px;border-radius:9px;border:.5px solid var(--border-strong);background:var(--surface);color:var(--text-primary);cursor:pointer;transition:background .14s}
+  .cd-add-row:hover{background:var(--accent-light)}
+  .cd-check-row{display:flex;gap:24px;flex-wrap:wrap;margin-bottom:20px}
+  .cd-check-lbl{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:15px}
+  .cd-check-lbl input{width:16px;height:16px;cursor:pointer;accent-color:var(--text-primary)}
+  .cd-hint{font-size:13.5px;color:var(--text-muted)}
+  .cd-btn:disabled{opacity:.5;cursor:not-allowed}
+</style>
+
+<div class="cd-app" id="cdApp">
+  <nav class="cd-sidebar" id="cdSidebar">
+    <a class="cd-sidebar-logo" href="/caratdesk">
+      <img src="https://i.postimg.cc/NMgHCKvC/letter-cc-cd-diamond-initial-600nw-2206465849.png" alt="CaratDesk"/>
+      <div><div class="cd-logo-name">PPJ Retail</div><div class="cd-logo-sub">Jewellery POS</div></div>
+    </a>
+    <div class="cd-nav">
+      <div class="cd-nav-section">Main</div>
+      <a href="/caratdesk" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>Dashboard</a>
+      <div class="cd-nav-section">Operations</div>
+      <a href="/caratdesk-pos" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>POS Billing</a>
+      <a href="/caratdesk-selling" class="cd-nav-item active"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg></span>Selling</a>
+      <a href="/caratdesk-buying" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></span>Buying</a>
+      <a href="/caratdesk-stock" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg></span>Stock</a>
+      <a href="/caratdesk-items" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></span>Items</a>
+      <div class="cd-nav-section">Finance</div>
+      <a href="/caratdesk-finance" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></span>Finance</a>
+      <a href="/caratdesk-accounts" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg></span>Accounts</a>
+      <a href="/caratdesk-reports" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>Reports</a>
+      <div class="cd-nav-section">System</div>
+      <a href="/caratdesk-settings" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M12 2v2M12 20v2M2 12h2M20 12h2M4.93 19.07l1.41-1.41M19.07 19.07l-1.41-1.41"/></svg></span>Settings</a>
+    </div>
+    <div class="cd-sidebar-bottom">
+      <div class="cd-instance-bar" id="cdInstanceBar" style="display:none">
+        <span class="cd-instance-label">Instance</span>
+        <div class="cd-instance-pills">
+          <button class="cd-instance-pill" id="cdInstPP" onclick="cdSwitchInstance('PP')">PP</button>
+          <button class="cd-instance-pill" id="cdInstPC" onclick="cdSwitchInstance('PC')">PC</button>
+        </div>
+      </div>
+      <div class="cd-user-card"><div class="cd-avatar" id="cdAvatar">-</div><div><div class="cd-user-name" id="cdUserName">Loading...</div><div class="cd-user-role" id="cdUserRole">POS Manager</div></div></div>
+      <button class="cd-logout-btn" id="cdLogoutBtn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign out</button>
+    </div>
+  </nav>
+
+  <div class="cd-main">
+    <div class="cd-topbar">
+      <div class="cd-topbar-left">
+        <button class="cd-menu-btn" id="cdMenuToggle"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+        <div class="cd-breadcrumb">
+          <a href="/caratdesk-selling">Selling</a>
+          <span class="cd-breadcrumb-sep">&rsaquo;</span>
+          <span class="cd-breadcrumb-cur">Jewellery Scheme Assignments</span>
+        </div>
+      </div>
+      <div class="cd-topbar-right">
+        <div class="cd-icon-btn" id="cdThemeToggle"><svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div>
+      </div>
+    </div>
+
+    <div class="cd-content">
+      <div class="cd-page-header">
+        <div>
+          <div class="cd-page-title">Jewellery Scheme Assignments</div>
+          <div class="cd-page-sub" id="assignSub">Loading…</div>
+        </div>
+        <div style="position:relative;display:inline-block">
+          <button class="cd-btn cd-btn-primary" id="newAssignBtn" onclick="toggleNewAssignPicker(event)"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>New Assignment<svg viewBox="0 0 24 24" style="width:11px;height:11px;margin-left:2px"><polyline points="6 9 12 15 18 9"/></svg></button>
+          <div id="newAssignPicker" style="display:none;position:absolute;right:0;top:calc(100% + 6px);background:var(--surface);border:.5px solid var(--border-strong);border-radius:10px;box-shadow:var(--shadow-md);min-width:150px;z-index:500;overflow:hidden;padding:4px">
+            <button onclick="goNewAssignment('PP')" style="width:100%;display:flex;align-items:center;gap:8px;padding:9px 12px;border:none;background:none;font-family:'DM Sans',sans-serif;font-size:15px;color:var(--text-primary);cursor:pointer;border-radius:7px;text-align:left" onmouseover="this.style.background='var(--nav-hover)'" onmouseout="this.style.background='none'"><span style="font-size:13px;font-weight:600;padding:2px 7px;border-radius:5px;background:var(--pill-blue-bg);color:var(--pill-blue-txt)">PP</span>PP Instance</button>
+            <button id="newAssignPCBtn" onclick="goNewAssignment('PC')" style="width:100%;display:flex;align-items:center;gap:8px;padding:9px 12px;border:none;background:none;font-family:'DM Sans',sans-serif;font-size:15px;color:var(--text-primary);cursor:pointer;border-radius:7px;text-align:left" onmouseover="this.style.background='var(--nav-hover)'" onmouseout="this.style.background='none'"><span style="font-size:13px;font-weight:600;padding:2px 7px;border-radius:5px;background:var(--pill-amber-bg);color:var(--pill-amber-txt)">PC</span>PC Instance</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="cd-toolbar">
+        <div class="cd-search-wrap"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input class="cd-search-input" id="assignSearch" placeholder="Search by ID, customer or scheme…" oninput="applyAssignFilters()"/></div>
+        <div class="cd-fchip-wrap">
+          <button class="cd-fchip" id="createdOnChip" onclick="toggleFPop('createdOn',event)">
+            <svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <span id="createdOnLabel">Created On</span>
+            <svg class="caret" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="cd-fpop" id="createdOnPop">
+            <div class="cd-fpop-title">Created On</div>
+            <label>From</label>
+            <input type="date" id="createdFrom"/>
+            <label>To</label>
+            <input type="date" id="createdTo"/>
+            <div class="cd-fpop-acts">
+              <button class="cd-fpop-clear" onclick="clearFPop('createdOn')">Clear</button>
+              <button class="cd-fpop-apply" onclick="applyFPop('createdOn')">Apply</button>
+            </div>
+          </div>
+        </div>
+        <div class="cd-fchip-wrap">
+          <button class="cd-fchip" id="lastUpdatedChip" onclick="toggleFPop('lastUpdated',event)">
+            <svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+            <span id="lastUpdatedLabel">Last Updated</span>
+            <svg class="caret" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="cd-fpop" id="lastUpdatedPop">
+            <div class="cd-fpop-title">Last Updated On</div>
+            <label>From</label>
+            <input type="date" id="updatedFrom"/>
+            <label>To</label>
+            <input type="date" id="updatedTo"/>
+            <div class="cd-fpop-acts">
+              <button class="cd-fpop-clear" onclick="clearFPop('lastUpdated')">Clear</button>
+              <button class="cd-fpop-apply" onclick="applyFPop('lastUpdated')">Apply</button>
+            </div>
+          </div>
+        </div>
+        <div class="cd-fchip-wrap">
+          <button class="cd-fchip" id="metalTouchChip" onclick="toggleMetalTouchPop(event)">
+            <svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0"><circle cx="12" cy="12" r="9"/></svg>
+            <span id="metalTouchLabel">Metal Touch</span>
+            <svg class="caret" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="cd-fpop" id="metalTouchPop" style="min-width:160px;padding:6px">
+            <div class="cd-sc-opt active" data-touch="" onclick="selectMetalTouchFilter('',event)">All</div>
+          </div>
+        </div>
+        <div class="cd-sc-wrap" id="scWrap">
+          <div class="cd-sc">
+            <button class="cd-sc-dir" id="scDirBtn" onclick="toggleSortDir(event)" title="Toggle ascending / descending">
+              <svg id="scDirIcon" viewBox="0 0 16 16"><line x1="1" y1="4" x2="9" y2="4"/><line x1="1" y1="8" x2="7" y2="8"/><line x1="1" y1="12" x2="5" y2="12"/><line x1="13" y1="2" x2="13" y2="14"/><polyline points="10 11 13 14 16 11"/></svg>
+            </button>
+            <button class="cd-sc-lbl" id="scLblBtn" onclick="toggleScPop(event)">
+              <span id="scLbl">Last Updated On</span>
+              <svg class="caret" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+          </div>
+          <div class="cd-sc-pop" id="scPop">
+            <div class="cd-sc-opt" data-field="created" onclick="setSortField('created',event)">Created On</div>
+            <div class="cd-sc-opt active" data-field="updated" onclick="setSortField('updated',event)">Last Updated On</div>
+            <div class="cd-sc-opt" data-field="id" onclick="setSortField('id',event)">ID</div>
+          </div>
+        </div>
+        <div class="cd-toolbar-right"><span class="cd-result-count" id="assignCount"></span><div class="cd-icon-btn" onclick="loadAssignments()"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></div></div>
+      </div>
+      <div class="cd-table-wrap">
+        <table class="cd-table">
+          <thead><tr><th>ID</th><th>Customer</th><th>Scheme</th><th style="text-align:right">EMI Amount</th><th>Start Date</th><th>Status</th><th style="width:90px"></th></tr></thead>
+          <tbody id="assignTbody"><tr><td colspan="7"><div class="cd-empty"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><div class="cd-empty-title">Loading assignments...</div></div></td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Overlay shared by both drawers -->
+<div class="cd-overlay" id="drawerOverlay" onclick="closeDrawers()"></div>
+
+<!-- Assignment Drawer -->
+<div class="cd-drawer full-page" id="assignDrawer">
+  <div class="cd-drawer-header">
+    <div class="cd-drawer-title"><span id="assignDrawerTitleText">New Assignment</span><span id="assignDrawerStatus" style="margin-left:10px"></span></div>
+    <div class="cd-drawer-close" onclick="closeDrawers()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+  </div>
+  <div class="cd-drawer-body">
+    <div style="display:flex;gap:24px;align-items:flex-start">
+      <!-- LEFT: assignment details + installment schedule -->
+      <div style="flex:1;min-width:0">
+        <div class="cd-grid" style="margin-bottom:16px">
+          <div class="cd-field">
+            <label class="cd-label">Customer <span class="req">*</span></label>
+            <div class="cd-ac">
+              <input class="cd-input" id="assignCustomer" placeholder="Type customer name..." autocomplete="off"
+                oninput="acAssignCustomer(this.value)" onfocus="acAssignCustomer(this.value)"/>
+              <div class="cd-ac-list" id="ac-assign-customer"></div>
+            </div>
+            <button type="button" class="cd-add-row" id="newCustomerBtn" style="margin-top:6px" onclick="openNewCustomerDialog()">+ New Customer</button>
+          </div>
+          <div class="cd-field">
+            <label class="cd-label">Scheme <span class="req">*</span></label>
+            <div class="cd-ac">
+              <input class="cd-input" id="assignScheme" placeholder="Type scheme name..." autocomplete="off"
+                oninput="acAssignScheme(this.value)" onfocus="acAssignScheme(this.value)"/>
+              <div class="cd-ac-list" id="ac-assign-scheme"></div>
+            </div>
+          </div>
+        </div>
+        <div class="cd-grid" style="margin-bottom:16px">
+          <div class="cd-field">
+            <label class="cd-label">Metal Touch</label>
+            <select class="cd-select" id="assignMetalTouch">
+              <option value="">Select…</option>
+            </select>
+          </div>
+          <div class="cd-field">
+            <label class="cd-label">Branch</label>
+            <select class="cd-select" id="assignBranch">
+              <option value="">- Select Branch -</option>
+            </select>
+          </div>
+        </div>
+        <div class="cd-grid" style="margin-bottom:16px;grid-template-columns:1fr 1fr 1fr">
+          <div class="cd-field"><label class="cd-label">EMI Amount <span class="req">*</span></label><input class="cd-input" type="number" min="0" step="0.01" id="assignEmi" placeholder="0" style="text-align:right"/></div>
+          <div class="cd-field"><label class="cd-label">Start Date <span class="req">*</span></label><input class="cd-input" type="date" id="assignDate"/></div>
+          <div class="cd-field"><label class="cd-label">End Date</label><input class="cd-input" type="date" id="assignEndDate" disabled/></div>
+        </div>
+        <input type="hidden" id="assignSchemeName"/>
+
+        <div class="cd-dsec" style="margin-top:0">Installment / Payment Log</div>
+        <div class="cd-items-wrap">
+          <table class="cd-items-tbl">
+            <thead><tr><th style="width:20px"><input type="checkbox" id="instSelectAll" class="inst-chk" onchange="toggleAllInstallRows(this.checked)"/></th><th>Due Date</th><th style="text-align:right">EMI Amount <span class="req">*</span></th><th>Status</th><th>Payment Date</th><th>Extended Due Date <span class="req">*</span></th><th style="width:44px"></th></tr></thead>
+            <tbody id="instTbody"></tbody>
+          </table>
+        </div>
+        <div class="cd-hint" style="margin-top:6px">Only saved, unpaid installment rows can be selected for payment — save the assignment first if you just added rows.</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;flex-wrap:wrap;gap:10px">
+          <button class="cd-add-row" id="addPaymentBtn" onclick="addInstallRowWithNextDate()">+ Add Payment</button>
+          <div style="font-size:16px;color:var(--text-secondary)">Total: <strong id="instTotal" style="font-size:19px;font-weight:700;color:var(--text-primary)">₹0</strong></div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Payment panel — same multi-mode "Enter Payment" pattern as POS Billing,
+           shown inline instead of a separate button + dialog, so entering a split payment
+           across Cash/Card/UPI/Bank against the selected installment rows happens right
+           here, always visible alongside the rest of the assignment's details. -->
+      <div id="paymentPanel" style="flex:1;min-width:0;position:sticky;top:0;background:var(--bg);border:.5px solid var(--border);border-radius:12px;padding:16px;max-height:calc(100vh - 40px);display:flex;flex-direction:column">
+        <div style="font-size:18px;font-weight:600;margin-bottom:12px;flex-shrink:0">Payment/Collection</div>
+        <div class="cd-payment-totals" style="flex-shrink:0">
+          <div class="row"><span>Amount to Collect</span><span id="paySettleTotal">₹0</span></div>
+        </div>
+        <label class="cd-label" style="flex-shrink:0">Payment mode(s)</label>
+        <div id="paySettleRowsWrap" style="flex:1;min-height:0;overflow-y:auto"></div>
+        <button class="cd-add-row" id="paySettleAddRowBtn" onclick="addPaySettleRow()" style="flex-shrink:0">+ Add Payment Mode</button>
+        <div class="cd-payment-status-grid" style="flex-shrink:0">
+          <div><span>Amount Tendered</span><strong id="paySettleReceived">₹0</strong></div>
+          <div><span>Balance Amount</span><strong id="paySettleDue">₹0</strong></div>
+          <div><span>Change Amount</span><strong id="paySettleChange">₹0</strong></div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:14px;flex-shrink:0">
+          <button class="cd-btn cd-btn-primary" id="paySettleSaveBtn" style="flex:1;justify-content:center" disabled onclick="savePaySettle()">Save Payment</button>
+          <button class="cd-btn cd-btn-green" id="paySettleSubmitBtn" style="flex:1;justify-content:center" disabled onclick="submitPaySettle()">Submit Payment</button>
+        </div>
+        <div class="cd-hint" id="paySettleHint" style="margin-top:8px;flex-shrink:0">Select at least one unpaid installment row above to collect a payment.</div>
+      </div>
+    </div>
+  </div>
+  <div class="cd-drawer-actions">
+    <button class="cd-btn cd-btn-primary" id="saveAssignBtn" style="flex:1" onclick="saveAssignment()">Save Assignment</button>
+    <button class="cd-btn cd-btn-green" id="submitAssignBtn" style="display:none" onclick="submitAssignment()">Submit</button>
+    <button class="cd-btn cd-btn-danger" id="forceCloseBtn" style="display:none" onclick="forceCloseAssignment()">Force Close</button>
+    <button class="cd-btn cd-btn-danger" id="assignDeleteBtn" style="display:none" onclick="deleteAssignment(window.currentAssignName)">Delete</button>
+    <button class="cd-btn cd-btn-secondary" id="assignCancelBtn" onclick="closeDrawers()">Cancel</button>
+  </div>
+</div>
+
+<!-- New Customer Dialog (matches POS Billing's New Customer modal) -->
+<div class="cd-idialog-overlay" id="newCustOverlay" onclick="closeNewCustomerDialog()"></div>
+<div class="cd-idialog xwide" id="newCustDialog" role="dialog" aria-modal="true">
+  <div class="cd-idialog-header">
+    <span class="cd-idialog-title">New Customer</span>
+    <div class="cd-idialog-close" onclick="closeNewCustomerDialog()">&times;</div>
+  </div>
+  <div class="cd-idialog-body">
+    <div class="cd-dsec" style="margin-top:0">Primary Contact Details</div>
+    <div class="cd-field">
+      <label class="cd-label">Customer Image</label>
+      <div style="display:flex;align-items:center;gap:12px">
+        <button type="button" onclick="document.getElementById('newCustImageInput').click()" title="Click to upload photo"
+          style="width:48px;height:48px;border-radius:50%;flex-shrink:0;padding:0;border:.5px solid var(--border-strong);cursor:pointer;overflow:hidden;background:var(--accent-light);display:flex;align-items:center;justify-content:center">
+          <img id="newCustImagePreview" style="display:none;width:100%;height:100%;object-fit:cover"/>
+          <svg id="newCustImagePlaceholder" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="var(--text-muted)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        </button>
+        <input type="file" id="newCustImageInput" accept="image/*" hidden onchange="onNewCustImageChange(event)"/>
+        <span style="font-size:14px;color:var(--text-muted)">Click the circle to upload a photo</span>
+      </div>
+    </div>
+    <div style="display:flex;gap:16px;margin-bottom:16px">
+      <div class="cd-field" style="flex:0 0 84px;margin-bottom:0">
+        <label class="cd-label">Salutation</label>
+        <select class="cd-select" id="newCustSalutation">
+          <option value=""></option>
+          <option>Mr</option><option>Mrs</option><option>Ms</option><option>Miss</option><option>Dr</option><option>Prof</option><option>Madam</option><option>Master</option>
+        </select>
+      </div>
+      <div class="cd-field" style="flex:1;margin-bottom:0">
+        <label class="cd-label">First Name <span class="req">*</span></label>
+        <input class="cd-input" id="newCustFirstName" placeholder="First name"/>
+      </div>
+      <div class="cd-field" style="flex:1;margin-bottom:0">
+        <label class="cd-label">Last Name</label>
+        <input class="cd-input" id="newCustLastName" placeholder="Last name"/>
+      </div>
+    </div>
+    <div class="cd-grid-3" style="margin-bottom:16px">
+      <div class="cd-field"><label class="cd-label">Email ID</label><input class="cd-input" type="email" id="newCustEmail" placeholder="name@example.com"/></div>
+      <div class="cd-field"><label class="cd-label">Mobile Number <span class="req">*</span></label><input class="cd-input" id="newCustMobile" maxlength="10" placeholder="10-digit mobile"/></div>
+      <div class="cd-field"><label class="cd-label">GST Number</label><input class="cd-input" id="newCustGstin"/></div>
+    </div>
+    <div class="cd-grid" style="margin-bottom:16px">
+      <div class="cd-field"><label class="cd-label">PAN No</label><input class="cd-input" id="newCustPan" placeholder="ABCDE1234F"/></div>
+      <div class="cd-field"><label class="cd-label">Aadhaar No</label><input class="cd-input" id="newCustAadhaar" placeholder="12-digit Aadhaar"/></div>
+    </div>
+    <div class="cd-grid">
+      <div class="cd-field"><label class="cd-label">Date of Birth</label><input class="cd-input" type="date" id="newCustDob"/></div>
+      <div class="cd-field"><label class="cd-label">Date of Anniversary</label><input class="cd-input" type="date" id="newCustAnniversary"/></div>
+    </div>
+
+    <div class="cd-dsec">Primary Address Details</div>
+    <div class="cd-grid" style="margin-bottom:16px">
+      <label class="cd-check-lbl"><input type="checkbox" id="newCustIsPrimary" checked/>Preferred Billing Address</label>
+      <label class="cd-check-lbl"><input type="checkbox" id="newCustIsShipping"/>Preferred Shipping Address</label>
+    </div>
+    <div class="cd-grid" style="margin-bottom:16px">
+      <div class="cd-field"><label class="cd-label">Address Line 1</label><input class="cd-input" id="newCustAddr1"/></div>
+      <div class="cd-field"><label class="cd-label">Address Line 2</label><input class="cd-input" id="newCustAddr2"/></div>
+    </div>
+    <div class="cd-grid-4">
+      <div class="cd-field"><label class="cd-label">Postal Code</label><input class="cd-input" id="newCustPincode"/></div>
+      <div class="cd-field"><label class="cd-label">City/Town</label><input class="cd-input" id="newCustCity"/></div>
+      <div class="cd-field"><label class="cd-label">State/Province</label><input class="cd-input" id="newCustState"/></div>
+      <div class="cd-field">
+        <label class="cd-label">Country</label>
+        <div class="cd-ac">
+          <input class="cd-input" id="newCustCountry" value="India" autocomplete="off"
+            oninput="acNewCustCountry(this.value); toggleNewCustPassportField()" onfocus="acNewCustCountry(this.value)"/>
+          <div class="cd-ac-list" id="ac-newcust-country"></div>
+        </div>
+      </div>
+    </div>
+    <div class="cd-grid" id="newCustPassportWrap" style="display:none">
+      <div class="cd-field"><label class="cd-label">Passport Number <span class="req">*</span></label><input class="cd-input" id="newCustPassport" placeholder="Passport number"/></div>
+    </div>
+  </div>
+  <div class="cd-idialog-footer">
+    <button type="button" class="cd-btn cd-btn-secondary" id="newCustCancelBtn" onclick="closeNewCustomerDialog()">Cancel</button>
+    <button type="button" class="cd-btn cd-btn-primary" id="newCustSaveBtn" onclick="saveNewCustomer()">Save Customer</button>
+  </div>
+</div>
+
+
+<script>
+// ══ INSTANCE HELPERS ══
+const DEV1 = 'https://ppj-dev1.m.frappe.cloud';
+const DEV2 = 'https://ppj-dev2.m.frappe.cloud';
+const COMPANY = 'P.P. Jewellers Retail Pvt. Ltd.';
+function cdGetActiveInstance(){ return localStorage.getItem('cd_active_instance')||'PP'; }
+function cdGetAvailableInstances(){ return (localStorage.getItem('cd_available_instances')||'PP').split(',').filter(Boolean); }
+function cdGetInstanceUrl(inst){ return (inst||cdGetActiveInstance())==='PC'?DEV2:DEV1; }
+function cdGetInstanceHeaders(inst){
+  const i=inst||cdGetActiveInstance();
+  const key=i==='PC'?localStorage.getItem('cd_pc_key'):localStorage.getItem('cd_pp_key');
+  const sec=i==='PC'?localStorage.getItem('cd_pc_secret'):localStorage.getItem('cd_pp_secret');
+  if(!key||!sec) return null;
+  return{'Authorization':`token ${key}:${sec}`,'Content-Type':'application/json','Accept':'application/json'};
+}
+function cdSwitchInstance(inst){
+  const available=cdGetAvailableInstances();
+  if(!available.includes(inst)) return;
+  const key=inst==='PC'?localStorage.getItem('cd_pc_key'):localStorage.getItem('cd_pp_key');
+  const sec=inst==='PC'?localStorage.getItem('cd_pc_secret'):localStorage.getItem('cd_pp_secret');
+  localStorage.setItem('cd_active_instance',inst);
+  localStorage.setItem('cd_api_key',key);
+  localStorage.setItem('cd_api_secret',sec);
+  window.location.reload();
+}
+function cdInitInstanceToggle(){
+  const available=cdGetAvailableInstances();
+  const active=cdGetActiveInstance();
+  const bar=document.getElementById('cdInstanceBar');
+  if(!bar) return;
+  if(available.length<2){ bar.style.display='none'; return; }
+  bar.style.display='flex';
+  ['PP','PC'].forEach(inst=>{
+    const btn=document.getElementById('cdInst'+inst);
+    if(!btn) return;
+    btn.classList.toggle('active',inst===active);
+    btn.style.display=available.includes(inst)?'':'none';
+  });
+  const roleEl=document.getElementById('cdUserRole');
+  if(roleEl) roleEl.textContent='Active: '+active;
+}
+
+// ── NEW ASSIGNMENT: PP / PC INSTANCE PICKER ──
+// Assignments are created against whichever instance's credentials are active. If the user
+// picks the instance that's already active, just open the drawer directly; otherwise switch
+// credentials and reload with ?new=1 so init() re-opens a blank drawer post-reload.
+function toggleNewAssignPicker(e){
+  if(e) e.stopPropagation();
+  const picker=document.getElementById('newAssignPicker');
+  const available=cdGetAvailableInstances();
+  if(available.length<2){ goNewAssignment(available[0]||'PP'); return; }
+  const pcBtn=document.getElementById('newAssignPCBtn'); if(pcBtn) pcBtn.style.display=available.includes('PC')?'':'none';
+  picker.style.display=picker.style.display==='none'?'block':'none';
+}
+function goNewAssignment(inst){
+  const picker=document.getElementById('newAssignPicker'); if(picker) picker.style.display='none';
+  if(inst && inst!==cdGetActiveInstance() && cdGetAvailableInstances().includes(inst)){
+    const key=inst==='PC'?localStorage.getItem('cd_pc_key'):localStorage.getItem('cd_pp_key');
+    const sec=inst==='PC'?localStorage.getItem('cd_pc_secret'):localStorage.getItem('cd_pp_secret');
+    if(key&&sec){
+      localStorage.setItem('cd_active_instance',inst);
+      localStorage.setItem('cd_api_key',key);
+      localStorage.setItem('cd_api_secret',sec);
+    }
+    const url=new URL(window.location.href);
+    url.searchParams.set('new','1');
+    window.location.href=url.toString();
+    return;
+  }
+  openAssignDrawer();
+}
+document.addEventListener('click',(e)=>{
+  const p=document.getElementById('newAssignPicker');
+  if(p && !e.target.closest('#newAssignBtn') && !e.target.closest('#newAssignPicker')) p.style.display='none';
+  if(!e.target.closest('.cd-fchip-wrap') && !e.target.closest('.cd-sc-wrap')) closeAllPops();
+});
+
+// ── FILTER CHIP HELPERS (Created On / Last Updated On date range) ──
+function toggleFPop(id, e){
+  if(e) e.stopPropagation();
+  const pop  = document.getElementById(id==='createdOn'?'createdOnPop':'lastUpdatedPop');
+  const chip = document.getElementById(id==='createdOn'?'createdOnChip':'lastUpdatedChip');
+  const isOpen = pop.classList.contains('open');
+  closeFPops();
+  if(!isOpen){ pop.classList.add('open'); chip.classList.add('open'); }
+}
+function applyFPop(id){
+  if(id==='createdOn'){
+    createdOnFrom = document.getElementById('createdFrom').value;
+    createdOnTo   = document.getElementById('createdTo').value;
+  } else {
+    lastUpdatedFrom = document.getElementById('updatedFrom').value;
+    lastUpdatedTo   = document.getElementById('updatedTo').value;
+  }
+  updateChipLabel(id); closeFPops(); applyAssignFilters();
+}
+function clearFPop(id){
+  if(id==='createdOn'){
+    createdOnFrom=''; createdOnTo='';
+    document.getElementById('createdFrom').value='';
+    document.getElementById('createdTo').value='';
+  } else {
+    lastUpdatedFrom=''; lastUpdatedTo='';
+    document.getElementById('updatedFrom').value='';
+    document.getElementById('updatedTo').value='';
+  }
+  updateChipLabel(id); closeFPops(); applyAssignFilters();
+}
+function closeFPops(){ closeAllPops(); }
+function closeAllPops(){
+  document.querySelectorAll('.cd-fpop,.cd-sc-pop').forEach(p=>p.classList.remove('open'));
+  document.querySelectorAll('.cd-fchip,.cd-sc-lbl').forEach(c=>c.classList.remove('open'));
+}
+function updateChipLabel(id){
+  if(id==='createdOn'){
+    const lbl = document.getElementById('createdOnLabel');
+    const chip = document.getElementById('createdOnChip');
+    if(createdOnFrom && createdOnTo){ lbl.textContent=`Created: ${fmtDate(createdOnFrom)} – ${fmtDate(createdOnTo)}`; chip.classList.add('active'); }
+    else if(createdOnFrom){ lbl.textContent=`Created from ${fmtDate(createdOnFrom)}`; chip.classList.add('active'); }
+    else if(createdOnTo)  { lbl.textContent=`Created to ${fmtDate(createdOnTo)}`; chip.classList.add('active'); }
+    else { lbl.textContent='Created On'; chip.classList.remove('active'); }
+  } else {
+    const lbl = document.getElementById('lastUpdatedLabel');
+    const chip = document.getElementById('lastUpdatedChip');
+    if(lastUpdatedFrom && lastUpdatedTo){ lbl.textContent=`Updated: ${fmtDate(lastUpdatedFrom)} – ${fmtDate(lastUpdatedTo)}`; chip.classList.add('active'); }
+    else if(lastUpdatedFrom){ lbl.textContent=`Updated from ${fmtDate(lastUpdatedFrom)}`; chip.classList.add('active'); }
+    else if(lastUpdatedTo)  { lbl.textContent=`Updated to ${fmtDate(lastUpdatedTo)}`; chip.classList.add('active'); }
+    else { lbl.textContent='Last Updated'; chip.classList.remove('active'); }
+  }
+}
+
+// ── METAL TOUCH FILTER CHIP (Gold Purity Item Attribute values) ──
+function renderMetalTouchFilterOptions(){
+  const pop=document.getElementById('metalTouchPop');
+  if(!pop) return;
+  pop.innerHTML = '<div class="cd-sc-opt' + (metalTouchFilter===''?' active':'') + '" data-touch="" onclick="selectMetalTouchFilter(\'\',event)">All</div>'
+    + GOLD_PURITY_OPTIONS.map(v=>`<div class="cd-sc-opt${v===metalTouchFilter?' active':''}" data-touch="${esc(v)}" onclick="selectMetalTouchFilter('${esc(v)}',event)">${esc(v)}</div>`).join('');
+}
+function toggleMetalTouchPop(e){
+  if(e) e.stopPropagation();
+  const pop=document.getElementById('metalTouchPop');
+  const chip=document.getElementById('metalTouchChip');
+  const isOpen=pop.classList.contains('open');
+  closeAllPops();
+  if(!isOpen){ pop.classList.add('open'); chip.classList.add('open'); }
+}
+function selectMetalTouchFilter(value,e){
+  if(e) e.stopPropagation();
+  metalTouchFilter=value;
+  const lbl=document.getElementById('metalTouchLabel');
+  const chip=document.getElementById('metalTouchChip');
+  lbl.textContent = value || 'Metal Touch';
+  chip.classList.toggle('active', !!value);
+  renderMetalTouchFilterOptions();
+  closeAllPops();
+  applyAssignFilters();
+}
+
+// ── SORT CHIP HELPERS ──
+const SC_ICONS = {
+  desc: '<line x1="1" y1="4" x2="9" y2="4"/><line x1="1" y1="8" x2="7" y2="8"/><line x1="1" y1="12" x2="5" y2="12"/><line x1="13" y1="2" x2="13" y2="14"/><polyline points="10 11 13 14 16 11"/>',
+  asc:  '<line x1="1" y1="4" x2="5" y2="4"/><line x1="1" y1="8" x2="7" y2="8"/><line x1="1" y1="12" x2="9" y2="12"/><line x1="13" y1="14" x2="13" y2="2"/><polyline points="10 5 13 2 16 5"/>',
+};
+const SC_LABELS = { created:'Created On', updated:'Last Updated On', id:'ID' };
+function updateScChip(){
+  document.getElementById('scDirIcon').innerHTML = SC_ICONS[sortDir];
+  document.getElementById('scLbl').textContent   = SC_LABELS[sortField];
+  document.querySelectorAll('.cd-sc-opt').forEach(opt=>
+    opt.classList.toggle('active', opt.dataset.field===sortField));
+}
+function toggleSortDir(e){
+  if(e) e.stopPropagation();
+  sortDir = sortDir==='desc' ? 'asc' : 'desc';
+  updateScChip(); applyAssignFilters();
+}
+function toggleScPop(e){
+  if(e) e.stopPropagation();
+  const pop = document.getElementById('scPop');
+  const lbl = document.getElementById('scLblBtn');
+  const isOpen = pop.classList.contains('open');
+  closeAllPops();
+  if(!isOpen){ pop.classList.add('open'); lbl.classList.add('open'); }
+}
+function setSortField(field, e){
+  if(e) e.stopPropagation();
+  sortField = field;
+  updateScChip(); closeAllPops(); applyAssignFilters();
+}
+async function dev1Get(path){
+  const h=cdGetInstanceHeaders();
+  if(!h) throw new Error('No auth');
+  const res=await fetch(cdGetInstanceUrl()+path,{headers:h});
+  if(!res.ok) throw new Error('HTTP '+res.status);
+  return res.json();
+}
+async function dev1Post(path,body){
+  const h=cdGetInstanceHeaders();
+  if(!h) throw new Error('No auth');
+  const res=await fetch(cdGetInstanceUrl()+path,{method:'POST',headers:h,body:JSON.stringify(body)});
+  if(!res.ok){ const t=await res.text(); throw new Error(t||'HTTP '+res.status); }
+  return res.json();
+}
+async function dev1Put(path,body){
+  const h=cdGetInstanceHeaders();
+  if(!h) throw new Error('No auth');
+  const res=await fetch(cdGetInstanceUrl()+path,{method:'PUT',headers:h,body:JSON.stringify(body)});
+  if(!res.ok){ const t=await res.text(); throw new Error(t||'HTTP '+res.status); }
+  return res.json();
+}
+async function dev1Delete(path){
+  const h=cdGetInstanceHeaders();
+  if(!h) throw new Error('No auth');
+  const res=await fetch(cdGetInstanceUrl()+path,{method:'DELETE',headers:h});
+  if(!res.ok){ const t=await res.text(); throw new Error(t||'HTTP '+res.status); }
+  return res.json();
+}
+async function dev1PostForm(path, formData){
+  const h=cdGetInstanceHeaders();
+  if(!h) throw new Error('No auth');
+  const res=await fetch(cdGetInstanceUrl()+path,{method:'POST',headers:{'Authorization':h['Authorization'],'Accept':'application/json'},body:formData});
+  if(!res.ok){ const t=await res.text(); throw new Error(t||'HTTP '+res.status); }
+  return res.json();
+}
+
+// ── HELPERS ──
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function fmt(n){ return '₹'+(parseFloat(n||0)).toLocaleString('en-IN',{minimumFractionDigits:0,maximumFractionDigits:2}); }
+function fmtDate(d){ if(!d) return '—'; try{ return new Date(d).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}); }catch(e){ return d; } }
+function today(){ return new Date().toISOString().slice(0,10); }
+function emptyRow(colspan,title,sub){
+  return `<tr><td colspan="${colspan}"><div class="cd-empty"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><div class="cd-empty-title">${title}</div><div class="cd-empty-sub">${sub||''}</div></div></td></tr>`;
+}
+function showToast(msg,type='info'){
+  let t=document.getElementById('cdToast');
+  if(!t){ t=document.createElement('div'); t.id='cdToast'; t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--text-primary);color:var(--surface);padding:11px 20px;border-radius:10px;font-size:15px;font-weight:500;box-shadow:0 4px 24px rgba(0,0,0,.12);z-index:900;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;white-space:nowrap;'; document.body.appendChild(t); }
+  if(!msg){ t.style.opacity='0'; return; }
+  t.textContent=msg;
+  if(type==='success') t.style.background='#2D6A4F';
+  else if(type==='error') t.style.background='#A32D2D';
+  else t.style.background='#1A4A8A';
+  t.style.opacity='1'; t.style.transform='translateX(-50%) translateY(0)';
+  clearTimeout(t._t); t._t=setTimeout(()=>{ t.style.opacity='0'; t.style.transform='translateX(-50%) translateY(20px)'; },3000);
+}
+
+// ── STATE ──
+let CUSTOMERS = [];
+let SCHEMES = [];
+let BRANCHES = [];
+let COUNTRIES = [];
+async function loadCountries(){
+  try{
+    const res=await dev1Get(`/api/resource/Country?fields=${encodeURIComponent(JSON.stringify(["name"]))}&limit_page_length=0&order_by=name%20asc`);
+    COUNTRIES=(res.data||res.message||[]).map(c=>c.name).filter(Boolean);
+  }catch(e){
+    console.warn('Load countries error:', e.message);
+  }
+}
+function acNewCustCountry(val){
+  const list=document.getElementById('ac-newcust-country');
+  const q=(val||'').toLowerCase();
+  const results=COUNTRIES.filter(c=>c.toLowerCase().includes(q)).slice(0,20);
+  list.innerHTML = results.length? results.map(c=>`<div class="cd-ac-item" onclick="selNewCustCountry('${esc(c)}')"><div class="main">${esc(c)}</div></div>`).join('') : `<div class="cd-ac-empty">No country found</div>`;
+  list.classList.add('open');
+}
+function selNewCustCountry(name){
+  document.getElementById('newCustCountry').value=name;
+  document.getElementById('ac-newcust-country').classList.remove('open');
+  toggleNewCustPassportField();
+}
+document.addEventListener('click', e=>{
+  if(!e.target.closest('#ac-newcust-country') && !e.target.closest('#newCustCountry')) document.getElementById('ac-newcust-country')?.classList.remove('open');
+});
+let ASSIGNMENTS = [];
+let filteredAssignments = [];
+let instRowCount = 0;
+window.currentAssignName = null;
+let currentAssignStatus = '';
+let currentAssignDocstatus = 0;
+function isAssignActive(status){ return String(status||'').trim().toLowerCase()==='active'; }
+// The doctype is submittable in the backend (docstatus 0/1/2) — a row only becomes a real,
+// payable transaction once it's actually Submitted, regardless of what the Active/Closed
+// status field says (a draft that failed to auto-submit must not be treated as transactable).
+function canTransact(){ return currentAssignDocstatus===1 && isAssignActive(currentAssignStatus); }
+// docstatus takes priority for display: Draft/Cancelled are backend-submission states that
+// override whatever the Active/Closed status field happens to hold.
+function assignDisplayStatus(status, docstatus){
+  if(docstatus===2) return 'Cancelled';
+  if(docstatus===0) return 'Draft';
+  return status || 'Active';
+}
+let assignmentLocked = false;
+let sortDir = 'desc'; // 'asc' or 'desc'
+let sortField = 'updated'; // 'created' | 'updated' | 'id'
+let createdOnFrom = '', createdOnTo = '', lastUpdatedFrom = '', lastUpdatedTo = '';
+let metalTouchFilter = '';
+
+// ── DRAWER OPEN/CLOSE ──
+function openDrawer(id){
+  document.getElementById('drawerOverlay').classList.add('open');
+  document.getElementById(id).classList.add('open');
+}
+function closeDrawers(){
+  document.getElementById('drawerOverlay').classList.remove('open');
+  document.querySelectorAll('.cd-drawer').forEach(d=>d.classList.remove('open'));
+}
+
+// ── SCHEME: LOAD (data only — Scheme management now lives in the backend; this page only
+// needs SCHEMES populated for the New Assignment drawer's scheme picker) ──
+// Metal Touch options come from the "Gold Purity" Item Attribute's own configured values —
+// same source the desk form's client script (frappe.db.get_doc('Item Attribute','Gold Purity'))
+// populates its select from, mirrored here so both the New/Edit Assignment drawer's Metal
+// Touch field and the assignments list's Metal Touch filter chip use the exact same list.
+let GOLD_PURITY_OPTIONS=[];
+async function loadGoldPurityOptions(){
+  try{
+    const res=await dev1Get('/api/resource/Item%20Attribute/Gold%20Purity');
+    const doc=res.data||res.message||res;
+    GOLD_PURITY_OPTIONS=(doc.item_attribute_values||[]).map(d=>d.attribute_value).filter(Boolean);
+  }catch(e){
+    console.warn('Load Gold Purity options failed:', e.message);
+    GOLD_PURITY_OPTIONS=[];
+  }
+  const sel=document.getElementById('assignMetalTouch');
+  if(sel){
+    const current=sel.value;
+    sel.innerHTML = '<option value="">Select…</option>' + GOLD_PURITY_OPTIONS.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join('');
+    sel.value = current;
+  }
+  renderMetalTouchFilterOptions();
+}
+
+async function loadBranches(){
+  try{
+    const res = await dev1Get('/api/resource/Branch?fields=["name"]&limit_page_length=100');
+    BRANCHES = (res.data||res.message||[]).map(b=>b.name).filter(Boolean);
+  }catch(e){ console.warn('Load branches error:', e.message); BRANCHES=[]; }
+  const sel = document.getElementById('assignBranch');
+  if(sel){
+    const current = sel.value;
+    sel.innerHTML = '<option value="">- Select Branch -</option>' + BRANCHES.map(b=>`<option value="${esc(b)}">${esc(b)}</option>`).join('');
+    sel.value = current;
+  }
+}
+
+async function loadSchemes(){
+  try{
+    const h=cdGetInstanceHeaders();
+    if(!h){ window.location.replace('/caratdesk-login?logout=1'); return; }
+    const fields=["name","scheme_name","valid_from","is_disable","is_scheme_tranferable","no_of_emi","minimun_emi","maximum_emi","emi_multiple_off"];
+    const res=await dev1Get(`/api/resource/Jewellery%20Scheme?fields=${encodeURIComponent(JSON.stringify(fields))}&limit_page_length=0&order_by=modified%20desc`);
+    SCHEMES=(res.data||res.message||[]).map(s=>({
+      name:s.name, display:s.scheme_name||s.name,
+      valid_from:s.valid_from, is_disable:s.is_disable, is_scheme_tranferable:s.is_scheme_tranferable,
+      no_of_emi:s.no_of_emi, minimun_emi:s.minimun_emi, maximum_emi:s.maximum_emi, emi_multiple_off:s.emi_multiple_off,
+    }));
+  }catch(e){
+    console.error('Load schemes error:',e);
+  }
+}
+
+// ── ASSIGNMENT: INSTALLMENT ROWS ──
+// A row that isn't paid yet is "Overdue" once its due date has passed — computed here for
+// display, and separately reconciled into the real backend status by syncOverdueInstallments.
+function computeInstallStatus(status, date){
+  if(String(status||'').toLowerCase()==='paid') return 'Paid';
+  if(date && date < new Date().toISOString().slice(0,10)) return 'Overdue';
+  return status||'Unpaid';
+}
+function installStatusPill(status){
+  const cls = status==='Paid' ? 'green' : status==='Overdue' ? 'amber' : 'red';
+  return `<span class="cd-pill ${cls}" style="white-space:nowrap">${esc(status)}</span>`;
+}
+// toISOString() reports the UTC calendar date, not the local one — in IST (UTC+5:30) that's
+// wrong for roughly the first 5.5 hours of every local day, silently shifting these dates back
+// by one. en-CA formats as YYYY-MM-DD in the browser's own local timezone instead.
+function toISODate(d){ return d.toLocaleDateString('en-CA'); }
+// Adds N calendar months to a YYYY-MM-DD date string in one shot (not by looping +1 month N
+// times, which would compound day-of-month drift) — clamped to the target month's last day if
+// the day-of-month doesn't exist there (e.g. Jan 31 + 1 month -> Feb 28, not Mar 3).
+function addMonths(dateStr, n){
+  if(!dateStr) return '';
+  const d=new Date(dateStr+'T00:00:00');
+  const day=d.getDate();
+  d.setDate(1);
+  d.setMonth(d.getMonth()+n);
+  const lastDay=new Date(d.getFullYear(), d.getMonth()+1, 0).getDate();
+  d.setDate(Math.min(day, lastDay));
+  return toISODate(d);
+}
+// Mirrors frappe.utils.get_last_day — the last calendar day of the given date's month.
+function lastDayOfMonth(dateStr){
+  if(!dateStr) return '';
+  const d=new Date(dateStr+'T00:00:00');
+  return toISODate(new Date(d.getFullYear(), d.getMonth()+1, 0));
+}
+// Mirrors the server's own schedule-generation exactly (see the before_save hook on Jewellery
+// Scheme Assignment): row i (0-based, matching its range(0, no_of_emi)) -> Original Due Date =
+// Start Date + i months, Extended Due Date = the last day of that month. The server rebuilds
+// the whole schedule this same way on every save as long as nothing's paid yet, so this
+// client-side preview always matches what actually ends up saved.
+function addInstallRowWithNextDate(){
+  const startDate=document.getElementById('assignDate').value;
+  const rowIndex=document.querySelectorAll('#instTbody tr').length;
+  const originalDate=startDate ? addMonths(startDate, rowIndex) : '';
+  const date=originalDate ? lastDayOfMonth(originalDate) : '';
+  addInstallRow({date, original_due_date:originalDate});
+}
+function addInstallRow(d={}){
+  instRowCount++;
+  const id='inst-'+instRowCount;
+  const tr=document.createElement('tr'); tr.id=id;
+  tr.dataset.rowName = d.name||'';
+  const isPaid = String(d.status||'').toLowerCase()==='paid';
+  const effectiveStatus = computeInstallStatus(d.status, d.date);
+  const fieldsLocked = isPaid || assignmentLocked;
+  // Paid rows can never be selected again; overdue rows are still payable, same as unpaid.
+  // Force-closed or not-yet-submitted assignments can't take any new transaction either.
+  const selectable = !!d.name && !isPaid && canTransact();
+  // Original Due Date is frozen at whatever the due date was when the row was first saved —
+  // it never follows later edits to the (now-renamed) Extended Due Date field, so it always
+  // shows the originally scheduled date even after a reschedule.
+  const originalDate = d.original_due_date || d.date || '';
+  tr.innerHTML=`
+    <td style="text-align:center">${isPaid?'':`<input type="checkbox" class="inst-chk" ${selectable?'':'disabled'} onchange="updateInstallSelection()" title="${!canTransact()&&d.name?(currentAssignDocstatus!==1?'This assignment must be submitted before payments can be collected':'This assignment is closed — no further transactions are allowed'):(!d.name?'Save the assignment first to select this row':'Select for payment')}"/>`}</td>
+    <td><input type="date" data-f="original_due_date" value="${originalDate}" disabled/></td>
+    <td style="text-align:right"><input type="number" min="0" step="0.01" data-f="emi" value="${d.emi??''}" placeholder="0" oninput="updateInstallTotal()" ${fieldsLocked?'disabled':''}/></td>
+    <td>${installStatusPill(effectiveStatus)}</td>
+    <td><input type="date" data-f="payment_date" value="${d.payment_date||''}" disabled/></td>
+    <td><input type="date" data-f="date" value="${d.date||''}" ${fieldsLocked?'disabled':''}/></td>
+    <td>${(isPaid||assignmentLocked)?'':`<button class="cd-del-btn" onclick="delInstallRow('${id}')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>`}</td>
+  `;
+  document.getElementById('instTbody').appendChild(tr);
+  updateInstallTotal();
+  updateInstallSelection();
+  updateAssignEndDate();
+}
+// End Date is never typed directly — it's always the last installment row's own Due Date
+// (Original Due Date), i.e. Start Date + (no_of_emi - 1) months, kept in sync every time a
+// row is added or removed.
+function updateAssignEndDate(){
+  const rows=[...document.querySelectorAll('#instTbody tr')];
+  const lastRow=rows[rows.length-1];
+  const lastOriginalDate=lastRow?.querySelector('[data-f="original_due_date"]')?.value||'';
+  document.getElementById('assignEndDate').value = lastOriginalDate;
+}
+function delInstallRow(id){ document.getElementById(id)?.remove(); updateInstallTotal(); updateInstallSelection(); updateAssignEndDate(); }
+function updateInstallTotal(){
+  let total=0;
+  document.querySelectorAll('#instTbody tr').forEach(tr=>{ total+=parseFloat(tr.querySelector('[data-f="emi"]')?.value||0)||0; });
+  const el=document.getElementById('instTotal'); if(el) el.textContent=fmt(total);
+}
+function toggleAllInstallRows(checked){
+  document.querySelectorAll('#instTbody .inst-chk:not(:disabled)').forEach(cb=>{ cb.checked=checked; });
+  updateInstallSelection();
+}
+function updateInstallSelection(){
+  const boxes=[...document.querySelectorAll('#instTbody .inst-chk')];
+  const selectable=boxes.filter(cb=>!cb.disabled);
+  const checked=selectable.filter(cb=>cb.checked);
+  const selectAll=document.getElementById('instSelectAll');
+  if(selectAll){
+    selectAll.disabled = selectable.length===0;
+    selectAll.checked = selectable.length>0 && checked.length===selectable.length;
+    selectAll.indeterminate = checked.length>0 && checked.length<selectable.length;
+  }
+  refreshPaymentPanel();
+}
+
+// ── PAYMENT PANEL — inline, multi-mode split payment (same "+ Add Payment Mode" pattern as
+// POS Billing's Enter Payment), shown on the right of the installment table instead of a
+// separate button + dialog. Recomputes "Amount to Collect" from whichever installment rows
+// are currently checked. ──
+let PAYMENT_MODES=[];
+let PAY_ACCOUNTS=[];
+let PE_COMPANY_DOC={};
+let payDataLoaded=false;
+let paySettlePending=null; // { party, partyName, assignmentName, rowNames, total }
+let paySettleRows=[];      // [{ mode, amount, reference, counts:{denom:qty} }]
+let paymentReviewLocked=false;   // true once Save Payment has locked the fields for review — no backend write happens here
+let paymentReviewSnapshot=null;  // { party, partyName, assignmentName, rowNames, rows } captured at save time, used by Submit
+const PAY_DENOMS=[500,200,100,50,20,10,5,2,1];
+function isCashMode(m){ return /cash/i.test(m||''); }
+function isBankDraftMode(m){ return /bank draft/i.test(m||''); }
+const CASH_LIMIT=200000;
+
+function refreshPaymentPanel(){
+  const checkedRows=[...document.querySelectorAll('#instTbody tr')].filter(tr=>tr.querySelector('.inst-chk')?.checked);
+  const hint=document.getElementById('paySettleHint');
+  if(!window.currentAssignName || !checkedRows.length){
+    paySettlePending=null;
+    paySettleRows=[];
+    paymentReviewLocked=false;
+    paymentReviewSnapshot=null;
+    document.getElementById('paySettleTotal').textContent=fmt(0);
+    document.getElementById('paySettleRowsWrap').innerHTML='';
+    document.getElementById('paySettleReceived').textContent=fmt(0);
+    document.getElementById('paySettleDue').textContent=fmt(0);
+    document.getElementById('paySettleChange').textContent=fmt(0);
+    updatePaySettleButtonStates();
+    if(hint){
+      hint.style.display='';
+      hint.textContent = !window.currentAssignName
+        ? 'Save the assignment first to collect a payment.'
+        : !canTransact()
+          ? (currentAssignDocstatus!==1 ? 'This assignment must be submitted before payments can be collected.' : 'This assignment is closed — no further transactions are allowed.')
+          : 'Select at least one unpaid installment row above to collect a payment.';
+    }
+    return;
+  }
+  if(hint) hint.style.display='none';
+  let total=0; const rowNames=[];
+  checkedRows.forEach(tr=>{
+    total+=parseFloat(tr.querySelector('[data-f="emi"]')?.value||0)||0;
+    if(tr.dataset.rowName) rowNames.push(tr.dataset.rowName);
+  });
+  total=Math.round(total*100)/100;
+  const custInput=document.getElementById('assignCustomer').value.trim();
+  const custObj=CUSTOMERS.find(c=>c.display===custInput||c.name===custInput);
+  const party=custObj?.name||custInput;
+  const partyName=custObj?.display||custInput;
+  paySettlePending={ party, partyName, assignmentName:window.currentAssignName, rowNames, total };
+  document.getElementById('paySettleTotal').textContent=fmt(total);
+  if(!paySettleRows.length) paySettleRows=[{mode:'Cash', amount:'', reference:'', referenceDate:'', counts:{}}];
+  ensurePayAccountsAndModes().then(()=>{ renderPaySettleRows(); updatePaySettleTotals(); });
+}
+
+// mode_of_payment on Payment Entry is a real Link field to the "Mode of Payment" doctype —
+// offering a hardcoded label the backend has no matching record for (e.g. "Wallet") would
+// make Payment Entry creation fail server-side with a Link validation error. So the dropdown
+// is populated strictly from what actually exists in that doctype, nothing invented.
+async function ensurePayAccountsAndModes(){
+  if(payDataLoaded) return;
+  payDataLoaded=true;
+  try{
+    const [modeRes, acctRes, companyRes] = await Promise.allSettled([
+      dev1Get('/api/resource/Mode%20of%20Payment?fields=["name"]&limit_page_length=50&order_by=name%20asc'),
+      dev1Get(`/api/resource/Account?filters=${encodeURIComponent(JSON.stringify([["company","=",COMPANY],["is_group","=",0],["account_type","in",["Cash","Bank"]]]))}&fields=${encodeURIComponent(JSON.stringify(["name","account_type"]))}&limit_page_length=0`),
+      dev1Get(`/api/resource/Company/${encodeURIComponent(COMPANY)}`),
+    ]);
+    if(modeRes.status==='fulfilled') PAYMENT_MODES=(modeRes.value.data||modeRes.value.message||[]).map(m=>m.name);
+    if(acctRes.status==='fulfilled') PAY_ACCOUNTS=(acctRes.value.data||acctRes.value.message||[]).map(a=>({name:a.name, account_type:a.account_type}));
+    if(companyRes.status==='fulfilled') PE_COMPANY_DOC=companyRes.value.data||companyRes.value.message||{};
+  }catch(e){ console.warn('Load payment data error:', e.message); }
+  if(!PAYMENT_MODES.length) console.warn('No Mode of Payment records found — the payment mode dropdown will be empty.');
+}
+
+// No manual Cash/Bank Account picker — resolve the GL account straight from the chosen
+// Mode of Payment's own "Accounts" table (the same mapping the real Frappe Payment Entry
+// form uses to auto-fill the account once you pick a mode), scoped to this company. Falls
+// back to the first matching Cash/Bank account if that mode has no mapping configured yet.
+async function resolvePaymentAccount(mode){
+  try{
+    const res=await dev1Get('/api/resource/Mode%20of%20Payment/'+encodeURIComponent(mode));
+    const doc=res.data||res.message||res;
+    const row=(doc.accounts||[]).find(a=>a.company===COMPANY);
+    if(row?.default_account) return row.default_account;
+  }catch(e){ console.warn('Mode of Payment account lookup failed:', mode, e.message); }
+  const fallback = isCashMode(mode)
+    ? PAY_ACCOUNTS.find(a=>a.account_type==='Cash')
+    : PAY_ACCOUNTS.find(a=>a.account_type==='Bank');
+  return (fallback || PAY_ACCOUNTS[0])?.name || '';
+}
+
+function renderPaySettleRows(){
+  const wrap=document.getElementById('paySettleRowsWrap');
+  // Once Save Payment has created the draft entries, freeze every field — nothing typed
+  // here afterward would sync back into those already-created documents, so letting the
+  // user keep editing would be actively misleading.
+  const locked=paymentReviewLocked;
+  const dis=locked?'disabled':'';
+  wrap.innerHTML = paySettleRows.map((row,i)=>{
+    const removable = paySettleRows.length>1 && !locked;
+    const cash = isCashMode(row.mode);
+    const bankDraft = isBankDraftMode(row.mode);
+    const cashTotal = Object.entries(row.counts||{}).reduce((s,[d,q])=>s+parseFloat(d)*(parseFloat(q)||0),0);
+    return `
+      <div class="cd-payment-entry" data-payrow="${i}">
+        <div class="cd-payment-row ${removable?'removable':''}">
+          <select class="cd-select" ${dis} onchange="updatePaySettleMode(${i},this.value)">
+            ${PAYMENT_MODES.map(m=>`<option value="${esc(m)}" ${m===row.mode?'selected':''}>${esc(m)}</option>`).join('')}
+          </select>
+          <input class="cd-input" type="number" min="0" placeholder="Amount" value="${row.amount??''}" ${dis} oninput="updatePaySettleAmount(${i},this.value)" style="text-align:right"/>
+          ${removable?`<button class="cd-del-btn" onclick="removePaySettleRow(${i})" title="Remove"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>`:''}
+        </div>
+        ${!cash&&bankDraft?`<div style="display:flex;gap:8px;margin-bottom:8px">
+          <input class="cd-input" placeholder="Reference Number *" value="${esc(row.reference||'')}" ${dis} oninput="updatePaySettleReference(${i},this.value)" style="flex:2"/>
+          <input class="cd-input" type="date" placeholder="Reference Date" value="${row.referenceDate||''}" ${dis} oninput="updatePaySettleReferenceDate(${i},this.value)" style="flex:1"/>
+        </div>`:''}
+        ${!cash&&!bankDraft?`<input class="cd-input" placeholder="Reference / UTR / Cheque Number *" value="${esc(row.reference||'')}" ${dis} oninput="updatePaySettleReference(${i},this.value)" style="margin-bottom:8px"/>`:''}
+        ${cash?`<div class="cd-cash-box">
+          <label class="cd-label">Currency denominations</label>
+          <div class="cd-denomination-grid compact">
+            ${PAY_DENOMS.map(d=>`<label><span>₹${d}</span><input class="cd-input" type="number" min="0" value="${row.counts?.[d]||''}" ${dis} oninput="updatePaySettleDenom(${i},${d},this.value)" style="text-align:right"/><strong data-denom-total="${d}">${fmt(d*(parseFloat(row.counts?.[d])||0))}</strong></label>`).join('')}
+          </div>
+          <div class="cd-cash-declared">Cash counted <strong data-cash-counted>${fmt(cashTotal)}</strong></div>
+        </div>`:''}
+      </div>
+    `;
+  }).join('');
+  const addBtn=document.getElementById('paySettleAddRowBtn');
+  if(addBtn) addBtn.style.display=locked?'none':'';
+}
+function addPaySettleRow(){
+  // Prefill the new row with whatever's still pending after the existing rows, so splitting
+  // across modes doesn't require re-typing/subtracting the remaining balance by hand.
+  const due=paySettlePending?.total||0;
+  const allocated=paySettleRows.reduce((s,r)=>s+(parseFloat(r.amount)||0),0);
+  const pending=Math.max(0, Math.round((due-allocated)*100)/100);
+  paySettleRows.push({mode: PAYMENT_MODES.find(m=>!isCashMode(m))||PAYMENT_MODES[0]||'UPI', amount: pending||'', reference:'', counts:{}});
+  renderPaySettleRows();
+  updatePaySettleTotals();
+}
+function removePaySettleRow(i){
+  if(paySettleRows.length<=1) return;
+  paySettleRows.splice(i,1);
+  renderPaySettleRows();
+  updatePaySettleTotals();
+}
+function updatePaySettleMode(i,val){
+  paySettleRows[i].mode=val;
+  renderPaySettleRows();
+  updatePaySettleTotals();
+}
+function updatePaySettleAmount(i,val){
+  paySettleRows[i].amount=val;
+  updatePaySettleTotals();
+}
+function updatePaySettleReference(i,val){
+  paySettleRows[i].reference=val;
+}
+function updatePaySettleReferenceDate(i,val){
+  paySettleRows[i].referenceDate=val;
+}
+function updatePaySettleDenom(i,denom,val){
+  if(!paySettleRows[i].counts) paySettleRows[i].counts={};
+  paySettleRows[i].counts[denom]=val;
+  const rowTotal=Object.entries(paySettleRows[i].counts||{}).reduce((s,[d,q])=>s+parseFloat(d)*(parseFloat(q)||0),0);
+  // Cash is counted, not typed — the row's Amount always mirrors what was counted here.
+  paySettleRows[i].amount=rowTotal;
+  const rowEl=document.querySelector(`[data-payrow="${i}"]`);
+  if(rowEl){
+    const lineTotal=denom*(parseFloat(val)||0);
+    const strongEl=rowEl.querySelector(`[data-denom-total="${denom}"]`);
+    if(strongEl) strongEl.textContent=fmt(lineTotal);
+    const cashCountedEl=rowEl.querySelector('[data-cash-counted]');
+    if(cashCountedEl) cashCountedEl.textContent=fmt(rowTotal);
+    const amountInput=rowEl.querySelector('.cd-payment-row input[type="number"]');
+    if(amountInput) amountInput.value=rowTotal||'';
+  }
+  updatePaySettleTotals();
+}
+function updatePaySettleTotals(){
+  const due=paySettlePending?.total||0;
+  const allocated=Math.round(paySettleRows.reduce((s,r)=>s+(parseFloat(r.amount)||0),0)*100)/100;
+  const pending=Math.max(0, Math.round((due-allocated)*100)/100);
+  const change=Math.max(0, Math.round((allocated-due)*100)/100);
+  document.getElementById('paySettleReceived').textContent=fmt(allocated);
+  document.getElementById('paySettleDue').textContent=fmt(pending);
+  document.getElementById('paySettleChange').textContent=fmt(change);
+  updatePaySettleButtonStates();
+}
+function updatePaySettleButtonStates(){
+  const saveBtn=document.getElementById('paySettleSaveBtn');
+  const submitBtn=document.getElementById('paySettleSubmitBtn');
+  if(!saveBtn||!submitBtn) return;
+  const allocated=paySettleRows.reduce((s,r)=>s+(parseFloat(r.amount)||0),0);
+  const due=paySettlePending?.total||0;
+  const pending=Math.max(0, Math.round((due-allocated)*100)/100);
+  const readyToSave = !!paySettlePending && allocated>0 && pending<=0.01;
+  saveBtn.disabled = paymentReviewLocked || !readyToSave;
+  submitBtn.disabled = !paymentReviewLocked;
+}
+// Step 1 — pure client-side validation + review lock. No API call, no Payment Entry created
+// yet — just freezes the fields so the user can verify the numbers before anything is
+// actually written to the backend.
+function savePaySettle(){
+  if(!paySettlePending) return;
+  const rowsToSubmit=paySettleRows.filter(r=>(parseFloat(r.amount)||0)>0);
+  if(!rowsToSubmit.length){ showToast('Enter at least one payment amount','error'); return; }
+  const allocated=rowsToSubmit.reduce((s,r)=>s+(parseFloat(r.amount)||0),0);
+  if(allocated + 0.01 < paySettlePending.total){ showToast('Payment total is less than the amount due','error'); return; }
+  const missingRef=rowsToSubmit.find(r=>!isCashMode(r.mode) && !(r.reference||'').trim());
+  if(missingRef){ showToast(`Reference / UTR / Cheque Number is required for ${missingRef.mode}`,'error'); return; }
+  // Section 269ST: cash received against a single transaction can't be ₹2,00,000 or more.
+  const cashTotal=rowsToSubmit.filter(r=>isCashMode(r.mode)).reduce((s,r)=>s+(parseFloat(r.amount)||0),0);
+  if(cashTotal>CASH_LIMIT){ showToast(`Cash payment cannot exceed ${fmt(CASH_LIMIT)} per transaction`,'error'); return; }
+  paymentReviewSnapshot={ ...paySettlePending, rows: rowsToSubmit.map(r=>({...r})) };
+  paymentReviewLocked=true;
+  renderPaySettleRows();
+  updatePaySettleButtonStates();
+  const hint=document.getElementById('paySettleHint');
+  hint.style.display='';
+  hint.textContent='Reviewed — click Submit Payment to create and submit the payment entry.';
+}
+// Step 2 — the only step that actually talks to the backend: creates one Payment Entry per
+// payment-mode row (a standalone Payment Entry only ever holds one mode of payment), submits
+// each immediately, then marks every selected installment row paid, linked to the first
+// entry created.
+async function submitPaySettle(){
+  if(!paymentReviewLocked || !paymentReviewSnapshot) return;
+  const partyAccount=PE_COMPANY_DOC.default_receivable_account;
+  if(!partyAccount){ showToast('Company has no default receivable account configured','error'); return; }
+  const btn=document.getElementById('paySettleSubmitBtn');
+  btn.disabled=true; const originalLbl=btn.textContent; btn.textContent='Submitting…';
+  try{
+    const { party, partyName, assignmentName, rowNames, rows } = paymentReviewSnapshot;
+    // toISOString() reports the UTC calendar date, not the local one — in IST (UTC+5:30) that's
+    // wrong for roughly the first 5.5 hours of every local day. en-CA formats as YYYY-MM-DD in
+    // the browser's own local timezone instead. This is also the value Payment Date (below)
+    // gets stamped with, so it always matches the actual Payment Entry's own Posting Date.
+    const postingDate = new Date().toLocaleDateString('en-CA');
+    // Auto-generated, not user-entered — identifies the parent assignment, its scheme, and
+    // which installment month(s) this collection covers (an assignment's Due Date is Start
+    // Date + i months, so it doubles as that installment's month label).
+    const schemeName = document.getElementById('assignScheme').value.trim();
+    const paidRowEls = [...document.querySelectorAll('#instTbody tr')].filter(tr => rowNames.includes(tr.dataset.rowName));
+    const monthLabels = paidRowEls
+      .map(tr => tr.querySelector('[data-f="original_due_date"]')?.value)
+      .filter(Boolean)
+      .map(d => new Date(d + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', year: 'numeric' }));
+    const monthText = [...new Set(monthLabels)].join(', ');
+    const remarks = `Parent: ${assignmentName}${schemeName ? ` | Scheme: ${schemeName}` : ''}${monthText ? ` | Month: ${monthText}` : ''}`;
+    const createdNames=[];
+    for(const row of rows){
+      const amount=Math.round((parseFloat(row.amount)||0)*100)/100;
+      const account=await resolvePaymentAccount(row.mode);
+      if(!account) throw new Error(`No Cash/Bank account found for mode "${row.mode}"`);
+      const payload={
+        doctype:'Payment Entry',
+        payment_type:'Receive',
+        party_type:'Customer',
+        party, party_name: partyName,
+        company: COMPANY,
+        posting_date: postingDate,
+        remarks,
+        paid_from: partyAccount,
+        paid_to: account,
+        paid_amount: amount,
+        received_amount: amount,
+        source_exchange_rate: 1,
+        target_exchange_rate: 1,
+        mode_of_payment: row.mode||undefined,
+        reference_no: (row.reference||'').trim() || undefined,
+        // ERPNext requires Reference Date for any non-Cash mode (UPI included) even though the
+        // row's own UI only shows a Reference Date picker for Bank Draft — everything else just
+        // gets today's date automatically instead of forcing the cashier to pick one.
+        reference_date: row.referenceDate || (isCashMode(row.mode) ? undefined : postingDate),
+      };
+      const res=await dev1Post('/api/resource/Payment%20Entry', payload);
+      const name=res?.data?.name||res?.name;
+      if(!name) throw new Error('Payment Entry creation failed');
+      await dev1Put('/api/resource/Payment%20Entry/'+encodeURIComponent(name), {docstatus:1});
+      createdNames.push(name);
+    }
+    if(rowNames.length && createdNames.length){
+      await markInstallmentsPaidInline(assignmentName, rowNames, createdNames[0], postingDate);
+    }
+    showToast(createdNames.length>1?`${createdNames.length} payment entries created`:`Payment Entry ${createdNames[0]} created`,'success');
+    paySettleRows=[]; paymentReviewLocked=false; paymentReviewSnapshot=null;
+    await openAssignDrawer(assignmentName);
+    await loadAssignments();
+  }catch(e){
+    showToast('Error: '+String(e.message).slice(0,120),'error');
+  }finally{
+    btn.textContent=originalLbl;
+    updatePaySettleButtonStates();
+  }
+}
+// Looks up the Metal Price List's rate for whatever Gold touch the assignment itself is set
+// to (its own Metal Touch field, e.g. "22KT" or "24KT" — the purity the customer actually
+// chose to accumulate) — needed here only for "accumulate_gold" schemes (Swaran Nidhi), to
+// lock in the gold weight each installment actually bought at the rate on the day it was paid.
+// Matched by name (trimmed/case-insensitive), not position, since Metal Price List can hold
+// several touches for Gold and their row order isn't meaningful.
+async function fetchGoldRateForTouch(touch){
+  if(!touch) return 0;
+  try{
+    const filters=encodeURIComponent(JSON.stringify([['Metal Price List','metal_type','=','Gold']]));
+    const fields=encodeURIComponent(JSON.stringify(['metal_touch','rate']));
+    const res=await dev1Get(`/api/resource/Metal%20Price%20List?fields=${fields}&filters=${filters}&order_by=date%20desc&limit_page_length=100`);
+    const rows=res.data||res.message||[];
+    const wanted=String(touch).trim().toLowerCase();
+    const match=rows.find(r=>String(r.metal_touch||'').trim().toLowerCase()===wanted);
+    return match ? (parseFloat(match.rate)||0) : 0;
+  }catch(e){ console.warn('Gold rate lookup failed for touch '+touch+':', e.message); return 0; }
+}
+async function markInstallmentsPaidInline(assignmentName, rowNames, paymentEntryName, paymentDate){
+  const res=await dev1Get('/api/resource/Jewellery%20Scheme%20Assignment/'+encodeURIComponent(assignmentName));
+  const doc=res.data||res.message||res;
+  // Swaran Nidhi-style "Freeze the Gold" schemes lock each installment's equivalent gold
+  // weight in at today's rate — for whichever touch the customer actually chose to
+  // accumulate at (the assignment's own Metal Touch field) — so POS Billing can later value
+  // the accumulated grams at the redemption day's rate. Capture that lock-in here, at the
+  // moment the money is received.
+  let goldRate=0;
+  let accumulateGold=false;
+  try{
+    const schemeRes=await dev1Get('/api/resource/Jewellery%20Scheme/'+encodeURIComponent(doc.scheme)+'?fields='+encodeURIComponent(JSON.stringify(['accumulate_gold'])));
+    const schemeDoc=schemeRes.data||schemeRes.message||{};
+    accumulateGold=!!schemeDoc.accumulate_gold;
+    if(accumulateGold){
+      if(!doc.metal_touch){
+        showToast('This scheme accumulates gold, but the assignment has no Metal Touch set — payment was recorded, but gold weight was not locked in for this installment. Set Metal Touch and re-save.','error',7000);
+      } else {
+        goldRate=await fetchGoldRateForTouch(doc.metal_touch);
+        if(!goldRate) showToast(`No Metal Price List rate found for Gold at ${doc.metal_touch} — gold weight was not locked in for this installment.`,'error',7000);
+      }
+    }
+  }catch(e){ console.warn('Scheme lookup for gold accumulation failed:', e.message); }
+  const details=(doc.jewellery_scheme_assignment_details||[]).map(r=>{
+    if(!rowNames.includes(r.name)) return r;
+    const updated={...r, status:'Paid', payment_entry:paymentEntryName, paid_by: r.paid_by||'Customer', payment_date: r.payment_date||paymentDate};
+    if(goldRate>0){
+      updated.gold_rate=goldRate;
+      updated.gold_qty=Math.round((parseFloat(r.emi||0)/goldRate)*1000)/1000;
+    }
+    return updated;
+  });
+  // Every installment paid off = the scheme has matured. No credit-note Sales Invoice gets
+  // created here anymore — each installment's own Payment Entry already booked the customer's
+  // money as a real unallocated advance (Advance Received From Customer), since this company
+  // has "Book Advance Payments in Separate Party Account" enabled. A separate credit note on
+  // top of that would double-book the same money into two different accounts. POS Billing's
+  // redemption flow reads the real advance directly off those Payment Entries instead, and
+  // treats the scheme's bonus month (has_bonus_month/bonus_installments) as a genuine discount
+  // at redemption time, not as fabricated money here.
+  const allPaid = details.length>0 && details.every(r=>String(r.status||'').toLowerCase()==='paid');
+  // Once fully matured, back-fill each installment's Rate Difference and P&L (Amount) against
+  // the rate at maturity — the same two columns as the client's own working sheet — purely so
+  // staff can see the breakdown behind the gold-accumulation benefit right on the assignment.
+  // POS Billing's own redemption math (enrichSchemeAssignmentWithRedeemableValue in api.js)
+  // still values the accumulated grams at the LIVE rate at the moment of actual redemption,
+  // which may differ from this maturity-time snapshot if gold moves during the grace month.
+  let finalDetails = details;
+  if(allPaid && accumulateGold){
+    const finalRate = goldRate>0 ? goldRate : (details.find(r=>r.gold_rate>0)?.gold_rate||0);
+    if(finalRate>0){
+      finalDetails = details.map(r=>{
+        if(!(parseFloat(r.gold_rate)>0)) return r;
+        const diffRate=Math.round((finalRate-r.gold_rate)*100)/100;
+        const amount=Math.round((diffRate*(parseFloat(r.gold_qty)||0))*100)/100;
+        return {...r, diffrence_rate:diffRate, amount};
+      });
+    }
+  }
+  const updatePayload = { jewellery_scheme_assignment_details: finalDetails };
+  if(allPaid) updatePayload.status = 'Matured';
+  await dev1Put('/api/resource/Jewellery%20Scheme%20Assignment/'+encodeURIComponent(assignmentName), updatePayload);
+  if(allPaid) showToast('Scheme matured — credit is now available to redeem in POS Billing','success');
+}
+
+// ── ASSIGNMENT: CUSTOMER / SCHEME AUTOCOMPLETE ──
+function acAssignCustomer(val){
+  if(assignmentLocked) return;
+  const list=document.getElementById('ac-assign-customer');
+  const q=(val||'').toLowerCase();
+  const results=CUSTOMERS.filter(c=>c.display.toLowerCase().includes(q)||c.name.toLowerCase().includes(q)).slice(0,20);
+  list.innerHTML = results.length? results.map(c=>`<div class="cd-ac-item" onclick="selAssignCustomer('${esc(c.name)}','${esc(c.display)}')"><div class="main">${esc(c.display)}</div>${c.phone?`<div class="sub">${esc(c.phone)}</div>`:''}</div>`).join('') : `<div class="cd-ac-empty">No customer found</div>`;
+  list.classList.add('open');
+}
+function selAssignCustomer(name,display){
+  document.getElementById('assignCustomer').value=display;
+  document.getElementById('ac-assign-customer').classList.remove('open');
+}
+
+// ── NEW CUSTOMER DIALOG (matches POS Billing's New Customer modal) ──
+let newCustImageFile=null;
+let CUSTOMER_DEFAULTS=null;
+function openNewCustomerDialog(){
+  ['newCustFirstName','newCustLastName','newCustEmail','newCustMobile','newCustDob','newCustAnniversary','newCustPan','newCustAadhaar','newCustPassport','newCustGstin','newCustPincode','newCustCity','newCustAddr1','newCustState','newCustAddr2'].forEach(id=>{ document.getElementById(id).value=''; });
+  document.getElementById('newCustCountry').value='India';
+  document.getElementById('newCustSalutation').value='';
+  document.getElementById('newCustIsPrimary').checked=true;
+  document.getElementById('newCustIsShipping').checked=false;
+  newCustImageFile=null;
+  document.getElementById('newCustImagePreview').style.display='none';
+  document.getElementById('newCustImagePlaceholder').style.display='';
+  toggleNewCustPassportField();
+  document.getElementById('newCustOverlay').classList.add('open');
+  document.getElementById('newCustDialog').classList.add('open');
+}
+function closeNewCustomerDialog(){
+  document.getElementById('newCustOverlay').classList.remove('open');
+  document.getElementById('newCustDialog').classList.remove('open');
+}
+// Passport Number only applies (and is required) for a customer whose Country isn't India.
+function toggleNewCustPassportField(){
+  const isIndia = document.getElementById('newCustCountry').value.trim().toLowerCase()==='india';
+  document.getElementById('newCustPassportWrap').style.display = isIndia ? 'none' : '';
+  if(isIndia) document.getElementById('newCustPassport').value='';
+}
+function onNewCustImageChange(e){
+  const file=e.target.files?.[0]||null;
+  newCustImageFile=file;
+  const img=document.getElementById('newCustImagePreview');
+  const ph=document.getElementById('newCustImagePlaceholder');
+  if(file){
+    img.src=URL.createObjectURL(file);
+    img.style.display='';
+    ph.style.display='none';
+  } else {
+    img.style.display='none';
+    ph.style.display='';
+  }
+}
+async function getCustomerDefaultsInline(){
+  if(CUSTOMER_DEFAULTS) return CUSTOMER_DEFAULTS;
+  let customerGroup='Individual', territory='India';
+  try{
+    const res=await dev1Get('/api/resource/Customer%20Group/Individual?fields=["name"]');
+    if(!(res.data||res.message)) throw new Error();
+  }catch(e){
+    try{
+      const res=await dev1Get('/api/resource/Customer%20Group?filters='+encodeURIComponent(JSON.stringify([["is_group","=",0]]))+'&fields=["name"]&limit_page_length=1');
+      customerGroup=(res.data||res.message||[])[0]?.name||'Individual';
+    }catch(e2){}
+  }
+  try{
+    const res=await dev1Get('/api/resource/Territory/India?fields=["name"]');
+    if(!(res.data||res.message)) throw new Error();
+  }catch(e){
+    try{
+      const res=await dev1Get('/api/resource/Territory?filters='+encodeURIComponent(JSON.stringify([["is_group","=",0]]))+'&fields=["name"]&limit_page_length=1');
+      territory=(res.data||res.message||[])[0]?.name||'India';
+    }catch(e2){}
+  }
+  CUSTOMER_DEFAULTS={customer_group:customerGroup, territory};
+  return CUSTOMER_DEFAULTS;
+}
+async function saveNewCustomer(){
+  const firstName=document.getElementById('newCustFirstName').value.trim();
+  const lastName=document.getElementById('newCustLastName').value.trim();
+  const mobile=document.getElementById('newCustMobile').value.replace(/\D/g,'');
+  if(!firstName){ showToast('First Name is required','error'); document.getElementById('newCustFirstName').focus(); return; }
+  if(mobile.length!==10){ showToast('Mobile number must be 10 digits','error'); document.getElementById('newCustMobile').focus(); return; }
+  const countryVal=document.getElementById('newCustCountry').value.trim()||'India';
+  const passport=document.getElementById('newCustPassport').value.trim();
+  if(countryVal.toLowerCase()!=='india' && !passport){ showToast('Passport Number is required for customers outside India','error'); document.getElementById('newCustPassport').focus(); return; }
+  const customerName=[firstName,lastName].filter(Boolean).join(' ');
+  const email=document.getElementById('newCustEmail').value.trim();
+  const btn=document.getElementById('newCustSaveBtn');
+  btn.disabled=true; btn.textContent='Saving...';
+  try{
+    // Existing-customer check by mobile — same guard POS Billing's New Customer flow uses.
+    try{
+      const dupRes=await dev1Get('/api/resource/Customer?filters='+encodeURIComponent(JSON.stringify([["mobile_no","=",mobile]]))+'&fields='+encodeURIComponent(JSON.stringify(['name','customer_name','mobile_no']))+'&limit_page_length=1');
+      const dup=(dupRes.data||dupRes.message||[])[0];
+      if(dup){
+        const useExisting=confirm(`Customer with mobile ${mobile} already exists (${dup.customer_name}). Select existing customer?`);
+        if(useExisting){
+          selAssignCustomer(dup.name, dup.customer_name);
+          if(!CUSTOMERS.find(c=>c.name===dup.name)) CUSTOMERS.push({name:dup.name, display:dup.customer_name, phone:dup.mobile_no||''});
+          closeNewCustomerDialog();
+        }
+        btn.disabled=false; btn.textContent='Save Customer';
+        return;
+      }
+    }catch(dupErr){ console.warn('Duplicate mobile check failed:', dupErr.message); }
+
+    const defaults=await getCustomerDefaultsInline();
+    const pan=document.getElementById('newCustPan').value.trim();
+    const aadhaar=document.getElementById('newCustAadhaar').value.trim();
+    const dob=document.getElementById('newCustDob').value;
+    const anniversary=document.getElementById('newCustAnniversary').value;
+    const custRes=await dev1Post('/api/resource/Customer', {
+      doctype:'Customer', customer_name:customerName, customer_type:'Individual',
+      customer_group:defaults.customer_group, territory:defaults.territory,
+      mobile_no:mobile, email_id:email, pan,
+      custom_date_of_birth:dob||undefined, custom_date_of_anniversary:anniversary||undefined, custom_aadhar_card:aadhaar||undefined,
+    });
+    const customerId=custRes?.data?.name||custRes?.name;
+    if(!customerId) throw new Error('Customer creation failed');
+
+    const pincode=document.getElementById('newCustPincode').value.trim();
+    const city=document.getElementById('newCustCity').value.trim();
+    const addr1=document.getElementById('newCustAddr1').value.trim();
+    const addr2=document.getElementById('newCustAddr2').value.trim();
+    const state=document.getElementById('newCustState').value.trim();
+    const country=document.getElementById('newCustCountry').value.trim()||'India';
+    const gstin=document.getElementById('newCustGstin').value.trim();
+    const isPrimary=document.getElementById('newCustIsPrimary').checked;
+    const isShipping=document.getElementById('newCustIsShipping').checked;
+    if(addr1||addr2||city||pincode||gstin){
+      try{
+        await dev1Post('/api/resource/Address', {
+          doctype:'Address', address_title:customerName,
+          address_type:(isShipping&&!isPrimary)?'Shipping':'Billing',
+          is_primary_address:isPrimary?1:0, is_shipping_address:isShipping?1:0,
+          address_line1:addr1, address_line2:addr2, city, state, pincode, country, gstin,
+          links:[{doctype:'Dynamic Link', link_doctype:'Customer', link_name:customerId, link_title:customerName}],
+        });
+      }catch(e){ console.warn('Address create:', e.message); }
+    }
+    if(mobile||email){
+      try{
+        await dev1Post('/api/resource/Contact', {
+          doctype:'Contact', salutation:document.getElementById('newCustSalutation').value||'',
+          first_name:firstName, last_name:lastName, mobile_no:mobile, email_id:email,
+          links:[{doctype:'Dynamic Link', link_doctype:'Customer', link_name:customerId, link_title:customerName}],
+        });
+      }catch(e){ console.warn('Contact create:', e.message); }
+    }
+    if(newCustImageFile){
+      try{
+        const fd=new FormData();
+        fd.append('file', newCustImageFile);
+        fd.append('is_private','0');
+        fd.append('doctype','Customer');
+        fd.append('docname', customerId);
+        fd.append('fieldname','image');
+        await dev1PostForm('/api/method/upload_file', fd);
+      }catch(e){ console.warn('Customer image upload:', e.message); }
+    }
+    CUSTOMERS.push({name:customerId, display:customerName, phone:mobile});
+    selAssignCustomer(customerId, customerName);
+    showToast('Customer created: '+customerName,'success');
+    closeNewCustomerDialog();
+  }catch(e){
+    showToast('Error: '+String(e.message).slice(0,120),'error');
+  }finally{
+    btn.disabled=false; btn.textContent='Save Customer';
+  }
+}
+function acAssignScheme(val){
+  if(assignmentLocked) return;
+  const list=document.getElementById('ac-assign-scheme');
+  const q=(val||'').toLowerCase();
+  const results=SCHEMES.filter(s=>s.display.toLowerCase().includes(q)||s.name.toLowerCase().includes(q)).slice(0,20);
+  list.innerHTML = results.length? results.map(s=>`<div class="cd-ac-item" onclick="selAssignScheme('${esc(s.name)}','${esc(s.display)}')"><div class="main">${esc(s.display)}</div><div class="sub">${s.is_disable?'Disabled':'Active'}${s.minimun_emi?(' · Min EMI '+fmt(s.minimun_emi)):''}</div></div>`).join('') : `<div class="cd-ac-empty">No scheme found</div>`;
+  list.classList.add('open');
+}
+function selAssignScheme(name,display){
+  document.getElementById('assignScheme').value=display;
+  document.getElementById('assignSchemeName').value=display;
+  document.getElementById('ac-assign-scheme').classList.remove('open');
+  const schemeObj=SCHEMES.find(s=>s.name===name);
+  const emiInput=document.getElementById('assignEmi');
+  if(schemeObj && !emiInput.value) emiInput.value = schemeObj.minimun_emi||'';
+}
+document.addEventListener('click', e=>{
+  if(!e.target.closest('#ac-assign-customer') && !e.target.closest('#assignCustomer')) document.getElementById('ac-assign-customer')?.classList.remove('open');
+  if(!e.target.closest('#ac-assign-scheme') && !e.target.closest('#assignScheme')) document.getElementById('ac-assign-scheme')?.classList.remove('open');
+});
+
+// ── ASSIGNMENT: LOAD / FILTER / RENDER ──
+async function loadAssignments(){
+  document.getElementById('assignTbody').innerHTML = emptyRow(7,'Loading assignments...');
+  try{
+    const fields=["name","customer","scheme","scheme_name","emi_amount","date","status","docstatus","creation","modified","metal_touch"];
+    const res=await dev1Get(`/api/resource/Jewellery%20Scheme%20Assignment?fields=${encodeURIComponent(JSON.stringify(fields))}&limit_page_length=0&order_by=modified%20desc`);
+    ASSIGNMENTS=(res.data||res.message||[]).map(a=>{
+      const cust=CUSTOMERS.find(c=>c.name===a.customer);
+      return { name:a.name, customer:a.customer, customerDisplay: cust?cust.display:(a.customer||'—'),
+        scheme:a.scheme, scheme_name:a.scheme_name, emi_amount:a.emi_amount, date:a.date, status:a.status, docstatus:a.docstatus,
+        creation:a.creation, modified:a.modified, metal_touch:a.metal_touch };
+    });
+    document.getElementById('assignSub').textContent = ASSIGNMENTS.length+' assignment'+(ASSIGNMENTS.length!==1?'s':'');
+    applyAssignFilters();
+  }catch(e){
+    console.error('Load assignments error:',e);
+    document.getElementById('assignTbody').innerHTML = emptyRow(7,'Failed to load assignments','<a href="#" onclick="loadAssignments()" style="color:var(--pill-blue-txt)">Retry</a>');
+  }
+}
+function assignStatusPill(status){
+  const s=(status||'').trim();
+  if(!s) return '<span class="cd-pill grey">—</span>';
+  const low=s.toLowerCase();
+  const cls = low==='active' ? 'green' : low==='closed' ? 'grey' : low==='cancelled' ? 'red' : low==='draft' ? 'amber' : 'blue';
+  return `<span class="cd-pill ${cls}">${esc(s)}</span>`;
+}
+function applyAssignFilters(){
+  const q=(document.getElementById('assignSearch')?.value||'').toLowerCase();
+  filteredAssignments = ASSIGNMENTS.filter(a=>{
+    const mq = !q || a.name.toLowerCase().includes(q) || a.customerDisplay.toLowerCase().includes(q) || (a.scheme_name||'').toLowerCase().includes(q);
+    let mc = true;
+    if(createdOnFrom || createdOnTo){
+      const cd = new Date((a.creation||'').slice(0,10));
+      if(createdOnFrom && cd < new Date(createdOnFrom)) mc = false;
+      if(createdOnTo   && cd > new Date(createdOnTo))   mc = false;
+    }
+    let mu = true;
+    if(lastUpdatedFrom || lastUpdatedTo){
+      const ud = new Date((a.modified||a.creation||'').slice(0,10));
+      if(lastUpdatedFrom && ud < new Date(lastUpdatedFrom)) mu = false;
+      if(lastUpdatedTo   && ud > new Date(lastUpdatedTo))   mu = false;
+    }
+    const mt = !metalTouchFilter || a.metal_touch === metalTouchFilter;
+    return mq && mc && mu && mt;
+  });
+  if(sortField==='id'){
+    filteredAssignments.sort((a,b)=> sortDir==='asc' ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name));
+  } else if(sortField==='updated'){
+    filteredAssignments.sort((a,b)=> sortDir==='asc'
+      ? new Date(a.modified||a.creation)-new Date(b.modified||b.creation)
+      : new Date(b.modified||b.creation)-new Date(a.modified||a.creation));
+  } else { // 'created'
+    filteredAssignments.sort((a,b)=> sortDir==='asc'
+      ? new Date(a.creation)-new Date(b.creation)
+      : new Date(b.creation)-new Date(a.creation));
+  }
+  const countEl = document.getElementById('assignCount');
+  if(countEl) countEl.textContent = filteredAssignments.length+' of '+ASSIGNMENTS.length;
+  renderAssignTable(filteredAssignments);
+}
+function renderAssignTable(rows){
+  const tbody=document.getElementById('assignTbody');
+  if(!rows.length){ tbody.innerHTML = emptyRow(7,'No assignments found','Assign a Jewellery Scheme to a customer to start tracking EMIs.'); return; }
+  tbody.innerHTML = rows.map(a=>`
+    <tr onclick="openAssignDrawer('${esc(a.name)}')">
+      <td><div class="doc-num">${esc(a.name)}</div></td>
+      <td>${esc(a.customerDisplay)}</td>
+      <td>${esc(a.scheme_name||a.scheme||'—')}</td>
+      <td style="text-align:right">${a.emi_amount?fmt(a.emi_amount):'—'}</td>
+      <td>${fmtDate(a.date)}</td>
+      <td>${assignStatusPill(assignDisplayStatus(a.status, a.docstatus))}</td>
+      <td>
+        <div class="cd-row-actions" onclick="event.stopPropagation()">
+          <button class="cd-act-btn" onclick="openAssignDrawer('${esc(a.name)}')" title="Edit"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+          <button class="cd-act-btn" onclick="deleteAssignment('${esc(a.name)}')" title="Delete"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg></button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+// ── ASSIGNMENT: DRAWER / SAVE / DELETE ──
+// Once an assignment has been created, it's a fixed record — locking it hides Save/Delete/
+// Add Payment, disables every field, and expands the drawer to full width so the (now
+// read-only) installment history has room to breathe. Only row-selection + Create Payment
+// Entry stay live, since recording a payment isn't "editing" the assignment's terms.
+function setAssignmentLocked(locked, name){
+  assignmentLocked = locked;
+  // const drawer=document.getElementById('assignDrawer');
+  // drawer.classList.toggle('full-page', locked); // always full-page now (see static class on #assignDrawer) — never the narrow right-side drawer
+  document.getElementById('assignDrawerTitleText').textContent = locked ? ('Assignment '+name) : (name? 'Edit Assignment':'New Assignment');
+  ['assignCustomer','assignScheme','assignEmi','assignDate'].forEach(id=>{
+    document.getElementById(id).readOnly = locked;
+  });
+  document.getElementById('assignMetalTouch').disabled = locked;
+  document.getElementById('assignBranch').disabled = locked;
+  document.getElementById('saveAssignBtn').style.display = locked? 'none':'';
+  document.getElementById('addPaymentBtn').style.display = locked? 'none':'';
+  document.getElementById('newCustomerBtn').style.display = locked? 'none':'';
+  document.getElementById('assignDeleteBtn').style.display = (locked || !name)? 'none':'';
+  document.getElementById('assignCancelBtn').textContent = locked? 'Back':'Cancel';
+  document.querySelectorAll('#instTbody tr').forEach(tr=>{
+    const dateInp=tr.querySelector('[data-f="date"]'), emiInp=tr.querySelector('[data-f="emi"]');
+    if(dateInp) dateInp.disabled = true;
+    if(emiInp) emiInp.disabled = true;
+    const delBtn=tr.querySelector('.cd-del-btn');
+    if(delBtn) delBtn.style.display = locked? 'none':'';
+  });
+}
+async function openAssignDrawer(name){
+  window.currentAssignName = name||null;
+  currentAssignStatus = '';
+  currentAssignDocstatus = 0;
+  document.getElementById('assignDrawerTitleText').textContent = name? 'Edit Assignment' : 'New Assignment';
+  document.getElementById('assignDrawerStatus').innerHTML = '';
+  document.getElementById('assignDeleteBtn').style.display = name? '' : 'none';
+  document.getElementById('forceCloseBtn').style.display = 'none';
+  document.getElementById('submitAssignBtn').style.display = 'none';
+  document.getElementById('assignCustomer').value='';
+  document.getElementById('assignScheme').value='';
+  document.getElementById('assignSchemeName').value='';
+  document.getElementById('assignEmi').value='';
+  // Defaults to today and blocks back-dated picks in the native date picker — the actual
+  // enforcement (in case a back date somehow still gets in) is the check in saveAssignment().
+  const assignDateInp = document.getElementById('assignDate');
+  assignDateInp.min = toISODate(new Date());
+  assignDateInp.value = toISODate(new Date());
+  document.getElementById('assignEndDate').value='';
+  document.getElementById('assignMetalTouch').value='';
+  document.getElementById('assignBranch').value='';
+  document.getElementById('instTbody').innerHTML=''; instRowCount=0; updateInstallTotal(); updateInstallSelection();
+  setAssignmentLocked(false, name);
+  openDrawer('assignDrawer');
+  if(name){
+    try{
+      const res=await dev1Get('/api/resource/Jewellery%20Scheme%20Assignment/'+encodeURIComponent(name));
+      const doc=res.data||res.message||res;
+      currentAssignStatus = doc.status||'';
+      currentAssignDocstatus = doc.docstatus??0;
+      document.getElementById('assignDrawerStatus').innerHTML = assignStatusPill(assignDisplayStatus(currentAssignStatus, currentAssignDocstatus));
+      document.getElementById('forceCloseBtn').style.display = canTransact() ? '' : 'none';
+      document.getElementById('submitAssignBtn').style.display = currentAssignDocstatus===0 ? '' : 'none';
+      const cust=CUSTOMERS.find(c=>c.name===doc.customer);
+      document.getElementById('assignCustomer').value= cust?cust.display:(doc.customer||'');
+      const sch=SCHEMES.find(s=>s.name===doc.scheme);
+      document.getElementById('assignScheme').value = sch?sch.display:(doc.scheme_name||doc.scheme||'');
+      document.getElementById('assignSchemeName').value = doc.scheme_name||'';
+      document.getElementById('assignEmi').value = doc.emi_amount||'';
+      document.getElementById('assignDate').value = doc.date||'';
+      document.getElementById('assignEndDate').value = doc.end_date||'';
+      document.getElementById('assignMetalTouch').value = doc.metal_touch||'';
+      document.getElementById('assignBranch').value = doc.branch||'';
+      (doc.jewellery_scheme_assignment_details||[]).forEach(r=>addInstallRow(r));
+      setAssignmentLocked(true, name);
+      const overdueNames=(doc.jewellery_scheme_assignment_details||[])
+        .filter(r=>computeInstallStatus(r.status,r.date)==='Overdue' && (r.status||'Unpaid')!=='Overdue')
+        .map(r=>r.name);
+      if(overdueNames.length) await syncOverdueInstallments(name, overdueNames);
+    }catch(e){ showToast('Error loading assignment: '+e.message,'error'); }
+  }
+}
+// Reconciles the real backend status for rows that have just crossed into overdue (due date
+// passed, still not paid) so other views/reports reading the raw status field see it too —
+// not just this drawer's on-the-fly display computation.
+async function syncOverdueInstallments(assignmentName, rowNames){
+  if(!rowNames.length) return;
+  try{
+    const res=await dev1Get('/api/resource/Jewellery%20Scheme%20Assignment/'+encodeURIComponent(assignmentName));
+    const doc=res.data||res.message||res;
+    const details=(doc.jewellery_scheme_assignment_details||[]).map(r=>
+      rowNames.includes(r.name) ? {...r, status:'Overdue'} : r
+    );
+    await dev1Put('/api/resource/Jewellery%20Scheme%20Assignment/'+encodeURIComponent(assignmentName), {jewellery_scheme_assignment_details: details});
+  }catch(e){ console.warn('Overdue sync failed:', e.message); }
+}
+function buildAssignPayload(){
+  const custInput=document.getElementById('assignCustomer').value.trim();
+  const custObj=CUSTOMERS.find(c=>c.display===custInput||c.name===custInput);
+  const customer=custObj?.name||custInput;
+  const schemeInput=document.getElementById('assignScheme').value.trim();
+  const schemeObj=SCHEMES.find(s=>s.display===schemeInput||s.name===schemeInput);
+  const scheme=schemeObj?.name||schemeInput;
+  const details=[];
+  document.querySelectorAll('#instTbody tr').forEach((tr,idx)=>{
+    const date=tr.querySelector('[data-f="date"]')?.value||'';
+    const emi=parseFloat(tr.querySelector('[data-f="emi"]')?.value||0)||0;
+    if(!date && !emi) return;
+    // Original Due Date's input is always disabled (read-only) — if this row never had one
+    // saved yet (brand-new row), it freezes to today's Extended Due Date value right here,
+    // at first save, and never changes again after that. The server itself also owns/rebuilds
+    // this whole schedule on save (see the before_save hook) as long as nothing's paid yet, so
+    // this is really just what the client shows in the meantime.
+    const originalDate=tr.querySelector('[data-f="original_due_date"]')?.value||date;
+    const paymentDate=tr.querySelector('[data-f="payment_date"]')?.value||'';
+    details.push({doctype:'Jewellery Scheme Assignment Details', idx:idx+1, date: date||undefined, emi, original_due_date: originalDate||undefined, payment_date: paymentDate||undefined});
+  });
+  return {
+    doctype:'Jewellery Scheme Assignment',
+    customer, scheme,
+    scheme_name: schemeObj?.display||document.getElementById('assignSchemeName').value||'',
+    emi_amount: parseFloat(document.getElementById('assignEmi').value||0)||0,
+    date: document.getElementById('assignDate').value||undefined,
+    end_date: document.getElementById('assignEndDate').value||undefined,
+    metal_touch: document.getElementById('assignMetalTouch').value||undefined,
+    branch: document.getElementById('assignBranch').value||undefined,
+    jewellery_scheme_assignment_details: details,
+  };
+}
+// Every installment row needs both a Due Date and a positive Installment Amount — returns
+// the 1-based row number of the first row missing either, or 0 if all rows are valid.
+function validateInstallRows(){
+  const rows=[...document.querySelectorAll('#instTbody tr')];
+  for(let i=0;i<rows.length;i++){
+    const date=rows[i].querySelector('[data-f="date"]')?.value||'';
+    const emi=parseFloat(rows[i].querySelector('[data-f="emi"]')?.value||0)||0;
+    if(!date || emi<=0) return i+1;
+  }
+  return 0;
+}
+async function saveAssignment(){
+  const cust=document.getElementById('assignCustomer').value.trim();
+  const sch=document.getElementById('assignScheme').value.trim();
+  if(!cust){ showToast('Please select a customer','error'); document.getElementById('assignCustomer').focus(); return; }
+  if(!sch){ showToast('Please select a scheme','error'); document.getElementById('assignScheme').focus(); return; }
+  const emiAmount=parseFloat(document.getElementById('assignEmi').value||0)||0;
+  if(emiAmount<=0){ showToast('Please enter the EMI Amount','error'); document.getElementById('assignEmi').focus(); return; }
+  // Mirrors the server's own before_save validation (minimun_emi/maximum_emi/emi_multiple_off)
+  // so an out-of-range EMI is caught instantly here instead of round-tripping to the server
+  // just to get thrown back.
+  const schemeObj=SCHEMES.find(s=>s.display===sch||s.name===sch);
+  if(schemeObj){
+    if(schemeObj.minimun_emi && emiAmount<schemeObj.minimun_emi){
+      showToast(`EMI amount cannot be less than minimum EMI ${fmt(schemeObj.minimun_emi)}`,'error'); document.getElementById('assignEmi').focus(); return;
+    }
+    if(schemeObj.maximum_emi && emiAmount>schemeObj.maximum_emi){
+      showToast(`EMI amount cannot exceed maximum EMI ${fmt(schemeObj.maximum_emi)}`,'error'); document.getElementById('assignEmi').focus(); return;
+    }
+    if(schemeObj.emi_multiple_off && (emiAmount % schemeObj.emi_multiple_off !== 0)){
+      showToast(`EMI amount must be in multiples of ${fmt(schemeObj.emi_multiple_off)}`,'error'); document.getElementById('assignEmi').focus(); return;
+    }
+  }
+  if(!document.getElementById('assignDate').value){ showToast('Please select a Date','error'); document.getElementById('assignDate').focus(); return; }
+  if(!window.currentAssignName && document.getElementById('assignDate').value < toISODate(new Date())){ showToast('Start Date cannot be a back date','error'); document.getElementById('assignDate').focus(); return; }
+  const badRow=validateInstallRows();
+  if(badRow){ showToast(`Installment row ${badRow}: Extended Due Date and Installment Amount are both required`,'error'); return; }
+  try{
+    showToast('Saving assignment...','info');
+    const payload=buildAssignPayload();
+    const isNew=!window.currentAssignName;
+    let res;
+    if(!isNew){
+      res=await dev1Put('/api/resource/Jewellery%20Scheme%20Assignment/'+encodeURIComponent(window.currentAssignName), payload);
+    } else {
+      res=await dev1Post('/api/resource/Jewellery%20Scheme%20Assignment', payload);
+    }
+    const savedName=res?.data?.name||res?.name||window.currentAssignName;
+    window.currentAssignName=savedName;
+    // The doctype is submittable in the backend now — submit it the moment it's created so
+    // it becomes a fixed record immediately, matching this drawer's "locked once created" UX.
+    if(isNew){
+      try{ await dev1Put('/api/resource/Jewellery%20Scheme%20Assignment/'+encodeURIComponent(savedName), {docstatus:1}); }
+      catch(submitErr){ console.warn('Assignment submit failed:', submitErr.message); showToast('Saved as draft (submit failed): '+String(submitErr.message).slice(0,80),'error'); }
+    }
+    showToast('Saved: '+savedName,'success');
+    // Reload from the server so installment rows carry their real Frappe-assigned names
+    // (needed before any of them can be selected for a Payment Entry), then lock the view —
+    // once an assignment exists it's a fixed record; further changes aren't allowed here.
+    await openAssignDrawer(savedName);
+    await loadAssignments();
+  }catch(e){ showToast('Error: '+String(e.message).slice(0,120),'error'); }
+}
+// Manual retry path for the auto-submit-on-create in saveAssignment() — if that silently
+// failed (e.g. a transient error), the assignment is stuck at docstatus 0 with no way back
+// into a payable state without this. Submitted (docstatus 1) + Active is what canTransact()
+// requires before any installment row can be selected for payment.
+async function submitAssignment(){
+  const name=window.currentAssignName;
+  if(!name || currentAssignDocstatus!==0) return;
+  try{
+    await dev1Put('/api/resource/Jewellery%20Scheme%20Assignment/'+encodeURIComponent(name), {docstatus:1});
+    showToast('Assignment '+name+' submitted','success');
+    await openAssignDrawer(name);
+    await loadAssignments();
+  }catch(e){ showToast('Error submitting: '+String(e.message).slice(0,120),'error'); }
+}
+// Force Close sets the parent's status to "Closed" so no further payment can ever be
+// collected against it again — separate from the normal "Active" lifecycle, and irreversible
+// from this screen (matches the backend's own Closed option on the status field).
+async function forceCloseAssignment(){
+  const name=window.currentAssignName;
+  if(!name || !canTransact()) return;
+  if(!confirm('Force close assignment '+name+'? Once closed, no further payments or transactions can be made against it.')) return;
+  try{
+    await dev1Put('/api/resource/Jewellery%20Scheme%20Assignment/'+encodeURIComponent(name), {status:'Closed'});
+    showToast('Assignment '+name+' closed','success');
+    await openAssignDrawer(name);
+    await loadAssignments();
+  }catch(e){ showToast('Error: '+String(e.message).slice(0,120),'error'); }
+}
+async function deleteAssignment(name){
+  if(!name) return;
+  if(!confirm('Delete assignment '+name+'? This cannot be undone.')) return;
+  try{
+    await dev1Delete('/api/resource/Jewellery%20Scheme%20Assignment/'+encodeURIComponent(name));
+    showToast('Deleted '+name,'success');
+    closeDrawers();
+    await loadAssignments();
+  }catch(e){ showToast('Error: '+String(e.message).slice(0,120),'error'); }
+}
+
+// ── INIT ──
+async function init(){
+  const h=cdGetInstanceHeaders();
+  if(!h){ window.location.replace('/caratdesk-login?logout=1'); return; }
+  try{
+    const custRes = await dev1Get(`/api/resource/Customer?fields=${encodeURIComponent(JSON.stringify(["name","customer_name","mobile_no"]))}&limit_page_length=0`);
+    CUSTOMERS=(custRes.data||custRes.message||[]).map(c=>({name:c.name, display:c.customer_name||c.name, phone:c.mobile_no||''}));
+  }catch(e){ console.warn('Load customers error:',e); }
+  await loadSchemes();
+  await loadGoldPurityOptions();
+  await loadBranches();
+  await loadCountries();
+  await loadAssignments();
+
+  const params = new URLSearchParams(window.location.search);
+  const savedPE = params.get('saved');
+  const reopenAssignment = params.get('assignment');
+  const openNew = params.get('new');
+  if(savedPE) showToast('Payment Entry '+savedPE+' created','success');
+  if(reopenAssignment) await openAssignDrawer(reopenAssignment);
+  else if(openNew) openAssignDrawer();
+  if(savedPE || reopenAssignment || openNew) history.replaceState({},'',window.location.pathname);
+}
+
+// ── THEME ──
+const moonIcon='<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+const sunIcon='<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+function initTheme(){ const s=localStorage.getItem('cdTheme'); if(s==='dark'){ document.documentElement.classList.add('dark'); document.getElementById('themeIcon').innerHTML=sunIcon; } else { document.getElementById('themeIcon').innerHTML=moonIcon; } }
+function toggleTheme(){
+  if(document.documentElement.classList.contains('dark')){
+    document.documentElement.classList.remove('dark'); localStorage.setItem('cdTheme','light'); document.getElementById('themeIcon').innerHTML=moonIcon;
+  } else {
+    document.documentElement.classList.add('dark'); localStorage.setItem('cdTheme','dark'); document.getElementById('themeIcon').innerHTML=sunIcon;
+  }
+}
+document.getElementById('cdThemeToggle').addEventListener('click', toggleTheme);
+initTheme();
+
+// Sidebar toggle
+const sidebar = document.getElementById('cdSidebar');
+document.getElementById('cdMenuToggle').addEventListener('click', () => sidebar.classList.toggle('mobile-open'));
+document.querySelectorAll('.cd-nav-item').forEach(link => {
+  link.addEventListener('click', () => { if (window.innerWidth <= 768) sidebar.classList.remove('mobile-open'); });
+});
+
+// Auth / user
+(function(){
+  const hasSession=localStorage.getItem('cd_pp_key')||localStorage.getItem('cd_pc_key');
+  if(!hasSession){ window.location.replace('/caratdesk-login?logout=1'); return; }
+  const active=cdGetActiveInstance();
+  const key=active==='PC'?localStorage.getItem('cd_pc_key'):localStorage.getItem('cd_pp_key');
+  const sec=active==='PC'?localStorage.getItem('cd_pc_secret'):localStorage.getItem('cd_pp_secret');
+  if(key&&sec){ localStorage.setItem('cd_api_key',key); localStorage.setItem('cd_api_secret',sec); }
+  const name=localStorage.getItem('cd_user')||localStorage.getItem('cd_user_email')||'User';
+  document.getElementById('cdUserName').textContent=name;
+  document.getElementById('cdAvatar').textContent=name.split('@')[0].split(/[\s.]+/).map(w=>w[0]||'').join('').slice(0,2).toUpperCase()||'U';
+  cdInitInstanceToggle();
+})();
+
+document.getElementById('cdLogoutBtn').addEventListener('click',async()=>{
+  const ppK=localStorage.getItem('cd_pp_key'), ppS=localStorage.getItem('cd_pp_secret');
+  const pcK=localStorage.getItem('cd_pc_key'), pcS=localStorage.getItem('cd_pc_secret');
+  try{ if(ppK&&ppS) await fetch(`${DEV1}/api/method/logout`,{method:'POST',headers:{Authorization:`token ${ppK}:${ppS}`}}); }catch(e){}
+  try{ if(pcK&&pcS) await fetch(`${DEV2}/api/method/logout`,{method:'POST',headers:{Authorization:`token ${pcK}:${pcS}`}}); }catch(e){}
+  ['cd_api_key','cd_api_secret','cd_pp_key','cd_pp_secret','cd_pc_key','cd_pc_secret',
+   'cd_user','cd_user_email','cd_active_instance','cd_available_instances'].forEach(k=>localStorage.removeItem(k));
+  window.location.replace('/caratdesk-login?logout=1');
+});
+
+init();
+</script>
