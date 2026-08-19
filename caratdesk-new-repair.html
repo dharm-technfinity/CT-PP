@@ -400,6 +400,7 @@
                 <option value="">Select…</option>
                 <option>Karigar</option>
                 <option>Subcontractor</option>
+                <option>In House</option>
               </select>
             </div>
             <div class="cd-field">
@@ -652,24 +653,6 @@ function showToast(msg,type='info'){
   t.style.opacity='1'; t.style.transform='translateX(-50%) translateY(0)';
   clearTimeout(t._t); t._t=setTimeout(()=>{ t.style.opacity='0'; t.style.transform='translateX(-50%) translateY(20px)'; },3000);
 }
-function updateDocStatus(status, docName){
-  const cur = document.querySelector('.cd-breadcrumb-cur');
-  if(cur) cur.textContent = docName || 'New Repair Order';
-  let badge = document.getElementById('cdDocStatus');
-  if(!badge){
-    badge = document.createElement('span');
-    badge.id = 'cdDocStatus';
-    document.querySelector('.cd-breadcrumb').appendChild(badge);
-  }
-  const palette = {
-    'Draft'    : ['var(--pill-amber-bg)',  'var(--pill-amber-txt)'],
-    'Submitted': ['var(--pill-green-bg)',  'var(--pill-green-txt)'],
-  };
-  const [bg, color] = palette[status] || palette['Draft'];
-  badge.style.cssText = `display:inline-flex;align-items:center;font-size:11px;font-weight:500;padding:2px 8px;border-radius:5px;margin-left:8px;background:${bg};color:${color}`;
-  badge.textContent = status;
-}
-
 // ══ STATE ══
 const REPAIR_ITEM_CODE='Repair Item';
 let CUSTOMERS=[], SUPPLIERS=[], BRANCHES=[];
@@ -1702,6 +1685,10 @@ function validateForSave(){
   if(orderType==='Modification' && !document.getElementById('repSerialNo').value.trim()){ showToast('Enter the Serial No','error'); return false; }
   return true;
 }
+// Real Submit (docstatus:1) no longer belongs on this page — it's the LAST step of the
+// Draft -> Issue -> Receive -> Submit lifecycle, which lives entirely on the details page.
+// This page's only job is getting a valid Draft saved, then handing off there — no separate
+// "Submit" step/button here anymore (there used to be one, back when Submit happened first).
 async function saveDraft(){
   if(!validateForSave()) return;
   const { payload } = buildPayload();
@@ -1717,35 +1704,12 @@ async function saveDraft(){
       if(!name) throw new Error('Repair Order creation failed');
       window.currentRepName=name;
     }
-    updateDocStatus('Draft', name);
-    switchToSubmitButton();
-    showToast('Repair Order '+name+' saved as draft','success');
-  }catch(e){
-    showToast('Error: '+String(e.message).slice(0,150),'error');
-  }finally{
-    btn.disabled=false;
-  }
-}
-async function submitRepairOrder(){
-  const name=window.currentRepName;
-  if(!name){ showToast('Save the Repair Order first','error'); return; }
-  const btn=document.getElementById('cdMainActionBtn');
-  btn.disabled=true;
-  try{
-    await dev1Put('/api/resource/Repair%20Order/'+encodeURIComponent(name), {docstatus:1});
-    showToast('Repair Order '+name+' submitted','success');
+    showToast('Repair Order '+name+' saved','success');
     window.location.href='/caratdesk-repair-details?repair='+encodeURIComponent(name)+'&created=1';
   }catch(e){
     showToast('Error: '+String(e.message).slice(0,150),'error');
     btn.disabled=false;
   }
-}
-function switchToSubmitButton(){
-  const btn=document.getElementById('cdMainActionBtn');
-  if(!btn || btn.dataset.mode==='submit') return;
-  btn.dataset.mode='submit';
-  btn.setAttribute('onclick','submitRepairOrder()');
-  btn.innerHTML=`<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Submit`;
 }
 
 // ══ INIT ══

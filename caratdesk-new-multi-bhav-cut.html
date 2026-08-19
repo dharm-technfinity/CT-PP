@@ -954,14 +954,8 @@ function bhavPurityOptions(selected){
   ).join('');
 }
 
-function bhavItemAc(inp, rowId){
-  const q = inp.value.toLowerCase().trim();
-  const list = document.getElementById('bhav-iac-' + rowId);
-  if(!list) return;
-  if(!q){ list.classList.remove('open'); return; }
-  const results = _bhavMetalItems.filter(i =>
-    i.code.toLowerCase().includes(q) || i.name.toLowerCase().includes(q) || (i._search||'').includes(q)
-  ).slice(0, 10);
+function renderBhavAcResults(rowId, results){
+  const list = document.getElementById('bhav-iac-' + rowId); if(!list) return;
   list.innerHTML = results.length
     ? results.map(it =>
         `<div class="cd-ac-item" data-bhavrowid="${rowId}" data-code="${esc(it.code)}">
@@ -977,6 +971,52 @@ function bhavItemAc(inp, rowId){
       fillBhavItem(rowId, el.dataset.code);
     });
   });
+}
+
+// Live server-side search over the same Gold/Silver-template scope loadBhavMetalItems() uses,
+// so templates outside that 200-row cache (fetched once at page load) still surface as the
+// user types — same idea as Frappe's own Link-field awesomplete.
+async function bhavLiveSearchItems(q){
+  const fields    = encodeURIComponent(JSON.stringify(['item_code','item_name','item_group','standard_rate']));
+  const filters   = encodeURIComponent(JSON.stringify([['disabled','=',0],['variant_of','=',''],['item_group','in',['Gold','Silver']]]));
+  const orFilters = encodeURIComponent(JSON.stringify([['item_code','like',`%${q}%`],['item_name','like',`%${q}%`]]));
+  const res = await dev1Get(`/api/resource/Item?fields=${fields}&filters=${filters}&or_filters=${orFilters}&limit_page_length=20`);
+  const rows = res.data || res.message || [];
+  return rows.map(i=>({code:i.item_code,name:i.item_name||i.item_code,rate:parseFloat(i.standard_rate)||0}));
+}
+
+const _bhavAcTimers = {};
+function bhavItemAc(inp, rowId){
+  const q = inp.value.toLowerCase().trim();
+  const list = document.getElementById('bhav-iac-' + rowId);
+  if(!list) return;
+  clearTimeout(_bhavAcTimers[rowId]);
+  if(!q){ list.classList.remove('open'); return; }
+
+  // Instant results from the local cache first, so the dropdown never feels laggy.
+  renderBhavAcResults(rowId, _bhavMetalItems.filter(i =>
+    i.code.toLowerCase().includes(q) || i.name.toLowerCase().includes(q) || (i._search||'').includes(q)
+  ).slice(0, 10));
+
+  // Debounced live search fills in anything outside that cache — merged in and re-rendered,
+  // with startswith matches (code or name) ranked first, same as Frappe's own Link search.
+  _bhavAcTimers[rowId] = setTimeout(async ()=>{
+    if(inp.value.toLowerCase().trim() !== q) return; // user kept typing — this query is stale
+    try{
+      const live = await bhavLiveSearchItems(q);
+      live.forEach(it=>{ if(!_bhavMetalItems.some(x=>x.code===it.code)) _bhavMetalItems.push({...it, _search:[it.code,it.name].join(' ').toLowerCase()}); });
+      if(inp.value.toLowerCase().trim() !== q) return; // stale again after the await
+      const merged = _bhavMetalItems.filter(i =>
+        i.code.toLowerCase().includes(q) || i.name.toLowerCase().includes(q) || (i._search||'').includes(q)
+      );
+      merged.sort((a,b)=>{
+        const aStarts = a.code.toLowerCase().startsWith(q) || a.name.toLowerCase().startsWith(q);
+        const bStarts = b.code.toLowerCase().startsWith(q) || b.name.toLowerCase().startsWith(q);
+        return (aStarts===bStarts) ? 0 : (aStarts?-1:1);
+      });
+      renderBhavAcResults(rowId, merged.slice(0, 10));
+    }catch(e){ /* live search failed — local results already shown stand */ }
+  }, 250);
 }
 function closeBhavAc(rowId){
   document.getElementById('bhav-iac-' + rowId)?.classList.remove('open');
@@ -1261,7 +1301,10 @@ function addBhavRow(data){
       </div>
     </td>
     <td><select data-b="purity" onchange="bhavOnPurityChange(this)">${bhavPurityOptions(d.settlement_purity||'')}</select></td>
-    <td><input type="number" data-b="input_wt" value="${d.input_weight||''}" step="0.001" oninput="calcBhavRow(this.closest('tr'))"></td>
+    <td>
+      <input type="number" data-b="input_wt" value="${d.input_weight||''}" step="0.001" oninput="calcBhavRow(this.closest('tr'))">
+      <input type="hidden" data-b="orig_net_wt" value="${d.orig_net_wt||''}">
+    </td>
     <td><input type="number" data-b="input_pur" value="${d.input_purity||''}" step="0.001" oninput="calcBhavRow(this.closest('tr'))"></td>
     <td><input type="number" data-b="pure_gold" value="${d.pure_gold_weight||''}" step="0.001" readonly></td>
     <td><input type="number" data-b="pg_pur" value="${d.pg_purity||'99.5'}" step="0.001" oninput="calcBhavRow(this.closest('tr'))"></td>
@@ -1342,6 +1385,21 @@ function calcBhavRow(tr){
   set('final_qty',  finalQty);
   setAmt('amount',  amount);
 
+  // Advisory only — Input Weight is a rate-calculation reference, not a billing quantity.
+  // The FG item is always invoiced at its full original qty/amount (see submitMultiBhavCut),
+  // so an Input Weight that drifts from the Purchase Receipt's net weight doesn't change what
+  // gets billed — it only means the metal portion of the amount was computed off the wrong
+  // weight. Flag it visually so that doesn't happen unnoticed.
+  const origNetWt = g('orig_net_wt');
+  const inputWtEl = tr.querySelector('[data-b="input_wt"]');
+  if(inputWtEl){
+    const mismatched = origNetWt > 0 && Math.abs(inputWt - origNetWt) > 0.001;
+    inputWtEl.style.background = mismatched ? 'var(--pill-amber-bg)' : '';
+    inputWtEl.title = mismatched
+      ? `Differs from Purchase Receipt net weight (${origNetWt.toFixed(3)}g). The item will still be invoiced at its full original qty/amount — only the metal portion of the amount is affected by this value.`
+      : '';
+  }
+
   updateBhavTotals();
 }
 
@@ -1408,13 +1466,23 @@ async function loadBhavRowsFromSelectedPRs(){
       const res = await dev1Get(`/api/resource/Purchase Receipt/${encodeURIComponent(prName)}`);
       const doc = res.data || res.message || {};
       const items = doc.items || [];
+      // A row already fully billed (billed_amt >= amount) has no pending value left — Bhav Cut
+      // always invoices an FG item's full qty/amount in one shot (it can't be split gram-wise,
+      // see calcBhavRow's weight-mismatch warning), so a fully-billed row must be excluded here
+      // or reloading the same PR into a new Bhav Cut would try to double-invoice it.
+      let alreadyBilled = 0;
       const rows = items.map(it => ({
         itemCode: it.item_code,
         netWt: parseFloat(it.custom_net_weight || it.net_weight || 0) || 0,
         tounch: parseFloat(it.custom_tounch || 0) || 0,
         prItemDetail: it.name,
-      })).filter(r => r.netWt > 0);
-      return { prName, rows };
+        pending: Math.max((parseFloat(it.amount || 0) || 0) - (parseFloat(it.billed_amt || 0) || 0), 0),
+      })).filter(r => {
+        if(r.netWt <= 0) return false;
+        if(r.pending <= 0.01){ alreadyBilled++; return false; }
+        return true;
+      });
+      return { prName, rows, alreadyBilled };
     }catch(e){
       console.warn('Failed to load PR', prName, e.message);
       return { prName, rows: [], failed: true };
@@ -1422,16 +1490,19 @@ async function loadBhavRowsFromSelectedPRs(){
   }));
 
   const goldRate = METAL_RATES['Gold'] || 0;
-  let loadedCount = 0;
+  let loadedCount = 0, alreadyBilledCount = 0;
   const emptyPrs = [], failedPrs = [];
-  results.forEach(({ prName, rows, failed }) => {
+  results.forEach(({ prName, rows, failed, alreadyBilled }) => {
     if(failed){ failedPrs.push(prName); return; }
+    alreadyBilledCount += alreadyBilled || 0;
     if(!rows.length){ emptyPrs.push(prName); return; }
     rows.forEach(r => {
       const purity = nearestPurity(r.tounch);
       addBhavRow({
+        settlement_item: r.itemCode,
         settlement_purity: purity,
         input_weight: r.netWt,
+        orig_net_wt: r.netWt,
         input_purity: r.tounch || (purity ? parseFloat(purity) : ''),
         pg_purity: 99.5,
         gold_rate: goldRate,
@@ -1449,6 +1520,7 @@ async function loadBhavRowsFromSelectedPRs(){
   let msg = loadedCount ? `${loadedCount} row(s) loaded from ${okCount} Purchase Receipt(s)` : 'No FG items with Net Weight found';
   if(emptyPrs.length) msg += `; no eligible items in: ${emptyPrs.join(', ')}`;
   if(failedPrs.length) msg += `; failed to load: ${failedPrs.join(', ')}`;
+  if(alreadyBilledCount) msg += `; skipped ${alreadyBilledCount} item(s) already fully invoiced`;
   showToast(msg, loadedCount ? 'success' : 'error');
 }
 
@@ -1631,6 +1703,14 @@ async function loadExistingMultiBhavCut(name){
 // checks this same link — that's also what keeps a settled PR off the eligible list next
 // time). Uses every saved row with a source PR, not just checked ones — Submit acts on the
 // whole persisted document. Requires Save to have already succeeded.
+//
+// Bhav Cut only re-rates the METAL portion of an FG item's value — Diamond/Stone/Polish/Other
+// must stay frozen at their original PR value. The breakup row's "amount" (gold_rate x final
+// metal qty, from calcBhavRow) is only the metal amount. Each FG item's non-metal value lives
+// on the BOM linked via the PR Item's custom_bom field (BOM.items, summed via custom_bom_amt —
+// NOT the standard rate/amount fields, which are unused/0 there), split by item_code prefix
+// (Gold-/Silver- = metal, everything else = frozen). The PI line then uses the FG item's own
+// qty (not the metal weight), with rate derived as amount/qty since qty never changes here.
 async function submitMultiBhavCut(){
   if(!window.currentMultiBhavCutName){ showToast('Save the Bhav Cut before submitting','error'); return; }
   const supplierName = getCurrentSupplierName();
@@ -1646,14 +1726,18 @@ async function submitMultiBhavCut(){
   }
 
   const rows = [];
+  let weightMismatchCount = 0;
   document.querySelectorAll('#bhavTbody tr').forEach(tr => {
     const g  = k => tr.querySelector(`[data-b="${k}"]`)?.value?.trim() || '';
     const gf = k => parseFloat(g(k)) || 0;
-    const item     = g('item');
-    const finalQty = gf('final_qty');
-    const sourcePr = g('source_pr');
+    const item        = g('item');
+    const finalQty     = gf('final_qty');
+    const metalAmount = gf('amount'); // metal-only amount — non-metal BOM value gets added back per-row below
+    const sourcePr     = g('source_pr');
     if(!item || finalQty <= 0 || !sourcePr) return; // only PR-sourced rows can link to a Purchase Invoice
-    rows.push({ item, finalQty, rate: gf('gold_rate'), amount: gf('amount'), sourcePr, prItemDetail: g('pr_item_detail') });
+    const inputWt = gf('input_wt'), origNetWt = gf('orig_net_wt');
+    if(origNetWt > 0 && Math.abs(inputWt - origNetWt) > 0.001) weightMismatchCount++;
+    rows.push({ item, metalAmount, sourcePr, prItemDetail: g('pr_item_detail') });
   });
 
   if(!rows.length){
@@ -1665,17 +1749,51 @@ async function submitMultiBhavCut(){
   const byPr = new Map();
   rows.forEach(r => { if(!byPr.has(r.sourcePr)) byPr.set(r.sourcePr, []); byPr.get(r.sourcePr).push(r); });
 
+  // Non-metal (Diamond/Stone/Polish/Other) BOM value, frozen at its original PR-time amount.
+  // Cached by BOM name since the same BOM can be referenced more than once.
+  const bomFrozenCache = new Map();
+  async function getFrozenAmount(bomName){
+    if(!bomName) return 0;
+    if(bomFrozenCache.has(bomName)) return bomFrozenCache.get(bomName);
+    let frozen = 0;
+    try{
+      const res = await dev1Get(`/api/resource/BOM/${encodeURIComponent(bomName)}`);
+      const bomDoc = res.data || res.message || {};
+      frozen = (bomDoc.items || [])
+        .filter(bi => !/^(gold|silver)-/i.test(bi.item_code || ''))
+        .reduce((s, bi) => s + (parseFloat(bi.custom_bom_amt) || 0), 0);
+    }catch(e){
+      console.warn('Failed to load BOM', bomName, 'for frozen (non-metal) amount:', e.message);
+    }
+    bomFrozenCache.set(bomName, frozen);
+    return frozen;
+  }
+
   const created = [], failed = [];
   for(const [prName, prRows] of byPr){
     try{
-      const items = prRows.map((r, idx) => ({
-        doctype:'Purchase Invoice Item', idx: idx+1,
-        item_code: r.item, item_name: r.item, description: r.item,
-        qty: r.finalQty, rate: r.rate, amount: r.amount,
-        uom:'Gram', stock_uom:'Gram', conversion_factor:1,
-        purchase_receipt: prName,
-        ...(r.prItemDetail ? {pr_detail: r.prItemDetail} : {}),
-      }));
+      const prRes = await dev1Get(`/api/resource/Purchase Receipt/${encodeURIComponent(prName)}`);
+      const prDoc = prRes.data || prRes.message || {};
+      const prItemByRow = new Map((prDoc.items || []).map(it => [it.name, it]));
+
+      const items = [];
+      for(let idx = 0; idx < prRows.length; idx++){
+        const r = prRows[idx];
+        const prItem = prItemByRow.get(r.prItemDetail);
+        const origQty = parseFloat(prItem?.qty) || 1; // FG item's own qty — never changes in a Bhav Cut
+        const frozenAmount = await getFrozenAmount(prItem?.custom_bom);
+        const amount = r.metalAmount + frozenAmount;
+        const rate = origQty > 0 ? amount / origQty : amount;
+        items.push({
+          doctype:'Purchase Invoice Item', idx: idx+1,
+          item_code: prItem?.item_code || r.item, item_name: r.item, description: r.item,
+          qty: origQty, rate, amount,
+          uom: prItem?.uom || 'Nos', stock_uom: prItem?.stock_uom || prItem?.uom || 'Nos',
+          conversion_factor: prItem?.conversion_factor || 1,
+          purchase_receipt: prName,
+          ...(r.prItemDetail ? {pr_detail: r.prItemDetail} : {}),
+        });
+      }
       const payload = {
         doctype:'Purchase Invoice', supplier: supplierName, company: COMPANY,
         posting_date: new Date().toISOString().slice(0,10),
@@ -1697,6 +1815,10 @@ async function submitMultiBhavCut(){
   document.getElementById('submitBhavBtn').disabled = true;
   let msg = created.length ? `Bhav Cut submitted — ${created.length} Purchase Invoice(s) created: ${created.map(c=>c.piName).join(', ')}` : 'Bhav Cut submitted';
   if(failed.length) msg += ` — failed for: ${failed.join(', ')}`;
+  // Advisory only — items still get invoiced at their full original qty/amount regardless
+  // (see the weightMismatchCount comment on the row-collection loop above); this just warns
+  // that the metal amount for those rows was computed off a weight that doesn't match the PR.
+  if(weightMismatchCount) msg += ` — note: ${weightMismatchCount} row(s) had an Input Weight different from the Purchase Receipt net weight (full item still invoiced; only the metal amount was affected)`;
   showToast(msg, failed.length ? 'error' : 'success', 8000);
 }
 

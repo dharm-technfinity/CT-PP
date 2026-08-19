@@ -652,20 +652,79 @@ function recalc(){
 function autoResize(el){ el.style.height='auto'; el.style.height=el.scrollHeight+'px'; }
 
 // ── Item search (type-ahead against Item master, matches "In Global Search" fields too) ──
-function seItemAc(inp, rowId){
-  const q = inp.value.toLowerCase();
-  const list = document.getElementById('seac-'+rowId);
-  if(!list) return;
-  if(!q){ list.classList.remove('open'); return; }
-  const r = SE_ITEMS.filter(i=>i.code.toLowerCase().includes(q)||i.name.toLowerCase().includes(q)||(i._search&&i._search.includes(q))).slice(0,10);
+function renderSeAcResults(rowId, r){
+  const list = document.getElementById('seac-'+rowId); if(!list) return;
   list.innerHTML = r.length ? r.map(it=>`<div class="cd-ac-item" onmousedown="seSelectItem('${rowId}','${esc(it.code)}')"><div class="main">${esc(it.code)}</div><div class="sub">${esc(it.name)}${it.rate?' · ₹'+it.rate.toLocaleString('en-IN'):''}</div></div>`).join('') : `<div class="cd-ac-empty">No item found</div>`;
   list.classList.add('open');
 }
+
+// Live server-side item search, same idea as Frappe's own Link-field awesomplete: queries
+// the backend by item_code/item_name "contains" so items outside the bulk-loaded SE_ITEMS
+// cache (fetched once at page load, capped at 1000) still surface as the user types.
+async function seLiveSearchItems(q){
+  const fields    = encodeURIComponent(JSON.stringify(['item_code','item_name','stock_uom','standard_rate']));
+  const filters   = encodeURIComponent(JSON.stringify([['disabled','=',0]]));
+  const orFilters = encodeURIComponent(JSON.stringify([['item_code','like',`%${q}%`],['item_name','like',`%${q}%`]]));
+  const res = await dev1Get(`/api/resource/Item?fields=${fields}&filters=${filters}&or_filters=${orFilters}&limit_page_length=20`);
+  const rows = res.data || res.message || [];
+  return rows.map(i=>({code:i.item_code,name:i.item_name||i.item_code,uom:i.stock_uom||'Nos',rate:parseFloat(i.standard_rate||0)}));
+}
+
+const _seAcTimers = {};
+function seItemAc(inp, rowId){
+  const q = inp.value.trim().toLowerCase();
+  const list = document.getElementById('seac-'+rowId);
+  if(!list) return;
+  clearTimeout(_seAcTimers[rowId]);
+  if(!q){ list.classList.remove('open'); return; }
+
+  // Instant results from the local cache first, so the dropdown never feels laggy.
+  renderSeAcResults(rowId, SE_ITEMS.filter(i=>i.code.toLowerCase().includes(q)||i.name.toLowerCase().includes(q)||(i._search&&i._search.includes(q))).slice(0,10));
+
+  // Debounced live search fills in anything outside that cache — merged in and re-rendered,
+  // with startswith matches (code or name) ranked first, same as Frappe's own Link search.
+  _seAcTimers[rowId] = setTimeout(async ()=>{
+    if(inp.value.trim().toLowerCase() !== q) return; // user kept typing — this query is stale
+    try{
+      const live = await seLiveSearchItems(q);
+      live.forEach(it=>{ if(!SE_ITEMS.some(x=>x.code===it.code)) SE_ITEMS.push({...it, _search:[it.code,it.name].join(' ').toLowerCase()}); });
+      if(inp.value.trim().toLowerCase() !== q) return; // stale again after the await
+      const merged = SE_ITEMS.filter(i=>i.code.toLowerCase().includes(q)||i.name.toLowerCase().includes(q)||(i._search&&i._search.includes(q)));
+      merged.sort((a,b)=>{
+        const aStarts = a.code.toLowerCase().startsWith(q) || a.name.toLowerCase().startsWith(q);
+        const bStarts = b.code.toLowerCase().startsWith(q) || b.name.toLowerCase().startsWith(q);
+        return (aStarts===bStarts) ? 0 : (aStarts?-1:1);
+      });
+      renderSeAcResults(rowId, merged.slice(0,10));
+    }catch(e){ /* live search failed — local results already shown stand */ }
+  }, 250);
+}
 function seItemBlur(inp, rowId){
-  setTimeout(()=>{ document.getElementById('seac-'+rowId)?.classList.remove('open'); }, 150);
-  const code = inp.value.trim(); if(!code) return;
+  const code = inp.value.trim();
+  if(!code){ setTimeout(()=>{ document.getElementById('seac-'+rowId)?.classList.remove('open'); }, 150); return; }
   const it = SE_ITEMS.find(i=>i.code.toLowerCase()===code.toLowerCase()||i.name.toLowerCase()===code.toLowerCase());
-  if(it) seFillItem(rowId, it);
+  if(it){
+    seFillItem(rowId, it);
+    return;
+  }
+  // No local match. Before giving up, defer briefly (onmousedown on the dropdown item already
+  // resolves before this fires for a click-select, so this only matters for a typed/pasted
+  // code with no dropdown interaction) then try a live exact-code lookup.
+  setTimeout(async ()=>{
+    document.getElementById('seac-'+rowId)?.classList.remove('open');
+    const liveInp = document.getElementById(rowId)?.querySelector('[data-f="code"]');
+    if(!liveInp || liveInp.value.trim().toLowerCase() !== code.toLowerCase()) return; // resolved already, or user kept typing
+    try{
+      const res = await dev1Get(`/api/resource/Item/${encodeURIComponent(code)}`);
+      const doc = res.data || res.message;
+      if(!doc || doc.disabled) throw new Error('not found');
+      const found = { code: doc.item_code, name: doc.item_name||doc.item_code, uom: doc.stock_uom||'Nos', rate: parseFloat(doc.standard_rate||0) };
+      SE_ITEMS.push({ ...found, _search: [found.code, found.name].join(' ').toLowerCase() });
+      seFillItem(rowId, found);
+    }catch(e){
+      showToast(`Item "${code}" not found`, 'error');
+    }
+  }, 200);
 }
 function seSelectItem(rowId, code){
   const it = SE_ITEMS.find(i=>i.code===code);

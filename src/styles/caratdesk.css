@@ -298,6 +298,16 @@ body {
   filter: brightness(0.97);
 }
 
+.cd-btn-blue {
+  background: var(--pill-blue-bg);
+  color: var(--pill-blue-txt);
+  border: 0.5px solid rgba(26, 74, 138, 0.15);
+}
+
+.cd-btn-blue:hover:not(:disabled) {
+  filter: brightness(0.97);
+}
+
 .cd-btn-danger {
   background: var(--pill-red-bg);
   color: var(--pill-red-txt);

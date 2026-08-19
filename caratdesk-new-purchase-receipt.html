@@ -492,9 +492,41 @@
               <input type="file" id="bomExcelUpload" accept=".csv" onchange="uploadBomExcel(event)" hidden>
             </div>
           </div>
-          <div class="cd-field" style="max-width:220px;margin-top:14px">
-            <label class="cd-label" style="margin-top:0">Add/Less Weight</label>
-            <input class="cd-input" type="number" id="lessWeight" step="0.001" min="0" placeholder="0.000"/>
+          <div class="cd-grid-4" style="margin-top:14px">
+            <div class="cd-field">
+              <label class="cd-label" style="margin-top:0">Total Metal Wt (g)</label>
+              <input class="cd-input" type="number" id="totalMetalWt" readonly placeholder="0.000"/>
+            </div>
+            <div class="cd-field">
+              <label class="cd-label" style="margin-top:0">Total Diamond Wt (ct)</label>
+              <input class="cd-input" type="number" id="totalDiamondWt" readonly placeholder="0.000"/>
+            </div>
+            <div class="cd-field">
+              <label class="cd-label" style="margin-top:0">Total Stone Wt (ct)</label>
+              <input class="cd-input" type="number" id="totalStoneWt" readonly placeholder="0.000"/>
+            </div>
+            <div class="cd-field">
+              <label class="cd-label" style="margin-top:0">Total Other Wt (g)</label>
+              <input class="cd-input" type="number" id="totalOtherWt" readonly placeholder="0.000"/>
+            </div>
+          </div>
+          <div class="cd-grid-4" style="margin-top:14px">
+            <div class="cd-field">
+              <label class="cd-label" style="margin-top:0">Total Gross Wt (g)</label>
+              <input class="cd-input" type="number" id="totalGrossWt" readonly placeholder="0.000"/>
+            </div>
+            <div class="cd-field">
+              <label class="cd-label" style="margin-top:0">Total Net Wt (g)</label>
+              <input class="cd-input" type="number" id="totalNetWt" readonly placeholder="0.000"/>
+            </div>
+            <div class="cd-field">
+              <label class="cd-label" style="margin-top:0">Total Labour Amount (₹)</label>
+              <input class="cd-input" type="number" id="totalLabourAmt" readonly placeholder="0.00"/>
+            </div>
+            <div class="cd-field">
+              <label class="cd-label" style="margin-top:0">Add/Less Weight</label>
+              <input class="cd-input" type="number" id="lessWeight" step="0.001" min="0" placeholder="0.000"/>
+            </div>
           </div>
         </div>
       </div>
@@ -968,6 +1000,37 @@
     <div style="margin-left:auto;display:flex;gap:8px">
       <button class="cd-btn cd-btn-secondary" onclick="closeDescDialog()">Cancel</button>
       <button class="cd-btn cd-btn-primary" onclick="saveDescDialog()">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Save
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Serial No Images Dialog -->
+<div class="cd-idialog-overlay" id="serialImgDialogOverlay" onclick="closeSerialImgDialog()"></div>
+<div class="cd-idialog" id="serialImgDialog" style="width:560px;max-width:96vw">
+  <div class="cd-idialog-header">
+    <div>
+      <div class="cd-idialog-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        Serial No Images
+      </div>
+      <div style="font-size:11px;color:var(--text-muted);margin-top:2px" id="serialImgDlgSubtitle">—</div>
+    </div>
+    <div class="cd-idialog-close" onclick="closeSerialImgDialog()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+  </div>
+  <div class="cd-idialog-body" style="padding:20px 24px">
+    <div class="cd-field" id="serialImgPickerWrap" style="display:none;margin:0 0 14px">
+      <label class="cd-label" style="margin-top:0">Serial No</label>
+      <select class="cd-select" id="serialImgPicker" onchange="switchSerialImgTarget(this.value)"></select>
+    </div>
+    <div id="serialImgLoading" style="text-align:center;padding:24px;color:var(--text-muted);font-size:12px">Loading…</div>
+    <div id="serialImgGrid" style="display:none;grid-template-columns:1fr 1fr;gap:14px"></div>
+  </div>
+  <div class="cd-idialog-footer">
+    <div style="margin-left:auto;display:flex;gap:8px">
+      <button class="cd-btn cd-btn-secondary" onclick="closeSerialImgDialog()">Close</button>
+      <button class="cd-btn cd-btn-primary" id="serialImgSaveBtn" onclick="saveSerialImages()">
         <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Save
       </button>
     </div>
@@ -1535,6 +1598,7 @@ async function loadExistingPR(name){
       f('[data-f="packet_no"]', item.custom_packet_no||'');
       f('[data-f="custom_remarks"]', item.custom_remarks||'');
       updateDescBtnVisual(rowId);
+      updateSerialImgBtnVisual(rowId);
       // Load item image from custom_image field
       if(item.custom_image){
         const fullUrl = cdGetInstanceUrl() + item.custom_image;
@@ -1600,7 +1664,7 @@ async function loadExistingPR(name){
               bi.custom_diamond_sieve_size||'',
               bi.uom||'',
               bi.qty||0,
-              bi.rate||0,
+              bi.custom_costing_rate||bi.rate||0,
               bi.custom_huid||'',
               rowId,
               bi.custom_making||0,
@@ -1609,7 +1673,7 @@ async function loadExistingPR(name){
               bi.custom_wastage||0,
               bi.custom_handling_rate||0,
               bi.custom_bom_amt||0,
-              0, 0, bi.custom_add_in_net_wt||0, 0, '', bi.custom_pcs||0
+              0, 0, bi.custom_add_in_net_wt||0, 0, bi.custom_item_group||'', bi.custom_pcs||0
             );
           });
           const itemTr=document.getElementById(rowId);
@@ -1702,6 +1766,16 @@ function setDocReadOnly(readonly){
     btn.disabled = readonly;
     btn.style.opacity = readonly ? '0.5' : '';
     btn.style.pointerEvents = readonly ? 'none' : '';
+  });
+  // Serial No Images stay editable even after submit/cancel — the dialog writes to the
+  // Serial No doc itself (a separate doctype from this Purchase Receipt), so there's nothing
+  // about this document being locked that should block it. In fact this is when the button
+  // becomes most useful, since the real Serial No (and its images) only exist post-submit.
+  form.querySelectorAll('[id^="serialimgbtn-"]').forEach(btn=>{
+    btn.disabled = false;
+    btn.style.opacity = '';
+    btn.style.pointerEvents = '';
+    btn.style.cursor = '';
   });
 }
 
@@ -2234,6 +2308,8 @@ async function selPO(name){
       const poItemInp=tr.querySelector('[data-f="purchase_order_item"]');
       if(poItemInp) poItemInp.value=it.name||'';
       fillRow(rowId, it.item_code||'', it.item_name||it.item_code||'', it.gst_hsn_code||it.hsn_code||'', it.uom||it.stock_uom||'Nos', it.rate||0);
+      const designEl=tr.querySelector('[data-f="design"]');
+      if(designEl) designEl.value=it.custom_design||'';
     });
     const addedCount = document.querySelectorAll('#itemsTbody tr').length;
     if(!addedCount){ showToast('All items from this PO are fully received','info'); return; }
@@ -2604,9 +2680,15 @@ function addRow(){
 
     <!-- Serial No -->
     <td style="white-space:normal;min-width:120px">
-      <textarea class="cd-input" placeholder="Serial No" data-f="serial_no" rows="1"
-        style="font-size:11px;resize:none;overflow:hidden;min-height:26px;line-height:1.5;width:100%;padding:3px 6px;word-break:break-all"
-        oninput="autoResize(this)"></textarea>
+      <div style="display:flex;align-items:flex-start;gap:4px">
+        <textarea class="cd-input" placeholder="Serial No" data-f="serial_no" rows="1"
+          style="font-size:11px;resize:none;overflow:hidden;min-height:26px;line-height:1.5;width:100%;padding:3px 6px;word-break:break-all"
+          oninput="autoResize(this)"></textarea>
+        <button type="button" class="cd-pick-btn" id="serialimgbtn-${id}" title="Upload Serial No Images" onclick="openSerialImgDialogForRow('${id}')"
+          style="font-size:10px;padding:0 6px;height:26px;border-radius:4px;flex-shrink:0">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        </button>
+      </div>
     </td>
 
     <!-- HSN -->
@@ -2691,6 +2773,213 @@ function updateDescBtnVisual(rowId){
   }
 }
 
+// ── Serial No Images dialog (backed by the "Serial No"."custom_serial_no_images" child
+// table — one row per serial, holding 6 named Attach Image slots) ──
+const SERIAL_IMG_SLOTS = [
+  ['front_view','Front View'], ['back_view','Back View'],
+  ['top_view','Top View'],     ['bottom_view','Bottom View'],
+  ['left_view','Left View'],   ['right_view','Right View'],
+];
+let _serialImgState = null; // { mode:'serial'|'pending', rowId, serials, current, values:{field:fileUrl}, rowName, exists }
+
+// ── Pending-image staging (row not yet linked to a real Serial No) ──
+// Serial Nos are generated by ERPNext itself as part of a Purchase Receipt's submit
+// transaction — the row's serial_no field is normally empty until then, so there's nothing
+// to attach images to yet. Staged images are kept in localStorage keyed by PR name + row id
+// (both stay stable across a reload of the same draft — addRow() rebuilds rows in saved item
+// order), then applied to the real Serial No(s) inside submitPR() once they exist.
+function pendingSerialImgKey(rowId){ return `cd_pending_serial_img::${window.currentPRName||'draft'}::${rowId}`; }
+function getPendingSerialImages(rowId){
+  try{ return JSON.parse(localStorage.getItem(pendingSerialImgKey(rowId)) || '{}'); }catch(e){ return {}; }
+}
+function setPendingSerialImages(rowId, values){
+  const hasAny = SERIAL_IMG_SLOTS.some(([f])=>values[f]);
+  if(hasAny) localStorage.setItem(pendingSerialImgKey(rowId), JSON.stringify(values));
+  else localStorage.removeItem(pendingSerialImgKey(rowId));
+}
+function clearPendingSerialImages(rowId){ localStorage.removeItem(pendingSerialImgKey(rowId)); }
+function updateSerialImgBtnVisual(rowId){
+  const btn = document.getElementById('serialimgbtn-'+rowId); if(!btn) return;
+  const hasStaged = window.currentPRName && SERIAL_IMG_SLOTS.some(([f])=>getPendingSerialImages(rowId)[f]);
+  if(hasStaged){
+    btn.style.background = 'var(--pill-green-bg)';
+    btn.style.color = 'var(--pill-green-txt)';
+    btn.title = 'Images staged — will attach once the Serial No is generated';
+  } else {
+    btn.style.background = '';
+    btn.style.color = '';
+    btn.title = 'Upload Serial No Images';
+  }
+}
+
+function openSerialImgDialogForRow(rowId){
+  const tr = document.getElementById(rowId); if(!tr) return;
+  const raw = tr.querySelector('[data-f="serial_no"]')?.value || '';
+  const serials = raw.split(/\r?\n|,/).map(s=>s.trim()).filter(Boolean);
+  if(serials.length) openSerialImgDialog(serials);
+  else openSerialImgDialogPending(rowId);
+}
+
+// Row has no known serial yet — stage images locally; they get pushed onto the real Serial
+// No(s) automatically once this receipt is submitted (see submitPR()).
+function openSerialImgDialogPending(rowId){
+  if(!window.currentPRName){ showToast('Save the draft first, then attach images', 'error'); return; }
+  _serialImgState = { mode:'pending', rowId, serials:[], current:null, values: getPendingSerialImages(rowId), rowName:null, exists:false };
+  document.getElementById('serialImgDialog').classList.add('open');
+  document.getElementById('serialImgDialogOverlay').classList.add('open');
+  document.getElementById('serialImgPickerWrap').style.display = 'none';
+  document.getElementById('serialImgDlgSubtitle').textContent = 'Serial No not generated yet — images will attach automatically once this receipt is submitted';
+  document.getElementById('serialImgLoading').style.display = 'none';
+  document.getElementById('serialImgGrid').style.display = 'grid';
+  renderSerialImgGrid();
+}
+
+function openSerialImgDialog(serials){
+  serials = [...new Set((serials||[]).map(s=>s.trim()).filter(Boolean))];
+  if(!serials.length){ showToast('Enter a Serial No first', 'error'); return; }
+  _serialImgState = { mode:'serial', rowId:null, serials, current: serials[0], values: {}, rowName: null, exists: false };
+  document.getElementById('serialImgDialog').classList.add('open');
+  document.getElementById('serialImgDialogOverlay').classList.add('open');
+  const pickerWrap = document.getElementById('serialImgPickerWrap');
+  const picker = document.getElementById('serialImgPicker');
+  if(serials.length > 1){
+    picker.innerHTML = serials.map(s=>`<option value="${esc(s)}">${esc(s)}</option>`).join('');
+    pickerWrap.style.display = '';
+  } else {
+    pickerWrap.style.display = 'none';
+  }
+  loadSerialImgTarget(serials[0]);
+}
+
+function switchSerialImgTarget(serial){ loadSerialImgTarget(serial); }
+
+async function loadSerialImgTarget(serial){
+  _serialImgState.current = serial;
+  document.getElementById('serialImgDlgSubtitle').textContent = 'Serial No: ' + serial;
+  document.getElementById('serialImgLoading').style.display = '';
+  document.getElementById('serialImgGrid').style.display = 'none';
+  _serialImgState.values = {};
+  _serialImgState.rowName = null;
+  try{
+    const res = await dev1Get(`/api/resource/Serial No/${encodeURIComponent(serial)}`);
+    const doc = res.data || res.message;
+    const rows = doc?.custom_serial_no_images || [];
+    if(rows.length){
+      const row = rows[0];
+      _serialImgState.rowName = row.name || null;
+      SERIAL_IMG_SLOTS.forEach(([f])=>{ _serialImgState.values[f] = row[f] || ''; });
+    }
+    _serialImgState.exists = true;
+  }catch(e){
+    // Serial No doesn't exist yet on the backend (e.g. typed into a draft, not-yet-submitted
+    // receipt) — start blank; Save will explain it needs to exist first.
+    _serialImgState.exists = false;
+  }
+  document.getElementById('serialImgLoading').style.display = 'none';
+  document.getElementById('serialImgGrid').style.display = 'grid';
+  renderSerialImgGrid();
+}
+
+function renderSerialImgGrid(){
+  const grid = document.getElementById('serialImgGrid'); if(!grid) return;
+  grid.innerHTML = SERIAL_IMG_SLOTS.map(([f,label])=>{
+    const url = _serialImgState.values[f] || '';
+    return `
+      <div class="cd-field" style="margin:0">
+        <label class="cd-label" style="margin-top:0">${label}</label>
+        <div style="border:.5px dashed var(--border-strong);border-radius:8px;padding:8px;display:flex;flex-direction:column;align-items:center;gap:6px;min-height:114px;justify-content:center">
+          <input type="file" id="simg-${f}-file" accept="image/*" hidden onchange="uploadSerialImgSlot('${f}',this)"/>
+          <div id="simg-${f}-wrap" style="display:${url?'block':'none'};position:relative">
+            <img id="simg-${f}-img" src="${url?cdGetInstanceUrl()+url:''}" style="width:90px;height:90px;object-fit:cover;border-radius:6px;cursor:zoom-in;display:block" onclick="showImgLightbox(this.src)" title="Click to preview"/>
+            <button onclick="removeSerialImgSlot('${f}')" title="Remove image" style="position:absolute;top:-6px;right:-6px;width:18px;height:18px;border-radius:50%;background:#ef4444;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;line-height:1;padding:0;font-weight:700">×</button>
+          </div>
+          <button id="simg-${f}-btn" class="cd-add-row" style="display:${url?'none':'inline-flex'}" onclick="document.getElementById('simg-${f}-file').click()">Attach</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+async function uploadSerialImgSlot(field, input){
+  if(!input.files || !input.files[0]) return;
+  const file = input.files[0];
+  const localSrc = URL.createObjectURL(file);
+  const wrap = document.getElementById(`simg-${field}-wrap`);
+  const btn  = document.getElementById(`simg-${field}-btn`);
+  const img  = document.getElementById(`simg-${field}-img`);
+  if(img){ img.src = localSrc; img.style.opacity = '0.45'; }
+  if(wrap) wrap.style.display = 'block';
+  if(btn) btn.style.display = 'none';
+  try{
+    const fd = new FormData();
+    fd.append('file', file, file.name);
+    // Only attach to the Serial No doc when it actually exists yet — a pending (not-yet-
+    // generated) row uploads standalone, same as the item-row photo upload elsewhere in
+    // this file; the URL gets referenced later once the real doc exists.
+    if(_serialImgState.exists && _serialImgState.current){
+      fd.append('doctype', 'Serial No');
+      fd.append('docname', _serialImgState.current);
+    }
+    fd.append('is_private', '0');
+    const res = await dev1PostForm('/api/method/upload_file', fd);
+    const up = res.message || res;
+    const fileUrl = up.file_url || '';
+    _serialImgState.values[field] = fileUrl;
+    if(img){ img.src = cdGetInstanceUrl() + fileUrl; img.style.opacity = '1'; }
+    URL.revokeObjectURL(localSrc);
+  }catch(err){
+    showToast('Image upload failed: ' + err.message, 'error');
+    if(wrap) wrap.style.display = 'none';
+    if(btn) btn.style.display = 'inline-flex';
+  }
+  input.value = '';
+}
+
+function removeSerialImgSlot(field){
+  _serialImgState.values[field] = '';
+  renderSerialImgGrid();
+}
+
+function closeSerialImgDialog(){
+  document.getElementById('serialImgDialog').classList.remove('open');
+  document.getElementById('serialImgDialogOverlay').classList.remove('open');
+  _serialImgState = null;
+}
+
+async function saveSerialImages(){
+  if(!_serialImgState) return;
+  const btn = document.getElementById('serialImgSaveBtn');
+
+  if(_serialImgState.mode === 'pending'){
+    setPendingSerialImages(_serialImgState.rowId, _serialImgState.values);
+    updateSerialImgBtnVisual(_serialImgState.rowId);
+    showToast('Saved — these will attach to the Serial No automatically once this receipt is submitted', 'success', 5000);
+    closeSerialImgDialog();
+    return;
+  }
+
+  const serial = _serialImgState.current;
+  const rowPayload = {};
+  if(_serialImgState.rowName) rowPayload.name = _serialImgState.rowName;
+  SERIAL_IMG_SLOTS.forEach(([f])=>{ rowPayload[f] = _serialImgState.values[f] || ''; });
+  const origHtml = btn.innerHTML;
+  btn.disabled = true; btn.innerHTML = 'Saving…';
+  try{
+    await dev1Put(`/api/resource/Serial No/${encodeURIComponent(serial)}`, { custom_serial_no_images: [rowPayload] });
+    showToast('Images saved for ' + serial, 'success');
+    _serialImgState.exists = true;
+    closeSerialImgDialog();
+    return;
+  }catch(e){
+    if(!_serialImgState.exists){
+      showToast(`Could not save — Serial No "${serial}" doesn't exist on the backend yet. Submit the receipt first, then attach images.`, 'error', 6000);
+    } else {
+      showToast('Save failed: ' + e.message, 'error');
+    }
+  }finally{
+    btn.disabled = false; btn.innerHTML = origHtml;
+  }
+}
+
 function itemsChkAllToggle(chk){ document.querySelectorAll('#itemsTbody .cd-row-chk').forEach(c=>c.checked=chk.checked); updateItemsDeleteBtnVisibility(); }
 
 function updateItemsDeleteBtnVisibility(){
@@ -2711,21 +3000,82 @@ function deleteSelectedItemRows(){
   recalc();
 }
 
-function itemAc(inp,rowId){
-  const q=inp.value.toLowerCase(), list=document.getElementById('iac-'+rowId);
-  if(!q){ list.classList.remove('open'); return; }
-  const r=ITEMS.filter(i=>i.code.toLowerCase().includes(q)||i.name.toLowerCase().includes(q)||(i._search||'').includes(q)).slice(0,10);
+function renderItemAcResults(rowId, r){
+  const list=document.getElementById('iac-'+rowId); if(!list) return;
   list.innerHTML=r.length?r.map(it=>`<div class="cd-ac-item" data-rowid="${rowId}" data-code="${esc(it.code)}"><div class="main">${esc(it.code)}</div><div class="sub">${esc(it.name)}${it.rate?' · '+it.rate.toLocaleString('en-IN'):''}${it.hsn?' · HSN '+it.hsn:''}</div></div>`).join(''):`<div class="cd-ac-empty">No item found</div>`;
   list.classList.add('open');
+}
+
+// Live server-side item search, same idea as Frappe's own Link-field awesomplete: queries
+// the backend by item_code/item_name "contains" so items outside the 1000-row ITEMS cache
+// (fetched once at page load) still surface as soon as the user types.
+async function liveSearchItems(q){
+  const fields    = encodeURIComponent(JSON.stringify(['item_code','item_name','gst_hsn_code','stock_uom','standard_rate']));
+  const filters   = encodeURIComponent(JSON.stringify([['disabled','=',0]]));
+  const orFilters = encodeURIComponent(JSON.stringify([['item_code','like',`%${q}%`],['item_name','like',`%${q}%`]]));
+  const res = await dev1Get(`/api/resource/Item?fields=${fields}&filters=${filters}&or_filters=${orFilters}&limit_page_length=20`);
+  const rows = res.data || res.message || [];
+  return rows.map(i=>({code:i.item_code||i.name,name:i.item_name||i.item_code||i.name,hsn:i.gst_hsn_code||'',uom:i.stock_uom||'Nos',rate:parseFloat(i.standard_rate)||0}));
+}
+
+const _itemAcTimers={};
+function itemAc(inp,rowId){
+  const q=inp.value.trim().toLowerCase(), list=document.getElementById('iac-'+rowId);
+  clearTimeout(_itemAcTimers[rowId]);
+  if(!q){ list.classList.remove('open'); return; }
+
+  // Instant results from the local cache first, so the dropdown never feels laggy.
+  renderItemAcResults(rowId, ITEMS.filter(i=>i.code.toLowerCase().includes(q)||i.name.toLowerCase().includes(q)||(i._search||'').includes(q)).slice(0,10));
+
+  // Debounced live search fills in anything outside that cache — merged in and re-rendered,
+  // with startswith matches (code or name) ranked first, same as Frappe's own Link search.
+  _itemAcTimers[rowId]=setTimeout(async ()=>{
+    if(inp.value.trim().toLowerCase()!==q) return; // user kept typing — this query is stale
+    try{
+      const live=await liveSearchItems(q);
+      live.forEach(it=>{ if(!ITEMS.some(x=>x.code===it.code)) ITEMS.push({...it,_search:[it.code,it.name].join(' ').toLowerCase()}); });
+      if(inp.value.trim().toLowerCase()!==q) return; // stale again after the await
+      const merged=ITEMS.filter(i=>i.code.toLowerCase().includes(q)||i.name.toLowerCase().includes(q)||(i._search||'').includes(q));
+      merged.sort((a,b)=>{
+        const aStarts=a.code.toLowerCase().startsWith(q)||a.name.toLowerCase().startsWith(q);
+        const bStarts=b.code.toLowerCase().startsWith(q)||b.name.toLowerCase().startsWith(q);
+        return (aStarts===bStarts)?0:(aStarts?-1:1);
+      });
+      renderItemAcResults(rowId, merged.slice(0,10));
+    }catch(e){ /* live search failed — local results already shown stand */ }
+  }, 250);
 }
 
 function itemCodeBlur(inp, rowId){
   const code = inp.value.trim();
   if(!code) return;
   const it = ITEMS.find(i => i.code.toLowerCase() === code.toLowerCase());
-  if(!it) return;
-  fillRow(rowId, it.code, it.name, it.hsn||'', it.uom||'Nos', it.rate||0);
-  document.getElementById('iac-'+rowId)?.classList.remove('open');
+  if(it){
+    fillRow(rowId, it.code, it.name, it.hsn||'', it.uom||'Nos', it.rate||0);
+    document.getElementById('iac-'+rowId)?.classList.remove('open');
+    return;
+  }
+  // No local match. ITEMS is only the first 1000 Items fetched at page load (no search
+  // filter) — an item outside that batch (or created after load) won't be in it. Before
+  // reporting "not found", defer briefly: blur fires *before* a dropdown-suggestion click's
+  // own handler runs, so if the user is actually mid-select via the autocomplete list, give
+  // that click a moment to land and fill the row first — re-check the field's value after,
+  // and only fall back to a live exact-code lookup if it still matches what we saw here.
+  setTimeout(async ()=>{
+    const liveInp = document.getElementById(rowId)?.querySelector('[data-f="code"]');
+    if(!liveInp || liveInp.value.trim().toLowerCase() !== code.toLowerCase()) return; // resolved by a click, or user kept typing
+    try{
+      const res = await dev1Get(`/api/resource/Item/${encodeURIComponent(code)}`);
+      const doc = res.data || res.message;
+      if(!doc || doc.disabled) throw new Error('not found');
+      const found = { code: doc.item_code||doc.name, name: doc.item_name||doc.item_code||doc.name, hsn: doc.gst_hsn_code||'', uom: doc.stock_uom||'Nos', rate: parseFloat(doc.standard_rate)||0 };
+      ITEMS.push({ ...found, _search: [found.code, found.name].join(' ').toLowerCase() });
+      fillRow(rowId, found.code, found.name, found.hsn||'', found.uom||'Nos', found.rate||0);
+      document.getElementById('iac-'+rowId)?.classList.remove('open');
+    }catch(e){
+      showToast(`Item "${code}" not found`, 'error');
+    }
+  }, 200);
 }
 
 document.addEventListener('click',function(e){
@@ -4193,7 +4543,7 @@ function buildPayload(docstatus){
     const accountHead=(tr.dataset.account||'').trim(); if(!accountHead) return;
     taxes.push({ doctype:'Purchase Taxes and Charges', idx:idx+1, charge_type:tr.dataset.type||'On Net Total', account_head:accountHead, description:accountHead, included_in_print_rate:tr.dataset.included==='1'?1:0, rate:parseFloat(tr.dataset.rate||0), tax_amount:parseFloat(tr.dataset.amount||0), total:parseFloat(tr.dataset.total||0) });
   });
-  return { doctype:'Purchase Receipt', docstatus, supplier, supplier_name:supplierDisp, posting_date:document.getElementById('postingDate').value||'', company:COMPANY, set_warehouse:warehouse, purchase_order:document.getElementById('againstPO').value||'', custom_against_purchase_order:document.getElementById('againstPO').value||'', supplier_delivery_note:document.getElementById('supplierDeliveryNote').value||'', remarks:document.getElementById('remarks').value||'', custom_type:document.getElementById('prType').value||'',custom_repair_order:document.getElementById('prType').value==='Repair'?(document.getElementById('repairOrder').value||''):'',branch: document.getElementById('branch').value||'', custom_shipping_branch: document.getElementById('shippingBranch').value||'', taxes_and_charges:taxTemplate, additional_discount_percentage:parseFloat(document.getElementById('addDisc').value||0), custom_less_weight:parseFloat(document.getElementById('lessWeight').value||0), items, taxes, custom_bhav_cut_details: getBhavRows(), ...(isReturnPR ? {is_return:1, return_against:returnAgainstPR} : {}) };
+  return { doctype:'Purchase Receipt', docstatus, supplier, supplier_name:supplierDisp, posting_date:document.getElementById('postingDate').value||'', company:COMPANY, set_warehouse:warehouse, purchase_order:document.getElementById('againstPO').value||'', custom_against_purchase_order:document.getElementById('againstPO').value||'', supplier_delivery_note:document.getElementById('supplierDeliveryNote').value||'', remarks:document.getElementById('remarks').value||'', custom_type:document.getElementById('prType').value||'',custom_repair_order:document.getElementById('prType').value==='Repair'?(document.getElementById('repairOrder').value||''):'',branch: document.getElementById('branch').value||'', custom_shipping_branch: document.getElementById('shippingBranch').value||'', taxes_and_charges:taxTemplate, additional_discount_percentage:parseFloat(document.getElementById('addDisc').value||0), custom_less_weight:parseFloat(document.getElementById('lessWeight').value||0), custom_total_metal_weight:parseFloat(document.getElementById('totalMetalWt').value||0), custom_total_diamond_weight:parseFloat(document.getElementById('totalDiamondWt').value||0), custom_total_stone_weight:parseFloat(document.getElementById('totalStoneWt').value||0), custom_total_other_weight:parseFloat(document.getElementById('totalOtherWt').value||0), custom_total_gross_weight:parseFloat(document.getElementById('totalGrossWt').value||0), custom_total_net_wt:parseFloat(document.getElementById('totalNetWt').value||0), custom_total_labour_amount:parseFloat(document.getElementById('totalLabourAmt').value||0), items, taxes, custom_bhav_cut_details: getBhavRows(), ...(isReturnPR ? {is_return:1, return_against:returnAgainstPR} : {}) };
 }
 
 async function saveDraft(){
@@ -4707,7 +5057,12 @@ async function submitPR(skipConfirm, extraFields){
             );
           }
         }
-        if(!packetNo && !bomId && !grossWt && !netWt && !pureWt && !sellRate && !tounch) continue;
+        // Any images staged on this row before the Serial No existed (see
+        // openSerialImgDialogPending) ride along in this same custom-field update, keyed by
+        // row id since that's all we had to stage against pre-submission.
+        const pendingImages = getPendingSerialImages(tr.id);
+        const hasPendingImages = SERIAL_IMG_SLOTS.some(([f])=>pendingImages[f]);
+        if(!packetNo && !bomId && !grossWt && !netWt && !pureWt && !sellRate && !tounch && !hasPendingImages) continue;
         // Tag the metal type alongside the weights so downstream vouchers (e.g. Sales
         // Invoice) can look it up per Serial No for their own Purity Ledger Entry postings.
         const metalType = (netWt || pureWt) ? getRowMetalType(tr) : '';
@@ -4720,8 +5075,9 @@ async function submitPR(skipConfirm, extraFields){
           ...(pureWt   ? {custom_pure_wt: pureWt} : {}),
           ...(sellRate ? {custom_sell_rate: sellRate} : {}),
           ...(tounch   ? {custom_tounch: tounch} : {}),
+          ...(hasPendingImages ? {custom_serial_no_images: [pendingImages]} : {}),
         };
-        serialNos.forEach(sn => serialUpdates.push({sn, payload}));
+        serialNos.forEach(sn => serialUpdates.push({sn, payload, rowId: tr.id, hasPendingImages}));
       }
 
       // Serial No records are created as part of the PR's own submit transaction, but on some
@@ -4729,12 +5085,16 @@ async function submitPR(skipConfirm, extraFields){
       // short delay before giving up on a given serial number.
       const sleep = ms => new Promise(r => setTimeout(r, ms));
       const failed = [];
-      for(const {sn, payload} of serialUpdates){
+      const rowImagesApplied = {}; // rowId -> true only if every serial it produced got the update
+      for(const {sn, payload, rowId, hasPendingImages} of serialUpdates){
         let ok = false, lastErr = '';
         for(let attempt = 0; attempt < 2 && !ok; attempt++){
           if(attempt > 0) await sleep(1000);
           try{ await dev1Put(`/api/resource/Serial No/${encodeURIComponent(sn)}`, payload); ok = true; }
           catch(e){ lastErr = e.message; }
+        }
+        if(hasPendingImages){
+          rowImagesApplied[rowId] = (rowImagesApplied[rowId] === undefined ? true : rowImagesApplied[rowId]) && ok;
         }
         if(!ok){
           console.error('Failed to update custom fields on Serial No', sn, ':', lastErr, payload);
@@ -4745,6 +5105,9 @@ async function submitPR(skipConfirm, extraFields){
           failed.push(sn);
         }
       }
+      // Only clear staged images once they're confirmed applied to every serial that row
+      // produced — otherwise leave them staged so nothing silently disappears on a failure.
+      Object.entries(rowImagesApplied).forEach(([rowId, allOk])=>{ if(allOk) clearPendingSerialImages(rowId); });
       if(failed.length){
         showToast(`Could not update custom fields on ${failed.length} serial no(s): ${failed.slice(0,3).join(', ')}${failed.length>3?'…':''} — check console / Error Log`, 'error', 7000);
       }
@@ -5505,9 +5868,9 @@ async function cancelDoc(skipConfirm){
     showToast(window.currentPRName+' cancelled','success');
   }catch(e){ showToast('Error: '+String(e.message).slice(0,80),'error'); console.error('cancelDoc error:',e); }
 }
-// Name of the Frappe Print Format (Doc Type: Serial No) that renders the tag —
-// must match exactly what's created in the backend (see setup notes).
-const SERIAL_TAG_PRINT_FORMAT = 'Serial No Tag';
+// Serial No tag layout lives in its own file so it can be edited without touching this
+// page's JS — see setup notes there for the placeholders it expects.
+const SERIAL_TAG_PRINT_FORMAT_URL = 'caratdesk-serial-tag-print-format.html';
 
 // Builds one combined print window covering every serial number on this receipt, each
 // tag on its own page — fetched and rendered entirely client-side (rather than depending
@@ -5527,53 +5890,48 @@ async function printtag(){
 
   showToast('Preparing tags…', 'info');
 
+  let pageTemplate;
+  try{
+    const tplRes = await fetch(SERIAL_TAG_PRINT_FORMAT_URL);
+    if(!tplRes.ok) throw new Error(`HTTP ${tplRes.status}`);
+    pageTemplate = await tplRes.text();
+  }catch(e){ showToast('Could not load tag print format: '+String(e.message).slice(0,80), 'error'); return; }
+
+  const tplMatch = pageTemplate.match(/<!-- TAG_TEMPLATE_START -->([\s\S]*?)<!-- TAG_TEMPLATE_END -->/);
+  if(!tplMatch){ showToast('Tag print format file is missing its TAG_TEMPLATE markers', 'error'); return; }
+  const tagTemplate = tplMatch[1];
+
   const tagsHtml = [];
+  const tagFields = encodeURIComponent(JSON.stringify(['custom_gross_weight','custom_net_weight','custom_sell_rate','item_name','item_code']));
   for(const sn of serials){
     try{
-      const res = await dev1Get(`/api/resource/Serial No/${encodeURIComponent(sn)}`);
+      const res = await dev1Get(`/api/resource/Serial No/${encodeURIComponent(sn)}?fields=${tagFields}`);
       const doc = res.data || res.message || {};
       const grossWt  = parseFloat(doc.custom_gross_weight) || 0;
       const netWt    = parseFloat(doc.custom_net_weight) || 0;
       const sellRate = doc.custom_sell_rate || 0;
       const itemName = doc.item_name || doc.item_code || '';
-      tagsHtml.push(`
-        <div class="tag">
-          <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(sn)}"/>
-          <div class="tag-details">
-            <div class="tag-sn">${esc(sn)}</div>
-            <div class="tag-item">${esc(itemName)}</div>
-            <div>Gross Wt: ${grossWt.toFixed(3)} g</div>
-            <div>Net Wt: ${netWt.toFixed(3)} g</div>
-            <div>Sell Rate: ${esc(String(sellRate))}%</div>
-          </div>
-        </div>`);
+      const qrUrl    = `https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(sn)}`;
+      tagsHtml.push(tagTemplate
+        .replace(/{{QR_URL}}/g, qrUrl)
+        .replace(/{{SERIAL_NO}}/g, esc(sn))
+        .replace(/{{ITEM_NAME}}/g, esc(itemName))
+        .replace(/{{GROSS_WT}}/g, grossWt.toFixed(3))
+        .replace(/{{NET_WT}}/g, netWt.toFixed(3))
+        .replace(/{{SELL_RATE}}/g, esc(String(sellRate))));
     }catch(e){ console.warn('Failed to fetch Serial No', sn, ':', e.message); }
   }
 
   if(!tagsHtml.length){ showToast('Could not load any serial number details', 'error'); return; }
 
+  const pageHtml = pageTemplate
+    .replace(/{{PR_NAME}}/g, esc(window.currentPRName))
+    .replace(/<!-- TAG_TEMPLATE_START -->[\s\S]*?<!-- TAG_TEMPLATE_END -->/, tagsHtml.join(''));
+
   const printWin = window.open('', '_blank');
   if(!printWin){ showToast('Please allow popups for this site to print tags', 'error'); return; }
 
-  printWin.document.write(`
-    <html>
-    <head>
-      <title>Serial No Tags — ${esc(window.currentPRName)}</title>
-      <style>
-        @page{ size: auto; margin: 0mm; }
-        body{ font-family: Arial, sans-serif; margin:0; }
-        .tag{ width:320px; height:130px; padding:8px; box-sizing:border-box; border:1px solid #000; display:flex; align-items:center; gap:10px; page-break-after: always; }
-        .tag img{ width:100px; height:100px; flex-shrink:0; }
-        .tag-details{ text-align:left; line-height:1.6; font-size:10px; }
-        .tag-sn{ font-size:13px; font-weight:bold; letter-spacing:0.5px; }
-        .tag-item{ font-size:9px; color:#555; margin-bottom:2px; }
-      </style>
-    </head>
-    <body>
-      ${tagsHtml.join('')}
-    </body>
-    </html>
-  `);
+  printWin.document.write(pageHtml);
   printWin.document.close();
   setTimeout(() => { printWin.focus(); printWin.print(); }, 600);
 }
@@ -6420,6 +6778,52 @@ function recalcBomFromAmt(rowId){
   syncBomWeightToItem(tr.dataset.sourceRow);
 }
 
+// Rolls up the BOM table into 6 Purchase-Receipt-level totals: weight by raw-material
+// category (Metal / Diamond / Stone / Other, classified via each row's item_group — falls
+// back to a Gold/Silver/Platinum template-type match when item_group hasn't loaded yet),
+// their sum as Total Gross Weight, and the labour-charge portion of every row's amount
+// (same split recalcBomRow already does internally, just isolated instead of folded into bom_amt).
+function recalcBomWeightTotals(){
+  // diamond/stone are kept in their native carat qty for display (no g conversion) —
+  // diamondG/stoneG are the gram-equivalent, used only internally for Total Gross Weight.
+  let metal=0, diamond=0, stone=0, other=0, diamondG=0, stoneG=0, netWt=0, labour=0;
+  document.querySelectorAll('#bomTbody tr').forEach(tr=>{
+    if(tr.dataset.combined==='1') return; // skip hidden combined BOM rows
+    const qty          = parseFloat(tr.querySelector('[data-bf="qty"]')?.value)          || 0;
+    const uom          = (tr.querySelector('[data-bf="uom"]')?.value || '').toLowerCase();
+    const rate         = parseFloat(tr.querySelector('[data-bf="rate"]')?.value)         || 0;
+    const making       = parseFloat(tr.querySelector('[data-bf="making"]')?.value)       || 0;
+    const handlingRate = parseFloat(tr.querySelector('[data-bf="handling_rate"]')?.value)|| 0;
+    const labourMode   = tr.querySelector('[data-bf="labour_mode"]')?.value              || 'Percentage';
+    const labourVal    = parseFloat(tr.querySelector('[data-bf="labour_val"]')?.value)   || 0;
+    const templateType = tr.querySelector('[data-bf="template_type"]')?.value            || '';
+    const itemGroup    = tr.querySelector('[data-bf="item_group"]')?.value               || detectMetalType(templateType);
+    const addInNetWt   = tr.querySelector('[data-bf="add_in_net_wt"]')?.value === '1';
+
+    const baseAmt = qty * rate + qty * making + qty * handlingRate;
+    labour += labourMode === 'Percentage' ? baseAmt * labourVal / 100 : qty * labourVal;
+
+    // Same ct→g conversion syncBomWeightToItem uses, kept only for the Metal/Other/Net/Gross
+    // totals (real weights). Diamond and Stone totals stay in carat, unconverted.
+    const qtyGrams = uom === 'carat' ? qty / 5 : qty;
+    if(/gold|silver|platinum|metal/i.test(itemGroup)){ metal += qtyGrams; }
+    else if(/diamond/i.test(itemGroup)){ diamond += qty; diamondG += qtyGrams; }
+    else if(/stone|gemstone/i.test(itemGroup)){ stone += qty; stoneG += qtyGrams; }
+    else{ other += qtyGrams; }
+
+    // Same "Add in Net Wt" flag syncBomWeightToItem uses per FG item — rolled up here across all rows.
+    if(addInNetWt) netWt += qtyGrams;
+  });
+  const set=(id,val,dp)=>{ const el=document.getElementById(id); if(el) el.value = Math.round(val*Math.pow(10,dp))/Math.pow(10,dp); };
+  set('totalMetalWt',   metal,   3);
+  set('totalDiamondWt', diamond, 3);
+  set('totalStoneWt',   stone,   3);
+  set('totalOtherWt',   other,   3);
+  set('totalGrossWt',   metal+diamondG+stoneG+other, 3);
+  set('totalNetWt',     netWt,   3);
+  set('totalLabourAmt', labour, 2);
+}
+
 function recalcBom(){
   let total=0;
   document.querySelectorAll('#bomTbody tr').forEach(tr=>{
@@ -6427,6 +6831,7 @@ function recalcBom(){
     total+=parseFloat(tr.querySelector('[data-bf="bom_amt"]')?.value||0);
   });
   const el=document.getElementById('bom-total'); if(el) el.textContent=''+Math.round(total).toLocaleString('en-IN');
+  recalcBomWeightTotals();
   // Sync gross weight for all visible FG item rows only
   const sourceRows=new Set([...document.querySelectorAll('#bomTbody tr')].filter(tr=>tr.dataset.combined!=='1').map(tr=>tr.dataset.sourceRow).filter(Boolean));
   sourceRows.forEach(srcRowId=>syncBomWeightToItem(srcRowId));

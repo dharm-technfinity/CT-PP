@@ -26,8 +26,10 @@ import {
   closePosShift,
   markSchemeAssignmentUsed,
   deactivateBom,
+  fetchPosButtonPermissions,
+  canShowPosButton,
 } from '../../lib/api.js';
-import { parseApiError, fmtINR, fmtWeight, fmtTime, round2 } from '../../lib/format.js';
+import { parseApiError, fmtINR, fmtWeight, fmtTime, fmtDateTime, round2 } from '../../lib/format.js';
 import {
   COMPANY,
   POS_HOLD_KEY,
@@ -165,6 +167,11 @@ function DiscountDialog({ totals, billDiscount, onBillDiscountChange, billCompon
 export default function PosPage() {
   const { showToast } = useToast();
   const [user, setUser] = useState(null);
+  // PP Settings1.pos_role: button_type -> role, gating which POS action buttons this user
+  // sees. Empty until loaded, so those buttons stay hidden (fail closed) until we know.
+  const [posPermissions, setPosPermissions] = useState({ posRoleMap: {}, userRoles: [] });
+  const canShowButton = (buttonType) =>
+    canShowPosButton(buttonType, posPermissions.userRoles, posPermissions.posRoleMap);
   const [goldRate, setGoldRate] = useState(0);
   const [gstSplit, setGstSplit] = useState([]);
   const [customer, setCustomer] = useState(null);
@@ -177,6 +184,7 @@ export default function PosPage() {
   const [saving, setSaving] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const [paymentOpen, setPaymentOpen] = useState(false);
+  const [managerModeOpen, setManagerModeOpen] = useState(false);
   const [customerOpen, setCustomerOpen] = useState(false);
   const [customerPromptForPayment, setCustomerPromptForPayment] = useState(false);
   const [lastInvoice, setLastInvoice] = useState(
@@ -230,6 +238,7 @@ export default function PosPage() {
   useEffect(() => {
     let cancelled = false;
     fetchLoggedUser().then(setUser).catch(() => {});
+    fetchPosButtonPermissions().then(setPosPermissions).catch(() => {});
     loadMetalRates().then((rates) => setGoldRate(rates.Gold || 0));
     queueMicrotask(() => {
       if (!cancelled) refreshDaySummary();
@@ -632,7 +641,7 @@ export default function PosPage() {
       <div className="cd-pos-context">
         <span><ContextIcon name="transaction" />Transaction <strong>{transactionNo}</strong></span>
         <span><ContextIcon name="shift" />Shift <strong>{shift?.name || "Not started"}</strong></span>
-        {shift?.startedAt && <span><ContextIcon name="shift" />Started <strong>{fmtTime(shift.startedAt)}</strong></span>}
+        {shift?.startedAt && <span><ContextIcon name="shift" />Started <strong>{fmtDateTime(shift.startedAt)}</strong></span>}
         <span><ContextIcon name="counter" />Counter <strong>{shift?.counter || "Unallocated"}</strong></span>
         <span><ContextIcon name="user" />Cashier <strong>{shift?.cashier || user?.fullName || "—"}</strong></span>
         <span><ContextIcon name="user" />Customer <button type="button" className="cd-pos-context-btn" onClick={openCustomerPicker}>{customer?.customer_name || "Select customer"}</button></span>
@@ -658,17 +667,25 @@ export default function PosPage() {
       </div>
 
       <footer className="cd-pos-footer">
-        <div className="cd-payment-launch"><span><strong>Payment & Settlement</strong></span><button type="button" className="cd-btn cd-btn-green cd-btn-wide" disabled={!cart.lines.length} onClick={openPayment}>Enter Payment</button></div>
         <DaySummary summary={daySummary} loading={summaryLoading} />
 
         <div className="cd-pos-footer-right">
           {!shift ? <button type="button" className="cd-btn cd-btn-primary" onClick={() => setShiftMode("start")}>Shift Start</button> : <>
+            <button type="button" className="cd-btn cd-btn-blue" onClick={() => setManagerModeOpen(true)}>Manager Mode</button>
             <button type="button" className="cd-btn cd-btn-secondary" onClick={() => setShiftMode("end")}>Shift End</button>
           </>}
-          <button type="button" className="cd-btn cd-btn-secondary" onClick={() => setDiscountOpen(true)}>Discount</button>
-          <button type="button" className="cd-btn cd-btn-secondary" onClick={() => setOperation("gold")}>Gold Purchase</button>
-          <button type="button" className="cd-btn cd-btn-secondary" onClick={() => setOperation("kitty")}>Jewellery Scheme</button>
-          <button type="button" className="cd-btn cd-btn-secondary" onClick={() => setOperation("return")}>Sales Return</button>
+          {canShowButton('Discount') && (
+            <button type="button" className="cd-btn cd-btn-secondary" onClick={() => setDiscountOpen(true)}>Discount</button>
+          )}
+          {canShowButton('Gold Purchase') && (
+            <button type="button" className="cd-btn cd-btn-secondary" onClick={() => setOperation("gold")}>Gold Purchase</button>
+          )}
+          {canShowButton('Jewellery Scheme') && (
+            <button type="button" className="cd-btn cd-btn-secondary" onClick={() => setOperation("kitty")}>Jewellery Scheme</button>
+          )}
+          {canShowButton('Sales Return') && (
+            <button type="button" className="cd-btn cd-btn-secondary" onClick={() => setOperation("return")}>Sales Return</button>
+          )}
           <button
             type="button"
             className="cd-btn cd-btn-secondary"

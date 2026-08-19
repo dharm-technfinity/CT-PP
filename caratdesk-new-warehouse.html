@@ -1,0 +1,553 @@
+<!-- CaratDesk – New / Edit Warehouse -->
+<head>
+  <meta charset="UTF-8">
+</head>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap');
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    .navbar,.page-header,footer.web-footer,.container>.row>.col-sm-10,.frappe-footer{display:none!important}
+    .web-page-container,.container{padding:0!important;max-width:100%!important}
+    body{overflow-x:hidden}
+    :root{
+      --bg:#F7F6F3;--surface:#FFFFFF;--border:rgba(0,0,0,.07);--border-strong:rgba(0,0,0,.12);
+      --text-primary:#1A1A18;--text-secondary:#6B6B65;--text-muted:#A8A8A2;
+      --accent:#1A1A18;--accent-light:#F0EFE9;--nav-hover:#F7F6F3;--nav-active-bg:#EBEBE5;
+      --pill-green-bg:#EAF3DE;--pill-green-txt:#3B6D11;--pill-green-bg-hover:#d8edca;
+      --pill-red-bg:#FCEBEB;--pill-red-txt:#A32D2D;--pill-red-bg-hover:#f8d7d7;
+      --pill-amber-bg:#FAEEDA;--pill-amber-txt:#854F0B;--pill-amber-bg-hover:#f5e4c5;
+      --pill-blue-bg:#E8F0FD;--pill-blue-txt:#1A4A8A;
+      --toast-success-bg:#2D6A4F;--toast-info-bg:#1A4A8A;
+      --shadow-sm:0 2px 12px rgba(0,0,0,.04),0 0 0 .5px rgba(0,0,0,.03);
+      --shadow-md:0 4px 24px rgba(0,0,0,.08)
+    }
+    .dark{--bg:#121212;--surface:#1E1E1E;--border:rgba(255,255,255,.08);--border-strong:rgba(255,255,255,.15);--text-primary:#EDEDED;--text-secondary:#A0A0A0;--text-muted:#6E6E6E;--accent:#D4D4D4;--accent-light:#2C2C2C;--nav-hover:#252525;--nav-active-bg:#2D2D2D;--pill-green-bg:#1E3A2E;--pill-green-txt:#9CD45E;--pill-green-bg-hover:#2a4a3a;--pill-red-bg:#3E1E1E;--pill-red-txt:#F28B82;--pill-red-bg-hover:#4a2626;--pill-amber-bg:#3E2E1E;--pill-amber-txt:#FDBF6B;--pill-amber-bg-hover:#4a3826;--pill-blue-bg:#1A2A3E;--pill-blue-txt:#7AABF0;--toast-success-bg:#1f5f3f;--toast-info-bg:#2a5a9a;--shadow-sm:0 2px 12px rgba(0,0,0,.3),0 0 0 .5px rgba(255,255,255,.05);--shadow-md:0 4px 24px rgba(0,0,0,.3)}
+    html,body{color:var(--text-primary)}
+    *{transition:background-color .2s,border-color .2s,color .2s}
+    .cd-app{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);min-height:100vh;display:flex;-webkit-font-smoothing:antialiased;color:var(--text-primary)}
+    .cd-sidebar{width:260px;background:var(--surface);border-right:.5px solid var(--border);display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;z-index:200;box-shadow:var(--shadow-sm);transform:translateX(0);transition:transform .3s cubic-bezier(.2,.9,.4,1.1)}
+    @media(max-width:768px){.cd-sidebar{transform:translateX(-100%)}.cd-sidebar.mobile-open{transform:translateX(0);width:80%;max-width:280px}}
+    .cd-sidebar-logo{display:flex;align-items:center;gap:11px;padding:20px 16px 18px;border-bottom:.5px solid var(--border);text-decoration:none;color:inherit}
+    .cd-sidebar-logo img{width:30px;height:30px;object-fit:contain;border-radius:9px}
+    .cd-logo-name{font-family:'DM Serif Display',serif;font-size:17px;letter-spacing:-.2px}
+    .cd-logo-sub{font-size:10px;color:var(--text-muted);font-weight:300;letter-spacing:.07em;text-transform:uppercase}
+    .cd-nav{flex:1;padding:10px 8px;overflow-y:auto}
+    .cd-nav-section{font-size:10px;font-weight:500;color:var(--text-muted);letter-spacing:.08em;text-transform:uppercase;padding:14px 8px 5px}
+    .cd-nav-item{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:9px;margin-bottom:1px;text-decoration:none;color:var(--text-secondary);font-size:13.5px;transition:background .14s,color .14s}
+    .cd-nav-item:hover{background:var(--nav-hover);color:var(--text-primary)}
+    .cd-nav-item.active{background:var(--nav-active-bg);color:var(--text-primary);font-weight:500}
+    .cd-nav-icon{width:20px;height:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .cd-nav-icon svg{width:15px;height:15px;stroke:currentColor;stroke-width:1.75;fill:none;stroke-linecap:round;stroke-linejoin:round}
+    .cd-sidebar-bottom{padding:10px 8px;border-top:.5px solid var(--border)}
+    .cd-user-card{display:flex;align-items:center;gap:10px;padding:10px;border-radius:9px;cursor:pointer;transition:background .14s}
+    .cd-user-card:hover{background:var(--nav-hover)}
+    .cd-avatar{width:32px;height:32px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:var(--surface);flex-shrink:0}
+    .cd-user-name{font-size:13px;font-weight:500}
+    .cd-user-role{font-size:11px;color:var(--text-muted);font-weight:300}
+    .cd-logout-btn{display:flex;align-items:center;gap:7px;padding:9px 10px;border-radius:9px;cursor:pointer;font-size:13px;color:var(--text-secondary);margin-top:3px;border:none;background:none;font-family:'DM Sans',sans-serif;width:100%;transition:background .14s,color .14s}
+    .cd-logout-btn:hover{background:var(--pill-red-bg);color:var(--pill-red-txt)}
+    .cd-instance-bar{display:flex;align-items:center;gap:6px;padding:8px 10px 4px}
+    .cd-instance-label{font-size:10px;font-weight:500;color:var(--text-muted);letter-spacing:.07em;text-transform:uppercase;flex:1}
+    .cd-instance-pills{display:flex;gap:4px}
+    .cd-instance-pill{font-size:11px;font-weight:500;padding:3px 10px;border-radius:6px;border:.5px solid var(--border);background:var(--input-bg);color:var(--text-secondary);cursor:pointer;transition:background .14s,color .14s,border-color .14s;font-family:'DM Sans',sans-serif}
+    .cd-instance-pill:hover{background:var(--nav-hover);color:var(--text-primary)}
+    .cd-instance-pill.active{background:var(--accent);color:var(--surface);border-color:var(--accent)}
+    .cd-main{margin-left:260px;flex:1;min-height:100vh;display:flex;flex-direction:column;min-width:0;overflow-x:hidden}
+    @media(max-width:768px){.cd-main{margin-left:0}}
+    .cd-topbar{height:58px;background:var(--surface);border-bottom:.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 20px;position:sticky;top:0;z-index:100}
+    .cd-menu-btn{display:none;background:none;border:none;cursor:pointer;color:var(--text-secondary);margin-right:12px}
+    @media(max-width:768px){.cd-menu-btn{display:flex;align-items:center;justify-content:center}}
+    .cd-topbar-left{display:flex;align-items:center;gap:10px}
+    .cd-breadcrumb{display:flex;align-items:center;gap:6px;font-size:13.5px}
+    .cd-breadcrumb a{color:var(--text-muted);text-decoration:none;transition:color .14s}
+    .cd-breadcrumb a:hover{color:var(--text-primary)}
+    .cd-breadcrumb-sep{color:var(--text-muted);font-size:12px}
+    .cd-breadcrumb-cur{color:var(--text-primary);font-weight:500}
+    .cd-topbar-right{display:flex;align-items:center;gap:8px;min-width:0;overflow:hidden}
+    .cd-icon-btn{width:34px;height:34px;border-radius:9px;border:.5px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-secondary);transition:background .14s,color .14s}
+    .cd-icon-btn:hover{background:var(--nav-hover);color:var(--text-primary)}
+    .cd-icon-btn svg{width:15px;height:15px;stroke:currentColor;stroke-width:1.75;fill:none;stroke-linecap:round;stroke-linejoin:round}
+    .cd-form-content{padding:24px 28px 100px;flex:1;animation:fadeUp .35s cubic-bezier(.16,1,.3,1) both;min-width:0;max-width:100%}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+    .cd-btn{font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;padding:8px 16px;border-radius:9px;border:none;cursor:pointer;transition:background .14s,transform .1s,opacity .14s;display:inline-flex;align-items:center;gap:7px}
+    .cd-btn:active{transform:scale(.98)}
+    .cd-btn:disabled{opacity:.5;cursor:not-allowed}
+    .cd-btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+    .cd-btn-primary{background:var(--text-primary);color:var(--surface)}.cd-btn-primary:hover{opacity:.85}
+    .cd-btn-secondary{background:var(--surface);color:var(--text-primary);border:.5px solid var(--border-strong)}.cd-btn-secondary:hover{background:var(--accent-light)}
+    .cd-btn-danger{background:var(--pill-red-bg);color:var(--pill-red-txt);border:.5px solid rgba(163,45,45,.15)}.cd-btn-danger:hover{background:var(--pill-red-bg-hover)}
+    .cd-btn-green{background:var(--pill-green-bg);color:var(--pill-green-txt);border:.5px solid rgba(59,109,17,.15)}.cd-btn-green:hover{background:var(--pill-green-bg-hover)}
+    .cd-section{background:var(--surface);border:.5px solid var(--border);border-radius:14px;margin-bottom:16px;overflow:visible;box-shadow:var(--shadow-sm)}
+    .cd-section-header{padding:14px 20px;border-bottom:.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none}
+    .cd-section-header:hover{background:var(--bg)}
+    .cd-sec-title{font-size:13px;font-weight:500;display:flex;align-items:center;gap:8px}
+    .cd-sec-title svg{width:14px;height:14px;stroke:var(--text-muted);fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+    .cd-sec-toggle{width:22px;height:22px;display:flex;align-items:center;justify-content:center;color:var(--text-muted)}
+    .cd-sec-toggle svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;transition:transform .2s}
+    .cd-sec-toggle.collapsed svg{transform:rotate(-90deg)}
+    .cd-section-body{padding:20px}
+    .cd-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    @media(max-width:640px){.cd-grid{grid-template-columns:1fr}}
+    .cd-field{display:flex;flex-direction:column;gap:5px}
+    .cd-field.full{grid-column:1/-1}
+    .cd-label{font-size:11.5px;font-weight:500;color:var(--text-secondary);letter-spacing:.01em;margin-top:10px;margin-bottom:0px}
+    .cd-label:first-child{margin-top:0}
+    .cd-label .req{color:var(--pill-red-txt);margin-left:2px}
+    .cd-input,.cd-select{font-family:'DM Sans',sans-serif;font-size:13px;background:var(--bg);border:0.5px solid var(--border-strong);border-radius:9px;padding:9px 12px;color:var(--text-primary);outline:none;transition:border-color .14s,box-shadow .14s;width:100%}
+    .cd-input:focus,.cd-select:focus{border-color:var(--text-secondary);box-shadow:0 0 0 3px rgba(0,0,0,.05);background:var(--surface)}
+    .cd-input::placeholder{color:var(--text-muted)}
+    .cd-select{cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23A8A8A2' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:30px}
+    .cd-readonly{opacity:.65;cursor:not-allowed;background:var(--accent-light)!important}
+    .cd-check-row{display:flex;align-items:flex-start;gap:10px;padding:12px 0}
+    .cd-cb{width:17px;height:17px;border-radius:5px;border:1.5px solid var(--border-strong);background:var(--surface);cursor:pointer;appearance:none;-webkit-appearance:none;display:grid;place-items:center;flex-shrink:0;margin-top:1px;transition:background .14s,border-color .14s}
+    .cd-cb:checked{background:var(--text-primary);border-color:var(--text-primary)}
+    .cd-cb:checked::after{content:'';width:9px;height:5px;border-left:2px solid white;border-bottom:2px solid white;transform:rotate(-45deg) translateY(-1px);display:block}
+    .cd-check-label{font-size:13px;font-weight:500;cursor:pointer}
+    .cd-check-sub{font-size:11.5px;color:var(--text-muted);margin-top:2px}
+    .cd-form-footer{position:fixed;left:260px;right:0;bottom:0;background:var(--surface);border-top:.5px solid var(--border);padding:14px 28px;display:flex;align-items:center;gap:8px;z-index:150;box-shadow:0 -4px 20px rgba(0,0,0,.04)}
+    @media(max-width:768px){.cd-form-footer{left:0}}
+    .cd-footer-right{margin-left:auto;display:flex;gap:8px}
+    .cd-toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--text-primary);color:var(--surface);padding:11px 20px;border-radius:10px;font-size:13px;font-weight:500;box-shadow:var(--shadow-md);z-index:600;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;white-space:nowrap;display:flex;align-items:center;gap:8px}
+    .cd-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+    .cd-toast.success{background:var(--toast-success-bg)}.cd-toast.error{background:var(--pill-red-txt)}.cd-toast.info{background:var(--toast-info-bg)}
+    .cd-pill{display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:3px 9px;border-radius:100px;font-weight:500;white-space:nowrap}
+    .cd-pill-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+    .cd-pill.green{background:var(--pill-green-bg);color:var(--pill-green-txt)}.cd-pill.green .cd-pill-dot{background:var(--pill-green-txt)}
+    .cd-pill.red{background:var(--pill-red-bg);color:var(--pill-red-txt)}.cd-pill.red .cd-pill-dot{background:var(--pill-red-txt)}
+    </style>
+
+<div class="cd-app" id="cdApp">
+  <nav class="cd-sidebar" id="cdSidebar">
+    <a class="cd-sidebar-logo" href="/caratdesk">
+      <img src="https://i.postimg.cc/NMgHCKvC/letter-cc-cd-diamond-initial-600nw-2206465849.png" alt="CaratDesk"/>
+      <div><div class="cd-logo-name">PPJ Retail</div><div class="cd-logo-sub">Jewellery POS</div></div>
+    </a>
+    <div class="cd-nav">
+      <div class="cd-nav-section">Main</div>
+      <a href="/caratdesk" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>Dashboard</a>
+      <div class="cd-nav-section">Operations</div>
+      <a href="/caratdesk-pos" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>POS Billing</a>
+      <a href="/caratdesk-selling" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg></span>Selling</a>
+      <a href="/caratdesk-buying" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></span>Buying</a>
+      <a href="/caratdesk-stock" class="cd-nav-item active"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg></span>Stock</a>
+      <a href="/caratdesk-items" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></span>Items</a>
+      <div class="cd-nav-section">Finance</div>
+      <a href="/caratdesk-finance" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></span>Finance</a>
+      <a href="/caratdesk-accounts" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg></span>Accounts</a>
+      <a href="/caratdesk-reports" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>Reports</a>
+      <div class="cd-nav-section">System</div>
+      <a href="/caratdesk-settings" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M12 2v2M12 20v2M2 12h2M20 12h2M4.93 19.07l1.41-1.41M19.07 19.07l-1.41-1.41"/></svg></span>Settings</a>
+    </div>
+    <div class="cd-sidebar-bottom">
+      <div class="cd-instance-bar" id="cdInstanceBar" style="display:none">
+        <span class="cd-instance-label">Instance</span>
+        <div class="cd-instance-pills">
+          <button class="cd-instance-pill" id="cdInstPP" onclick="cdSwitchInstance('PP')">PP</button>
+          <button class="cd-instance-pill" id="cdInstPC" onclick="cdSwitchInstance('PC')">PC</button>
+        </div>
+      </div>
+      <div class="cd-user-card"><div class="cd-avatar" id="cdAvatar">-</div><div><div class="cd-user-name" id="cdUserName">Loading…</div><div class="cd-user-role" id="cdUserRole">POS Manager</div></div></div>
+      <button class="cd-logout-btn" id="cdLogoutBtn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign out</button>
+    </div>
+  </nav>
+
+  <div class="cd-main">
+    <div class="cd-topbar">
+      <div class="cd-topbar-left">
+        <button class="cd-menu-btn" id="cdMenuToggle"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+        <div class="cd-breadcrumb">
+          <a href="/caratdesk-stock">Stock</a><span class="cd-breadcrumb-sep">›</span>
+          <a href="/caratdesk-warehouse">Warehouses</a><span class="cd-breadcrumb-sep">›</span>
+          <span class="cd-breadcrumb-cur" id="crumbCur">New Warehouse</span>
+        </div>
+      </div>
+      <div class="cd-topbar-right">
+        <div class="cd-icon-btn" id="cdThemeToggle"><svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div>
+      </div>
+    </div>
+
+    <div class="cd-form-content">
+
+      <!-- SECTION 1: Warehouse Details -->
+      <div class="cd-section">
+        <div class="cd-section-header" onclick="toggleSec(this)">
+          <div class="cd-sec-title"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>Warehouse Details<span id="statusPillWrap" style="margin-left:8px"></span></div>
+          <div class="cd-sec-toggle"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+        </div>
+        <div class="cd-section-body">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px">
+            <div class="cd-field">
+              <label class="cd-label">Warehouse Name <span class="req">*</span></label>
+              <input class="cd-input" id="warehouseName" placeholder="e.g. Main Showroom" autocomplete="off"/>
+              <label class="cd-label">Parent Warehouse</label>
+              <select class="cd-select" id="parentWarehouse">
+                <option value="">- None (Root) -</option>
+              </select>
+            </div>
+            <div class="cd-field">
+              <label class="cd-label">Company <span class="req">*</span></label>
+              <input class="cd-input cd-readonly" id="companyDisplay" value="P.P. Jewellers Retail Pvt. Ltd." readonly/>
+              <label class="cd-label">Warehouse Type</label>
+              <select class="cd-select" id="warehouseType">
+                <option value="">- None -</option>
+              </select>
+            </div>
+            <div class="cd-field">
+              <label class="cd-label">Flags</label>
+              <div class="cd-check-row">
+                <input type="checkbox" class="cd-cb" id="isGroup"/>
+                <div>
+                  <label class="cd-check-label" for="isGroup">Group Warehouse</label>
+                  <div class="cd-check-sub">Organizes other warehouses in the tree — cannot hold stock directly.</div>
+                </div>
+              </div>
+              <div class="cd-check-row">
+                <input type="checkbox" class="cd-cb" id="disabled"/>
+                <div>
+                  <label class="cd-check-label" for="disabled">Disabled</label>
+                  <div class="cd-check-sub">Hides this warehouse from selection lists across the app.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 2: Contact & Address -->
+      <div class="cd-section">
+        <div class="cd-section-header" onclick="toggleSec(this)">
+          <div class="cd-sec-title"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.362 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>Contact &amp; Address</div>
+          <div class="cd-sec-toggle collapsed"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+        </div>
+        <div class="cd-section-body" style="display:none">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px">
+            <div class="cd-field">
+              <label class="cd-label">Phone No</label>
+              <input class="cd-input" id="phoneNo" placeholder="Landline"/>
+            </div>
+            <div class="cd-field">
+              <label class="cd-label">Mobile No</label>
+              <input class="cd-input" id="mobileNo" placeholder="Mobile"/>
+            </div>
+            <div class="cd-field">
+              <label class="cd-label">Email ID</label>
+              <input class="cd-input" id="emailId" type="email" placeholder="warehouse@example.com"/>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px">
+            <div class="cd-field" style="grid-column:1/-1">
+              <label class="cd-label">Address Line 1</label>
+              <input class="cd-input" id="addressLine1" placeholder="Street / building"/>
+            </div>
+            <div class="cd-field">
+              <label class="cd-label">City</label>
+              <input class="cd-input" id="city"/>
+            </div>
+            <div class="cd-field">
+              <label class="cd-label">State</label>
+              <input class="cd-input" id="state"/>
+            </div>
+            <div class="cd-field">
+              <label class="cd-label">Pincode</label>
+              <input class="cd-input" id="pincode"/>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="cd-form-footer">
+      <button class="cd-btn cd-btn-secondary" onclick="window.location.href='/caratdesk-warehouse'"><svg viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>Back</button>
+      <button class="cd-btn cd-btn-danger" id="deleteBtn" style="display:none" onclick="deleteWarehouse()"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>Delete</button>
+      <div class="cd-footer-right">
+        <button class="cd-btn cd-btn-secondary" id="openFrappeBtn" style="display:none" onclick="openFrappe()"><svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Open in Frappe</button>
+        <button class="cd-btn cd-btn-primary" id="saveBtn" onclick="saveWarehouse()"><svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="cd-toast" id="cdToast"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span id="cdToastMsg"></span></div>
+
+<script>
+// ══════════════════════════════════════════
+//  CONFIG
+// ══════════════════════════════════════════
+const COMPANY = 'P.P. Jewellers Retail Pvt. Ltd.';
+const DEV1 = 'https://ppj-dev1.m.frappe.cloud';
+const DEV2 = 'https://ppj-dev2.m.frappe.cloud';
+let currentWarehouseName = null;
+
+function showToast(msg,type='info',duration=3500){
+  const t=document.getElementById('cdToast');
+  document.getElementById('cdToastMsg').textContent=msg;
+  t.className='cd-toast show '+type;
+  clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),duration);
+}
+
+function toggleSec(h){
+  const section=h.closest('.cd-section'), body=section.querySelector('.cd-section-body'), toggle=section.querySelector('.cd-sec-toggle');
+  const collapsed = body.style.display==='none';
+  body.style.display = collapsed ? 'block' : 'none';
+  toggle.classList.toggle('collapsed', !collapsed);
+}
+
+// ══════════════════════════════════════════
+//  INSTANCE HELPERS + TOKEN AUTH
+// ══════════════════════════════════════════
+function cdGetActiveInstance(){ return localStorage.getItem('cd_active_instance')||'PP'; }
+function cdGetAvailableInstances(){ return (localStorage.getItem('cd_available_instances')||'PP').split(',').filter(Boolean); }
+function cdGetInstanceUrl(inst){ return (inst||cdGetActiveInstance())==='PC'?DEV2:DEV1; }
+function cdSwitchInstance(inst){
+  const available=cdGetAvailableInstances();
+  if(!available.includes(inst)) return;
+  const key=inst==='PC'?localStorage.getItem('cd_pc_key'):localStorage.getItem('cd_pp_key');
+  const sec=inst==='PC'?localStorage.getItem('cd_pc_secret'):localStorage.getItem('cd_pp_secret');
+  localStorage.setItem('cd_active_instance',inst);
+  localStorage.setItem('cd_api_key',key);
+  localStorage.setItem('cd_api_secret',sec);
+  window.location.reload();
+}
+function cdInitInstanceToggle(){
+  const available=cdGetAvailableInstances();
+  const active=cdGetActiveInstance();
+  const bar=document.getElementById('cdInstanceBar');
+  if(!bar) return;
+  if(available.length<2){ bar.style.display='none'; return; }
+  bar.style.display='flex';
+  ['PP','PC'].forEach(inst=>{
+    const btn=document.getElementById('cdInst'+inst);
+    if(!btn) return;
+    btn.classList.toggle('active',inst===active);
+    btn.style.display=available.includes(inst)?'':'none';
+  });
+  const roleEl=document.getElementById('cdUserRole');
+  if(roleEl) roleEl.textContent='Active: '+active;
+}
+
+function getDevHeaders(){
+  const key    = localStorage.getItem('cd_api_key');
+  const secret = localStorage.getItem('cd_api_secret');
+  if(!key || !secret) return null;
+  return { 'Authorization': `token ${key}:${secret}`, 'Content-Type':'application/json', 'Accept':'application/json' };
+}
+function _handle401(){
+  const active = cdGetActiveInstance();
+  if(active==='PC'){
+    showToast('PC session expired — switching back to PP','error');
+    const ppKey=localStorage.getItem('cd_pp_key'), ppSec=localStorage.getItem('cd_pp_secret');
+    if(ppKey&&ppSec){ localStorage.setItem('cd_active_instance','PP'); localStorage.setItem('cd_api_key',ppKey); localStorage.setItem('cd_api_secret',ppSec); }
+    setTimeout(()=>window.location.reload(),1800);
+  } else {
+    showToast('Session expired - please log in again','error');
+    setTimeout(()=>window.location.href='/caratdesk-login',1500);
+  }
+}
+async function dev1Get(endpoint){
+  const res = await fetch(`${cdGetInstanceUrl()}${endpoint}`, { headers: getDevHeaders() });
+  if(res.status===401){ _handle401(); throw new Error('Session expired'); }
+  const d = await res.json();
+  if(!res.ok){ const msg=d?.exception||d?.message||('HTTP '+res.status); throw new Error(String(msg).split('\n')[0].slice(0,300)); }
+  return d;
+}
+async function dev1Post(endpoint, body){
+  const res = await fetch(`${cdGetInstanceUrl()}${endpoint}`, { method:'POST', headers:getDevHeaders(), body:JSON.stringify(body) });
+  if(res.status===401){ _handle401(); throw new Error('Session expired'); }
+  const d = await res.json();
+  if(!res.ok){ const msg=d?.exception||d?.message||('HTTP '+res.status); throw new Error(String(msg).split('\n')[0].slice(0,300)); }
+  return d;
+}
+async function dev1Put(endpoint, body){
+  const res = await fetch(`${cdGetInstanceUrl()}${endpoint}`, { method:'PUT', headers:getDevHeaders(), body:JSON.stringify(body) });
+  if(res.status===401){ _handle401(); throw new Error('Session expired'); }
+  const d = await res.json();
+  if(!res.ok){ const msg=d?.exception||d?.message||('HTTP '+res.status); throw new Error(String(msg).split('\n')[0].slice(0,300)); }
+  return d;
+}
+async function dev1Delete(endpoint){
+  const res = await fetch(`${cdGetInstanceUrl()}${endpoint}`, { method:'DELETE', headers:getDevHeaders() });
+  if(res.status===401){ _handle401(); throw new Error('Session expired'); }
+  if(res.status===202 || res.status===204) return {};
+  const d = await res.json().catch(()=>({}));
+  if(!res.ok){ const msg=d?.exception||d?.message||('HTTP '+res.status); throw new Error(String(msg).split('\n')[0].slice(0,300)); }
+  return d;
+}
+
+// ══════════════════════════════════════════
+//  MASTER DATA
+// ══════════════════════════════════════════
+function populateSelect(id, options, blankLabel){
+  const sel = document.getElementById(id);
+  const current = sel.value;
+  sel.innerHTML = `<option value="">${blankLabel}</option>` + options.map(o=>`<option value="${o}">${o}</option>`).join('');
+  if(current) sel.value = current;
+}
+
+async function loadMasterData(){
+  try{
+    const r = await dev1Get(`/api/resource/Warehouse?fields=${encodeURIComponent(JSON.stringify(['name','is_group']))}&filters=${encodeURIComponent(JSON.stringify([['is_group','=',1]]))}&limit_page_length=200&order_by=name%20asc`);
+    const groups = (r.data||[]).map(w=>w.name).filter(n=>n!==currentWarehouseName);
+    populateSelect('parentWarehouse', groups, '- None (Root) -');
+  }catch(e){ console.warn('Failed to load parent warehouses:', e.message); }
+
+  try{
+    const r = await dev1Get(`/api/resource/Warehouse%20Type?fields=${encodeURIComponent(JSON.stringify(['name']))}&limit_page_length=100&order_by=name%20asc`);
+    const types = (r.data||[]).map(t=>t.name);
+    populateSelect('warehouseType', types, '- None -');
+  }catch(e){ console.warn('Failed to load warehouse types:', e.message); }
+}
+
+// ══════════════════════════════════════════
+//  LOAD EXISTING
+// ══════════════════════════════════════════
+function setStatusPill(disabled){
+  document.getElementById('statusPillWrap').innerHTML = disabled
+    ? `<span class="cd-pill red"><span class="cd-pill-dot"></span>Disabled</span>`
+    : `<span class="cd-pill green"><span class="cd-pill-dot"></span>Active</span>`;
+}
+
+async function loadExistingWarehouse(name){
+  try{
+    showToast('Loading…','info');
+    const json = await dev1Get(`/api/resource/Warehouse/${encodeURIComponent(name)}`);
+    const doc = json.data || json.message || {};
+    currentWarehouseName = doc.name;
+    await loadMasterData();
+    document.getElementById('warehouseName').value = doc.warehouse_name || doc.name || '';
+    document.getElementById('companyDisplay').value = doc.company || COMPANY;
+    document.getElementById('parentWarehouse').value = doc.parent_warehouse || '';
+    document.getElementById('warehouseType').value = doc.warehouse_type || '';
+    document.getElementById('isGroup').checked = !!doc.is_group;
+    document.getElementById('disabled').checked = !!doc.disabled;
+    document.getElementById('phoneNo').value = doc.phone_no || '';
+    document.getElementById('mobileNo').value = doc.mobile_no || '';
+    document.getElementById('emailId').value = doc.email_id || '';
+    document.getElementById('addressLine1').value = doc.address_line_1 || '';
+    document.getElementById('city').value = doc.city || '';
+    document.getElementById('state').value = doc.state || '';
+    document.getElementById('pincode').value = doc.pincode || doc.pin || '';
+
+    document.getElementById('crumbCur').textContent = doc.warehouse_name || doc.name;
+    setStatusPill(!!doc.disabled);
+    document.getElementById('openFrappeBtn').style.display = '';
+    document.getElementById('deleteBtn').style.display = '';
+    document.getElementById('saveBtn').innerHTML = '<svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Update';
+    showToast(`${doc.name} loaded`,'success');
+  }catch(e){
+    console.error('loadExistingWarehouse error', e);
+    showToast(`Failed to load ${name}: ${e.message}`,'error');
+  }
+}
+
+// ══════════════════════════════════════════
+//  SAVE / DELETE
+// ══════════════════════════════════════════
+function buildPayload(){
+  return {
+    warehouse_name: document.getElementById('warehouseName').value.trim(),
+    company: COMPANY,
+    parent_warehouse: document.getElementById('parentWarehouse').value || undefined,
+    warehouse_type: document.getElementById('warehouseType').value || undefined,
+    is_group: document.getElementById('isGroup').checked ? 1 : 0,
+    disabled: document.getElementById('disabled').checked ? 1 : 0,
+    phone_no: document.getElementById('phoneNo').value.trim(),
+    mobile_no: document.getElementById('mobileNo').value.trim(),
+    email_id: document.getElementById('emailId').value.trim(),
+    address_line_1: document.getElementById('addressLine1').value.trim(),
+    city: document.getElementById('city').value.trim(),
+    state: document.getElementById('state').value.trim(),
+    pincode: document.getElementById('pincode').value.trim(),
+  };
+}
+
+async function saveWarehouse(){
+  const name = document.getElementById('warehouseName').value.trim();
+  if(!name){ showToast('Warehouse Name is required','error'); return; }
+  const btn = document.getElementById('saveBtn');
+  btn.disabled = true;
+  try{
+    const payload = buildPayload();
+    if(currentWarehouseName){
+      await dev1Put(`/api/resource/Warehouse/${encodeURIComponent(currentWarehouseName)}`, payload);
+      showToast('Warehouse updated','success');
+      setStatusPill(!!payload.disabled);
+    } else {
+      const res = await dev1Post('/api/resource/Warehouse', payload);
+      const doc = res.data || res.message || {};
+      currentWarehouseName = doc.name;
+      showToast('Warehouse created','success');
+      window.location.replace(`/caratdesk-new-warehouse?name=${encodeURIComponent(currentWarehouseName)}`);
+      return;
+    }
+  }catch(e){
+    console.error('saveWarehouse error', e);
+    showToast('Save failed: '+e.message,'error',5000);
+  }finally{
+    btn.disabled = false;
+  }
+}
+
+async function deleteWarehouse(){
+  if(!currentWarehouseName) return;
+  if(!confirm(`Delete warehouse "${currentWarehouseName}"? This cannot be undone.`)) return;
+  try{
+    await dev1Delete(`/api/resource/Warehouse/${encodeURIComponent(currentWarehouseName)}`);
+    showToast('Warehouse deleted','success');
+    setTimeout(()=>window.location.href='/caratdesk-warehouse',1200);
+  }catch(e){
+    console.error('deleteWarehouse error', e);
+    showToast('Delete failed: '+e.message,'error',5000);
+  }
+}
+
+function openFrappe(){
+  if(!currentWarehouseName) return;
+  window.open(`${cdGetInstanceUrl()}/Warehouse/${encodeURIComponent(currentWarehouseName)}`,'_blank');
+}
+
+// ══════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', async () => {
+  const params = new URLSearchParams(window.location.search);
+  const whName = params.get('name');
+  if(whName){
+    await loadExistingWarehouse(whName);
+  } else {
+    await loadMasterData();
+  }
+});
+
+// ══ THEME / SIDEBAR ══
+const moonIcon='<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+const sunIcon='<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+function initTheme(){ const s=localStorage.getItem('cdTheme'); if(s==='dark'){document.documentElement.classList.add('dark');document.getElementById('themeIcon').innerHTML=sunIcon}else{document.documentElement.classList.remove('dark');document.getElementById('themeIcon').innerHTML=moonIcon} }
+function toggleTheme(){ const d=document.documentElement.classList.toggle('dark'); localStorage.setItem('cdTheme',d?'dark':'light'); document.getElementById('themeIcon').innerHTML=d?sunIcon:moonIcon; }
+document.getElementById('cdThemeToggle').addEventListener('click',toggleTheme); initTheme();
+const sidebar=document.getElementById('cdSidebar');
+document.getElementById('cdMenuToggle').addEventListener('click',()=>sidebar.classList.toggle('mobile-open'));
+document.querySelectorAll('.cd-nav-item').forEach(l=>l.addEventListener('click',()=>{ if(window.innerWidth<=768) sidebar.classList.remove('mobile-open'); }));
+
+(function(){
+  const hasSession=localStorage.getItem('cd_pp_key')||localStorage.getItem('cd_pc_key');
+  if(!hasSession){ window.location.replace('/caratdesk-login?logout=1'); return; }
+  const active=cdGetActiveInstance();
+  const key=active==='PC'?localStorage.getItem('cd_pc_key'):localStorage.getItem('cd_pp_key');
+  const sec=active==='PC'?localStorage.getItem('cd_pc_secret'):localStorage.getItem('cd_pp_secret');
+  if(key&&sec){ localStorage.setItem('cd_api_key',key); localStorage.setItem('cd_api_secret',sec); }
+  const name=localStorage.getItem('cd_user')||localStorage.getItem('cd_user_email')||'User';
+  document.getElementById('cdUserName').textContent=name;
+  document.getElementById('cdAvatar').textContent=name.split('@')[0].split(/[\s.]+/).map(w=>w[0]||'').join('').slice(0,2).toUpperCase()||'U';
+  cdInitInstanceToggle();
+})();
+
+document.getElementById('cdLogoutBtn').addEventListener('click',async()=>{
+  const ppK=localStorage.getItem('cd_pp_key'), ppS=localStorage.getItem('cd_pp_secret');
+  const pcK=localStorage.getItem('cd_pc_key'), pcS=localStorage.getItem('cd_pc_secret');
+  try{ if(ppK&&ppS) await fetch(`${DEV1}/api/method/logout`,{method:'POST',headers:{Authorization:`token ${ppK}:${ppS}`}}); }catch(e){}
+  try{ if(pcK&&pcS) await fetch(`${DEV2}/api/method/logout`,{method:'POST',headers:{Authorization:`token ${pcK}:${pcS}`}}); }catch(e){}
+  ['cd_api_key','cd_api_secret','cd_pp_key','cd_pp_secret','cd_pc_key','cd_pc_secret',
+   'cd_user','cd_user_email','cd_active_instance','cd_available_instances'].forEach(k=>localStorage.removeItem(k));
+  window.location.replace('/caratdesk-login?logout=1');
+});
+</script>

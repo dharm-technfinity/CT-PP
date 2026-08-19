@@ -1,0 +1,509 @@
+<!-- CaratDesk – Warehouse List -->
+<head>
+  <meta charset="UTF-8">
+</head>
+<style>    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap');
+
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    .navbar,.page-header,footer.web-footer,.container>.row>.col-sm-10,.frappe-footer{display:none!important}
+    .web-page-container,.container{padding:0!important;max-width:100%!important}
+    body{overflow-x:hidden}
+    :root{--bg:#F7F6F3;--surface:#FFF;--border:rgba(0,0,0,.07);--border-strong:rgba(0,0,0,.12);--text-primary:#1A1A18;--text-secondary:#6B6B65;--text-muted:#A8A8A2;--accent:#1A1A18;--accent-light:#F0EFE9;--nav-hover:#F7F6F3;--nav-active-bg:#EBEBE5;--pill-green-bg:#EAF3DE;--pill-green-txt:#3B6D11;--pill-red-bg:#FCEBEB;--pill-red-txt:#A32D2D;--pill-amber-bg:#FAEEDA;--pill-amber-txt:#854F0B;--pill-blue-bg:#E8F0FD;--pill-blue-txt:#1A4A8A;--shadow-sm:0 2px 12px rgba(0,0,0,.04),0 0 0 .5px rgba(0,0,0,.03);--shadow-md:0 4px 24px rgba(0,0,0,.08)}
+    .dark{--bg:#121212;--surface:#1E1E1E;--border:rgba(255,255,255,.08);--border-strong:rgba(255,255,255,.15);--text-primary:#EDEDED;--text-secondary:#A0A0A0;--text-muted:#6E6E6E;--accent:#D4D4D4;--accent-light:#2C2C2C;--nav-hover:#252525;--nav-active-bg:#2D2D2D;--pill-green-bg:#1E3A2E;--pill-green-txt:#9CD45E;--pill-red-bg:#3E1E1E;--pill-red-txt:#F28B82;--pill-amber-bg:#3E2E1E;--pill-amber-txt:#FDBF6B;--pill-blue-bg:#1A2A3E;--pill-blue-txt:#7AABF0;--shadow-sm:0 2px 12px rgba(0,0,0,.3),0 0 0 .5px rgba(255,255,255,.05);--shadow-md:0 4px 24px rgba(0,0,0,.3)}
+    html,body{color:var(--text-primary)}
+    *{transition:background-color .2s,border-color .2s,color .2s}
+    .cd-app{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);min-height:100vh;display:flex;-webkit-font-smoothing:antialiased;color:var(--text-primary)}
+    .cd-sidebar{width:260px;background:var(--surface);border-right:.5px solid var(--border);display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;z-index:200;box-shadow:var(--shadow-sm);transform:translateX(0);transition:transform .3s cubic-bezier(.2,.9,.4,1.1)}
+    @media(max-width:768px){.cd-sidebar{transform:translateX(-100%)}.cd-sidebar.mobile-open{transform:translateX(0);width:80%;max-width:280px}}
+    .cd-sidebar-logo{display:flex;align-items:center;gap:11px;padding:20px 16px 18px;border-bottom:.5px solid var(--border);text-decoration:none;color:inherit}
+    .cd-sidebar-logo img{width:30px;height:30px;object-fit:contain;border-radius:9px}
+    .cd-logo-name{font-family:'DM Serif Display',serif;font-size:17px;letter-spacing:-.2px}
+    .cd-logo-sub{font-size:10px;color:var(--text-muted);font-weight:300;letter-spacing:.07em;text-transform:uppercase}
+    .cd-nav{flex:1;padding:10px 8px;overflow-y:auto}
+    .cd-nav-section{font-size:10px;font-weight:500;color:var(--text-muted);letter-spacing:.08em;text-transform:uppercase;padding:14px 8px 5px}
+    .cd-nav-item{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:9px;margin-bottom:1px;text-decoration:none;color:var(--text-secondary);font-size:13.5px;transition:background .14s,color .14s}
+    .cd-nav-item:hover{background:var(--nav-hover);color:var(--text-primary)}
+    .cd-nav-item.active{background:var(--nav-active-bg);color:var(--text-primary);font-weight:500}
+    .cd-nav-icon{width:20px;height:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .cd-nav-icon svg{width:15px;height:15px;stroke:currentColor;stroke-width:1.75;fill:none;stroke-linecap:round;stroke-linejoin:round}
+    .cd-sidebar-bottom{padding:10px 8px;border-top:.5px solid var(--border)}
+    .cd-user-card{display:flex;align-items:center;gap:10px;padding:10px;border-radius:9px;cursor:pointer;transition:background .14s}
+    .cd-user-card:hover{background:var(--nav-hover)}
+    .cd-avatar{width:32px;height:32px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:var(--surface);flex-shrink:0}
+    .cd-user-name{font-size:13px;font-weight:500}
+    .cd-user-role{font-size:11px;color:var(--text-muted);font-weight:300}
+    .cd-logout-btn{display:flex;align-items:center;gap:7px;padding:9px 10px;border-radius:9px;cursor:pointer;font-size:13px;color:var(--text-secondary);margin-top:3px;border:none;background:none;font-family:'DM Sans',sans-serif;width:100%;transition:background .14s,color .14s}
+    .cd-logout-btn:hover{background:var(--pill-red-bg);color:var(--pill-red-txt)}
+    .cd-instance-bar{display:flex;align-items:center;gap:6px;padding:8px 10px 4px}
+    .cd-instance-label{font-size:10px;font-weight:500;color:var(--text-muted);letter-spacing:.07em;text-transform:uppercase;flex:1}
+    .cd-instance-pills{display:flex;gap:4px}
+    .cd-instance-pill{font-size:11px;font-weight:500;padding:3px 10px;border-radius:6px;border:.5px solid var(--border);background:var(--input-bg);color:var(--text-secondary);cursor:pointer;transition:background .14s,color .14s,border-color .14s;font-family:'DM Sans',sans-serif}
+    .cd-instance-pill:hover{background:var(--nav-hover);color:var(--text-primary)}
+    .cd-instance-pill.active{background:var(--accent);color:var(--surface);border-color:var(--accent)}
+    .cd-main{margin-left:260px;flex:1;min-height:100vh;display:flex;flex-direction:column}
+    @media(max-width:768px){.cd-main{margin-left:0}}
+    .cd-topbar{height:58px;background:var(--surface);border-bottom:.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 20px;position:sticky;top:0;z-index:100}
+    .cd-menu-btn{display:none;background:none;border:none;cursor:pointer;color:var(--text-secondary);margin-right:12px}
+    @media(max-width:768px){.cd-menu-btn{display:flex;align-items:center;justify-content:center}}
+    .cd-topbar-left{display:flex;align-items:center;gap:10px}
+    .cd-breadcrumb{display:flex;align-items:center;gap:6px;font-size:13.5px}
+    .cd-breadcrumb a{color:var(--text-muted);text-decoration:none;transition:color .14s}
+    .cd-breadcrumb a:hover{color:var(--text-primary)}
+    .cd-breadcrumb-sep{color:var(--text-muted);font-size:12px}
+    .cd-breadcrumb-cur{color:var(--text-primary);font-weight:500}
+    .cd-topbar-right{display:flex;align-items:center;gap:8px}
+    .cd-icon-btn{width:34px;height:34px;border-radius:9px;border:.5px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-secondary);transition:background .14s,color .14s}
+    .cd-icon-btn:hover{background:var(--nav-hover);color:var(--text-primary)}
+    .cd-icon-btn svg{width:15px;height:15px;stroke:currentColor;stroke-width:1.75;fill:none;stroke-linecap:round;stroke-linejoin:round}
+    .cd-content{padding:24px 28px;flex:1;animation:fadeIn .35s cubic-bezier(.16,1,.3,1) both}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    .cd-page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+    .cd-page-title{font-size:20px;font-weight:500;letter-spacing:-.3px}
+    .cd-page-sub{font-size:12.5px;color:var(--text-muted);margin-top:2px;font-weight:300}
+    .cd-btn{font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;padding:8px 16px;border-radius:9px;border:none;cursor:pointer;transition:background .14s,transform .1s;display:inline-flex;align-items:center;gap:7px;text-decoration:none}
+    .cd-btn:active{transform:scale(.98)}
+    .cd-btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+    .cd-btn-primary{background:var(--text-primary);color:var(--surface)}
+    .cd-btn-primary:hover{opacity:.85}
+    .cd-btn-secondary{background:var(--surface);color:var(--text-primary);border:.5px solid var(--border-strong)}
+    .cd-btn-secondary:hover{background:var(--accent-light)}
+    .cd-summary-bar{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+    .cd-pill-filter{display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:100px;border:.5px solid var(--border);background:var(--surface);font-size:12.5px;cursor:pointer;transition:box-shadow .14s,border-color .14s,background .14s;white-space:nowrap}
+    .cd-pill-filter:hover{box-shadow:0 2px 8px rgba(0,0,0,.06);border-color:var(--border-strong)}
+    .cd-pill-filter.active{background:var(--text-primary);color:var(--surface);border-color:var(--text-primary)}
+    .cd-pill-filter.active .pf-count{background:rgba(255,255,255,.2);color:var(--surface)}
+    .pf-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+    .pf-count{font-size:11px;font-weight:600;background:var(--accent-light);color:var(--text-secondary);padding:2px 7px;border-radius:100px;font-variant-numeric:tabular-nums}
+    .cd-toolbar{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+    .cd-search-wrap{position:relative;flex:1;min-width:200px;max-width:360px}
+    .cd-search-wrap svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:14px;height:14px;stroke:var(--text-muted);fill:none;stroke-width:1.8;pointer-events:none}
+    .cd-search-input{width:100%;font-family:'DM Sans',sans-serif;font-size:13px;background:var(--surface);border:.5px solid var(--border-strong);border-radius:9px;padding:8px 12px 8px 34px;color:var(--text-primary);outline:none;transition:border-color .14s,box-shadow .14s}
+    .cd-search-input:focus{border-color:var(--text-secondary);box-shadow:0 0 0 3px rgba(0,0,0,.05)}
+    .cd-search-input::placeholder{color:var(--text-muted)}
+    .cd-toolbar-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+    .cd-result-count{font-size:12px;color:var(--text-muted);white-space:nowrap}
+    .cd-table-wrap{background:var(--surface);border:.5px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:var(--shadow-sm)}
+    .cd-table{width:100%;border-collapse:collapse}
+    .cd-table thead{background:var(--bg)}
+    .cd-table th{font-size:11px;font-weight:500;color:var(--text-muted);text-align:left;padding:11px 16px;letter-spacing:.05em;text-transform:uppercase;border-bottom:.5px solid var(--border);white-space:nowrap;user-select:none}
+    .cd-table th .thi{display:flex;align-items:center;gap:5px}
+    .cd-table td{font-size:13px;padding:13px 16px;border-bottom:.5px solid var(--border);vertical-align:middle}
+    .cd-table tr:last-child td{border-bottom:none}
+    .cd-table tbody tr{cursor:pointer;transition:background .1s}
+    .cd-table tbody tr:hover{background:var(--nav-hover)}
+    .doc-num{font-weight:500;font-size:13px}
+    .doc-sub{font-size:11px;color:var(--text-muted);margin-top:2px}
+    .cd-pill{display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:3px 9px;border-radius:100px;font-weight:500;white-space:nowrap}
+    .cd-pill-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+    .cd-pill.green{background:var(--pill-green-bg);color:var(--pill-green-txt)}.cd-pill.green .cd-pill-dot{background:var(--pill-green-txt)}
+    .cd-pill.red{background:var(--pill-red-bg);color:var(--pill-red-txt)}.cd-pill.red .cd-pill-dot{background:var(--pill-red-txt)}
+    .cd-pill.blue{background:var(--pill-blue-bg);color:var(--pill-blue-txt)}.cd-pill.blue .cd-pill-dot{background:var(--pill-blue-txt)}
+    .cd-pill.grey{background:var(--accent-light);color:var(--text-secondary)}.cd-pill.grey .cd-pill-dot{background:var(--text-muted)}
+    .cd-row-actions{display:flex;align-items:center;gap:6px;opacity:0;transition:opacity .14s}
+    .cd-table tbody tr:hover .cd-row-actions{opacity:1}
+    .cd-act-btn{width:28px;height:28px;border-radius:7px;border:.5px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-secondary);transition:background .12s,color .12s}
+    .cd-act-btn:hover{background:var(--nav-active-bg);color:var(--text-primary)}
+    .cd-act-btn svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+    .cd-empty{text-align:center;padding:60px 20px;color:var(--text-muted)}
+    .cd-empty svg{width:44px;height:44px;stroke:var(--text-muted);fill:none;stroke-width:1.2;margin:0 auto 14px;display:block}
+    .cd-empty-title{font-size:14px;font-weight:500;color:var(--text-secondary);margin-bottom:5px}
+    .cd-empty-sub{font-size:12.5px;color:var(--text-muted)}
+    .cd-pagination{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-top:.5px solid var(--border);flex-wrap:wrap;gap:10px}
+    .cd-page-info{font-size:12px;color:var(--text-muted)}
+    .cd-page-btns{display:flex;gap:4px;align-items:center}
+    .cd-page-btn{min-width:30px;height:30px;border-radius:7px;border:.5px solid var(--border);background:var(--surface);font-family:'DM Sans',sans-serif;font-size:12.5px;color:var(--text-secondary);cursor:pointer;padding:0 8px;display:flex;align-items:center;justify-content:center;transition:background .12s,color .12s}
+    .cd-page-btn:hover{background:var(--nav-hover);color:var(--text-primary)}
+    .cd-page-btn.active{background:var(--text-primary);color:var(--surface);border-color:var(--text-primary);font-weight:500}
+    .cd-page-btn:disabled{opacity:.38;cursor:not-allowed}
+    .cd-page-btn svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2}
+    .cd-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--text-primary);color:var(--surface);padding:11px 20px;border-radius:10px;font-size:13px;font-weight:500;box-shadow:var(--shadow-md);z-index:600;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;white-space:nowrap;display:flex;align-items:center;gap:8px}
+    .cd-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+    .cd-toast.success{background:#2D6A4F}.cd-toast.error{background:var(--pill-red-txt)}.cd-toast.info{background:#1A4A8A}
+    </style>
+
+    <div class="cd-app" id="cdApp">
+      <nav class="cd-sidebar" id="cdSidebar">
+        <a class="cd-sidebar-logo" href="/caratdesk">
+          <img src="https://i.postimg.cc/NMgHCKvC/letter-cc-cd-diamond-initial-600nw-2206465849.png" alt="CaratDesk"/>
+          <div><div class="cd-logo-name">PPJ Retail</div><div class="cd-logo-sub">Jewellery POS</div></div>
+        </a>
+        <div class="cd-nav">
+          <div class="cd-nav-section">Main</div>
+          <a href="/caratdesk" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>Dashboard</a>
+          <div class="cd-nav-section">Operations</div>
+          <a href="/caratdesk-pos" class="cd-nav-item">
+        <span class="cd-nav-icon"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>
+        POS Billing
+      </a>
+          <a href="/caratdesk-selling" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg></span>Selling</a>
+          <a href="/caratdesk-buying" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></span>Buying</a>
+          <a href="/caratdesk-stock" class="cd-nav-item active"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg></span>Stock</a>
+          <a href="/caratdesk-items" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></span>Items</a>
+          <div class="cd-nav-section">Finance</div>
+          <a href="/caratdesk-finance" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></span>Finance</a>
+          <a href="/caratdesk-accounts" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg></span>Accounts</a>
+          <a href="/caratdesk-reports" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>Reports</a>
+          <div class="cd-nav-section">System</div>
+          <a href="/caratdesk-settings" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M12 2v2M12 20v2M2 12h2M20 12h2M4.93 19.07l1.41-1.41M19.07 19.07l-1.41-1.41"/></svg></span>Settings</a>
+        </div>
+        <div class="cd-sidebar-bottom">
+          <div class="cd-instance-bar" id="cdInstanceBar" style="display:none">
+            <span class="cd-instance-label">Instance</span>
+            <div class="cd-instance-pills">
+              <button class="cd-instance-pill" id="cdInstPP" onclick="cdSwitchInstance('PP')">PP</button>
+              <button class="cd-instance-pill" id="cdInstPC" onclick="cdSwitchInstance('PC')">PC</button>
+            </div>
+          </div>
+          <div class="cd-user-card"><div class="cd-avatar" id="cdAvatar">—</div><div><div class="cd-user-name" id="cdUserName">Loading…</div><div class="cd-user-role" id="cdUserRole">POS Manager</div></div></div>
+          <button class="cd-logout-btn" id="cdLogoutBtn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign out</button>
+        </div>
+      </nav>
+
+      <div class="cd-main">
+        <div class="cd-topbar">
+          <div class="cd-topbar-left">
+            <button class="cd-menu-btn" id="cdMenuToggle"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+            <div class="cd-breadcrumb">
+              <a href="/caratdesk-stock">Stock</a>
+              <span class="cd-breadcrumb-sep">›</span>
+              <span class="cd-breadcrumb-cur">Warehouses</span>
+            </div>
+          </div>
+          <div class="cd-topbar-right">
+            <div class="cd-icon-btn" id="cdThemeToggle"><svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div>
+          </div>
+        </div>
+
+        <div class="cd-content">
+          <div class="cd-page-header">
+            <div>
+              <div class="cd-page-title">Warehouses</div>
+              <div class="cd-page-sub" id="whSub">Loading…</div>
+            </div>
+            <div style="display:flex;gap:8px">
+              <button class="cd-btn cd-btn-secondary" onclick="exportCSV()"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export</button>
+              <div style="position:relative;display:inline-block">
+                <button class="cd-btn cd-btn-primary" id="newWhBtn" onclick="toggleNewWhPicker(event)"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>New Warehouse<svg viewBox="0 0 24 24" style="width:11px;height:11px;margin-left:2px"><polyline points="6 9 12 15 18 9"/></svg></button>
+                <div id="newWhPicker" style="display:none;position:absolute;right:0;top:calc(100% + 6px);background:var(--surface);border:.5px solid var(--border-strong);border-radius:10px;box-shadow:var(--shadow-md);min-width:150px;z-index:500;overflow:hidden;padding:4px">
+                  <button onclick="goNewWh('PP')" style="width:100%;display:flex;align-items:center;gap:8px;padding:9px 12px;border:none;background:none;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text-primary);cursor:pointer;border-radius:7px;text-align:left" onmouseover="this.style.background='var(--nav-hover)'" onmouseout="this.style.background='none'"><span style="font-size:11px;font-weight:600;padding:2px 7px;border-radius:5px;background:var(--pill-blue-bg);color:var(--pill-blue-txt)">PP</span>PP Instance</button>
+                  <button id="newWhPCBtn" onclick="goNewWh('PC')" style="width:100%;display:flex;align-items:center;gap:8px;padding:9px 12px;border:none;background:none;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text-primary);cursor:pointer;border-radius:7px;text-align:left" onmouseover="this.style.background='var(--nav-hover)'" onmouseout="this.style.background='none'"><span style="font-size:11px;font-weight:600;padding:2px 7px;border-radius:5px;background:var(--pill-amber-bg);color:var(--pill-amber-txt)">PC</span>PC Instance</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Status Pills -->
+          <div class="cd-summary-bar">
+            <div class="cd-pill-filter active" onclick="filterSt('all',this)"><span class="pf-dot" style="background:var(--text-muted)"></span>All<span class="pf-count" id="pc-all">0</span></div>
+            <div class="cd-pill-filter" onclick="filterSt('active',this)"><span class="pf-dot" style="background:var(--pill-green-txt)"></span>Active<span class="pf-count" id="pc-active">0</span></div>
+            <div class="cd-pill-filter" onclick="filterSt('disabled',this)"><span class="pf-dot" style="background:var(--pill-red-txt)"></span>Disabled<span class="pf-count" id="pc-disabled">0</span></div>
+            <div class="cd-pill-filter" onclick="filterSt('group',this)"><span class="pf-dot" style="background:var(--pill-blue-txt)"></span>Group<span class="pf-count" id="pc-group">0</span></div>
+          </div>
+
+          <!-- Toolbar -->
+          <div class="cd-toolbar">
+            <div class="cd-search-wrap"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input class="cd-search-input" id="whSearch" placeholder="Search warehouse, parent, company…" oninput="applyFilters()"/></div>
+            <div class="cd-toolbar-right"><span class="cd-result-count" id="whCount"></span><div class="cd-icon-btn" onclick="load()"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></div></div>
+          </div>
+
+          <!-- Table -->
+          <div class="cd-table-wrap">
+            <table class="cd-table">
+              <thead><tr>
+                <th><div class="thi">Warehouse</div></th>
+                <th><div class="thi">Parent Warehouse</div></th>
+                <th><div class="thi">Company</div></th>
+                <th><div class="thi">Type</div></th>
+                <th>Status</th>
+                <th style="width:80px"></th>
+              </tr></thead>
+              <tbody id="whTbody"><tr><td colspan="6"><div class="cd-empty"><svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg><div class="cd-empty-title">Loading warehouses…</div></div></td></tr></tbody>
+            </table>
+            <div class="cd-pagination" id="whPag" style="display:none"><span class="cd-page-info" id="whPagInfo"></span><div class="cd-page-btns" id="whPagBtns"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cd-toast" id="cdToast"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span id="cdToastMsg"></span></div>
+
+    <script>
+// ══ INSTANCE HELPERS ══
+const DEV1 = 'https://ppj-dev1.m.frappe.cloud';
+const DEV2 = 'https://ppj-dev2.m.frappe.cloud';
+function cdGetActiveInstance(){ return localStorage.getItem('cd_active_instance')||'PP'; }
+function cdGetAvailableInstances(){ return (localStorage.getItem('cd_available_instances')||'PP').split(',').filter(Boolean); }
+function cdGetInstanceUrl(inst){ return (inst||cdGetActiveInstance())==='PC'?DEV2:DEV1; }
+function cdSwitchInstance(inst){
+  const available=cdGetAvailableInstances();
+  if(!available.includes(inst)) return;
+  const key=inst==='PC'?localStorage.getItem('cd_pc_key'):localStorage.getItem('cd_pp_key');
+  const sec=inst==='PC'?localStorage.getItem('cd_pc_secret'):localStorage.getItem('cd_pp_secret');
+  localStorage.setItem('cd_active_instance',inst);
+  localStorage.setItem('cd_api_key',key);
+  localStorage.setItem('cd_api_secret',sec);
+  window.location.reload();
+}
+function cdInitInstanceToggle(){
+  const available=cdGetAvailableInstances();
+  const active=cdGetActiveInstance();
+  const bar=document.getElementById('cdInstanceBar');
+  if(!bar) return;
+  if(available.length<2){ bar.style.display='none'; return; }
+  bar.style.display='flex';
+  ['PP','PC'].forEach(inst=>{
+    const btn=document.getElementById('cdInst'+inst);
+    if(!btn) return;
+    btn.classList.toggle('active',inst===active);
+    btn.style.display=available.includes(inst)?'':'none';
+  });
+  const roleEl=document.getElementById('cdUserRole');
+  if(roleEl) roleEl.textContent='Active: '+active;
+}
+
+// ══════════════════════════════════════════
+//  THEME & SIDEBAR
+// ══════════════════════════════════════════
+const moonIcon = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+const sunIcon = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+function initTheme(){ const s=localStorage.getItem('cdTheme'); if(s==='dark'){document.documentElement.classList.add('dark');document.getElementById('themeIcon').innerHTML=sunIcon}else{document.documentElement.classList.remove('dark');document.getElementById('themeIcon').innerHTML=moonIcon} }
+function toggleTheme(){ const d=document.documentElement.classList.toggle('dark'); localStorage.setItem('cdTheme',d?'dark':'light'); document.getElementById('themeIcon').innerHTML=d?sunIcon:moonIcon; }
+document.getElementById('cdThemeToggle').addEventListener('click',toggleTheme); initTheme();
+const sidebar=document.getElementById('cdSidebar');
+document.getElementById('cdMenuToggle').addEventListener('click',()=>sidebar.classList.toggle('mobile-open'));
+document.querySelectorAll('.cd-nav-item').forEach(l=>l.addEventListener('click',()=>{if(window.innerWidth<=768)sidebar.classList.remove('mobile-open');}));
+
+// ══════════════════════════════════════════
+//  AUTH CHECK
+// ══════════════════════════════════════════
+(function(){
+  const hasSession=localStorage.getItem('cd_pp_key')||localStorage.getItem('cd_pc_key');
+  if(!hasSession){ window.location.replace('/caratdesk-login?logout=1'); return; }
+  const active=cdGetActiveInstance();
+  const key=active==='PC'?localStorage.getItem('cd_pc_key'):localStorage.getItem('cd_pp_key');
+  const sec=active==='PC'?localStorage.getItem('cd_pc_secret'):localStorage.getItem('cd_pp_secret');
+  if(key&&sec){ localStorage.setItem('cd_api_key',key); localStorage.setItem('cd_api_secret',sec); }
+  const name=localStorage.getItem('cd_user')||localStorage.getItem('cd_user_email')||'User';
+  document.getElementById('cdUserName').textContent=name;
+  document.getElementById('cdAvatar').textContent=name.split('@')[0].split(/[\s.]+/).map(w=>w[0]||'').join('').slice(0,2).toUpperCase()||'U';
+  cdInitInstanceToggle();
+})();
+
+document.getElementById('cdLogoutBtn').addEventListener('click',async()=>{
+  const ppK=localStorage.getItem('cd_pp_key'), ppS=localStorage.getItem('cd_pp_secret');
+  const pcK=localStorage.getItem('cd_pc_key'), pcS=localStorage.getItem('cd_pc_secret');
+  try{ if(ppK&&ppS) await fetch(`${DEV1}/api/method/logout`,{method:'POST',headers:{Authorization:`token ${ppK}:${ppS}`}}); }catch(e){}
+  try{ if(pcK&&pcS) await fetch(`${DEV2}/api/method/logout`,{method:'POST',headers:{Authorization:`token ${pcK}:${pcS}`}}); }catch(e){}
+  ['cd_api_key','cd_api_secret','cd_pp_key','cd_pp_secret','cd_pc_key','cd_pc_secret',
+   'cd_user','cd_user_email','cd_active_instance','cd_available_instances'].forEach(k=>localStorage.removeItem(k));
+  window.location.replace('/caratdesk-login?logout=1');
+});
+
+function showToast(msg,type='info',duration=3500){
+  const t=document.getElementById('cdToast');
+  document.getElementById('cdToastMsg').textContent=msg;
+  t.className='cd-toast show '+type;
+  clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),duration);
+}
+
+// ══════════════════════════════════════════
+//  DATA LOADING (direct Frappe API)
+// ══════════════════════════════════════════
+let WH_DATA = [], filtered = [], activeStatus = 'all', currentPage = 1;
+const PAGE_SIZE = 20;
+
+function mapRows(rows, inst){
+  return rows.map(r => ({
+    name: r.name,
+    instance: inst,
+    warehouseName: r.warehouse_name || r.name,
+    parent: r.parent_warehouse || '—',
+    company: r.company || '—',
+    type: r.warehouse_type || '—',
+    isGroup: !!r.is_group,
+    disabled: !!r.disabled,
+    creation: r.creation
+  }));
+}
+
+async function fetchInstance(instName){
+  const key = instName==='PC' ? localStorage.getItem('cd_pc_key') : localStorage.getItem('cd_pp_key');
+  const sec = instName==='PC' ? localStorage.getItem('cd_pc_secret') : localStorage.getItem('cd_pp_secret');
+  if(!key||!sec) return [];
+  const baseUrl = instName==='PC' ? DEV2 : DEV1;
+  const fields = ['name','warehouse_name','parent_warehouse','company','warehouse_type','is_group','disabled','creation'];
+  const url = `${baseUrl}/api/resource/Warehouse?fields=${encodeURIComponent(JSON.stringify(fields))}&limit=500&order_by=creation%20desc`;
+  const res = await fetch(url, {headers:{'Authorization':`token ${key}:${sec}`,'Accept':'application/json'}});
+  if(!res.ok) throw new Error(`HTTP ${res.status} (${instName})`);
+  const json = await res.json();
+  return mapRows(json.data || [], instName);
+}
+
+async function load(){
+  document.getElementById('whTbody').innerHTML = `<tr><td colspan="6"><div class="cd-empty"><svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg><div class="cd-empty-title">Loading warehouses…</div></div></td></tr>`;
+  try {
+    const available = cdGetAvailableInstances();
+    if(!available.length){ window.location.replace('/caratdesk-login?logout=1'); return; }
+
+    const results = await Promise.allSettled(available.map(inst => fetchInstance(inst)));
+    WH_DATA = [];
+    let anyOk = false;
+    results.forEach((r, i) => {
+      if(r.status==='fulfilled'){ WH_DATA.push(...r.value); anyOk=true; }
+      else console.warn('Failed to load', available[i], r.reason?.message);
+    });
+    if(!anyOk) throw new Error('All instances failed to load');
+
+    WH_DATA.sort((a,b)=>new Date(b.creation||0)-new Date(a.creation||0));
+    filtered = [...WH_DATA];
+    updateCounts();
+    applyFilters();
+  } catch(e){
+    console.error('Load Warehouse error:', e);
+    document.getElementById('whTbody').innerHTML = `<tr><td colspan="6"><div class="cd-empty"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><div class="cd-empty-title">Failed to load</div><div class="cd-empty-sub"><a href="#" onclick="load()" style="color:var(--pill-blue-txt)">Retry</a></div></div></td></tr>`;
+  }
+}
+
+function updateCounts(){
+  const c = {all:0,active:0,disabled:0,group:0};
+  WH_DATA.forEach(d=>{ c.all++; if(d.disabled) c.disabled++; else c.active++; if(d.isGroup) c.group++; });
+  for(let k in c){ const el=document.getElementById('pc-'+k); if(el) el.textContent=c[k]; }
+  document.getElementById('whSub').textContent = WH_DATA.length+' warehouse'+(WH_DATA.length!==1?'s':'');
+}
+
+function filterSt(s,el){ activeStatus=s; document.querySelectorAll('.cd-pill-filter').forEach(p=>p.classList.remove('active')); el.classList.add('active'); currentPage=1; applyFilters(); }
+
+function applyFilters(){
+  const q=document.getElementById('whSearch').value.toLowerCase();
+  filtered = WH_DATA.filter(d => {
+    let ms = true;
+    if(activeStatus==='active') ms = !d.disabled;
+    else if(activeStatus==='disabled') ms = d.disabled;
+    else if(activeStatus==='group') ms = d.isGroup;
+    const mq = !q || d.name.toLowerCase().includes(q) || d.parent.toLowerCase().includes(q) || d.company.toLowerCase().includes(q) || d.type.toLowerCase().includes(q);
+    return ms && mq;
+  });
+  filtered.sort((a,b)=> a.warehouseName.localeCompare(b.warehouseName));
+  currentPage=1;
+  renderTable(); renderPag();
+}
+
+function renderTable(){
+  const tbody=document.getElementById('whTbody');
+  const start=(currentPage-1)*PAGE_SIZE;
+  const page=filtered.slice(start, start+PAGE_SIZE);
+  document.getElementById('whCount').textContent = filtered.length + ' result'+(filtered.length!==1?'s':'');
+  if(!page.length){
+    tbody.innerHTML = `<tr><td colspan="6"><div class="cd-empty"><svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg><div class="cd-empty-title">No warehouses found</div></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = page.map(d => {
+    const safe = encodeURIComponent(d.name);
+    const instBadge = d.instance==='PC'
+      ? `<span style="font-size:10px;font-weight:600;padding:1px 5px;border-radius:4px;background:var(--pill-amber-bg);color:var(--pill-amber-txt);margin-left:5px;vertical-align:middle">PC</span>`
+      : `<span style="font-size:10px;font-weight:600;padding:1px 5px;border-radius:4px;background:var(--pill-blue-bg);color:var(--pill-blue-txt);margin-left:5px;vertical-align:middle">PP</span>`;
+    const groupBadge = d.isGroup ? `<span class="cd-pill blue" style="margin-left:6px"><span class="cd-pill-dot"></span>Group</span>` : '';
+    const statusPill = d.disabled
+      ? `<span class="cd-pill red"><span class="cd-pill-dot"></span>Disabled</span>`
+      : `<span class="cd-pill green"><span class="cd-pill-dot"></span>Active</span>`;
+    return `<tr class="wh-row" data-name="${safe}" data-inst="${d.instance||'PP'}">
+      <td><div class="doc-num">${d.warehouseName}${instBadge}${groupBadge}</div><div class="doc-sub">${d.name}</div></td>
+      <td><span style="font-size:12.5px;color:var(--text-secondary)">${d.parent}</span></td>
+      <td><span style="font-size:12.5px;color:var(--text-secondary)">${d.company}</span></td>
+      <td><span style="font-size:12.5px;color:var(--text-secondary)">${d.type}</span></td>
+      <td>${statusPill}</td>
+      <td class="no-open"><div class="cd-row-actions">
+        <div class="cd-act-btn edit-btn" data-name="${safe}" data-inst="${d.instance||'PP'}" title="Edit"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
+        <div class="cd-act-btn open-btn" data-name="${safe}" data-inst="${d.instance||'PP'}" title="Open in Frappe"><svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></div>
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderPag(){
+  const total=filtered.length, pages=Math.ceil(total/PAGE_SIZE), pag=document.getElementById('whPag');
+  if(!total){pag.style.display='none';return;}pag.style.display='flex';
+  const s=(currentPage-1)*PAGE_SIZE+1, e=Math.min(currentPage*PAGE_SIZE,total);
+  document.getElementById('whPagInfo').textContent=`Showing ${s}–${e} of ${total}`;
+  let html=`<button class="cd-page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>`;
+  for(let i=1;i<=pages;i++){
+    if(pages>7 && i>2 && i<pages-1 && Math.abs(i-currentPage)>1){
+      if(i===3||i===pages-2) html+='<span style="padding:0 4px;color:var(--text-muted);font-size:12px">…</span>';
+      continue;
+    }
+    html+=`<button class="cd-page-btn${i===currentPage?' active':''}" onclick="goPage(${i})">${i}</button>`;
+  }
+  html+=`<button class="cd-page-btn" onclick="goPage(${currentPage+1})" ${currentPage===pages?'disabled':''}><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>`;
+  document.getElementById('whPagBtns').innerHTML=html;
+}
+
+function goPage(p){const pages=Math.ceil(filtered.length/PAGE_SIZE);if(p<1||p>pages)return;currentPage=p;renderTable();renderPag();}
+
+function exportCSV(){
+  if(!filtered.length){ showToast('Nothing to export','info'); return; }
+  const rows = [['Warehouse','Warehouse Name','Parent Warehouse','Company','Type','Is Group','Disabled','Instance']];
+  filtered.forEach(d=>rows.push([d.name,d.warehouseName,d.parent,d.company,d.type,d.isGroup?'Yes':'No',d.disabled?'Yes':'No',d.instance]));
+  const csv = rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv],{type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href=url; a.download='warehouses.csv'; document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+}
+
+// Navigate to edit an existing warehouse on the correct instance
+function openWarehouse(name, inst){
+  const key = inst==='PC' ? localStorage.getItem('cd_pc_key') : localStorage.getItem('cd_pp_key');
+  const sec = inst==='PC' ? localStorage.getItem('cd_pc_secret') : localStorage.getItem('cd_pp_secret');
+  if(key&&sec){ localStorage.setItem('cd_active_instance',inst); localStorage.setItem('cd_api_key',key); localStorage.setItem('cd_api_secret',sec); }
+  window.location.href = `/caratdesk-new-warehouse?name=${encodeURIComponent(name)}`;
+}
+
+// New Warehouse picker
+function toggleNewWhPicker(e){
+  e.stopPropagation();
+  const picker = document.getElementById('newWhPicker');
+  const available = cdGetAvailableInstances();
+  if(available.length < 2){
+    goNewWh(available[0]||'PP');
+    return;
+  }
+  const pcBtn = document.getElementById('newWhPCBtn');
+  if(pcBtn) pcBtn.style.display = available.includes('PC') ? '' : 'none';
+  picker.style.display = picker.style.display==='none' ? 'block' : 'none';
+}
+function goNewWh(inst){
+  document.getElementById('newWhPicker').style.display='none';
+  const key = inst==='PC' ? localStorage.getItem('cd_pc_key') : localStorage.getItem('cd_pp_key');
+  const sec = inst==='PC' ? localStorage.getItem('cd_pc_secret') : localStorage.getItem('cd_pp_secret');
+  if(key&&sec){ localStorage.setItem('cd_active_instance',inst); localStorage.setItem('cd_api_key',key); localStorage.setItem('cd_api_secret',sec); }
+  window.location.href = '/caratdesk-new-warehouse';
+}
+document.addEventListener('click', (e)=>{
+  const p=document.getElementById('newWhPicker'); if(p) p.style.display='none';
+});
+
+// Event delegation for table clicks
+document.getElementById('whTbody').addEventListener('click', function(e){
+  const eb = e.target.closest('.edit-btn');
+  if(eb){
+    openWarehouse(decodeURIComponent(eb.dataset.name), eb.dataset.inst||'PP');
+    return;
+  }
+  const ob = e.target.closest('.open-btn');
+  if(ob){
+    const name = decodeURIComponent(ob.dataset.name);
+    const inst = ob.dataset.inst||'PP';
+    const baseUrl = inst==='PC' ? DEV2 : DEV1;
+    window.open(`${baseUrl}/Warehouse/${name}`, '_blank');
+    return;
+  }
+  const row = e.target.closest('.wh-row');
+  if(row && !e.target.closest('.no-open')){
+    openWarehouse(decodeURIComponent(row.dataset.name), row.dataset.inst||'PP');
+  }
+});
+
+// Initialize
+load();
+</script>

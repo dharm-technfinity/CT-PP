@@ -566,6 +566,7 @@
                     <th style="width:80px">Tounch</th>
                     <th style="width:60px">Image</th>
                     <th style="width:160px">Description</th>
+                    <th style="width:140px">Design</th>
                     <th style="width:34px"></th>
                   </tr></thead>
                   <tbody id="itemsTbody"></tbody>
@@ -1216,6 +1217,7 @@
           f('[data-f="gross_wt"]', item.custom_gross_weight||0);
           f('[data-f="net_wt"]',   item.custom_net_weight||0);
           f('[data-f="tounch"]',   item.custom_tounch||'');
+          f('[data-f="custom_design"]', item.custom_design||'');
           // Load item image
           if(item.custom_image){
             const fullUrl   = cdGetInstanceUrl() + item.custom_image;
@@ -1481,6 +1483,7 @@
           </button>
           <input type="hidden" data-f="custom_remarks" value=""/>
         </td>
+        <td><input placeholder="Design" data-f="custom_design"/></td>
         <td style="padding:0 6px"><button class="cd-del-btn" onclick="delRow('${id}')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></td>`;
       tbody.appendChild(tr);
     }
@@ -1529,33 +1532,103 @@
     }
     
     // ── Item Code live autocomplete (search by code or name) ──
-    function itemCodeAc(inp, rowId){
-      const q = inp.value.toLowerCase();
-      const list = document.getElementById('codeac-'+rowId);
-      if(!q){ list.classList.remove('open'); return; }
-      const results = ITEMS.filter(i=>
-        i.code.toLowerCase().includes(q) || i.name.toLowerCase().includes(q) || (i._search||'').includes(q)
-      ).slice(0, 10);
-      if(!results.length){
-        list.innerHTML = `<div class="cd-ac-empty">No item found</div>`;
-        list.classList.add('open');
-        return;
-      }
-      list.innerHTML = results.map(it=>`
+    // The Item Code cell sits inside .cd-items-wrap (overflow-x:auto for the wide item table),
+    // so a plain position:absolute dropdown gets clipped/squished by that ancestor's scroll box
+    // (that's the broken-looking, double-scrollbar dropdown). Anchoring it as position:fixed off
+    // the input's own screen position escapes that clipping entirely.
+    function positionAcListFixed(list, anchorInput){
+      const r = anchorInput.getBoundingClientRect();
+      list.style.position = 'fixed';
+      list.style.left = r.left+'px';
+      list.style.right = 'auto';
+      list.style.top = (r.bottom+4)+'px';
+      list.style.width = Math.max(r.width, 260)+'px';
+    }
+    function renderItemCodeAcResults(rowId, results){
+      const list = document.getElementById('codeac-'+rowId); if(!list) return;
+      list.innerHTML = results.length ? results.map(it=>`
         <div class="cd-ac-item" data-rowid="${rowId}" data-code="${esc(it.code)}">
           <div class="main">${esc(it.code)}</div>
           <div class="sub">${esc(it.name)}${it.rate?' · ₹'+it.rate.toLocaleString('en-IN'):''}${it.hsn?' · HSN '+it.hsn:''}</div>
-        </div>`).join('');
+        </div>`).join('') : `<div class="cd-ac-empty">No item found</div>`;
+      const anchor = document.getElementById(rowId)?.querySelector('[data-f="code"]');
+      if(anchor) positionAcListFixed(list, anchor);
       list.classList.add('open');
     }
-    
+
+    // Live server-side item search, same idea as Frappe's own Link-field awesomplete: queries
+    // the backend by item_code/item_name "contains" so items outside the bulk-loaded ITEMS
+    // cache (fetched once at page load, capped server-side) still surface as the user types.
+    async function liveSearchItemsPO(q){
+      const fields    = encodeURIComponent(JSON.stringify(['item_code','item_name','gst_hsn_code','stock_uom','standard_rate','item_group']));
+      const filters   = encodeURIComponent(JSON.stringify([['disabled','=',0]]));
+      const orFilters = encodeURIComponent(JSON.stringify([['item_code','like',`%${q}%`],['item_name','like',`%${q}%`]]));
+      const res = await dev1Get(`/api/resource/Item?fields=${fields}&filters=${filters}&or_filters=${orFilters}&limit_page_length=20`);
+      const rows = res.data || res.message || [];
+      return rows.map(i=>({code:i.item_code||i.name,name:i.item_name||i.item_code||i.name,hsn:i.gst_hsn_code||'',uom:i.stock_uom||'Nos',rate:parseFloat(i.standard_rate)||0,group:i.item_group||''}));
+    }
+
+    const _itemCodeAcTimers = {};
+    function itemCodeAc(inp, rowId){
+      const q = inp.value.trim().toLowerCase();
+      clearTimeout(_itemCodeAcTimers[rowId]);
+      if(!q){ document.getElementById('codeac-'+rowId)?.classList.remove('open'); return; }
+
+      // Instant results from the local cache first, so the dropdown never feels laggy.
+      renderItemCodeAcResults(rowId, ITEMS.filter(i=>
+        i.code.toLowerCase().includes(q) || i.name.toLowerCase().includes(q) || (i._search||'').includes(q)
+      ).slice(0, 10));
+
+      // Debounced live search fills in anything outside that cache — merged in and re-rendered,
+      // with startswith matches (code or name) ranked first, same as Frappe's own Link search.
+      _itemCodeAcTimers[rowId] = setTimeout(async ()=>{
+        if(inp.value.trim().toLowerCase() !== q) return; // user kept typing — this query is stale
+        try{
+          const live = await liveSearchItemsPO(q);
+          live.forEach(it=>{ if(!ITEMS.some(x=>x.code===it.code)) ITEMS.push({...it, _search:[it.code,it.name].join(' ').toLowerCase()}); });
+          if(inp.value.trim().toLowerCase() !== q) return; // stale again after the await
+          const merged = ITEMS.filter(i=>
+            i.code.toLowerCase().includes(q) || i.name.toLowerCase().includes(q) || (i._search||'').includes(q)
+          );
+          merged.sort((a,b)=>{
+            const aStarts = a.code.toLowerCase().startsWith(q) || a.name.toLowerCase().startsWith(q);
+            const bStarts = b.code.toLowerCase().startsWith(q) || b.name.toLowerCase().startsWith(q);
+            return (aStarts===bStarts) ? 0 : (aStarts?-1:1);
+          });
+          renderItemCodeAcResults(rowId, merged.slice(0, 10));
+        }catch(e){ /* live search failed — local results already shown stand */ }
+      }, 250);
+    }
+
     function itemCodeBlur(inp, rowId){
       const code = inp.value.trim();
       if(!code) return;
       const it = ITEMS.find(i => i.code.toLowerCase() === code.toLowerCase());
-      if(!it) return;
-      fillRow(rowId, it.code, it.name, it.hsn||'', it.uom||'Nos', it.rate||0);
-      document.getElementById('codeac-'+rowId)?.classList.remove('open');
+      if(it){
+        fillRow(rowId, it.code, it.name, it.hsn||'', it.uom||'Nos', it.rate||0);
+        document.getElementById('codeac-'+rowId)?.classList.remove('open');
+        return;
+      }
+      // No local match. Before reporting "not found", defer briefly: blur fires *before* a
+      // dropdown-suggestion click's own handler runs, so if the user is mid-select via the
+      // autocomplete list, give that click a moment to land and fill the row first — re-check
+      // the field's value after, and only fall back to a live exact-code lookup if it still
+      // matches what we saw here.
+      setTimeout(async ()=>{
+        const liveInp = document.getElementById(rowId)?.querySelector('[data-f="code"]');
+        if(!liveInp || liveInp.value.trim().toLowerCase() !== code.toLowerCase()) return; // resolved by a click, or user kept typing
+        try{
+          const res = await dev1Get(`/api/resource/Item/${encodeURIComponent(code)}`);
+          const doc = res.data || res.message;
+          if(!doc || doc.disabled) throw new Error('not found');
+          const found = { code: doc.item_code||doc.name, name: doc.item_name||doc.item_code||doc.name, hsn: doc.gst_hsn_code||'', uom: doc.stock_uom||'Nos', rate: parseFloat(doc.standard_rate)||0, group: doc.item_group||'' };
+          ITEMS.push({ ...found, _search: [found.code, found.name].join(' ').toLowerCase() });
+          fillRow(rowId, found.code, found.name, found.hsn||'', found.uom||'Nos', found.rate||0);
+          document.getElementById('codeac-'+rowId)?.classList.remove('open');
+        }catch(e){
+          showToast(`Item "${code}" not found`, 'error');
+        }
+      }, 200);
     }
 
     // Event delegation for item code autocomplete clicks
@@ -2281,6 +2354,7 @@
         const netWt    = parseFloat(tr.querySelector('[data-f="net_wt"]')?.value) || 0;
         const tounch   = tr.querySelector('[data-f="tounch"]')?.value?.trim() || '';
         const remarks  = tr.querySelector('[data-f="custom_remarks"]')?.value?.trim() || '';
+        const design   = tr.querySelector('[data-f="custom_design"]')?.value?.trim() || '';
         const imgUrl   = tr.querySelector('[data-f="img_url"]')?.value?.trim() || '';
         const delDate  = tr.querySelector('[data-f="delDate"]')?.value || document.getElementById('reqDate').value;
         if(!itemCode || itemCode==='—' || qty<=0) return;
@@ -2300,6 +2374,7 @@
           custom_net_weight       : netWt,
           custom_tounch           : tounch||undefined,
           custom_remarks          : remarks||undefined,
+          custom_design           : design||undefined,
           custom_image            : imgUrl||undefined,
           schedule_date           : delDate,
           warehouse               : warehouse,
@@ -2889,6 +2964,13 @@
         if(!l.closest('.cd-ac').contains(e.target)) l.classList.remove('open');
       });
     });
+    // Close them on scroll too — the Item Code dropdown is position:fixed off the input's
+    // on-screen position (see positionAcListFixed), so it'd otherwise float away from the input
+    // the moment .cd-items-wrap or the page scrolls. Capture:true so this also catches scroll
+    // events from inner scrollable elements like .cd-items-wrap, which don't bubble to document.
+    document.addEventListener('scroll', ()=>{
+      document.querySelectorAll('.cd-ac-list.open').forEach(l=>l.classList.remove('open'));
+    }, true);
     
     // ══ INSTANCE HELPERS ══
 const DEV2 = 'https://ppj-dev2.m.frappe.cloud';
@@ -2938,6 +3020,13 @@ function cdInitInstanceToggle(){
     function toggleTheme(){ const d=document.documentElement.classList.toggle('dark'); localStorage.setItem('cdTheme',d?'dark':'light'); document.getElementById('themeIcon').innerHTML=d?sunIcon:moonIcon; }
     document.getElementById('cdThemeToggle').addEventListener('click',toggleTheme);
     initTheme();
+    // .cd-form-content's one-time entrance animation ends on transform:translateY(0) — with
+    // animation-fill-mode "both" that transform value is retained on the element forever after,
+    // which (per spec) makes it a new containing block for any position:fixed descendant, so
+    // fixed-position popups nested inside it (e.g. the Item Code autocomplete dropdown) end up
+    // anchored to this element's box instead of the viewport. Dropping the animation once it
+    // finishes clears that stray transform and restores normal fixed-position behavior.
+    document.querySelector('.cd-form-content')?.addEventListener('animationend', function(){ this.style.animation='none'; }, { once:true });
     const sidebar=document.getElementById('cdSidebar');
     document.getElementById('cdMenuToggle').addEventListener('click',()=>sidebar.classList.toggle('mobile-open'));
     document.querySelectorAll('.cd-nav-item').forEach(l=>l.addEventListener('click',()=>{ if(window.innerWidth<=768)sidebar.classList.remove('mobile-open'); }));
@@ -3141,6 +3230,7 @@ const PO_CSV_COLS = [
   { label:'Delivery Date',field:'delDate'   },
   { label:'HSN',          field:'hsn'       },
   { label:'Tounch',       field:'tounch'    },
+  { label:'Design',       field:'custom_design' },
 ];
 function downloadExcel(){
   downloadCsvGeneric(PO_CSV_COLS, 'itemsTbody', 'data-f', 'purchase_order_items.csv');

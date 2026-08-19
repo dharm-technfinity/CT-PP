@@ -1298,7 +1298,11 @@ async function handleScanCode(){
   showToast('Looking up '+code+'…', 'info', 1200);
 
   try{
-    const res = await dev1Get(`/api/resource/Serial No/${encodeURIComponent(code)}`);
+    // Explicit fields keep this scan-gun lookup light — an unrestricted GET would also pull
+    // back every custom field on the doc, including the image URLs now stored in
+    // custom_serial_no_images, on every single scan.
+    const scanFields = encodeURIComponent(JSON.stringify(['name','item_code','warehouse']));
+    const res = await dev1Get(`/api/resource/Serial No/${encodeURIComponent(code)}?fields=${scanFields}`);
     const sn = res.data || res.message;
     if(sn && sn.name){
       if(!sn.warehouse){ showToast('Serial No '+code+' is not currently in stock', 'error'); return; }
@@ -1754,7 +1758,10 @@ async function collectSIWeightDebits(){
     const serialNos = serialNoRaw.split('\n').map(s=>s.trim()).filter(Boolean);
     for(const sn of serialNos){
       try{
-        const res = await dev1Get(`/api/resource/Serial No/${encodeURIComponent(sn)}`);
+        // Restricted to just the 3 fields this needs — an unrestricted GET would also pull
+        // the custom_serial_no_images child table (and its image URLs) per sold serial.
+        const debitFields = encodeURIComponent(JSON.stringify(['custom_net_weight','custom_pure_wt','custom_metal_type']));
+        const res = await dev1Get(`/api/resource/Serial No/${encodeURIComponent(sn)}?fields=${debitFields}`);
         const doc = res.data || res.message || {};
         const netWt  = parseFloat(doc.custom_net_weight) || 0;
         const pureWt = parseFloat(doc.custom_pure_wt) || 0;

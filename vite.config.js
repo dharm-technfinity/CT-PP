@@ -24,6 +24,10 @@ export default defineConfig({
   ],
   server: {
     port: 5173,
+    // Caddy reverse-proxies this hostname to localhost:5173 over HTTPS (see /etc/caddy/Caddyfile
+    // on the AWS box) so pages that need a secure context — e.g. the camera-based QR scanner on
+    // caratdesk-tag-search.html — work when accessed over the network instead of just localhost.
+    allowedHosts: ['3-109-11-132.sslip.io'],
     proxy: {
       '/api': {
         target: 'https://ppj-dev1.m.frappe.cloud',

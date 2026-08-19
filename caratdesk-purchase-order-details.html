@@ -304,6 +304,7 @@
                   <th style="text-align:right">Rate (₹)</th>
                   <th style="text-align:right">Disc %</th>
                   <th style="text-align:right">Amount (₹)</th>
+                  <th>Design</th>
                 </tr>
               </thead>
               <tbody id="itemsTbody"></tbody>
@@ -469,6 +470,7 @@
           <td class="cd-td-inp"><input class="cd-tbl-inp r" readonly value="${parseFloat(it.rate||0).toFixed(2)}"/></td>
           <td class="cd-td-inp"><input class="cd-tbl-inp r" readonly value="${parseFloat(it.discount_percentage||0).toFixed(2)}"/></td>
           <td class="cd-td-inp"><input class="cd-tbl-inp r" readonly value="${parseFloat(it.amount||0).toFixed(2)}"/></td>
+          <td class="cd-td-inp"><input class="cd-tbl-inp" readonly value="${esc(it.custom_design||'')}"/></td>
         </tr>
       `).join('');
 

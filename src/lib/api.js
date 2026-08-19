@@ -592,8 +592,21 @@ export async function lookupByTag(tag) {
 
   // Primary: Serial No (tag/barcode)
   try {
+    // Explicit fields keep this scan-time lookup light — an unrestricted GET would also pull
+    // back every custom field on the doc, including the (potentially several) image URLs now
+    // stored in custom_serial_no_images, on every single POS scan. Mirrors the field list the
+    // fallback query below already uses.
+    const primarySerialFields = JSON.stringify([
+      'name',
+      'item_code',
+      'item_name',
+      'warehouse',
+      'status',
+      'batch_no',
+      'custom_sell_rate',
+    ]);
     const serialRes = await apiGet(
-      `/api/resource/Serial%20No/${encodeURIComponent(trimmed)}`,
+      `/api/resource/Serial%20No/${encodeURIComponent(trimmed)}?fields=${encodeURIComponent(primarySerialFields)}`,
     );
     const serial = getData(serialRes);
     if (serial?.name) return await enrichItemFromSerial(serial);
@@ -994,17 +1007,70 @@ async function loadPPSettings() {
     (doc.metal_mapping1 || []).forEach((r) => {
       if (r.metal_type && r.item_attribute) metalMap[r.metal_type] = r.item_attribute;
     });
+    const posRoleMap = {};
+    (doc.pos_role || []).forEach((r) => {
+      if (!r.button_type || !r.role) return;
+      (posRoleMap[r.button_type] || (posRoleMap[r.button_type] = [])).push(r.role);
+    });
     ppSettingsCache = {
       metalMap,
       diamondAttrs: (doc.diamond_price_list_mapping || []).map((r) => r.item_attribute).filter(Boolean),
       gemstoneAttrs: (doc.gemstone_price_list_mapping || []).map((r) => r.item_attribute).filter(Boolean),
       goldPurchaseItemGroups: (doc.gold_purchase_setting || []).map((r) => r.item_group).filter(Boolean),
+      posRoleMap,
     };
   } catch (e) {
     console.warn('loadPPSettings failed:', e.message);
-    ppSettingsCache = { metalMap: {}, diamondAttrs: [], gemstoneAttrs: [], goldPurchaseItemGroups: [] };
+    ppSettingsCache = { metalMap: {}, diamondAttrs: [], gemstoneAttrs: [], goldPurchaseItemGroups: [], posRoleMap: {} };
   }
   return ppSettingsCache;
+}
+
+// ── POS button role-gating (PP Settings1.pos_role: button_type -> role) ──
+// A button with no configured row is hidden for everyone except Administrator/System
+// Manager, so a forgotten config entry fails closed instead of silently exposing a button.
+let currentUserRolesCache = null;
+
+async function fetchCurrentUserRoles() {
+  if (currentUserRolesCache) return currentUserRolesCache;
+  // Preferred path: a whitelisted server method (frappe.get_roles) that isn't subject to the
+  // User doctype's permlevel-1 restriction on the "roles" field, so it needs no Role Permission
+  // Manager grant. Falls back to reading the User doc directly if that method isn't deployed yet.
+  try {
+    const res = await apiMethod('caratdesk_get_current_user_roles');
+    const roles = getData(res);
+    if (Array.isArray(roles)) return (currentUserRolesCache = roles.filter(Boolean));
+  } catch {
+    // not deployed yet — fall through to the User-doc lookup below
+  }
+  try {
+    const idRes = await apiMethod('frappe.auth.get_logged_user');
+    const email = idRes?.message || localStorage.getItem('cd_user_email') || '';
+    if (!email) return (currentUserRolesCache = []);
+    const res = await apiGet(`/api/resource/User/${encodeURIComponent(email)}`);
+    const doc = getData(res) || {};
+    currentUserRolesCache = (doc.roles || []).map((r) => r.role).filter(Boolean);
+  } catch (e) {
+    console.warn('fetchCurrentUserRoles failed:', e.message);
+    currentUserRolesCache = [];
+  }
+  return currentUserRolesCache;
+}
+
+// Single call for the POS page to load both the button->role config and the logged-in
+// user's roles once per session.
+export async function fetchPosButtonPermissions() {
+  const [ppSettings, userRoles] = await Promise.all([loadPPSettings(), fetchCurrentUserRoles()]);
+  return { posRoleMap: ppSettings.posRoleMap, userRoles };
+}
+
+const POS_ADMIN_ROLES = ['Administrator', 'System Manager'];
+
+export function canShowPosButton(buttonType, userRoles = [], posRoleMap = {}) {
+  if (userRoles.some((r) => POS_ADMIN_ROLES.includes(r))) return true;
+  const allowedRoles = posRoleMap[buttonType];
+  if (!allowedRoles || !allowedRoles.length) return false;
+  return allowedRoles.some((r) => userRoles.includes(r));
 }
 
 // "Diamond Seive Size" -> "diamond_seive_size" — Diamond/Gemstone Price List fields are
@@ -1914,7 +1980,15 @@ async function collectPOSWeightDebits(lines) {
     const sn = line.serial_no;
     if (!sn) continue;
     try {
-      const res = await apiGet(`/api/resource/Serial%20No/${encodeURIComponent(sn)}`);
+      // Restricted to just the 3 fields this needs — an unrestricted GET would also pull the
+      // custom_serial_no_images child table (and its image URLs) once per sold serial, on
+      // every POS invoice submit.
+      const debitFields = encodeURIComponent(JSON.stringify([
+        'custom_net_weight',
+        'custom_pure_wt',
+        'custom_metal_type',
+      ]));
+      const res = await apiGet(`/api/resource/Serial%20No/${encodeURIComponent(sn)}?fields=${debitFields}`);
       const doc = getData(res) || {};
       const netWt = parseFloat(doc.custom_net_weight) || 0;
       const pureWt = parseFloat(doc.custom_pure_wt) || 0;

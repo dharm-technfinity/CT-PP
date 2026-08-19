@@ -34,19 +34,28 @@ export default function CartGrid({
     if (!scanning) scanRef.current?.focus();
   }, [scanning, lines.length]);
 
+  function submitScan() {
+    const val = scanRef.current?.value ?? '';
+    if (scanRef.current) scanRef.current.value = '';
+    onScan(val);
+  }
+
+  function handleScanSubmit(e) {
+    e.preventDefault();
+    submitScan();
+  }
+
   function handleScanKey(e) {
     if (e.key === 'Enter') {
       e.preventDefault();
-      const val = e.target.value;
-      e.target.value = '';
-      onScan(val);
+      submitScan();
     }
   }
 
   return (
     <div className="cd-pos-main">
       <div className="cd-scan-bar">
-        <div className="cd-scan-input-wrap">
+        <form className="cd-scan-input-wrap" onSubmit={handleScanSubmit}>
           <svg viewBox="0 0 24 24">
             <rect x="3" y="3" width="18" height="18" rx="2" />
             <line x1="7" y1="8" x2="17" y2="8" />
@@ -58,10 +67,11 @@ export default function CartGrid({
             className="cd-input cd-scan-input"
             placeholder="Scan tag / barcode (Enter to add)"
             autoComplete="off"
+            enterKeyHint="go"
             disabled={scanning}
             onKeyDown={handleScanKey}
           />
-        </div>
+        </form>
         {scanning && (
           <span className="cd-spinner" aria-label="Scanning" />
         )}

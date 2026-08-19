@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<!--
+  Serial No Tag — print format.
+
+  This is the layout used when printing tags from a Purchase Receipt
+  ("Print Tag" button). It is loaded and filled in client-side by
+  printtag() in caratdesk-new-purchase-receipt.html — edit this file
+  directly to change how a tag looks (fields shown, styling, size, etc.)
+  without touching any JS logic.
+
+  Note: this is plain string-replace templating, not Frappe's server-side
+  Jinja print format engine — so placeholders must be exactly "{{NAME}}"
+  (no spaces, no filters like {{ "%.3f"|format(x) }}) for the JS to find them.
+
+  Placeholders (replaced per serial number, must match printtag()):
+    {{PR_NAME}}     Purchase Receipt name, used in the window title
+    {{QR_URL}}      QR code image URL encoding the serial number
+    {{SERIAL_NO}}   Serial No
+    {{ITEM_NAME}}   Item name
+    {{GROSS_WT}}    Gross weight (grams, 3 decimals, already formatted)
+    {{NET_WT}}      Net weight (grams, 3 decimals, already formatted)
+    {{SELL_RATE}}   Sell rate
+
+  The block between the TAG_TEMPLATE markers is the per-tag markup —
+  it gets repeated once per serial number, one per printed page.
+  Everything outside it (styles, page setup) is the shared page shell
+  and is only used once.
+-->
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Serial No Tags — {{PR_NAME}}</title>
+  <style>
+    @page{ size: auto; margin: 0mm; }
+    * {
+      color: black !important;
+    }
+    body {
+      margin: 0px !important;
+      padding: 0px !important;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+    .row {
+      margin-left: 0px;
+      page-break-after: always;
+    }
+    .column {
+      float: left;
+    }
+    .row::after {
+      content: "";
+      clear: both;
+      display: table;
+    }
+    p {
+      padding: 0px 3px 1px 8px !important;
+      margin: 0px !important;
+    }
+    .barcode {
+      font-weight: bold;
+      height: 90px;
+      width: 90px;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+  </style>
+</head>
+<body>
+<!-- TAG_TEMPLATE_START -->
+<div class="main" style="margin-top: 17px; margin-left: 25px; margin-bottom: 10px">
+  <div class="row" style="margin-left: 18px; margin-top: 8px !important">
+    <div class="column">
+      <img class="barcode" src="{{QR_URL}}" alt="">
+    </div>
+    <div class="column" style="margin-left: 10px; font-weight: 800; font-size: 12px;">
+      <p>{{SERIAL_NO}}</p>
+      <p>{{ITEM_NAME}}</p>
+      <p>Gross Wt: {{GROSS_WT}} g</p>
+      <p>Net Wt: {{NET_WT}} g</p>
+      <p>Sell Rate: {{SELL_RATE}}%</p>
+    </div>
+  </div>
+</div>
+<!-- TAG_TEMPLATE_END -->
+</body>
+</html>

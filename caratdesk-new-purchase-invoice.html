@@ -2574,15 +2574,8 @@ async function loadBhavMetalItems(){
   }catch(e){ console.warn('loadBhavMetalItems error:', e.message); }
 }
 
-function bhavItemAc(inp, rowId){
-  const q = inp.value.toLowerCase().trim();
-  const list = document.getElementById('bhav-iac-' + rowId);
-  if(!list) return;
-  if(!q){ list.classList.remove('open'); return; }
-  // Bhav Cut settlement items are restricted to raw Gold/Silver templates
-  const results = _bhavMetalItems.filter(i =>
-    i.code.toLowerCase().includes(q) || i.name.toLowerCase().includes(q) || (i._search||'').includes(q)
-  ).slice(0, 10);
+function renderBhavAcResults(rowId, results){
+  const list = document.getElementById('bhav-iac-' + rowId); if(!list) return;
   list.innerHTML = results.length
     ? results.map(it =>
         `<div class="cd-ac-item" onclick="fillBhavItem('${rowId}','${esc(it.code)}','${esc(it.name)}')">
@@ -2592,6 +2585,51 @@ function bhavItemAc(inp, rowId){
       ).join('')
     : '<div class="cd-ac-empty">No item found</div>';
   list.classList.add('open');
+}
+
+// Live server-side search over the same Gold/Silver-template scope loadBhavMetalItems() uses,
+// so templates outside that 100-row cache (fetched once at page load) still surface as the
+// user types — same idea as Frappe's own Link-field awesomplete.
+async function bhavLiveSearchItems(q){
+  const fields    = encodeURIComponent(JSON.stringify(['item_code','item_name','item_group','standard_rate']));
+  const filters   = encodeURIComponent(JSON.stringify([['disabled','=',0],['variant_of','=',''],['item_group','in',['Gold','Silver']]]));
+  const orFilters = encodeURIComponent(JSON.stringify([['item_code','like',`%${q}%`],['item_name','like',`%${q}%`]]));
+  const res = await dev1Get(`/api/resource/Item?fields=${fields}&filters=${filters}&or_filters=${orFilters}&limit_page_length=20`);
+  const rows = res.data || res.message || [];
+  return rows.map(i=>({code:i.item_code||i.name,name:i.item_name||i.item_code||i.name,rate:parseFloat(i.standard_rate)||0}));
+}
+
+const _bhavAcTimers = {};
+function bhavItemAc(inp, rowId){
+  const q = inp.value.toLowerCase().trim();
+  const list = document.getElementById('bhav-iac-' + rowId);
+  if(!list) return;
+  clearTimeout(_bhavAcTimers[rowId]);
+  if(!q){ list.classList.remove('open'); return; }
+  // Bhav Cut settlement items are restricted to raw Gold/Silver templates
+  renderBhavAcResults(rowId, _bhavMetalItems.filter(i =>
+    i.code.toLowerCase().includes(q) || i.name.toLowerCase().includes(q) || (i._search||'').includes(q)
+  ).slice(0, 10));
+
+  // Debounced live search fills in anything outside that cache — merged in and re-rendered,
+  // with startswith matches (code or name) ranked first, same as Frappe's own Link search.
+  _bhavAcTimers[rowId] = setTimeout(async ()=>{
+    if(inp.value.toLowerCase().trim() !== q) return; // user kept typing — this query is stale
+    try{
+      const live = await bhavLiveSearchItems(q);
+      live.forEach(it=>{ if(!_bhavMetalItems.some(x=>x.code===it.code)) _bhavMetalItems.push({...it, _search:[it.code,it.name].join(' ').toLowerCase()}); });
+      if(inp.value.toLowerCase().trim() !== q) return; // stale again after the await
+      const merged = _bhavMetalItems.filter(i =>
+        i.code.toLowerCase().includes(q) || i.name.toLowerCase().includes(q) || (i._search||'').includes(q)
+      );
+      merged.sort((a,b)=>{
+        const aStarts = a.code.toLowerCase().startsWith(q) || a.name.toLowerCase().startsWith(q);
+        const bStarts = b.code.toLowerCase().startsWith(q) || b.name.toLowerCase().startsWith(q);
+        return (aStarts===bStarts) ? 0 : (aStarts?-1:1);
+      });
+      renderBhavAcResults(rowId, merged.slice(0, 10));
+    }catch(e){ /* live search failed — local results already shown stand */ }
+  }, 250);
 }
 
 function closeBhavAc(rowId){

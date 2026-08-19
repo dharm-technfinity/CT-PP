@@ -363,6 +363,7 @@
     <div class="cd-footer">
       <button class="cd-btn cd-btn-danger" id="cdCancelBtn" style="display:none" onclick="cancelDoc()"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>Cancel</button>
       <div class="cd-footer-right">
+        <button class="cd-btn cd-btn-secondary" id="cdCreateReceiveBtn" style="display:none" onclick="createReceiveEntry()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 109-9 9.75 9.75 0 00-6.74 2.74L3 8"/><polyline points="3 3 3 8 8 8"/></svg>Create Receive Entry</button>
         <button class="cd-btn cd-btn-primary" id="cdMainActionBtn" onclick="saveDraft()"><svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Save</button>
       </div>
     </div>
@@ -584,6 +585,69 @@ window.addEventListener('DOMContentLoaded', async () => {
   onStockEntryTypeChange();
   addRow();
 });
+
+// ══════════════════════════════════════════
+//  CREATE RECEIVE ENTRY (from a submitted Send to Subcontractor entry)
+// ══════════════════════════════════════════
+// Job work is a plain stock transfer both ways — the same items go out on the Send entry
+// and come back unchanged on the Receive entry, just with Source/Target Warehouse swapped.
+// So this mirrors the Send entry's items verbatim (warehouses reversed) into a new Receive
+// From Subcontractor entry and submits it immediately — no manual re-entry needed.
+async function createReceiveEntry(){
+  if(!currentSEName) return;
+  if(!confirm('Create and submit a Receive entry for '+currentSEName+'? The same items will be transferred back from the karigar warehouse to the source warehouse.')) return;
+
+  const btn = document.getElementById('cdCreateReceiveBtn');
+  if(btn){ btn.disabled = true; btn.style.opacity = '0.6'; }
+  showToast('Creating receive entry…','info');
+  try{
+    const sendRes = await dev1Get(`/api/resource/Stock Entry/${encodeURIComponent(currentSEName)}`);
+    const sendDoc = sendRes.data || sendRes.message || {};
+    const sendItems = sendDoc.items || [];
+    if(!sendItems.length) throw new Error('Send entry has no items');
+
+    const typeRec = STOCK_ENTRY_TYPES.find(t=>t.name==='Receive From Subcontractor');
+    const purpose = typeRec?.purpose || 'Receive From Subcontractor';
+
+    const items = sendItems.map((it, idx) => ({
+      doctype: 'Stock Entry Detail', idx: idx+1,
+      item_code: it.item_code, item_name: it.item_name||it.item_code, description: it.item_name||it.item_code,
+      qty: it.qty, uom: it.uom||it.stock_uom||'Nos', stock_uom: it.stock_uom||it.uom||'Nos', conversion_factor: it.conversion_factor||1,
+      basic_rate: it.basic_rate||0, basic_amount: it.basic_amount||0, amount: it.amount||it.basic_amount||0,
+      s_warehouse: it.t_warehouse || sendDoc.to_warehouse || '',
+      t_warehouse: it.s_warehouse || sendDoc.from_warehouse || '',
+      ...(it.batch_no ? { batch_no: it.batch_no } : {}),
+      ...(it.serial_no ? { serial_no: it.serial_no } : {}),
+    }));
+
+    const payload = {
+      doctype: 'Stock Entry',
+      docstatus: 0,
+      stock_entry_type: 'Receive From Subcontractor',
+      purpose,
+      company: COMPANY,
+      posting_date: new Date().toISOString().slice(0,10),
+      posting_time: new Date().toTimeString().slice(0,8),
+      from_warehouse: sendDoc.to_warehouse || '',
+      to_warehouse: sendDoc.from_warehouse || '',
+      custom_against_stock_entry: currentSEName,
+      remarks: 'Auto-created receive entry against '+currentSEName,
+      items,
+    };
+
+    const created = await dev1Post('/api/resource/Stock Entry', payload);
+    const newName = created?.data?.name || created?.name;
+    if(!newName) throw new Error('Create failed — no name returned');
+
+    await dev1Put(`/api/resource/Stock Entry/${encodeURIComponent(newName)}`, {docstatus:1});
+
+    showToast('Receive entry '+newName+' created and submitted', 'success', 5000);
+    setTimeout(()=>{ window.location.href = `/caratdesk-new-job-work?name=${encodeURIComponent(newName)}`; }, 1200);
+  }catch(e){
+    showToast('Failed to create receive entry: '+String(e.message).slice(0,150), 'error', 6000);
+    if(btn){ btn.disabled = false; btn.style.opacity = ''; }
+  }
+}
 
 async function loadMasterData(){
   try{
@@ -1211,15 +1275,14 @@ function syncResolvedWarehouseCell(sel, val){
 }
 
 // This page is dedicated to Job Work — only these Stock Entry Types apply (sending raw
-// material out to a karigar / job worker, and getting unused material or finished goods
-// back), so the dropdown is restricted to just them rather than every type.
-// "Subcontracting Return" is the standard ERPNext type for the return-of-unused-material
-// leg. "Receive From Subcontractor" is a custom Stock Entry Type (not standard ERPNext —
+// material out to a karigar / job worker, and getting finished goods back), so the dropdown
+// is restricted to just them rather than every type.
+// "Receive From Subcontractor" is a custom Stock Entry Type (not standard ERPNext —
 // subcontract receipts of finished goods normally go through the separate "Subcontracting
 // Receipt" doctype) created for this business to log finished-goods receipts back from the
 // karigar as a Stock Entry, with Batch No / Serial No picked from what's actually available
 // in the karigar's warehouse.
-const JOB_WORK_ENTRY_TYPES = ['Send to Subcontractor', 'Subcontracting Return', 'Receive From Subcontractor'];
+const JOB_WORK_ENTRY_TYPES = ['Send to Subcontractor', 'Receive From Subcontractor'];
 
 // Which header warehouse field the Supplier resolves into, keyed by the Stock Entry TYPE
 // NAME. The first two are standard ERPNext types whose "purpose" field literally equals
@@ -1246,12 +1309,16 @@ function populateStockEntryTypes(){
   }
 }
 
+// Both header warehouse fields are single values for the whole entry — every item row
+// mirrors them, so changing the header after rows already exist must overwrite the rows too,
+// not just fill in blanks (which was the bug: rows kept a stale warehouse after the header
+// was changed).
 function onFromWarehouseChange(){
   const rules = currentJobWorkRules();
   const val = document.getElementById('fromWarehouse').value;
   document.querySelectorAll('#itemsTbody [data-f="s_warehouse"]').forEach(sel=>{
     if(rules.supplierResolves === 'from') syncResolvedWarehouseCell(sel, val);
-    else if(!sel.value) sel.value = val;
+    else sel.value = val;
   });
 }
 function onToWarehouseChange(){
@@ -1259,7 +1326,7 @@ function onToWarehouseChange(){
   const val = document.getElementById('toWarehouse').value;
   document.querySelectorAll('#itemsTbody [data-f="t_warehouse"]').forEach(sel=>{
     if(rules.supplierResolves === 'to') syncResolvedWarehouseCell(sel, val);
-    else if(!sel.value) sel.value = val;
+    else sel.value = val;
   });
 }
 
@@ -1345,7 +1412,13 @@ function addRow(d={}){
   if(d.custom_bom) preloadBomStagingForRow(id, d.custom_bom);
   return tr;
 }
-function delRow(id){ document.getElementById(id)?.remove(); delete ROW_BOM_STAGING[id]; recalc(); }
+function delRow(id){
+  document.getElementById(id)?.remove();
+  // Item/Batch/Serial ac-lists get detached to <body> when opened (see openAcList) — the row
+  // delete above won't reach them, so clean them up explicitly to avoid orphaned elements.
+  ['seac-','bac-','sac-'].forEach(prefix=>document.getElementById(prefix+id)?.remove());
+  delete ROW_BOM_STAGING[id]; recalc();
+}
 
 function recalcRow(id){
   const tr = document.getElementById(id); if(!tr) return;
@@ -1368,20 +1441,108 @@ function recalc(){
 function autoResize(el){ el.style.height='auto'; el.style.height=el.scrollHeight+'px'; }
 
 // ── Item search (type-ahead against Item master, matches "In Global Search" fields too) ──
-function seItemAc(inp, rowId){
-  const q = inp.value.toLowerCase();
-  const list = document.getElementById('seac-'+rowId);
-  if(!list) return;
-  if(!q){ list.classList.remove('open'); return; }
-  const r = SE_ITEMS.filter(i=>i.code.toLowerCase().includes(q)||i.name.toLowerCase().includes(q)||(i._search&&i._search.includes(q))).slice(0,10);
-  list.innerHTML = r.length ? r.map(it=>`<div class="cd-ac-item" onmousedown="seSelectItem('${rowId}','${esc(it.code)}')"><div class="main">${esc(it.code)}</div><div class="sub">${esc(it.name)}${it.rate?' · ₹'+it.rate.toLocaleString('en-IN'):''}</div></div>`).join('') : `<div class="cd-ac-empty">No item found</div>`;
+// The Item/Batch/Serial autocomplete lists in the items table live inside .cd-items-wrap,
+// which needs overflow-x:auto for the wide table to scroll horizontally — but per the CSS
+// overflow spec, setting overflow-x to anything but "visible" forces overflow-y to "auto"
+// too, so the dropdown gets clipped to the table's own height instead of floating over the
+// page. Fix: once a dropdown opens, detach it to <body> and drive it with position:fixed,
+// coordinates taken from the anchor input's viewport rect — same approach a native
+// <select> uses to escape a scrolling ancestor.
+function openAcList(list, anchor){
+  if(!list || !anchor) return;
+  if(!list.dataset.floated){
+    document.body.appendChild(list);
+    list.dataset.floated = '1';
+    list.style.position = 'fixed';
+    list.style.right = 'auto';
+    list.style.zIndex = '900';
+  }
+  const r = anchor.getBoundingClientRect();
+  const minW = parseInt(list.style.minWidth||'0',10) || 200;
+  const left = Math.min(r.left, Math.max(8, window.innerWidth - minW - 8));
+  list.style.left = left+'px';
+  list.style.top = (r.bottom+4)+'px';
+  list.style.width = Math.max(r.width, minW)+'px';
   list.classList.add('open');
 }
+function closeAllAcLists(){ document.querySelectorAll('.cd-ac-list.open').forEach(l=>l.classList.remove('open')); }
+window.addEventListener('scroll', closeAllAcLists, true);
+window.addEventListener('resize', closeAllAcLists);
+
+function renderSeAcResults(rowId, r){
+  const list = document.getElementById('seac-'+rowId); if(!list) return;
+  list.innerHTML = r.length ? r.map(it=>`<div class="cd-ac-item" onmousedown="seSelectItem('${rowId}','${esc(it.code)}')"><div class="main">${esc(it.code)}</div><div class="sub">${esc(it.name)}${it.rate?' · ₹'+it.rate.toLocaleString('en-IN'):''}</div></div>`).join('') : `<div class="cd-ac-empty">No item found</div>`;
+  const anchor = document.getElementById(rowId)?.querySelector('[data-f="code"]');
+  openAcList(list, anchor);
+}
+
+// Live server-side item search, same idea as Frappe's own Link-field awesomplete: queries
+// the backend by item_code/item_name "contains" so items outside the bulk-loaded SE_ITEMS
+// cache (fetched once at page load, capped at 1000) still surface as the user types.
+async function seLiveSearchItems(q){
+  const fields    = encodeURIComponent(JSON.stringify(['item_code','item_name','stock_uom','standard_rate']));
+  const filters   = encodeURIComponent(JSON.stringify([['disabled','=',0]]));
+  const orFilters = encodeURIComponent(JSON.stringify([['item_code','like',`%${q}%`],['item_name','like',`%${q}%`]]));
+  const res = await dev1Get(`/api/resource/Item?fields=${fields}&filters=${filters}&or_filters=${orFilters}&limit_page_length=20`);
+  const rows = res.data || res.message || [];
+  return rows.map(i=>({code:i.item_code,name:i.item_name||i.item_code,uom:i.stock_uom||'Nos',rate:parseFloat(i.standard_rate||0)}));
+}
+
+const _seAcTimers = {};
+function seItemAc(inp, rowId){
+  const q = inp.value.trim().toLowerCase();
+  const list = document.getElementById('seac-'+rowId);
+  if(!list) return;
+  clearTimeout(_seAcTimers[rowId]);
+  if(!q){ list.classList.remove('open'); return; }
+
+  // Instant results from the local cache first, so the dropdown never feels laggy.
+  renderSeAcResults(rowId, SE_ITEMS.filter(i=>i.code.toLowerCase().includes(q)||i.name.toLowerCase().includes(q)||(i._search&&i._search.includes(q))).slice(0,10));
+
+  // Debounced live search fills in anything outside that cache — merged in and re-rendered,
+  // with startswith matches (code or name) ranked first, same as Frappe's own Link search.
+  _seAcTimers[rowId] = setTimeout(async ()=>{
+    if(inp.value.trim().toLowerCase() !== q) return; // user kept typing — this query is stale
+    try{
+      const live = await seLiveSearchItems(q);
+      live.forEach(it=>{ if(!SE_ITEMS.some(x=>x.code===it.code)) SE_ITEMS.push({...it, _search:[it.code,it.name].join(' ').toLowerCase()}); });
+      if(inp.value.trim().toLowerCase() !== q) return; // stale again after the await
+      const merged = SE_ITEMS.filter(i=>i.code.toLowerCase().includes(q)||i.name.toLowerCase().includes(q)||(i._search&&i._search.includes(q)));
+      merged.sort((a,b)=>{
+        const aStarts = a.code.toLowerCase().startsWith(q) || a.name.toLowerCase().startsWith(q);
+        const bStarts = b.code.toLowerCase().startsWith(q) || b.name.toLowerCase().startsWith(q);
+        return (aStarts===bStarts) ? 0 : (aStarts?-1:1);
+      });
+      renderSeAcResults(rowId, merged.slice(0,10));
+    }catch(e){ /* live search failed — local results already shown stand */ }
+  }, 250);
+}
 function seItemBlur(inp, rowId){
-  setTimeout(()=>{ document.getElementById('seac-'+rowId)?.classList.remove('open'); }, 150);
-  const code = inp.value.trim(); if(!code) return;
+  const code = inp.value.trim();
+  if(!code){ setTimeout(()=>{ document.getElementById('seac-'+rowId)?.classList.remove('open'); }, 150); return; }
   const it = SE_ITEMS.find(i=>i.code.toLowerCase()===code.toLowerCase()||i.name.toLowerCase()===code.toLowerCase());
-  if(it) seFillItem(rowId, it);
+  if(it){
+    seFillItem(rowId, it);
+    return;
+  }
+  // No local match. onmousedown on the dropdown resolves before this fires for a click-select,
+  // so this only matters for a typed/pasted code with no dropdown interaction — defer briefly,
+  // re-check, then try a live exact-code lookup before giving up.
+  setTimeout(async ()=>{
+    document.getElementById('seac-'+rowId)?.classList.remove('open');
+    const liveInp = document.getElementById(rowId)?.querySelector('[data-f="code"]');
+    if(!liveInp || liveInp.value.trim().toLowerCase() !== code.toLowerCase()) return; // resolved already, or user kept typing
+    try{
+      const res = await dev1Get(`/api/resource/Item/${encodeURIComponent(code)}`);
+      const doc = res.data || res.message;
+      if(!doc || doc.disabled) throw new Error('not found');
+      const found = { code: doc.item_code, name: doc.item_name||doc.item_code, uom: doc.stock_uom||'Nos', rate: parseFloat(doc.standard_rate||0) };
+      SE_ITEMS.push({ ...found, _search: [found.code, found.name].join(' ').toLowerCase() });
+      seFillItem(rowId, found);
+    }catch(e){
+      showToast(`Item "${code}" not found`, 'error');
+    }
+  }, 200);
 }
 function seSelectItem(rowId, code){
   const it = SE_ITEMS.find(i=>i.code===code);
@@ -1442,8 +1603,8 @@ async function seBatchAc(inp, rowId){
   const tr = document.getElementById(rowId);
   const list = document.getElementById('bac-'+rowId); if(!list||!tr) return;
   const { code, wh } = rowLookupCtx(tr);
-  if(!code || !wh){ list.innerHTML = '<div class="cd-ac-empty">Select Item and Source Warehouse first</div>'; list.classList.add('open'); return; }
-  list.innerHTML = '<div class="cd-ac-empty">Loading…</div>'; list.classList.add('open');
+  if(!code || !wh){ list.innerHTML = '<div class="cd-ac-empty">Select Item and Source Warehouse first</div>'; openAcList(list, inp); return; }
+  list.innerHTML = '<div class="cd-ac-empty">Loading…</div>'; openAcList(list, inp);
   const q = inp.value.trim().toLowerCase();
   const batches = await fetchBatchesInWarehouse(code, wh);
   const filtered = q ? batches.filter(b=>b.batch_no.toLowerCase().includes(q)) : batches;
@@ -1461,8 +1622,8 @@ async function seSerialAc(ta, rowId){
   const tr = document.getElementById(rowId);
   const list = document.getElementById('sac-'+rowId); if(!list||!tr) return;
   const { code, wh } = rowLookupCtx(tr);
-  if(!code || !wh){ list.innerHTML = '<div class="cd-ac-empty">Select Item and Source Warehouse first</div>'; list.classList.add('open'); return; }
-  list.innerHTML = '<div class="cd-ac-empty">Loading…</div>'; list.classList.add('open');
+  if(!code || !wh){ list.innerHTML = '<div class="cd-ac-empty">Select Item and Source Warehouse first</div>'; openAcList(list, ta); return; }
+  list.innerHTML = '<div class="cd-ac-empty">Loading…</div>'; openAcList(list, ta);
   const lines = ta.value.split('\n');
   const existing = new Set(lines.slice(0,-1).map(s=>s.trim()).filter(Boolean));
   const typed = (lines[lines.length-1]||'').trim().toLowerCase();
@@ -1611,13 +1772,16 @@ async function addItemToRow(){
   if(!_dialogRowId) return;
   const cached=SE_ITEMS.find(i=>i.code===_matchedItem.item_code);
   let uom=_matchedItem.stock_uom||_matchedItem.uom||cached?.uom||'';
-  if(!uom){
+  let rate=cached?.rate||0;
+  if(!uom || !rate){
     try{
       const r=await dev1Get(`/api/resource/Item/${encodeURIComponent(_matchedItem.item_code)}`);
-      uom=(r.data||r.message)?.stock_uom||'Nos';
-    }catch(e){ uom='Nos'; }
+      const doc=r.data||r.message;
+      if(!uom) uom=doc?.stock_uom||'Nos';
+      if(!rate) rate=parseFloat(doc?.standard_rate||0);
+    }catch(e){ if(!uom) uom='Nos'; }
   }
-  seFillItem(_dialogRowId, { code:_matchedItem.item_code, name:_matchedItem.item_name, uom, rate: cached?.rate||0 });
+  seFillItem(_dialogRowId, { code:_matchedItem.item_code, name:_matchedItem.item_name, uom, rate });
   closeItemDialog();
   showToast(_matchedItem.item_code+' added','success');
 }
@@ -2090,6 +2254,9 @@ async function loadExistingSE(name){
       });
     });
     recalc();
+
+    const createReceiveBtn = document.getElementById('cdCreateReceiveBtn');
+    if(createReceiveBtn) createReceiveBtn.style.display = (submitted && doc.stock_entry_type==='Send to Subcontractor') ? '' : 'none';
 
     if(isCancelled){
       updateDocStatus('Cancelled', name);

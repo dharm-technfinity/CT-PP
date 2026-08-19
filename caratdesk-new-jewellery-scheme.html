@@ -1,0 +1,1684 @@
+<!-- CaratDesk – New Jewellery Scheme Assignment -->
+<head>
+  <meta charset="UTF-8">
+</head>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap');
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    .navbar,.page-header,footer.web-footer,.container>.row>.col-sm-10,.frappe-footer{display:none!important}
+    .web-page-container,.container{padding:0!important;max-width:100%!important}
+    body{overflow-x:hidden}
+    :root{--bg:#F7F6F3;--surface:#FFF;--border:rgba(0,0,0,.07);--border-strong:rgba(0,0,0,.12);--text-primary:#1A1A18;--text-secondary:#6B6B65;--text-muted:#A8A8A2;--accent:#1A1A18;--accent-light:#F0EFE9;--nav-hover:#F7F6F3;--nav-active-bg:#EBEBE5;--pill-green-bg:#EAF3DE;--pill-green-txt:#3B6D11;--pill-green-bg-hover:#d8edca;--pill-red-bg:#FCEBEB;--pill-red-txt:#A32D2D;--pill-red-bg-hover:#f8d7d7;--pill-amber-bg:#FAEEDA;--pill-amber-txt:#854F0B;--pill-blue-bg:#E8F0FD;--pill-blue-txt:#1A4A8A;--shadow-sm:0 2px 12px rgba(0,0,0,.04),0 0 0 .5px rgba(0,0,0,.03);--shadow-md:0 4px 24px rgba(0,0,0,.08)}
+    .dark{--bg:#121212;--surface:#1E1E1E;--border:rgba(255,255,255,.08);--border-strong:rgba(255,255,255,.15);--text-primary:#EDEDED;--text-secondary:#A0A0A0;--text-muted:#6E6E6E;--accent:#D4D4D4;--accent-light:#2C2C2C;--nav-hover:#252525;--nav-active-bg:#2D2D2D;--pill-green-bg:#1E3A2E;--pill-green-txt:#9CD45E;--pill-green-bg-hover:#2a4a3a;--pill-red-bg:#3E1E1E;--pill-red-txt:#F28B82;--pill-red-bg-hover:#4a2626;--pill-amber-bg:#3E2E1E;--pill-amber-txt:#FDBF6B;--pill-blue-bg:#1A2A3E;--pill-blue-txt:#7AABF0;--shadow-sm:0 2px 12px rgba(0,0,0,.3),0 0 0 .5px rgba(255,255,255,.05);--shadow-md:0 4px 24px rgba(0,0,0,.3)}
+    html,body{color:var(--text-primary)}
+    *{transition:background-color .2s,border-color .2s,color .2s}
+    .cd-app{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);min-height:100vh;display:flex;-webkit-font-smoothing:antialiased;color:var(--text-primary)}
+    .cd-sidebar{width:260px;background:var(--surface);border-right:.5px solid var(--border);display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;z-index:200;box-shadow:var(--shadow-sm);transform:translateX(0);transition:transform .3s cubic-bezier(.2,.9,.4,1.1)}
+    @media(max-width:768px){.cd-sidebar{transform:translateX(-100%)}.cd-sidebar.mobile-open{transform:translateX(0);width:80%;max-width:280px}}
+    .cd-sidebar-logo{display:flex;align-items:center;gap:11px;padding:20px 16px 18px;border-bottom:.5px solid var(--border);text-decoration:none;color:inherit}
+    .cd-sidebar-logo img{width:30px;height:30px;object-fit:contain;border-radius:9px}
+    .cd-logo-name{font-family:'DM Serif Display',serif;font-size:17px;letter-spacing:-.2px}
+    .cd-logo-sub{font-size:10px;color:var(--text-muted);font-weight:300;letter-spacing:.07em;text-transform:uppercase}
+    .cd-nav{flex:1;padding:10px 8px;overflow-y:auto}
+    .cd-nav-section{font-size:10px;font-weight:500;color:var(--text-muted);letter-spacing:.08em;text-transform:uppercase;padding:14px 8px 5px}
+    .cd-nav-item{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:9px;margin-bottom:1px;text-decoration:none;color:var(--text-secondary);font-size:13.5px;transition:background .14s,color .14s}
+    .cd-nav-item:hover{background:var(--nav-hover);color:var(--text-primary)}
+    .cd-nav-item.active{background:var(--nav-active-bg);color:var(--text-primary);font-weight:500}
+    .cd-nav-icon{width:20px;height:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .cd-nav-icon svg{width:15px;height:15px;stroke:currentColor;stroke-width:1.75;fill:none;stroke-linecap:round;stroke-linejoin:round}
+    .cd-sidebar-bottom{padding:10px 8px;border-top:.5px solid var(--border)}
+    .cd-user-card{display:flex;align-items:center;gap:10px;padding:10px;border-radius:9px;cursor:pointer;transition:background .14s}
+    .cd-user-card:hover{background:var(--nav-hover)}
+    .cd-avatar{width:32px;height:32px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:var(--surface);flex-shrink:0}
+    .cd-user-name{font-size:13px;font-weight:500}
+    .cd-user-role{font-size:11px;color:var(--text-muted);font-weight:300}
+    .cd-logout-btn{display:flex;align-items:center;gap:7px;padding:9px 10px;border-radius:9px;cursor:pointer;font-size:13px;color:var(--text-secondary);margin-top:3px;border:none;background:none;font-family:'DM Sans',sans-serif;width:100%;transition:background .14s,color .14s}
+    .cd-logout-btn:hover{background:var(--pill-red-bg);color:var(--pill-red-txt)}
+    .cd-instance-bar{display:flex;align-items:center;gap:6px;padding:8px 10px 4px}
+    .cd-instance-label{font-size:10px;font-weight:500;color:var(--text-muted);letter-spacing:.07em;text-transform:uppercase;flex:1}
+    .cd-instance-pills{display:flex;gap:4px}
+    .cd-instance-pill{font-size:11px;font-weight:500;padding:3px 10px;border-radius:6px;border:.5px solid var(--border);background:var(--input-bg);color:var(--text-secondary);cursor:pointer;transition:background .14s,color .14s,border-color .14s;font-family:'DM Sans',sans-serif}
+    .cd-instance-pill:hover{background:var(--nav-hover);color:var(--text-primary)}
+    .cd-instance-pill.active{background:var(--accent);color:var(--surface);border-color:var(--accent)}
+    .cd-main{margin-left:260px;flex:1;min-height:100vh;display:flex;flex-direction:column;min-width:0;overflow-x:hidden}
+    @media(max-width:768px){.cd-main{margin-left:0}}
+    .cd-topbar{height:58px;background:var(--surface);border-bottom:.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 20px;position:sticky;top:0;z-index:100}
+    .cd-menu-btn{display:none;background:none;border:none;cursor:pointer;color:var(--text-secondary);margin-right:12px}
+    @media(max-width:768px){.cd-menu-btn{display:flex;align-items:center;justify-content:center}}
+    .cd-topbar-left{display:flex;align-items:center;gap:10px}
+    .cd-breadcrumb{display:flex;align-items:center;gap:6px;font-size:13.5px}
+    .cd-breadcrumb a{color:var(--text-muted);text-decoration:none;transition:color .14s}
+    .cd-breadcrumb a:hover{color:var(--text-primary)}
+    .cd-breadcrumb-sep{color:var(--text-muted);font-size:12px}
+    .cd-breadcrumb-cur{color:var(--text-primary);font-weight:500}
+    .cd-topbar-right{display:flex;align-items:center;gap:8px;min-width:0;overflow:hidden}
+    .cd-icon-btn{width:34px;height:34px;border-radius:9px;border:.5px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-secondary);transition:background .14s,color .14s}
+    .cd-icon-btn:hover{background:var(--nav-hover);color:var(--text-primary)}
+    .cd-icon-btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.75;fill:none;stroke-linecap:round;stroke-linejoin:round}
+    .cd-form-content{padding:24px 28px 100px;flex:1;animation:fadeUp .35s cubic-bezier(.16,1,.3,1) both;min-width:0;max-width:100%}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+    .cd-btn{font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;padding:8px 16px;border-radius:9px;border:none;cursor:pointer;transition:background .14s,transform .1s,opacity .14s;display:inline-flex;align-items:center;gap:7px}
+    .cd-btn:active{transform:scale(.98)}
+    .cd-btn:disabled{opacity:.5;cursor:not-allowed}
+    .cd-btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+    .cd-btn-primary{background:var(--text-primary);color:var(--surface)}.cd-btn-primary:hover{opacity:.85}
+    .cd-btn-secondary{background:var(--surface);color:var(--text-primary);border:.5px solid var(--border-strong)}.cd-btn-secondary:hover{background:var(--accent-light)}
+    .cd-btn-danger{background:var(--pill-red-bg);color:var(--pill-red-txt);border:.5px solid rgba(163,45,45,.15)}.cd-btn-danger:hover{background:var(--pill-red-bg-hover)}
+    .cd-btn-green{background:var(--pill-green-bg);color:var(--pill-green-txt);border:.5px solid rgba(59,109,17,.15)}.cd-btn-green:hover:not(:disabled){background:var(--pill-green-bg-hover)}
+    .cd-section{background:var(--surface);border:.5px solid var(--border);border-radius:14px;margin-bottom:16px;overflow:visible;box-shadow:var(--shadow-sm)}
+    .cd-section-header{padding:14px 20px;border-bottom:.5px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+    .cd-sec-title{font-size:13px;font-weight:500;display:flex;align-items:center;gap:8px}
+    .cd-sec-title svg{width:14px;height:14px;stroke:var(--text-muted);fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+    .cd-section-body{padding:20px}
+    .cd-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .cd-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+    @media(max-width:900px){.cd-grid-3{grid-template-columns:1fr 1fr}}
+    @media(max-width:640px){.cd-grid,.cd-grid-3{grid-template-columns:1fr}}
+    .cd-field{display:flex;flex-direction:column;gap:5px}
+    .cd-label{font-size:11.5px;font-weight:500;color:var(--text-secondary);letter-spacing:.01em}
+    .cd-label .req,.req{color:var(--pill-red-txt);margin-left:2px}
+    .cd-input,.cd-select,.cd-textarea{font-family:'DM Sans',sans-serif;font-size:13px;background:var(--bg);border:0.5px solid var(--border-strong);border-radius:9px;padding:9px 12px;color:var(--text-primary);outline:none;transition:border-color .14s,box-shadow .14s;width:100%}
+    .cd-input:focus,.cd-select:focus,.cd-textarea:focus{border-color:var(--text-secondary);box-shadow:0 0 0 3px rgba(0,0,0,.05);background:var(--surface)}
+    .cd-input::placeholder{color:var(--text-muted)}
+    input[type="number"]{text-align:right}
+    .cd-select{cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23A8A8A2' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:30px}
+    .cd-ac{position:relative}
+    .cd-ac-list{position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--surface);border:.5px solid var(--border-strong);border-radius:10px;box-shadow:var(--shadow-md);z-index:500;max-height:220px;overflow-y:auto;display:none}
+    .cd-ac-list.open{display:block}
+    .cd-ac-list.floating{position:fixed;top:0;left:0;right:auto;z-index:950}
+    .cd-ac-item{padding:9px 12px;font-size:13px;cursor:pointer;transition:background .1s;border-bottom:.5px solid var(--border)}
+    .cd-ac-item:last-child{border-bottom:none}
+    .cd-ac-item:hover{background:var(--nav-hover)}
+    .cd-ac-item .main{font-weight:500;color:var(--text-primary)}
+    .cd-ac-item .sub{font-size:11px;color:var(--text-muted);margin-top:1px}
+    .cd-ac-empty{padding:14px 12px;font-size:12.5px;color:var(--text-muted);text-align:center}
+    .cd-items-wrap{overflow-x:auto;border-radius:10px;border:.5px solid var(--border)}
+    .cd-items-tbl{width:100%;border-collapse:collapse;min-width:560px}
+    .cd-items-tbl th{font-size:10.5px;font-weight:600;color:var(--text-muted);text-align:center;padding:9px 8px;letter-spacing:.05em;text-transform:uppercase;background:var(--bg);border-bottom:.5px solid var(--border);white-space:nowrap}
+    .cd-items-tbl td{padding:5px 4px;border-bottom:.5px solid var(--border);vertical-align:middle;text-align:center}
+    .cd-items-tbl tr:last-child td{border-bottom:none}
+    .cd-items-tbl td input{width:100%;height:28px;border:none;outline:none;padding:0 8px;font-size:12.5px;background:var(--bg);color:var(--text-primary);font-family:'DM Sans',sans-serif;border-radius:6px;transition:background .14s,box-shadow .14s;text-align:center}
+    .cd-items-tbl td input:focus{background:var(--surface);box-shadow:0 0 0 2px rgba(0,0,0,.08)}
+    .cd-items-tbl td input[data-f="emi"]{width:100px;text-align:right}
+    .inst-idx{font-size:12px;color:var(--text-muted)}
+    .inst-pay-ref{color:var(--text-secondary);font-size:12.5px;font-weight:500;text-decoration:none;white-space:nowrap}
+    .inst-pay-ref:hover{color:var(--text-primary);text-decoration:underline}
+    .cd-del-btn{width:24px;height:24px;border:none;background:none;cursor:pointer;color:var(--text-muted);display:flex;align-items:center;justify-content:center;border-radius:6px;transition:background .12s,color .12s;flex-shrink:0}
+    .cd-del-btn:hover{background:var(--pill-red-bg);color:var(--pill-red-txt)}
+    .cd-del-btn svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2}
+    .cd-add-row{display:flex;align-items:center;gap:7px;font-family:'DM Sans',sans-serif;font-size:12.5px;font-weight:500;color:var(--text-secondary);background:none;border:.5px solid var(--border-strong);cursor:pointer;padding:6px 12px;border-radius:9px;transition:background .14s,color .14s}
+    .cd-add-row:hover{background:var(--accent-light);color:var(--text-primary)}
+    .cd-add-row svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2}
+    .cd-hint{font-size:12px;color:var(--text-muted)}
+    .cd-check-row{display:flex;gap:24px;flex-wrap:wrap;margin-bottom:20px}
+    .cd-check-lbl{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px}
+    .cd-check-lbl input{width:15px;height:15px;cursor:pointer;accent-color:var(--text-primary)}
+    .cd-pill{display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:3px 9px;border-radius:100px;font-weight:500;white-space:nowrap}
+    .cd-pill.green{background:var(--pill-green-bg);color:var(--pill-green-txt)}
+    .cd-pill.red{background:var(--pill-red-bg);color:var(--pill-red-txt)}
+    .cd-pill.blue{background:var(--pill-blue-bg);color:var(--pill-blue-txt)}
+    .cd-pill.amber{background:var(--pill-amber-bg);color:var(--pill-amber-txt)}
+    .cd-pill.grey{background:var(--accent-light);color:var(--text-secondary)}
+    .inst-chk{width:14px;height:14px;cursor:pointer;vertical-align:middle}
+    .cd-payment-totals{background:var(--bg);border-radius:10px;padding:14px;margin-bottom:14px;font-size:15px;line-height:1.7}
+    .cd-payment-totals .row{display:flex;justify-content:space-between}
+    .cd-payment-row{display:grid;grid-template-columns:3fr 2fr;gap:8px;align-items:center;margin-bottom:8px}
+    .cd-payment-row.removable{grid-template-columns:3fr 2fr 30px}
+    .cd-payment-entry{margin-bottom:14px;padding-bottom:14px;border-bottom:.5px solid var(--border)}
+    .cd-payment-entry:last-of-type{border-bottom:none;margin-bottom:0;padding-bottom:0}
+    .cd-denomination-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+    .cd-denomination-grid label{display:grid;grid-template-columns:44px 1fr 80px;align-items:center;gap:6px;font-size:13px}
+    .cd-denomination-grid label strong{text-align:right}
+    .cd-denomination-grid.compact{grid-template-columns:repeat(2,1fr)}
+    .cd-cash-box{margin-top:16px;padding:14px;background:var(--bg);border-radius:8px}
+    .cd-cash-declared{display:flex;justify-content:space-between;margin-top:10px;padding:10px 12px;background:var(--surface);border:.5px solid var(--border);border-radius:8px;font-size:13.5px}
+    .cd-payment-status-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+    .cd-payment-status-grid div{background:var(--bg);border:.5px solid var(--border);border-radius:9px;padding:10px 12px}
+    .cd-payment-status-grid span{display:block;font-size:11px;font-weight:600;color:var(--text-muted);letter-spacing:.05em;text-transform:uppercase;margin-bottom:3px}
+    .cd-payment-status-grid strong{font-size:16px;font-variant-numeric:tabular-nums;display:block;text-align:right}
+    @media(max-width:520px){.cd-denomination-grid,.cd-denomination-grid.compact{grid-template-columns:1fr}.cd-payment-row{grid-template-columns:1fr}}
+    .cd-footer{position:fixed;bottom:0;left:260px;right:0;background:var(--surface);border-top:.5px solid var(--border);padding:12px 28px;display:flex;align-items:center;flex-wrap:wrap;gap:8px;z-index:90;box-shadow:0 -4px 20px rgba(0,0,0,.05)}
+    @media(max-width:768px){.cd-footer{left:0;padding:12px 16px}}
+    .cd-idialog-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:800;opacity:0;pointer-events:none;transition:opacity .22s;backdrop-filter:blur(3px)}
+    .cd-idialog-overlay.open{opacity:1;pointer-events:all}
+    .cd-idialog{position:fixed;top:50%;left:50%;transform:translate(-50%,-46%);width:560px;max-width:96vw;max-height:88vh;background:var(--surface);border-radius:16px;border:.5px solid var(--border);box-shadow:0 20px 60px rgba(0,0,0,.2);z-index:801;display:flex;flex-direction:column;opacity:0;pointer-events:none;transition:opacity .22s,transform .22s}
+    .cd-idialog.open{opacity:1;pointer-events:all;transform:translate(-50%,-50%)}
+    .cd-idialog.wide{width:640px}
+    .cd-idialog.xwide{width:900px}
+    .cd-idialog-header{padding:18px 24px 14px;border-bottom:.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+    .cd-idialog-title{font-size:15px;font-weight:600}
+    .cd-idialog-close{width:28px;height:28px;border-radius:7px;border:.5px solid var(--border);background:var(--bg);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-secondary);font-size:20px;line-height:1}
+    .cd-idialog-close:hover{background:var(--pill-red-bg);color:var(--pill-red-txt)}
+    .cd-idialog-body{flex:1;overflow-y:auto;padding:20px 24px}
+    .cd-idialog-footer{padding:14px 24px;border-top:.5px solid var(--border);display:flex;gap:8px;justify-content:flex-end;flex-shrink:0}
+    .cd-dsec{font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;margin-top:18px}
+    .cd-dsec:first-child{margin-top:0}
+    .cd-toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--text-primary);color:var(--surface);padding:11px 20px;border-radius:10px;font-size:13px;font-weight:500;box-shadow:var(--shadow-md);z-index:900;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;white-space:nowrap}
+</style>
+
+<div class="cd-app" id="cdApp">
+  <nav class="cd-sidebar" id="cdSidebar">
+    <a class="cd-sidebar-logo" href="/caratdesk">
+      <img src="https://i.postimg.cc/NMgHCKvC/letter-cc-cd-diamond-initial-600nw-2206465849.png" alt="CaratDesk"/>
+      <div><div class="cd-logo-name">PPJ Retail</div><div class="cd-logo-sub">Jewellery POS</div></div>
+    </a>
+    <div class="cd-nav">
+      <div class="cd-nav-section">Main</div>
+      <a href="/caratdesk" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>Dashboard</a>
+      <div class="cd-nav-section">Operations</div>
+      <a href="/caratdesk-pos" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>POS Billing</a>
+      <a href="/caratdesk-selling" class="cd-nav-item active"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg></span>Selling</a>
+      <a href="/caratdesk-buying" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></span>Buying</a>
+      <a href="/caratdesk-stock" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg></span>Stock</a>
+      <a href="/caratdesk-items" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></span>Items</a>
+      <div class="cd-nav-section">Finance</div>
+      <a href="/caratdesk-finance" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></span>Finance</a>
+      <a href="/caratdesk-accounts" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg></span>Accounts</a>
+      <a href="/caratdesk-reports" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>Reports</a>
+      <div class="cd-nav-section">System</div>
+      <a href="/caratdesk-settings" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M12 2v2M12 20v2M2 12h2M20 12h2M4.93 19.07l1.41-1.41M19.07 19.07l-1.41-1.41"/></svg></span>Settings</a>
+    </div>
+    <div class="cd-sidebar-bottom">
+      <div class="cd-instance-bar" id="cdInstanceBar" style="display:none">
+        <span class="cd-instance-label">Instance</span>
+        <div class="cd-instance-pills">
+          <button class="cd-instance-pill" id="cdInstPP" onclick="cdSwitchInstance('PP')">PP</button>
+          <button class="cd-instance-pill" id="cdInstPC" onclick="cdSwitchInstance('PC')">PC</button>
+        </div>
+      </div>
+      <div class="cd-user-card"><div class="cd-avatar" id="cdAvatar">-</div><div><div class="cd-user-name" id="cdUserName">Loading…</div><div class="cd-user-role" id="cdUserRole">POS Manager</div></div></div>
+      <button class="cd-logout-btn" id="cdLogoutBtn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign out</button>
+    </div>
+  </nav>
+
+  <div class="cd-main">
+    <div class="cd-topbar">
+      <div class="cd-topbar-left">
+        <button class="cd-menu-btn" id="cdMenuToggle"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+        <div class="cd-breadcrumb">
+          <a href="/caratdesk-selling">Selling</a><span class="cd-breadcrumb-sep">&rsaquo;</span>
+          <a href="/caratdesk-jewellery-scheme">Jewellery Scheme Assignments</a><span class="cd-breadcrumb-sep">&rsaquo;</span>
+          <span class="cd-breadcrumb-cur" id="pageTitleCur">New Assignment</span>
+          <span id="assignDrawerStatus" style="margin-left:6px"></span>
+        </div>
+      </div>
+      <div class="cd-topbar-right">
+        <div class="cd-icon-btn" id="cdThemeToggle"><svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div>
+      </div>
+    </div>
+
+    <div class="cd-form-content">
+
+      <!-- SECTION 1: Assignment Details -->
+      <div class="cd-section">
+        <div class="cd-section-header">
+          <div class="cd-sec-title"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Assignment Details</div>
+        </div>
+        <div class="cd-section-body">
+          <div class="cd-grid" style="margin-bottom:16px">
+            <div class="cd-field">
+              <label class="cd-label">Customer <span class="req">*</span></label>
+              <div class="cd-ac">
+                <input class="cd-input" id="assignCustomer" placeholder="Type customer name..." autocomplete="off"
+                  oninput="acAssignCustomer(this.value)" onfocus="acAssignCustomer(this.value)"/>
+                <div class="cd-ac-list" id="ac-assign-customer"></div>
+              </div>
+              <button type="button" class="cd-add-row" id="newCustomerBtn" style="margin-top:6px" onclick="openNewCustomerDialog()">+ New Customer</button>
+            </div>
+            <div class="cd-field">
+              <label class="cd-label">Scheme <span class="req">*</span></label>
+              <div class="cd-ac">
+                <input class="cd-input" id="assignScheme" placeholder="Type scheme name..." autocomplete="off"
+                  oninput="acAssignScheme(this.value)" onfocus="acAssignScheme(this.value)"/>
+                <div class="cd-ac-list" id="ac-assign-scheme"></div>
+              </div>
+              <button type="button" class="cd-add-row" id="assignSalesTeamBtn" style="margin-top:6px;display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%" onclick="openSalesTeamDialog()">
+                <span id="assignSalesTeamSummary">Select sales team</span>
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="cd-grid" style="margin-bottom:16px">
+            <div class="cd-field" id="assignMetalTouchField" style="display:none">
+              <label class="cd-label">Metal Touch</label>
+              <select class="cd-select" id="assignMetalTouch">
+                <option value="">Select…</option>
+              </select>
+            </div>
+            <div class="cd-field">
+              <label class="cd-label">Branch</label>
+              <select class="cd-select" id="assignBranch">
+                <option value="">- Select Branch -</option>
+              </select>
+            </div>
+          </div>
+          <div class="cd-grid-3">
+            <div class="cd-field"><label class="cd-label">EMI Amount <span class="req">*</span></label><input class="cd-input" type="number" min="0" step="0.01" id="assignEmi" placeholder="0" style="text-align:right"/></div>
+            <div class="cd-field"><label class="cd-label">Start Date <span class="req">*</span></label><input class="cd-input" type="date" id="assignDate"/></div>
+            <div class="cd-field"><label class="cd-label">End Date</label><input class="cd-input" type="date" id="assignEndDate" disabled/></div>
+          </div>
+          <input type="hidden" id="assignSchemeName"/>
+        </div>
+      </div>
+
+      <!-- SECTION 2: Installment / Payment Log -->
+      <div class="cd-section">
+        <div class="cd-section-header">
+          <div class="cd-sec-title"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>Installment / Payment Log</div>
+        </div>
+        <div class="cd-section-body">
+          <div style="display:flex;gap:20px;align-items:flex-start">
+            <!-- LEFT: installment schedule -->
+            <div style="flex:7;min-width:0">
+              <div class="cd-items-wrap">
+                <table class="cd-items-tbl">
+                  <thead><tr><th style="width:20px"><input type="checkbox" id="instSelectAll" class="inst-chk" onchange="toggleAllInstallRows(this.checked)"/></th><th style="width:36px">Idx</th><th>Due Date</th><th style="text-align:right">EMI Amount <span class="req">*</span></th><th>Status</th><th>Payment Date</th><th>Payment Ref</th><th>Extended Due Date <span class="req">*</span></th><th style="width:36px"></th></tr></thead>
+                  <tbody id="instTbody"></tbody>
+                </table>
+              </div>
+              <div class="cd-hint" style="margin-top:6px">Only saved, unpaid installment rows can be selected for payment — save the assignment first if you just added rows.</div>
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;flex-wrap:wrap;gap:10px">
+                <button class="cd-add-row" id="addPaymentBtn" onclick="addInstallRowWithNextDate()">+ Add Payment</button>
+                <div style="font-size:13.5px;color:var(--text-secondary)">Total: <strong id="instTotal" style="font-size:16px;font-weight:700;color:var(--text-primary)">₹0</strong></div>
+              </div>
+            </div>
+
+            <!-- RIGHT: Payment panel -->
+            <div id="paymentPanel" style="flex:3;min-width:0;position:sticky;top:74px;background:var(--bg);border:.5px solid var(--border);border-radius:12px;padding:16px;max-height:calc(100vh - 190px);display:flex;flex-direction:column">
+              <div style="font-size:15px;font-weight:600;margin-bottom:10px;flex-shrink:0">Payment/Collection</div>
+              <div class="cd-payment-totals" style="flex-shrink:0">
+                <div class="row"><span>Amount to Collect</span><span id="paySettleTotal">₹0</span></div>
+              </div>
+              <label class="cd-label" style="flex-shrink:0">Payment mode(s)</label>
+              <div id="paySettleRowsWrap" style="flex:1;min-height:0;overflow-y:auto;margin-top:6px"></div>
+              <button class="cd-add-row" id="paySettleAddRowBtn" onclick="addPaySettleRow()" style="flex-shrink:0">+ Add Payment Mode</button>
+              <div class="cd-payment-status-grid" style="flex-shrink:0">
+                <div><span>Amount Tendered</span><strong id="paySettleReceived">₹0</strong></div>
+                <div><span>Balance Amount</span><strong id="paySettleDue">₹0</strong></div>
+                <div><span>Change Amount</span><strong id="paySettleChange">₹0</strong></div>
+              </div>
+              <div style="display:flex;gap:8px;margin-top:14px;flex-shrink:0">
+                <button class="cd-btn cd-btn-primary" id="paySettleSaveBtn" style="flex:1;justify-content:center" disabled onclick="savePaySettle()">Save Payment</button>
+                <button class="cd-btn cd-btn-green" id="paySettleSubmitBtn" style="flex:1;justify-content:center" disabled onclick="submitPaySettle()">Submit Payment</button>
+              </div>
+              <div class="cd-hint" id="paySettleHint" style="margin-top:8px;flex-shrink:0">Select at least one unpaid installment row above to collect a payment.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="cd-footer">
+      <div style="position:relative;display:inline-block;margin-right:auto">
+        <button class="cd-btn cd-btn-secondary" id="printAssignBtn" style="display:none" onclick="togglePrintAssignMenu(event)">
+          <svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Print<svg viewBox="0 0 24 24" style="width:11px;height:11px;margin-left:2px"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div id="printAssignMenu" style="display:none;position:absolute;left:0;bottom:calc(100% + 6px);background:var(--surface);border:.5px solid var(--border-strong);border-radius:10px;box-shadow:var(--shadow-md);min-width:170px;z-index:500;overflow:hidden;padding:4px">
+          <button onclick="printAssignmentDoc('voucher')" style="width:100%;padding:9px 12px;border:none;background:none;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text-primary);cursor:pointer;border-radius:7px;text-align:left" onmouseover="this.style.background='var(--nav-hover)'" onmouseout="this.style.background='none'">Voucher Print</button>
+          <button onclick="printAssignmentDoc('passbook')" style="width:100%;padding:9px 12px;border:none;background:none;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text-primary);cursor:pointer;border-radius:7px;text-align:left" onmouseover="this.style.background='var(--nav-hover)'" onmouseout="this.style.background='none'">Passbook Print</button>
+        </div>
+      </div>
+      <button class="cd-btn cd-btn-secondary" id="openErpnextBtn" style="display:none" onclick="openAssignmentInErpnext()">
+        <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Open in ERPNext
+      </button>
+      <button class="cd-btn cd-btn-primary" id="saveAssignBtn" style="min-width:110px;justify-content:center" onclick="saveAssignment()">Save Assignment</button>
+      <button class="cd-btn cd-btn-green" id="submitAssignBtn" style="display:none" onclick="submitAssignment()">Submit</button>
+      <button class="cd-btn cd-btn-danger" id="forceCloseBtn" style="display:none" onclick="forceCloseAssignment()">Force Close</button>
+      <button class="cd-btn cd-btn-danger" id="assignDeleteBtn" style="display:none" onclick="deleteAssignment(window.currentAssignName)">Delete</button>
+      <button class="cd-btn cd-btn-secondary" id="assignCancelBtn" style="min-width:110px;justify-content:center" onclick="navigateBack()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- New Customer Dialog (matches POS Billing's New Customer modal) -->
+<div class="cd-idialog-overlay" id="newCustOverlay" onclick="closeNewCustomerDialog()"></div>
+<div class="cd-idialog xwide" id="newCustDialog" role="dialog" aria-modal="true">
+  <div class="cd-idialog-header">
+    <span class="cd-idialog-title">New Customer</span>
+    <div class="cd-idialog-close" onclick="closeNewCustomerDialog()">&times;</div>
+  </div>
+  <div class="cd-idialog-body">
+    <div class="cd-dsec">Primary Contact Details</div>
+    <div class="cd-field">
+      <label class="cd-label">Customer Image</label>
+      <div style="display:flex;align-items:center;gap:12px">
+        <button type="button" onclick="document.getElementById('newCustImageInput').click()" title="Click to upload photo"
+          style="width:48px;height:48px;border-radius:50%;flex-shrink:0;padding:0;border:.5px solid var(--border-strong);cursor:pointer;overflow:hidden;background:var(--accent-light);display:flex;align-items:center;justify-content:center">
+          <img id="newCustImagePreview" style="display:none;width:100%;height:100%;object-fit:cover"/>
+          <svg id="newCustImagePlaceholder" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="var(--text-muted)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        </button>
+        <input type="file" id="newCustImageInput" accept="image/*" hidden onchange="onNewCustImageChange(event)"/>
+        <span style="font-size:12.5px;color:var(--text-muted)">Click the circle to upload a photo</span>
+      </div>
+    </div>
+    <div style="display:flex;gap:16px;margin:16px 0">
+      <div class="cd-field" style="flex:0 0 84px;margin-bottom:0">
+        <label class="cd-label">Salutation</label>
+        <select class="cd-select" id="newCustSalutation">
+          <option value=""></option>
+          <option>Mr</option><option>Mrs</option><option>Ms</option><option>Miss</option><option>Dr</option><option>Prof</option><option>Madam</option><option>Master</option>
+        </select>
+      </div>
+      <div class="cd-field" style="flex:1;margin-bottom:0">
+        <label class="cd-label">First Name <span class="req">*</span></label>
+        <input class="cd-input" id="newCustFirstName" placeholder="First name"/>
+      </div>
+      <div class="cd-field" style="flex:1;margin-bottom:0">
+        <label class="cd-label">Last Name</label>
+        <input class="cd-input" id="newCustLastName" placeholder="Last name"/>
+      </div>
+    </div>
+    <div class="cd-grid-3" style="margin-bottom:16px">
+      <div class="cd-field"><label class="cd-label">Email ID</label><input class="cd-input" type="email" id="newCustEmail" placeholder="name@example.com"/></div>
+      <div class="cd-field"><label class="cd-label">Mobile Number <span class="req">*</span></label><input class="cd-input" id="newCustMobile" maxlength="10" placeholder="10-digit mobile"/></div>
+      <div class="cd-field"><label class="cd-label">GST Number</label><input class="cd-input" id="newCustGstin"/></div>
+    </div>
+    <div class="cd-grid" style="margin-bottom:16px">
+      <div class="cd-field"><label class="cd-label">PAN No</label><input class="cd-input" id="newCustPan" placeholder="ABCDE1234F"/></div>
+      <div class="cd-field"><label class="cd-label">Aadhaar No</label><input class="cd-input" id="newCustAadhaar" placeholder="12-digit Aadhaar"/></div>
+    </div>
+    <div class="cd-grid" style="margin-bottom:16px">
+      <div class="cd-field"><label class="cd-label">Date of Birth</label><input class="cd-input" type="date" id="newCustDob"/></div>
+      <div class="cd-field"><label class="cd-label">Date of Anniversary</label><input class="cd-input" type="date" id="newCustAnniversary"/></div>
+    </div>
+
+    <div class="cd-dsec">Primary Address Details</div>
+    <div class="cd-grid" style="margin-bottom:16px">
+      <label class="cd-check-lbl"><input type="checkbox" id="newCustIsPrimary" checked/>Preferred Billing Address</label>
+      <label class="cd-check-lbl"><input type="checkbox" id="newCustIsShipping"/>Preferred Shipping Address</label>
+    </div>
+    <div class="cd-grid" style="margin-bottom:16px">
+      <div class="cd-field"><label class="cd-label">Address Line 1</label><input class="cd-input" id="newCustAddr1"/></div>
+      <div class="cd-field"><label class="cd-label">Address Line 2</label><input class="cd-input" id="newCustAddr2"/></div>
+    </div>
+    <div class="cd-grid-3" style="grid-template-columns:1fr 1fr 1fr 1fr;display:grid;gap:16px">
+      <div class="cd-field"><label class="cd-label">Postal Code</label><input class="cd-input" id="newCustPincode"/></div>
+      <div class="cd-field"><label class="cd-label">City/Town</label><input class="cd-input" id="newCustCity"/></div>
+      <div class="cd-field"><label class="cd-label">State/Province</label><input class="cd-input" id="newCustState"/></div>
+      <div class="cd-field">
+        <label class="cd-label">Country</label>
+        <div class="cd-ac">
+          <input class="cd-input" id="newCustCountry" value="India" autocomplete="off"
+            oninput="acNewCustCountry(this.value); toggleNewCustPassportField()" onfocus="acNewCustCountry(this.value)"/>
+          <div class="cd-ac-list" id="ac-newcust-country"></div>
+        </div>
+      </div>
+    </div>
+    <div class="cd-grid" id="newCustPassportWrap" style="display:none;margin-top:16px">
+      <div class="cd-field"><label class="cd-label">Passport Number <span class="req">*</span></label><input class="cd-input" id="newCustPassport" placeholder="Passport number"/></div>
+    </div>
+  </div>
+  <div class="cd-idialog-footer">
+    <button type="button" class="cd-btn cd-btn-secondary" id="newCustCancelBtn" onclick="closeNewCustomerDialog()">Cancel</button>
+    <button type="button" class="cd-btn cd-btn-primary" id="newCustSaveBtn" onclick="saveNewCustomer()">Save Customer</button>
+  </div>
+</div>
+
+<!-- Sales Team Dialog (matches POS Billing's Select Sales Team modal) -->
+<div class="cd-idialog-overlay" id="salesTeamOverlay" onclick="closeSalesTeamDialog()"></div>
+<div class="cd-idialog wide" id="salesTeamDialog" role="dialog" aria-modal="true">
+  <div class="cd-idialog-header">
+    <span class="cd-idialog-title">Select Sales Team</span>
+    <div class="cd-idialog-close" onclick="closeSalesTeamDialog()">&times;</div>
+  </div>
+  <div class="cd-idialog-body" id="salesTeamDialogBody">
+    <div class="cd-items-wrap">
+      <table class="cd-items-tbl">
+        <thead><tr><th>Sales Person</th><th style="text-align:right">Contribution %</th><th style="text-align:right">Amount</th><th style="width:36px"></th></tr></thead>
+        <tbody id="salesTeamTbody"></tbody>
+      </table>
+    </div>
+    <button type="button" class="cd-add-row" id="salesTeamAddRowBtn" style="margin-top:10px" onclick="addSalesTeamRow()">+ Add Sales Person</button>
+  </div>
+  <div class="cd-idialog-footer">
+    <button type="button" class="cd-btn cd-btn-secondary" onclick="closeSalesTeamDialog()">Cancel</button>
+    <button type="button" class="cd-btn cd-btn-primary" id="salesTeamDoneBtn" onclick="saveSalesTeamDialog()">Done</button>
+  </div>
+</div>
+
+<script>
+// ══ INSTANCE HELPERS ══
+const DEV1 = 'https://ppj-dev1.m.frappe.cloud';
+const DEV2 = 'https://ppj-dev2.m.frappe.cloud';
+const COMPANY = 'P.P. Jewellers Retail Pvt. Ltd.';
+function cdGetActiveInstance(){ return localStorage.getItem('cd_active_instance')||'PP'; }
+function cdGetAvailableInstances(){ return (localStorage.getItem('cd_available_instances')||'PP').split(',').filter(Boolean); }
+function cdGetInstanceUrl(inst){ return (inst||cdGetActiveInstance())==='PC'?DEV2:DEV1; }
+function cdGetInstanceHeaders(inst){
+  const i=inst||cdGetActiveInstance();
+  const key=i==='PC'?localStorage.getItem('cd_pc_key'):localStorage.getItem('cd_pp_key');
+  const sec=i==='PC'?localStorage.getItem('cd_pc_secret'):localStorage.getItem('cd_pp_secret');
+  if(!key||!sec) return null;
+  return{'Authorization':`token ${key}:${sec}`,'Content-Type':'application/json','Accept':'application/json'};
+}
+function cdSwitchInstance(inst){
+  const available=cdGetAvailableInstances();
+  if(!available.includes(inst)) return;
+  const key=inst==='PC'?localStorage.getItem('cd_pc_key'):localStorage.getItem('cd_pp_key');
+  const sec=inst==='PC'?localStorage.getItem('cd_pc_secret'):localStorage.getItem('cd_pp_secret');
+  localStorage.setItem('cd_active_instance',inst);
+  localStorage.setItem('cd_api_key',key);
+  localStorage.setItem('cd_api_secret',sec);
+  window.location.href='/caratdesk-jewellery-scheme';
+}
+function cdInitInstanceToggle(){
+  const available=cdGetAvailableInstances();
+  const active=cdGetActiveInstance();
+  const bar=document.getElementById('cdInstanceBar');
+  if(!bar) return;
+  if(available.length<2){ bar.style.display='none'; return; }
+  bar.style.display='flex';
+  ['PP','PC'].forEach(inst=>{
+    const btn=document.getElementById('cdInst'+inst);
+    if(!btn) return;
+    btn.classList.toggle('active',inst===active);
+    btn.style.display=available.includes(inst)?'':'none';
+  });
+  const roleEl=document.getElementById('cdUserRole');
+  if(roleEl) roleEl.textContent='Active: '+active;
+}
+async function dev1Get(path){
+  const h=cdGetInstanceHeaders();
+  if(!h) throw new Error('No auth');
+  const res=await fetch(cdGetInstanceUrl()+path,{headers:h});
+  if(!res.ok) throw new Error('HTTP '+res.status);
+  return res.json();
+}
+async function dev1Post(path,body){
+  const h=cdGetInstanceHeaders();
+  if(!h) throw new Error('No auth');
+  const res=await fetch(cdGetInstanceUrl()+path,{method:'POST',headers:h,body:JSON.stringify(body)});
+  if(!res.ok){ const t=await res.text(); throw new Error(t||'HTTP '+res.status); }
+  return res.json();
+}
+async function dev1Put(path,body){
+  const h=cdGetInstanceHeaders();
+  if(!h) throw new Error('No auth');
+  const res=await fetch(cdGetInstanceUrl()+path,{method:'PUT',headers:h,body:JSON.stringify(body)});
+  if(!res.ok){ const t=await res.text(); throw new Error(t||'HTTP '+res.status); }
+  return res.json();
+}
+async function dev1Delete(path){
+  const h=cdGetInstanceHeaders();
+  if(!h) throw new Error('No auth');
+  const res=await fetch(cdGetInstanceUrl()+path,{method:'DELETE',headers:h});
+  if(!res.ok){ const t=await res.text(); throw new Error(t||'HTTP '+res.status); }
+  return res.json();
+}
+async function dev1PostForm(path, formData){
+  const h=cdGetInstanceHeaders();
+  if(!h) throw new Error('No auth');
+  const res=await fetch(cdGetInstanceUrl()+path,{method:'POST',headers:{'Authorization':h['Authorization'],'Accept':'application/json'},body:formData});
+  if(!res.ok){ const t=await res.text(); throw new Error(t||'HTTP '+res.status); }
+  return res.json();
+}
+
+// ── HELPERS ──
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function fmt(n){ return '₹'+(parseFloat(n||0)).toLocaleString('en-IN',{minimumFractionDigits:0,maximumFractionDigits:2}); }
+function showToast(msg,type='info'){
+  let t=document.getElementById('cdToast');
+  if(!t){ t=document.createElement('div'); t.id='cdToast'; t.className='cd-toast'; document.body.appendChild(t); }
+  if(!msg){ t.style.opacity='0'; return; }
+  t.textContent=msg;
+  if(type==='success') t.style.background='#2D6A4F';
+  else if(type==='error') t.style.background='#A32D2D';
+  else t.style.background='#1A4A8A';
+  t.style.opacity='1'; t.style.transform='translateX(-50%) translateY(0)';
+  clearTimeout(t._t); t._t=setTimeout(()=>{ t.style.opacity='0'; t.style.transform='translateX(-50%) translateY(20px)'; },3000);
+}
+
+// ── STATE ──
+let CUSTOMERS = [];
+let SCHEMES = [];
+let BRANCHES = [];
+let COUNTRIES = [];
+let GOLD_PURITY_OPTIONS=[];
+let SALES_PERSONS = [];
+let assignSalesTeam = []; // [{salesPerson, percentage}]
+let salesTeamRowCount = 0;
+let instRowCount = 0;
+window.currentAssignName = null;
+let currentAssignStatus = '';
+let currentAssignDocstatus = 0;
+let assignmentLocked = false;
+function isAssignActive(status){ return String(status||'').trim().toLowerCase()==='active'; }
+function canTransact(){ return currentAssignDocstatus===1 && isAssignActive(currentAssignStatus); }
+function assignDisplayStatus(status, docstatus){
+  if(docstatus===2) return 'Cancelled';
+  if(docstatus===0) return 'Draft';
+  return status || 'Active';
+}
+function assignStatusPill(status){
+  const s=(status||'').trim();
+  if(!s) return '';
+  const low=s.toLowerCase();
+  const cls = low==='active' ? 'green' : low==='closed' ? 'grey' : low==='cancelled' ? 'red' : low==='draft' ? 'amber' : 'blue';
+  return `<span class="cd-pill ${cls}">${esc(s)}</span>`;
+}
+
+async function loadCountries(){
+  try{
+    const res=await dev1Get(`/api/resource/Country?fields=${encodeURIComponent(JSON.stringify(["name"]))}&limit_page_length=0&order_by=name%20asc`);
+    COUNTRIES=(res.data||res.message||[]).map(c=>c.name).filter(Boolean);
+  }catch(e){
+    console.warn('Load countries error:', e.message);
+  }
+}
+function acNewCustCountry(val){
+  const list=document.getElementById('ac-newcust-country');
+  const q=(val||'').toLowerCase();
+  const results=COUNTRIES.filter(c=>c.toLowerCase().includes(q)).slice(0,20);
+  list.innerHTML = results.length? results.map(c=>`<div class="cd-ac-item" onclick="selNewCustCountry('${esc(c)}')"><div class="main">${esc(c)}</div></div>`).join('') : `<div class="cd-ac-empty">No country found</div>`;
+  list.classList.add('open');
+}
+function selNewCustCountry(name){
+  document.getElementById('newCustCountry').value=name;
+  document.getElementById('ac-newcust-country').classList.remove('open');
+  toggleNewCustPassportField();
+}
+document.addEventListener('click', e=>{
+  if(!e.target.closest('#ac-newcust-country') && !e.target.closest('#newCustCountry')) document.getElementById('ac-newcust-country')?.classList.remove('open');
+});
+
+// ── SCHEME / METAL TOUCH / BRANCH LOADERS ──
+async function loadGoldPurityOptions(){
+  try{
+    const res=await dev1Get('/api/resource/Item%20Attribute/Gold%20Purity');
+    const doc=res.data||res.message||res;
+    GOLD_PURITY_OPTIONS=(doc.item_attribute_values||[]).map(d=>d.attribute_value).filter(Boolean);
+  }catch(e){
+    console.warn('Load Gold Purity options failed:', e.message);
+    GOLD_PURITY_OPTIONS=[];
+  }
+  const sel=document.getElementById('assignMetalTouch');
+  if(sel){
+    const current=sel.value;
+    sel.innerHTML = '<option value="">Select…</option>' + GOLD_PURITY_OPTIONS.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join('');
+    sel.value = current;
+  }
+}
+async function loadBranches(){
+  try{
+    const res = await dev1Get('/api/resource/Branch?fields=["name"]&limit_page_length=100');
+    BRANCHES = (res.data||res.message||[]).map(b=>b.name).filter(Boolean);
+  }catch(e){ console.warn('Load branches error:', e.message); BRANCHES=[]; }
+  const sel = document.getElementById('assignBranch');
+  if(sel){
+    const current = sel.value;
+    sel.innerHTML = '<option value="">- Select Branch -</option>' + BRANCHES.map(b=>`<option value="${esc(b)}">${esc(b)}</option>`).join('');
+    sel.value = current;
+  }
+}
+async function loadSchemes(){
+  try{
+    const h=cdGetInstanceHeaders();
+    if(!h){ window.location.replace('/caratdesk-login?logout=1'); return; }
+    const fields=["name","scheme_name","valid_from","is_disable","is_scheme_tranferable","no_of_emi","minimun_emi","maximum_emi","emi_multiple_off","accumulate_gold"];
+    const res=await dev1Get(`/api/resource/Jewellery%20Scheme?fields=${encodeURIComponent(JSON.stringify(fields))}&limit_page_length=0&order_by=modified%20desc`);
+    SCHEMES=(res.data||res.message||[]).map(s=>({
+      name:s.name, display:s.scheme_name||s.name,
+      valid_from:s.valid_from, is_disable:s.is_disable, is_scheme_tranferable:s.is_scheme_tranferable,
+      no_of_emi:s.no_of_emi, minimun_emi:s.minimun_emi, maximum_emi:s.maximum_emi, emi_multiple_off:s.emi_multiple_off,
+      accumulate_gold:s.accumulate_gold,
+    }));
+  }catch(e){
+    console.error('Load schemes error:',e);
+  }
+}
+
+// ── ASSIGNMENT: SALES TEAM (matches POS Billing's Sales Team dialog) ──
+const salesTeamAcFloat = document.createElement('div');
+salesTeamAcFloat.className = 'cd-ac-list floating';
+salesTeamAcFloat.id = 'salesTeamAcFloat';
+document.body.appendChild(salesTeamAcFloat);
+document.addEventListener('click', e=>{
+  if(!e.target.closest('#salesTeamAcFloat') && !e.target.closest('#salesTeamTbody [data-f="name"]')) salesTeamAcFloat.classList.remove('open');
+});
+document.getElementById('salesTeamDialogBody').addEventListener('scroll', ()=>salesTeamAcFloat.classList.remove('open'));
+
+async function loadSalesPersons(){
+  try{
+    const fields=["name","commission_rate"];
+    const filters=[["enabled","=",1],["is_group","=",0]];
+    const res=await dev1Get(`/api/resource/Sales%20Person?fields=${encodeURIComponent(JSON.stringify(fields))}&filters=${encodeURIComponent(JSON.stringify(filters))}&limit_page_length=0&order_by=name%20asc`);
+    SALES_PERSONS=(res.data||res.message||[]).filter(s=>s.name).map(s=>({name:s.name, commissionRate:Number(s.commission_rate)||0}));
+  }catch(e){ console.warn('Load sales persons error:', e.message); SALES_PERSONS=[]; }
+}
+function updateAssignSalesTeamSummary(){
+  const el=document.getElementById('assignSalesTeamSummary');
+  if(!el) return;
+  el.textContent = assignSalesTeam.length
+    ? `${assignSalesTeam[0].salesPerson}${assignSalesTeam.length>1?` +${assignSalesTeam.length-1} more`:''}`
+    : 'Select sales team';
+}
+function openSalesTeamDialog(){
+  // Locked assignments still need to be viewable — read-only here means the rows render
+  // disabled and Add/Done are hidden, not that the dialog refuses to open.
+  if(assignmentLocked && !assignSalesTeam.length) return;
+  document.getElementById('salesTeamTbody').innerHTML='';
+  salesTeamRowCount=0;
+  if(assignSalesTeam.length) assignSalesTeam.forEach(r=>addSalesTeamRow(r));
+  else addSalesTeamRow();
+  document.getElementById('salesTeamAddRowBtn').style.display = assignmentLocked? 'none':'';
+  document.getElementById('salesTeamDoneBtn').style.display = assignmentLocked? 'none':'';
+  document.getElementById('salesTeamOverlay').classList.add('open');
+  document.getElementById('salesTeamDialog').classList.add('open');
+}
+function closeSalesTeamDialog(){
+  document.getElementById('salesTeamOverlay').classList.remove('open');
+  document.getElementById('salesTeamDialog').classList.remove('open');
+  salesTeamAcFloat.classList.remove('open');
+}
+function addSalesTeamRow(d={}){
+  salesTeamRowCount++;
+  const id='stm-'+salesTeamRowCount;
+  const tr=document.createElement('tr'); tr.id=id;
+  const ro=assignmentLocked;
+  const dis=ro?'disabled':'';
+  tr.innerHTML=`
+    <td>
+      <input class="cd-input" data-f="name" placeholder="Type sales person..." autocomplete="off" value="${esc(d.salesPerson||'')}" ${dis}
+        oninput="acSalesTeamRow('${id}',this.value)" onfocus="acSalesTeamRow('${id}',this.value)"/>
+    </td>
+    <td style="text-align:right"><input class="cd-input" type="number" min="0" max="100" step="0.01" data-f="pct" value="${d.percentage??''}" placeholder="0" style="text-align:right" ${dis} oninput="updateSalesTeamAmount('${id}')"/></td>
+    <td style="text-align:right" data-f="amt">₹0</td>
+    <td>${ro?'':`<button type="button" class="cd-del-btn" onclick="delSalesTeamRow('${id}')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>`}</td>
+  `;
+  document.getElementById('salesTeamTbody').appendChild(tr);
+  updateSalesTeamAmount(id);
+}
+function delSalesTeamRow(id){ document.getElementById(id)?.remove(); salesTeamAcFloat.classList.remove('open'); }
+function acSalesTeamRow(id,val){
+  const input=document.querySelector(`#${id} [data-f="name"]`);
+  const q=(val||'').toLowerCase();
+  const chosen=new Set([...document.querySelectorAll('#salesTeamTbody tr')].filter(tr=>tr.id!==id).map(tr=>tr.querySelector('[data-f="name"]')?.value).filter(Boolean));
+  const results=SALES_PERSONS.filter(s=>s.name.toLowerCase().includes(q) && !chosen.has(s.name)).slice(0,20);
+  salesTeamAcFloat.innerHTML = results.length? results.map(s=>`<div class="cd-ac-item" onclick="selSalesTeamRow('${id}','${esc(s.name)}',${s.commissionRate})"><div class="main">${esc(s.name)}</div></div>`).join('') : `<div class="cd-ac-empty">No sales person found</div>`;
+  const rect=input.getBoundingClientRect();
+  salesTeamAcFloat.style.top=(rect.bottom+4)+'px';
+  salesTeamAcFloat.style.left=rect.left+'px';
+  salesTeamAcFloat.style.width=rect.width+'px';
+  salesTeamAcFloat.classList.add('open');
+}
+function selSalesTeamRow(id,name,commissionRate){
+  const tr=document.getElementById(id);
+  tr.querySelector('[data-f="name"]').value=name;
+  const pctInput=tr.querySelector('[data-f="pct"]');
+  if(!pctInput.value) pctInput.value=commissionRate||'';
+  salesTeamAcFloat.classList.remove('open');
+  updateSalesTeamAmount(id);
+}
+function updateSalesTeamAmount(id){
+  const tr=document.getElementById(id);
+  const pct=parseFloat(tr.querySelector('[data-f="pct"]')?.value||0)||0;
+  const base=parseFloat(document.getElementById('assignEmi').value||0)||0;
+  tr.querySelector('[data-f="amt"]').textContent=fmt((pct/100)*base);
+}
+function saveSalesTeamDialog(){
+  if(assignmentLocked) return;
+  const rows=[...document.querySelectorAll('#salesTeamTbody tr')];
+  const list=[];
+  for(const tr of rows){
+    const name=tr.querySelector('[data-f="name"]')?.value.trim();
+    const pct=parseFloat(tr.querySelector('[data-f="pct"]')?.value||0)||0;
+    if(name) list.push({salesPerson:name, percentage:pct});
+  }
+  assignSalesTeam=list;
+  updateAssignSalesTeamSummary();
+  closeSalesTeamDialog();
+}
+
+// ── ASSIGNMENT: INSTALLMENT ROWS ──
+function computeInstallStatus(status, date){
+  if(String(status||'').toLowerCase()==='paid') return 'Paid';
+  if(date && date < new Date().toISOString().slice(0,10)) return 'Overdue';
+  return status||'Unpaid';
+}
+function installStatusPill(status){
+  const cls = status==='Paid' ? 'green' : status==='Overdue' ? 'amber' : 'red';
+  return `<span class="cd-pill ${cls}" style="white-space:nowrap">${esc(status)}</span>`;
+}
+function toISODate(d){ return d.toLocaleDateString('en-CA'); }
+function addMonths(dateStr, n){
+  if(!dateStr) return '';
+  const d=new Date(dateStr+'T00:00:00');
+  const day=d.getDate();
+  d.setDate(1);
+  d.setMonth(d.getMonth()+n);
+  const lastDay=new Date(d.getFullYear(), d.getMonth()+1, 0).getDate();
+  d.setDate(Math.min(day, lastDay));
+  return toISODate(d);
+}
+function lastDayOfMonth(dateStr){
+  if(!dateStr) return '';
+  const d=new Date(dateStr+'T00:00:00');
+  return toISODate(new Date(d.getFullYear(), d.getMonth()+1, 0));
+}
+function addInstallRowWithNextDate(){
+  const startDate=document.getElementById('assignDate').value;
+  const rowIndex=document.querySelectorAll('#instTbody tr').length;
+  const originalDate=startDate ? addMonths(startDate, rowIndex) : '';
+  const date=originalDate ? lastDayOfMonth(originalDate) : '';
+  addInstallRow({date, original_due_date:originalDate});
+}
+function addInstallRow(d={}){
+  instRowCount++;
+  const id='inst-'+instRowCount;
+  const tr=document.createElement('tr'); tr.id=id;
+  tr.dataset.rowName = d.name||'';
+  const isPaid = String(d.status||'').toLowerCase()==='paid';
+  const effectiveStatus = computeInstallStatus(d.status, d.date);
+  const fieldsLocked = isPaid || assignmentLocked;
+  const selectable = !!d.name && !isPaid && canTransact();
+  const originalDate = d.original_due_date || d.date || '';
+  tr.innerHTML=`
+    <td style="text-align:center">${isPaid?'':`<input type="checkbox" class="inst-chk" ${selectable?'':'disabled'} onchange="onInstallCheckToggle(this)" title="${!canTransact()&&d.name?(currentAssignDocstatus!==1?'This assignment must be submitted before payments can be collected':'This assignment is closed — no further transactions are allowed'):(!d.name?'Save the assignment first to select this row':'Select for payment')}"/>`}</td>
+    <td style="text-align:center" class="inst-idx"></td>
+    <td><input type="date" data-f="original_due_date" value="${originalDate}" disabled/></td>
+    <td style="text-align:right"><input type="number" min="0" step="0.01" data-f="emi" value="${d.emi??''}" placeholder="0" oninput="updateInstallTotal()" ${fieldsLocked?'disabled':''}/></td>
+    <td>${installStatusPill(effectiveStatus)}</td>
+    <td><input type="date" data-f="payment_date" value="${d.payment_date||''}" disabled/></td>
+    <td>${d.payment_entry ? `<a href="#" class="inst-pay-ref" onclick="event.preventDefault();openPaymentEntry('${esc(d.payment_entry)}')" title="Open ${esc(d.payment_entry)} in Frappe">${esc(d.payment_entry)}</a>` : `<span style="color:var(--text-muted)">—</span>`}</td>
+    <td><input type="date" data-f="date" value="${d.date||''}" ${fieldsLocked?'disabled':''}/></td>
+    <td>${(isPaid||assignmentLocked)?'':`<button class="cd-del-btn" onclick="delInstallRow('${id}')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>`}</td>
+  `;
+  document.getElementById('instTbody').appendChild(tr);
+  updateInstallTotal();
+  updateInstallSelection();
+  updateAssignEndDate();
+  renumberInstallRows();
+}
+function openPaymentEntry(name){
+  if(!name) return;
+  window.open(`${cdGetInstanceUrl()}/desk/payment-entry/${encodeURIComponent(name)}`,'_blank');
+}
+function openAssignmentInErpnext(){
+  if(!window.currentAssignName) return;
+  window.open(`${cdGetInstanceUrl()}/desk/jewellery-scheme-assignment/${encodeURIComponent(window.currentAssignName)}`,'_blank');
+}
+function renumberInstallRows(){
+  [...document.querySelectorAll('#instTbody tr')].forEach((tr,i)=>{
+    const cell=tr.querySelector('.inst-idx');
+    if(cell) cell.textContent = i+1;
+  });
+}
+function updateAssignEndDate(){
+  const rows=[...document.querySelectorAll('#instTbody tr')];
+  const lastRow=rows[rows.length-1];
+  const lastOriginalDate=lastRow?.querySelector('[data-f="original_due_date"]')?.value||'';
+  document.getElementById('assignEndDate').value = lastOriginalDate;
+}
+function delInstallRow(id){ document.getElementById(id)?.remove(); updateInstallTotal(); updateInstallSelection(); updateAssignEndDate(); renumberInstallRows(); }
+function updateInstallTotal(){
+  let total=0;
+  document.querySelectorAll('#instTbody tr').forEach(tr=>{ total+=parseFloat(tr.querySelector('[data-f="emi"]')?.value||0)||0; });
+  const el=document.getElementById('instTotal'); if(el) el.textContent=fmt(total);
+}
+function toggleAllInstallRows(checked){
+  document.querySelectorAll('#instTbody .inst-chk:not(:disabled)').forEach(cb=>{ cb.checked=checked; });
+  updateInstallSelection();
+}
+// Installments must be paid off in schedule order — selecting (or deselecting) a row out of
+// sequence would let a customer skip an earlier unpaid EMI while a later one gets collected,
+// which the real payment schedule can't represent. Reverts the click and explains why instead.
+function onInstallCheckToggle(cb){
+  const boxes=[...document.querySelectorAll('#instTbody .inst-chk:not(:disabled)')];
+  const idx=boxes.indexOf(cb);
+  if(cb.checked){
+    if(boxes.slice(0,idx).some(b=>!b.checked)){
+      cb.checked=false;
+      showToast('Select installments in sequence, starting from the earliest unpaid row','error');
+    }
+  } else {
+    if(boxes.slice(idx+1).some(b=>b.checked)){
+      cb.checked=true;
+      showToast('Deselect installments in sequence, starting from the most recently selected row','error');
+    }
+  }
+  updateInstallSelection();
+}
+function updateInstallSelection(){
+  const boxes=[...document.querySelectorAll('#instTbody .inst-chk')];
+  const selectable=boxes.filter(cb=>!cb.disabled);
+  const checked=selectable.filter(cb=>cb.checked);
+  const selectAll=document.getElementById('instSelectAll');
+  if(selectAll){
+    selectAll.disabled = selectable.length===0;
+    selectAll.checked = selectable.length>0 && checked.length===selectable.length;
+    selectAll.indeterminate = checked.length>0 && checked.length<selectable.length;
+  }
+  refreshPaymentPanel();
+}
+
+// ── PAYMENT PANEL — inline, multi-mode split payment ──
+let PAYMENT_MODES=[];
+let PAY_ACCOUNTS=[];
+let PE_COMPANY_DOC={};
+let payDataLoaded=false;
+let paySettlePending=null;
+let paySettleRows=[];
+let paymentReviewLocked=false;
+let paymentReviewSnapshot=null;
+const PAY_DENOMS=[500,200,100,50,20,10,5,2,1];
+function isCashMode(m){ return /cash/i.test(m||''); }
+function isBankDraftMode(m){ return /bank draft/i.test(m||''); }
+const CASH_LIMIT=200000;
+
+function refreshPaymentPanel(){
+  const checkedRows=[...document.querySelectorAll('#instTbody tr')].filter(tr=>tr.querySelector('.inst-chk')?.checked);
+  const hint=document.getElementById('paySettleHint');
+  if(!window.currentAssignName || !checkedRows.length){
+    paySettlePending=null;
+    paySettleRows=[];
+    paymentReviewLocked=false;
+    paymentReviewSnapshot=null;
+    document.getElementById('paySettleTotal').textContent=fmt(0);
+    document.getElementById('paySettleRowsWrap').innerHTML='';
+    document.getElementById('paySettleReceived').textContent=fmt(0);
+    document.getElementById('paySettleDue').textContent=fmt(0);
+    document.getElementById('paySettleChange').textContent=fmt(0);
+    updatePaySettleButtonStates();
+    if(hint){
+      hint.style.display='';
+      hint.textContent = !window.currentAssignName
+        ? 'Save the assignment first to collect a payment.'
+        : !canTransact()
+          ? (currentAssignDocstatus!==1 ? 'This assignment must be submitted before payments can be collected.' : 'This assignment is closed — no further transactions are allowed.')
+          : 'Select at least one unpaid installment row above to collect a payment.';
+    }
+    return;
+  }
+  if(hint) hint.style.display='none';
+  let total=0; const rowNames=[];
+  checkedRows.forEach(tr=>{
+    total+=parseFloat(tr.querySelector('[data-f="emi"]')?.value||0)||0;
+    if(tr.dataset.rowName) rowNames.push(tr.dataset.rowName);
+  });
+  total=Math.round(total*100)/100;
+  const custInput=document.getElementById('assignCustomer').value.trim();
+  const custObj=CUSTOMERS.find(c=>c.display===custInput||c.name===custInput);
+  const party=custObj?.name||custInput;
+  const partyName=custObj?.display||custInput;
+  paySettlePending={ party, partyName, assignmentName:window.currentAssignName, rowNames, total };
+  document.getElementById('paySettleTotal').textContent=fmt(total);
+  if(!paySettleRows.length) paySettleRows=[{mode:'Cash', amount:'', reference:'', referenceDate:'', counts:{}}];
+  ensurePayAccountsAndModes().then(()=>{ renderPaySettleRows(); updatePaySettleTotals(); });
+}
+async function ensurePayAccountsAndModes(){
+  if(payDataLoaded) return;
+  payDataLoaded=true;
+  try{
+    const [modeRes, acctRes, companyRes] = await Promise.allSettled([
+      dev1Get('/api/resource/Mode%20of%20Payment?fields=["name"]&limit_page_length=50&order_by=name%20asc'),
+      dev1Get(`/api/resource/Account?filters=${encodeURIComponent(JSON.stringify([["company","=",COMPANY],["is_group","=",0],["account_type","in",["Cash","Bank"]]]))}&fields=${encodeURIComponent(JSON.stringify(["name","account_type"]))}&limit_page_length=0`),
+      dev1Get(`/api/resource/Company/${encodeURIComponent(COMPANY)}`),
+    ]);
+    if(modeRes.status==='fulfilled') PAYMENT_MODES=(modeRes.value.data||modeRes.value.message||[]).map(m=>m.name);
+    if(acctRes.status==='fulfilled') PAY_ACCOUNTS=(acctRes.value.data||acctRes.value.message||[]).map(a=>({name:a.name, account_type:a.account_type}));
+    if(companyRes.status==='fulfilled') PE_COMPANY_DOC=companyRes.value.data||companyRes.value.message||{};
+  }catch(e){ console.warn('Load payment data error:', e.message); }
+  if(!PAYMENT_MODES.length) console.warn('No Mode of Payment records found — the payment mode dropdown will be empty.');
+}
+async function resolvePaymentAccount(mode){
+  try{
+    const res=await dev1Get('/api/resource/Mode%20of%20Payment/'+encodeURIComponent(mode));
+    const doc=res.data||res.message||res;
+    const row=(doc.accounts||[]).find(a=>a.company===COMPANY);
+    if(row?.default_account) return row.default_account;
+  }catch(e){ console.warn('Mode of Payment account lookup failed:', mode, e.message); }
+  const fallback = isCashMode(mode)
+    ? PAY_ACCOUNTS.find(a=>a.account_type==='Cash')
+    : PAY_ACCOUNTS.find(a=>a.account_type==='Bank');
+  return (fallback || PAY_ACCOUNTS[0])?.name || '';
+}
+function renderPaySettleRows(){
+  const wrap=document.getElementById('paySettleRowsWrap');
+  const locked=paymentReviewLocked;
+  const dis=locked?'disabled':'';
+  wrap.innerHTML = paySettleRows.map((row,i)=>{
+    const removable = paySettleRows.length>1 && !locked;
+    const cash = isCashMode(row.mode);
+    const bankDraft = isBankDraftMode(row.mode);
+    const cashTotal = Object.entries(row.counts||{}).reduce((s,[d,q])=>s+parseFloat(d)*(parseFloat(q)||0),0);
+    return `
+      <div class="cd-payment-entry" data-payrow="${i}">
+        <div class="cd-payment-row ${removable?'removable':''}">
+          <select class="cd-select" ${dis} onchange="updatePaySettleMode(${i},this.value)">
+            ${PAYMENT_MODES.map(m=>`<option value="${esc(m)}" ${m===row.mode?'selected':''}>${esc(m)}</option>`).join('')}
+          </select>
+          <input class="cd-input" type="number" min="0" placeholder="Amount" value="${row.amount??''}" ${dis} oninput="updatePaySettleAmount(${i},this.value)" style="text-align:right"/>
+          ${removable?`<button class="cd-del-btn" onclick="removePaySettleRow(${i})" title="Remove"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>`:''}
+        </div>
+        ${!cash&&bankDraft?`<div style="display:flex;gap:8px;margin-bottom:8px">
+          <input class="cd-input" placeholder="Reference Number *" value="${esc(row.reference||'')}" ${dis} oninput="updatePaySettleReference(${i},this.value)" style="flex:2"/>
+          <input class="cd-input" type="date" placeholder="Reference Date" value="${row.referenceDate||''}" ${dis} oninput="updatePaySettleReferenceDate(${i},this.value)" style="flex:1"/>
+        </div>`:''}
+        ${!cash&&!bankDraft?`<input class="cd-input" placeholder="Reference / UTR / Cheque Number *" value="${esc(row.reference||'')}" ${dis} oninput="updatePaySettleReference(${i},this.value)" style="margin-bottom:8px"/>`:''}
+        ${cash?`<div class="cd-cash-box">
+          <label class="cd-label">Currency denominations</label>
+          <div class="cd-denomination-grid compact">
+            ${PAY_DENOMS.map(d=>`<label><span>₹${d}</span><input class="cd-input" type="number" min="0" value="${row.counts?.[d]||''}" ${dis} oninput="updatePaySettleDenom(${i},${d},this.value)" style="text-align:right"/><strong data-denom-total="${d}">${fmt(d*(parseFloat(row.counts?.[d])||0))}</strong></label>`).join('')}
+          </div>
+          <div class="cd-cash-declared">Cash counted <strong data-cash-counted>${fmt(cashTotal)}</strong></div>
+        </div>`:''}
+      </div>
+    `;
+  }).join('');
+  const addBtn=document.getElementById('paySettleAddRowBtn');
+  if(addBtn) addBtn.style.display=locked?'none':'';
+}
+function addPaySettleRow(){
+  if(!window.currentAssignName){ showToast('Please save the assignment first','error'); return; }
+  if(!paySettlePending){ showToast('Select at least one installment row first','error'); return; }
+  const due=paySettlePending?.total||0;
+  const allocated=paySettleRows.reduce((s,r)=>s+(parseFloat(r.amount)||0),0);
+  const pending=Math.max(0, Math.round((due-allocated)*100)/100);
+  paySettleRows.push({mode: PAYMENT_MODES.find(m=>!isCashMode(m))||PAYMENT_MODES[0]||'UPI', amount: pending||'', reference:'', counts:{}});
+  renderPaySettleRows();
+  updatePaySettleTotals();
+}
+function removePaySettleRow(i){
+  if(paySettleRows.length<=1) return;
+  paySettleRows.splice(i,1);
+  renderPaySettleRows();
+  updatePaySettleTotals();
+}
+function updatePaySettleMode(i,val){
+  paySettleRows[i].mode=val;
+  renderPaySettleRows();
+  updatePaySettleTotals();
+}
+function updatePaySettleAmount(i,val){
+  paySettleRows[i].amount=val;
+  updatePaySettleTotals();
+}
+function updatePaySettleReference(i,val){
+  paySettleRows[i].reference=val;
+}
+function updatePaySettleReferenceDate(i,val){
+  paySettleRows[i].referenceDate=val;
+}
+function updatePaySettleDenom(i,denom,val){
+  if(!paySettleRows[i].counts) paySettleRows[i].counts={};
+  paySettleRows[i].counts[denom]=val;
+  const rowTotal=Object.entries(paySettleRows[i].counts||{}).reduce((s,[d,q])=>s+parseFloat(d)*(parseFloat(q)||0),0);
+  paySettleRows[i].amount=rowTotal;
+  const rowEl=document.querySelector(`[data-payrow="${i}"]`);
+  if(rowEl){
+    const lineTotal=denom*(parseFloat(val)||0);
+    const strongEl=rowEl.querySelector(`[data-denom-total="${denom}"]`);
+    if(strongEl) strongEl.textContent=fmt(lineTotal);
+    const cashCountedEl=rowEl.querySelector('[data-cash-counted]');
+    if(cashCountedEl) cashCountedEl.textContent=fmt(rowTotal);
+    const amountInput=rowEl.querySelector('.cd-payment-row input[type="number"]');
+    if(amountInput) amountInput.value=rowTotal||'';
+  }
+  updatePaySettleTotals();
+}
+function updatePaySettleTotals(){
+  const due=paySettlePending?.total||0;
+  const allocated=Math.round(paySettleRows.reduce((s,r)=>s+(parseFloat(r.amount)||0),0)*100)/100;
+  const pending=Math.max(0, Math.round((due-allocated)*100)/100);
+  const change=Math.max(0, Math.round((allocated-due)*100)/100);
+  document.getElementById('paySettleReceived').textContent=fmt(allocated);
+  document.getElementById('paySettleDue').textContent=fmt(pending);
+  document.getElementById('paySettleChange').textContent=fmt(change);
+  updatePaySettleButtonStates();
+}
+function updatePaySettleButtonStates(){
+  const saveBtn=document.getElementById('paySettleSaveBtn');
+  const submitBtn=document.getElementById('paySettleSubmitBtn');
+  if(!saveBtn||!submitBtn) return;
+  const allocated=paySettleRows.reduce((s,r)=>s+(parseFloat(r.amount)||0),0);
+  const due=paySettlePending?.total||0;
+  const pending=Math.max(0, Math.round((due-allocated)*100)/100);
+  const readyToSave = !!paySettlePending && allocated>0 && pending<=0.01;
+  saveBtn.disabled = paymentReviewLocked || !readyToSave;
+  submitBtn.disabled = !paymentReviewLocked;
+}
+function savePaySettle(){
+  if(!paySettlePending) return;
+  const rowsToSubmit=paySettleRows.filter(r=>(parseFloat(r.amount)||0)>0);
+  if(!rowsToSubmit.length){ showToast('Enter at least one payment amount','error'); return; }
+  const allocated=rowsToSubmit.reduce((s,r)=>s+(parseFloat(r.amount)||0),0);
+  if(allocated + 0.01 < paySettlePending.total){ showToast('Payment total is less than the amount due','error'); return; }
+  const missingRef=rowsToSubmit.find(r=>!isCashMode(r.mode) && !(r.reference||'').trim());
+  if(missingRef){ showToast(`Reference / UTR / Cheque Number is required for ${missingRef.mode}`,'error'); return; }
+  const cashTotal=rowsToSubmit.filter(r=>isCashMode(r.mode)).reduce((s,r)=>s+(parseFloat(r.amount)||0),0);
+  if(cashTotal>CASH_LIMIT){ showToast(`Cash payment cannot exceed ${fmt(CASH_LIMIT)} per transaction`,'error'); return; }
+  paymentReviewSnapshot={ ...paySettlePending, rows: rowsToSubmit.map(r=>({...r})) };
+  paymentReviewLocked=true;
+  renderPaySettleRows();
+  updatePaySettleButtonStates();
+  const hint=document.getElementById('paySettleHint');
+  hint.style.display='';
+  hint.textContent='Reviewed — click Submit Payment to create and submit the payment entry.';
+}
+async function submitPaySettle(){
+  if(!paymentReviewLocked || !paymentReviewSnapshot) return;
+  const partyAccount=PE_COMPANY_DOC.default_receivable_account;
+  if(!partyAccount){ showToast('Company has no default receivable account configured','error'); return; }
+  const btn=document.getElementById('paySettleSubmitBtn');
+  btn.disabled=true; const originalLbl=btn.textContent; btn.textContent='Submitting…';
+  try{
+    const { party, partyName, assignmentName, rowNames, rows } = paymentReviewSnapshot;
+    const postingDate = new Date().toLocaleDateString('en-CA');
+    const schemeName = document.getElementById('assignScheme').value.trim();
+    const paidRowEls = [...document.querySelectorAll('#instTbody tr')].filter(tr => rowNames.includes(tr.dataset.rowName));
+    const monthLabels = paidRowEls
+      .map(tr => tr.querySelector('[data-f="original_due_date"]')?.value)
+      .filter(Boolean)
+      .map(d => new Date(d + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', year: 'numeric' }));
+    const monthText = [...new Set(monthLabels)].join(', ');
+    const remarks = `Parent: ${assignmentName}${schemeName ? ` | Scheme: ${schemeName}` : ''}${monthText ? ` | Month: ${monthText}` : ''}`;
+    const createdNames=[];
+    for(const row of rows){
+      const amount=Math.round((parseFloat(row.amount)||0)*100)/100;
+      const account=await resolvePaymentAccount(row.mode);
+      if(!account) throw new Error(`No Cash/Bank account found for mode "${row.mode}"`);
+      const payload={
+        doctype:'Payment Entry',
+        payment_type:'Receive',
+        party_type:'Customer',
+        party, party_name: partyName,
+        company: COMPANY,
+        posting_date: postingDate,
+        remarks,
+        paid_from: partyAccount,
+        paid_to: account,
+        paid_amount: amount,
+        received_amount: amount,
+        source_exchange_rate: 1,
+        target_exchange_rate: 1,
+        mode_of_payment: row.mode||undefined,
+        reference_no: (row.reference||'').trim() || undefined,
+        reference_date: row.referenceDate || (isCashMode(row.mode) ? undefined : postingDate),
+      };
+      const res=await dev1Post('/api/resource/Payment%20Entry', payload);
+      const name=res?.data?.name||res?.name;
+      if(!name) throw new Error('Payment Entry creation failed');
+      await dev1Put('/api/resource/Payment%20Entry/'+encodeURIComponent(name), {docstatus:1});
+      createdNames.push(name);
+    }
+    if(rowNames.length && createdNames.length){
+      await markInstallmentsPaidInline(assignmentName, rowNames, createdNames[0], postingDate);
+    }
+    showToast(createdNames.length>1?`${createdNames.length} payment entries created`:`Payment Entry ${createdNames[0]} created`,'success');
+    paySettleRows=[]; paymentReviewLocked=false; paymentReviewSnapshot=null;
+    await loadAssignmentForm(assignmentName);
+  }catch(e){
+    showToast('Error: '+String(e.message).slice(0,120),'error');
+  }finally{
+    btn.textContent=originalLbl;
+    updatePaySettleButtonStates();
+  }
+}
+async function fetchGoldRateForTouch(touch){
+  if(!touch) return 0;
+  try{
+    const filters=encodeURIComponent(JSON.stringify([['Metal Price List','metal_type','=','Gold']]));
+    const fields=encodeURIComponent(JSON.stringify(['metal_touch','rate']));
+    const res=await dev1Get(`/api/resource/Metal%20Price%20List?fields=${fields}&filters=${filters}&order_by=date%20desc&limit_page_length=100`);
+    const rows=res.data||res.message||[];
+    const wanted=String(touch).trim().toLowerCase();
+    const match=rows.find(r=>String(r.metal_touch||'').trim().toLowerCase()===wanted);
+    return match ? (parseFloat(match.rate)||0) : 0;
+  }catch(e){ console.warn('Gold rate lookup failed for touch '+touch+':', e.message); return 0; }
+}
+async function markInstallmentsPaidInline(assignmentName, rowNames, paymentEntryName, paymentDate){
+  const res=await dev1Get('/api/resource/Jewellery%20Scheme%20Assignment/'+encodeURIComponent(assignmentName));
+  const doc=res.data||res.message||res;
+  let goldRate=0;
+  let accumulateGold=false;
+  try{
+    const schemeRes=await dev1Get('/api/resource/Jewellery%20Scheme/'+encodeURIComponent(doc.scheme)+'?fields='+encodeURIComponent(JSON.stringify(['accumulate_gold'])));
+    const schemeDoc=schemeRes.data||schemeRes.message||{};
+    accumulateGold=!!schemeDoc.accumulate_gold;
+    if(accumulateGold){
+      if(!doc.metal_touch){
+        showToast('This scheme accumulates gold, but the assignment has no Metal Touch set — payment was recorded, but gold weight was not locked in for this installment. Set Metal Touch and re-save.','error',7000);
+      } else {
+        goldRate=await fetchGoldRateForTouch(doc.metal_touch);
+        if(!goldRate) showToast(`No Metal Price List rate found for Gold at ${doc.metal_touch} — gold weight was not locked in for this installment.`,'error',7000);
+      }
+    }
+  }catch(e){ console.warn('Scheme lookup for gold accumulation failed:', e.message); }
+  const details=(doc.jewellery_scheme_assignment_details||[]).map(r=>{
+    if(!rowNames.includes(r.name)) return r;
+    const updated={...r, status:'Paid', payment_entry:paymentEntryName, paid_by: r.paid_by||'Customer', payment_date: r.payment_date||paymentDate};
+    if(goldRate>0){
+      updated.gold_rate=goldRate;
+      updated.gold_qty=Math.round((parseFloat(r.emi||0)/goldRate)*1000)/1000;
+    }
+    return updated;
+  });
+  const allPaid = details.length>0 && details.every(r=>String(r.status||'').toLowerCase()==='paid');
+  let finalDetails = details;
+  if(allPaid && accumulateGold){
+    const finalRate = goldRate>0 ? goldRate : (details.find(r=>r.gold_rate>0)?.gold_rate||0);
+    if(finalRate>0){
+      finalDetails = details.map(r=>{
+        if(!(parseFloat(r.gold_rate)>0)) return r;
+        const diffRate=Math.round((finalRate-r.gold_rate)*100)/100;
+        const amount=Math.round((diffRate*(parseFloat(r.gold_qty)||0))*100)/100;
+        return {...r, diffrence_rate:diffRate, amount};
+      });
+    }
+  }
+  const updatePayload = { jewellery_scheme_assignment_details: finalDetails };
+  if(allPaid) updatePayload.status = 'Matured';
+  await dev1Put('/api/resource/Jewellery%20Scheme%20Assignment/'+encodeURIComponent(assignmentName), updatePayload);
+  if(allPaid) showToast('Scheme matured — credit is now available to redeem in POS Billing','success');
+}
+
+// ── ASSIGNMENT: CUSTOMER / SCHEME AUTOCOMPLETE ──
+function acAssignCustomer(val){
+  if(assignmentLocked) return;
+  const list=document.getElementById('ac-assign-customer');
+  const q=(val||'').toLowerCase();
+  const results=CUSTOMERS.filter(c=>c.display.toLowerCase().includes(q)||c.name.toLowerCase().includes(q)).slice(0,20);
+  list.innerHTML = results.length? results.map(c=>`<div class="cd-ac-item" onclick="selAssignCustomer('${esc(c.name)}','${esc(c.display)}')"><div class="main">${esc(c.display)}</div>${c.phone?`<div class="sub">${esc(c.phone)}</div>`:''}</div>`).join('') : `<div class="cd-ac-empty">No customer found</div>`;
+  list.classList.add('open');
+}
+function selAssignCustomer(name,display){
+  document.getElementById('assignCustomer').value=display;
+  document.getElementById('ac-assign-customer').classList.remove('open');
+}
+document.addEventListener('click', e=>{
+  if(!e.target.closest('#ac-assign-customer') && !e.target.closest('#assignCustomer')) document.getElementById('ac-assign-customer')?.classList.remove('open');
+  if(!e.target.closest('#ac-assign-scheme') && !e.target.closest('#assignScheme')) document.getElementById('ac-assign-scheme')?.classList.remove('open');
+});
+
+// ── NEW CUSTOMER DIALOG (matches POS Billing's New Customer modal) ──
+let newCustImageFile=null;
+let CUSTOMER_DEFAULTS=null;
+function openNewCustomerDialog(){
+  ['newCustFirstName','newCustLastName','newCustEmail','newCustMobile','newCustDob','newCustAnniversary','newCustPan','newCustAadhaar','newCustPassport','newCustGstin','newCustPincode','newCustCity','newCustAddr1','newCustState','newCustAddr2'].forEach(id=>{ document.getElementById(id).value=''; });
+  document.getElementById('newCustCountry').value='India';
+  document.getElementById('newCustSalutation').value='';
+  document.getElementById('newCustIsPrimary').checked=true;
+  document.getElementById('newCustIsShipping').checked=false;
+  newCustImageFile=null;
+  document.getElementById('newCustImagePreview').style.display='none';
+  document.getElementById('newCustImagePlaceholder').style.display='';
+  toggleNewCustPassportField();
+  document.getElementById('newCustOverlay').classList.add('open');
+  document.getElementById('newCustDialog').classList.add('open');
+}
+function closeNewCustomerDialog(){
+  document.getElementById('newCustOverlay').classList.remove('open');
+  document.getElementById('newCustDialog').classList.remove('open');
+}
+function toggleNewCustPassportField(){
+  const isIndia = document.getElementById('newCustCountry').value.trim().toLowerCase()==='india';
+  document.getElementById('newCustPassportWrap').style.display = isIndia ? 'none' : '';
+  if(isIndia) document.getElementById('newCustPassport').value='';
+}
+function onNewCustImageChange(e){
+  const file=e.target.files?.[0]||null;
+  newCustImageFile=file;
+  const img=document.getElementById('newCustImagePreview');
+  const ph=document.getElementById('newCustImagePlaceholder');
+  if(file){
+    img.src=URL.createObjectURL(file);
+    img.style.display='';
+    ph.style.display='none';
+  } else {
+    img.style.display='none';
+    ph.style.display='';
+  }
+}
+async function getCustomerDefaultsInline(){
+  if(CUSTOMER_DEFAULTS) return CUSTOMER_DEFAULTS;
+  let customerGroup='Individual', territory='India';
+  try{
+    const res=await dev1Get('/api/resource/Customer%20Group/Individual?fields=["name"]');
+    if(!(res.data||res.message)) throw new Error();
+  }catch(e){
+    try{
+      const res=await dev1Get('/api/resource/Customer%20Group?filters='+encodeURIComponent(JSON.stringify([["is_group","=",0]]))+'&fields=["name"]&limit_page_length=1');
+      customerGroup=(res.data||res.message||[])[0]?.name||'Individual';
+    }catch(e2){}
+  }
+  try{
+    const res=await dev1Get('/api/resource/Territory/India?fields=["name"]');
+    if(!(res.data||res.message)) throw new Error();
+  }catch(e){
+    try{
+      const res=await dev1Get('/api/resource/Territory?filters='+encodeURIComponent(JSON.stringify([["is_group","=",0]]))+'&fields=["name"]&limit_page_length=1');
+      territory=(res.data||res.message||[])[0]?.name||'India';
+    }catch(e2){}
+  }
+  CUSTOMER_DEFAULTS={customer_group:customerGroup, territory};
+  return CUSTOMER_DEFAULTS;
+}
+async function saveNewCustomer(){
+  const firstName=document.getElementById('newCustFirstName').value.trim();
+  const lastName=document.getElementById('newCustLastName').value.trim();
+  const mobile=document.getElementById('newCustMobile').value.replace(/\D/g,'');
+  if(!firstName){ showToast('First Name is required','error'); document.getElementById('newCustFirstName').focus(); return; }
+  if(mobile.length!==10){ showToast('Mobile number must be 10 digits','error'); document.getElementById('newCustMobile').focus(); return; }
+  const countryVal=document.getElementById('newCustCountry').value.trim()||'India';
+  const passport=document.getElementById('newCustPassport').value.trim();
+  if(countryVal.toLowerCase()!=='india' && !passport){ showToast('Passport Number is required for customers outside India','error'); document.getElementById('newCustPassport').focus(); return; }
+  const customerName=[firstName,lastName].filter(Boolean).join(' ');
+  const email=document.getElementById('newCustEmail').value.trim();
+  const btn=document.getElementById('newCustSaveBtn');
+  btn.disabled=true; btn.textContent='Saving...';
+  try{
+    try{
+      const dupRes=await dev1Get('/api/resource/Customer?filters='+encodeURIComponent(JSON.stringify([["mobile_no","=",mobile]]))+'&fields='+encodeURIComponent(JSON.stringify(['name','customer_name','mobile_no']))+'&limit_page_length=1');
+      const dup=(dupRes.data||dupRes.message||[])[0];
+      if(dup){
+        const useExisting=confirm(`Customer with mobile ${mobile} already exists (${dup.customer_name}). Select existing customer?`);
+        if(useExisting){
+          selAssignCustomer(dup.name, dup.customer_name);
+          if(!CUSTOMERS.find(c=>c.name===dup.name)) CUSTOMERS.push({name:dup.name, display:dup.customer_name, phone:dup.mobile_no||''});
+          closeNewCustomerDialog();
+        }
+        btn.disabled=false; btn.textContent='Save Customer';
+        return;
+      }
+    }catch(dupErr){ console.warn('Duplicate mobile check failed:', dupErr.message); }
+
+    const defaults=await getCustomerDefaultsInline();
+    const pan=document.getElementById('newCustPan').value.trim();
+    const aadhaar=document.getElementById('newCustAadhaar').value.trim();
+    const dob=document.getElementById('newCustDob').value;
+    const anniversary=document.getElementById('newCustAnniversary').value;
+    const custRes=await dev1Post('/api/resource/Customer', {
+      doctype:'Customer', customer_name:customerName, customer_type:'Individual',
+      customer_group:defaults.customer_group, territory:defaults.territory,
+      mobile_no:mobile, email_id:email, pan,
+      custom_date_of_birth:dob||undefined, custom_date_of_anniversary:anniversary||undefined, custom_aadhar_card:aadhaar||undefined,
+    });
+    const customerId=custRes?.data?.name||custRes?.name;
+    if(!customerId) throw new Error('Customer creation failed');
+
+    const pincode=document.getElementById('newCustPincode').value.trim();
+    const city=document.getElementById('newCustCity').value.trim();
+    const addr1=document.getElementById('newCustAddr1').value.trim();
+    const addr2=document.getElementById('newCustAddr2').value.trim();
+    const state=document.getElementById('newCustState').value.trim();
+    const country=document.getElementById('newCustCountry').value.trim()||'India';
+    const gstin=document.getElementById('newCustGstin').value.trim();
+    const isPrimary=document.getElementById('newCustIsPrimary').checked;
+    const isShipping=document.getElementById('newCustIsShipping').checked;
+    if(addr1||addr2||city||pincode||gstin){
+      try{
+        await dev1Post('/api/resource/Address', {
+          doctype:'Address', address_title:customerName,
+          address_type:(isShipping&&!isPrimary)?'Shipping':'Billing',
+          is_primary_address:isPrimary?1:0, is_shipping_address:isShipping?1:0,
+          address_line1:addr1, address_line2:addr2, city, state, pincode, country, gstin,
+          links:[{doctype:'Dynamic Link', link_doctype:'Customer', link_name:customerId, link_title:customerName}],
+        });
+      }catch(e){ console.warn('Address create:', e.message); }
+    }
+    if(mobile||email){
+      try{
+        await dev1Post('/api/resource/Contact', {
+          doctype:'Contact', salutation:document.getElementById('newCustSalutation').value||'',
+          first_name:firstName, last_name:lastName, mobile_no:mobile, email_id:email,
+          links:[{doctype:'Dynamic Link', link_doctype:'Customer', link_name:customerId, link_title:customerName}],
+        });
+      }catch(e){ console.warn('Contact create:', e.message); }
+    }
+    if(newCustImageFile){
+      try{
+        const fd=new FormData();
+        fd.append('file', newCustImageFile);
+        fd.append('is_private','0');
+        fd.append('doctype','Customer');
+        fd.append('docname', customerId);
+        fd.append('fieldname','image');
+        await dev1PostForm('/api/method/upload_file', fd);
+      }catch(e){ console.warn('Customer image upload:', e.message); }
+    }
+    CUSTOMERS.push({name:customerId, display:customerName, phone:mobile});
+    selAssignCustomer(customerId, customerName);
+    showToast('Customer created: '+customerName,'success');
+    closeNewCustomerDialog();
+  }catch(e){
+    showToast('Error: '+String(e.message).slice(0,120),'error');
+  }finally{
+    btn.disabled=false; btn.textContent='Save Customer';
+  }
+}
+function acAssignScheme(val){
+  if(assignmentLocked) return;
+  const list=document.getElementById('ac-assign-scheme');
+  const q=(val||'').toLowerCase();
+  const results=SCHEMES.filter(s=>s.display.toLowerCase().includes(q)||s.name.toLowerCase().includes(q)).slice(0,20);
+  list.innerHTML = results.length? results.map(s=>`<div class="cd-ac-item" onclick="selAssignScheme('${esc(s.name)}','${esc(s.display)}')"><div class="main">${esc(s.display)}</div><div class="sub">${s.is_disable?'Disabled':'Active'}${s.minimun_emi?(' · Min EMI '+fmt(s.minimun_emi)):''}</div></div>`).join('') : `<div class="cd-ac-empty">No scheme found</div>`;
+  list.classList.add('open');
+  const exact=SCHEMES.find(s=>s.display.trim().toLowerCase()===(val||'').trim().toLowerCase());
+  updateMetalTouchVisibility(exact);
+}
+function selAssignScheme(name,display){
+  document.getElementById('assignScheme').value=display;
+  document.getElementById('assignSchemeName').value=display;
+  document.getElementById('ac-assign-scheme').classList.remove('open');
+  const schemeObj=SCHEMES.find(s=>s.name===name);
+  const emiInput=document.getElementById('assignEmi');
+  if(schemeObj && !emiInput.value) emiInput.value = schemeObj.minimun_emi||'';
+  updateMetalTouchVisibility(schemeObj);
+}
+function updateMetalTouchVisibility(schemeObj){
+  const field=document.getElementById('assignMetalTouchField');
+  const show=!!schemeObj?.accumulate_gold;
+  field.style.display = show?'':'none';
+  if(!show) document.getElementById('assignMetalTouch').value='';
+}
+
+// ── ASSIGNMENT: FORM LOAD / SAVE / DELETE ──
+function setAssignmentLocked(locked, name){
+  assignmentLocked = locked;
+  document.getElementById('pageTitleCur').textContent = locked ? ('Assignment '+name) : (name? 'Edit Assignment':'New Assignment');
+  ['assignCustomer','assignScheme','assignEmi','assignDate'].forEach(id=>{
+    document.getElementById(id).readOnly = locked;
+  });
+  document.getElementById('assignMetalTouch').disabled = locked;
+  document.getElementById('assignBranch').disabled = locked;
+  // Locked + has data: stays visible and clickable so the sales team can still be viewed,
+  // just read-only inside the dialog (see openSalesTeamDialog/addSalesTeamRow). Locked + no
+  // data: nothing to view, so hide it entirely instead of disabling.
+  const salesTeamBtn=document.getElementById('assignSalesTeamBtn');
+  salesTeamBtn.disabled = false;
+  salesTeamBtn.style.display = (locked && !assignSalesTeam.length) ? 'none' : '';
+  document.getElementById('saveAssignBtn').style.display = locked? 'none':'';
+  document.getElementById('addPaymentBtn').style.display = locked? 'none':'';
+  document.getElementById('newCustomerBtn').style.display = locked? 'none':'';
+  document.getElementById('assignDeleteBtn').style.display = (locked || !name)? 'none':'';
+  document.getElementById('assignCancelBtn').textContent = locked? 'Back':'Cancel';
+  document.querySelectorAll('#instTbody tr').forEach(tr=>{
+    const dateInp=tr.querySelector('[data-f="date"]'), emiInp=tr.querySelector('[data-f="emi"]');
+    if(dateInp) dateInp.disabled = true;
+    if(emiInp) emiInp.disabled = true;
+    const delBtn=tr.querySelector('.cd-del-btn');
+    if(delBtn) delBtn.style.display = locked? 'none':'';
+  });
+}
+async function loadAssignmentForm(name){
+  window.currentAssignName = name||null;
+  currentAssignStatus = '';
+  currentAssignDocstatus = 0;
+  document.getElementById('pageTitleCur').textContent = name? 'Edit Assignment' : 'New Assignment';
+  document.getElementById('assignDrawerStatus').innerHTML = '';
+  document.getElementById('assignDeleteBtn').style.display = name? '' : 'none';
+  document.getElementById('printAssignBtn').style.display = name? '' : 'none';
+  document.getElementById('printAssignMenu').style.display = 'none';
+  document.getElementById('openErpnextBtn').style.display = name? '' : 'none';
+  document.getElementById('forceCloseBtn').style.display = 'none';
+  document.getElementById('submitAssignBtn').style.display = 'none';
+  document.getElementById('assignCustomer').value='';
+  document.getElementById('assignScheme').value='';
+  document.getElementById('assignSchemeName').value='';
+  document.getElementById('assignEmi').value='';
+  const assignDateInp = document.getElementById('assignDate');
+  assignDateInp.min = toISODate(new Date());
+  assignDateInp.value = toISODate(new Date());
+  document.getElementById('assignEndDate').value='';
+  document.getElementById('assignMetalTouch').value='';
+  updateMetalTouchVisibility(null);
+  document.getElementById('assignBranch').value='';
+  assignSalesTeam=[]; updateAssignSalesTeamSummary();
+  document.getElementById('instTbody').innerHTML=''; instRowCount=0; updateInstallTotal(); updateInstallSelection();
+  setAssignmentLocked(false, name);
+  if(name){
+    try{
+      const res=await dev1Get('/api/resource/Jewellery%20Scheme%20Assignment/'+encodeURIComponent(name));
+      const doc=res.data||res.message||res;
+      currentAssignStatus = doc.status||'';
+      currentAssignDocstatus = doc.docstatus??0;
+      document.getElementById('assignDrawerStatus').innerHTML = assignStatusPill(assignDisplayStatus(currentAssignStatus, currentAssignDocstatus));
+      document.getElementById('forceCloseBtn').style.display = canTransact() ? '' : 'none';
+      document.getElementById('submitAssignBtn').style.display = currentAssignDocstatus===0 ? '' : 'none';
+      const cust=CUSTOMERS.find(c=>c.name===doc.customer);
+      document.getElementById('assignCustomer').value= cust?cust.display:(doc.customer||'');
+      const sch=SCHEMES.find(s=>s.name===doc.scheme);
+      document.getElementById('assignScheme').value = sch?sch.display:(doc.scheme_name||doc.scheme||'');
+      document.getElementById('assignSchemeName').value = doc.scheme_name||'';
+      document.getElementById('assignEmi').value = doc.emi_amount||'';
+      document.getElementById('assignDate').value = doc.date||'';
+      document.getElementById('assignEndDate').value = doc.end_date||'';
+      updateMetalTouchVisibility(sch);
+      document.getElementById('assignMetalTouch').value = doc.metal_touch||'';
+      document.getElementById('assignBranch').value = doc.branch||'';
+      assignSalesTeam = (doc.sales_team||[]).map(r=>({salesPerson:r.sales_person, percentage:parseFloat(r.allocated_percentage)||0}));
+      updateAssignSalesTeamSummary();
+      (doc.jewellery_scheme_assignment_details||[]).forEach(r=>addInstallRow(r));
+      setAssignmentLocked(true, name);
+      const overdueNames=(doc.jewellery_scheme_assignment_details||[])
+        .filter(r=>computeInstallStatus(r.status,r.date)==='Overdue' && (r.status||'Unpaid')!=='Overdue')
+        .map(r=>r.name);
+      if(overdueNames.length) await syncOverdueInstallments(name, overdueNames);
+    }catch(e){ showToast('Error loading assignment: '+e.message,'error'); }
+  }
+}
+async function syncOverdueInstallments(assignmentName, rowNames){
+  if(!rowNames.length) return;
+  try{
+    const res=await dev1Get('/api/resource/Jewellery%20Scheme%20Assignment/'+encodeURIComponent(assignmentName));
+    const doc=res.data||res.message||res;
+    const details=(doc.jewellery_scheme_assignment_details||[]).map(r=>
+      rowNames.includes(r.name) ? {...r, status:'Overdue'} : r
+    );
+    await dev1Put('/api/resource/Jewellery%20Scheme%20Assignment/'+encodeURIComponent(assignmentName), {jewellery_scheme_assignment_details: details});
+  }catch(e){ console.warn('Overdue sync failed:', e.message); }
+}
+function buildAssignPayload(){
+  const custInput=document.getElementById('assignCustomer').value.trim();
+  const custObj=CUSTOMERS.find(c=>c.display===custInput||c.name===custInput);
+  const customer=custObj?.name||custInput;
+  const schemeInput=document.getElementById('assignScheme').value.trim();
+  const schemeObj=SCHEMES.find(s=>s.display===schemeInput||s.name===schemeInput);
+  const scheme=schemeObj?.name||schemeInput;
+  const details=[];
+  document.querySelectorAll('#instTbody tr').forEach((tr,idx)=>{
+    const date=tr.querySelector('[data-f="date"]')?.value||'';
+    const emi=parseFloat(tr.querySelector('[data-f="emi"]')?.value||0)||0;
+    if(!date && !emi) return;
+    const originalDate=tr.querySelector('[data-f="original_due_date"]')?.value||date;
+    const paymentDate=tr.querySelector('[data-f="payment_date"]')?.value||'';
+    details.push({doctype:'Jewellery Scheme Assignment Details', idx:idx+1, date: date||undefined, emi, original_due_date: originalDate||undefined, payment_date: paymentDate||undefined});
+  });
+  const emiAmount = parseFloat(document.getElementById('assignEmi').value||0)||0;
+  return {
+    doctype:'Jewellery Scheme Assignment',
+    customer, scheme,
+    scheme_name: schemeObj?.display||document.getElementById('assignSchemeName').value||'',
+    emi_amount: emiAmount,
+    date: document.getElementById('assignDate').value||undefined,
+    end_date: document.getElementById('assignEndDate').value||undefined,
+    metal_touch: document.getElementById('assignMetalTouch').value||undefined,
+    branch: document.getElementById('assignBranch').value||undefined,
+    jewellery_scheme_assignment_details: details,
+    sales_team: assignSalesTeam.map(r=>({
+      doctype:'Sales Team',
+      sales_person: r.salesPerson,
+      allocated_percentage: Math.round((Number(r.percentage)||0)*100)/100,
+      allocated_amount: Math.round(((Number(r.percentage)||0)/100)*emiAmount*100)/100,
+    })),
+  };
+}
+function validateInstallRows(){
+  const rows=[...document.querySelectorAll('#instTbody tr')];
+  for(let i=0;i<rows.length;i++){
+    const date=rows[i].querySelector('[data-f="date"]')?.value||'';
+    const emi=parseFloat(rows[i].querySelector('[data-f="emi"]')?.value||0)||0;
+    if(!date || emi<=0) return i+1;
+  }
+  return 0;
+}
+// ── PRINT (Voucher / Passbook) ──
+function togglePrintAssignMenu(e){
+  if(e) e.stopPropagation();
+  const menu=document.getElementById('printAssignMenu');
+  menu.style.display = menu.style.display==='none'?'block':'none';
+}
+document.addEventListener('click', e=>{
+  const menu=document.getElementById('printAssignMenu');
+  if(menu && !e.target.closest('#printAssignBtn') && !e.target.closest('#printAssignMenu')) menu.style.display='none';
+});
+const ASSIGN_PRINT_FORMATS = { voucher:'Voucher Print', passbook:'Passbook Print' };
+async function printAssignmentDoc(kind){
+  document.getElementById('printAssignMenu').style.display='none';
+  if(!window.currentAssignName){ showToast('Please save the assignment first','error'); return; }
+  const format=ASSIGN_PRINT_FORMATS[kind];
+  try{
+    const h=cdGetInstanceHeaders();
+    if(!h) throw new Error('No auth');
+    const params=new URLSearchParams({doctype:'Jewellery Scheme Assignment', name:window.currentAssignName, format, no_letterhead:'0'});
+    const res=await fetch(cdGetInstanceUrl()+'/api/method/frappe.utils.print_format.download_pdf?'+params.toString(),{headers:h});
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const blob=await res.blob();
+    window.open(URL.createObjectURL(blob),'_blank');
+  }catch(e){ showToast('Print failed: '+String(e.message).slice(0,120),'error'); }
+}
+async function saveAssignment(){
+  const cust=document.getElementById('assignCustomer').value.trim();
+  const sch=document.getElementById('assignScheme').value.trim();
+  if(!cust){ showToast('Please select a customer','error'); document.getElementById('assignCustomer').focus(); return; }
+  if(!sch){ showToast('Please select a scheme','error'); document.getElementById('assignScheme').focus(); return; }
+  const emiAmount=parseFloat(document.getElementById('assignEmi').value||0)||0;
+  if(emiAmount<=0){ showToast('Please enter the EMI Amount','error'); document.getElementById('assignEmi').focus(); return; }
+  const schemeObj=SCHEMES.find(s=>s.display===sch||s.name===sch);
+  if(schemeObj){
+    if(schemeObj.minimun_emi && emiAmount<schemeObj.minimun_emi){
+      showToast(`EMI amount cannot be less than minimum EMI ${fmt(schemeObj.minimun_emi)}`,'error'); document.getElementById('assignEmi').focus(); return;
+    }
+    if(schemeObj.maximum_emi && emiAmount>schemeObj.maximum_emi){
+      showToast(`EMI amount cannot exceed maximum EMI ${fmt(schemeObj.maximum_emi)}`,'error'); document.getElementById('assignEmi').focus(); return;
+    }
+    if(schemeObj.emi_multiple_off && (emiAmount % schemeObj.emi_multiple_off !== 0)){
+      showToast(`EMI amount must be in multiples of ${fmt(schemeObj.emi_multiple_off)}`,'error'); document.getElementById('assignEmi').focus(); return;
+    }
+  }
+  if(!document.getElementById('assignDate').value){ showToast('Please select a Date','error'); document.getElementById('assignDate').focus(); return; }
+  if(!window.currentAssignName && document.getElementById('assignDate').value < toISODate(new Date())){ showToast('Start Date cannot be a back date','error'); document.getElementById('assignDate').focus(); return; }
+  const badRow=validateInstallRows();
+  if(badRow){ showToast(`Installment row ${badRow}: Extended Due Date and Installment Amount are both required`,'error'); return; }
+  try{
+    showToast('Saving assignment...','info');
+    const payload=buildAssignPayload();
+    const isNew=!window.currentAssignName;
+    let res;
+    if(!isNew){
+      res=await dev1Put('/api/resource/Jewellery%20Scheme%20Assignment/'+encodeURIComponent(window.currentAssignName), payload);
+    } else {
+      res=await dev1Post('/api/resource/Jewellery%20Scheme%20Assignment', payload);
+    }
+    const savedName=res?.data?.name||res?.name||window.currentAssignName;
+    window.currentAssignName=savedName;
+    if(isNew){
+      try{ await dev1Put('/api/resource/Jewellery%20Scheme%20Assignment/'+encodeURIComponent(savedName), {docstatus:1}); }
+      catch(submitErr){ console.warn('Assignment submit failed:', submitErr.message); showToast('Saved as draft (submit failed): '+String(submitErr.message).slice(0,80),'error'); }
+    }
+    showToast('Saved: '+savedName,'success');
+    history.replaceState({},'','/caratdesk-new-jewellery-scheme?name='+encodeURIComponent(savedName));
+    await loadAssignmentForm(savedName);
+  }catch(e){ showToast('Error: '+String(e.message).slice(0,120),'error'); }
+}
+async function submitAssignment(){
+  const name=window.currentAssignName;
+  if(!name || currentAssignDocstatus!==0) return;
+  try{
+    await dev1Put('/api/resource/Jewellery%20Scheme%20Assignment/'+encodeURIComponent(name), {docstatus:1});
+    showToast('Assignment '+name+' submitted','success');
+    await loadAssignmentForm(name);
+  }catch(e){ showToast('Error submitting: '+String(e.message).slice(0,120),'error'); }
+}
+async function forceCloseAssignment(){
+  const name=window.currentAssignName;
+  if(!name || !canTransact()) return;
+  if(!confirm('Force close assignment '+name+'? Once closed, no further payments or transactions can be made against it.')) return;
+  try{
+    await dev1Put('/api/resource/Jewellery%20Scheme%20Assignment/'+encodeURIComponent(name), {status:'Closed'});
+    showToast('Assignment '+name+' closed','success');
+    await loadAssignmentForm(name);
+  }catch(e){ showToast('Error: '+String(e.message).slice(0,120),'error'); }
+}
+async function deleteAssignment(name){
+  if(!name) return;
+  if(!confirm('Delete assignment '+name+'? This cannot be undone.')) return;
+  try{
+    await dev1Delete('/api/resource/Jewellery%20Scheme%20Assignment/'+encodeURIComponent(name));
+    showToast('Deleted '+name,'success');
+    setTimeout(()=>window.location.href='/caratdesk-jewellery-scheme',600);
+  }catch(e){ showToast('Error: '+String(e.message).slice(0,120),'error'); }
+}
+function navigateBack(){
+  const hasDraftData = !window.currentAssignName && (document.getElementById('assignCustomer').value.trim() || document.getElementById('assignScheme').value.trim());
+  if(hasDraftData && !confirm('Discard this draft and go back?')) return;
+  window.location.href='/caratdesk-jewellery-scheme';
+}
+
+// ── INIT ──
+async function init(){
+  const h=cdGetInstanceHeaders();
+  if(!h){ window.location.replace('/caratdesk-login?logout=1'); return; }
+  try{
+    const custRes = await dev1Get(`/api/resource/Customer?fields=${encodeURIComponent(JSON.stringify(["name","customer_name","mobile_no"]))}&limit_page_length=0`);
+    CUSTOMERS=(custRes.data||custRes.message||[]).map(c=>({name:c.name, display:c.customer_name||c.name, phone:c.mobile_no||''}));
+  }catch(e){ console.warn('Load customers error:',e); }
+  await loadSchemes();
+  await loadGoldPurityOptions();
+  await loadBranches();
+  await loadCountries();
+  await loadSalesPersons();
+
+  const params = new URLSearchParams(window.location.search);
+  const name = params.get('name');
+  await loadAssignmentForm(name||null);
+}
+
+// ── THEME ──
+const moonIcon='<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+const sunIcon='<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+function initTheme(){ const s=localStorage.getItem('cdTheme'); if(s==='dark'){ document.documentElement.classList.add('dark'); document.getElementById('themeIcon').innerHTML=sunIcon; } else { document.getElementById('themeIcon').innerHTML=moonIcon; } }
+function toggleTheme(){
+  if(document.documentElement.classList.contains('dark')){
+    document.documentElement.classList.remove('dark'); localStorage.setItem('cdTheme','light'); document.getElementById('themeIcon').innerHTML=moonIcon;
+  } else {
+    document.documentElement.classList.add('dark'); localStorage.setItem('cdTheme','dark'); document.getElementById('themeIcon').innerHTML=sunIcon;
+  }
+}
+document.getElementById('cdThemeToggle').addEventListener('click', toggleTheme);
+initTheme();
+
+// Sidebar toggle
+const sidebar = document.getElementById('cdSidebar');
+document.getElementById('cdMenuToggle').addEventListener('click', () => sidebar.classList.toggle('mobile-open'));
+document.querySelectorAll('.cd-nav-item').forEach(link => {
+  link.addEventListener('click', () => { if (window.innerWidth <= 768) sidebar.classList.remove('mobile-open'); });
+});
+
+// Auth / user
+(function(){
+  const hasSession=localStorage.getItem('cd_pp_key')||localStorage.getItem('cd_pc_key');
+  if(!hasSession){ window.location.replace('/caratdesk-login?logout=1'); return; }
+  const active=cdGetActiveInstance();
+  const key=active==='PC'?localStorage.getItem('cd_pc_key'):localStorage.getItem('cd_pp_key');
+  const sec=active==='PC'?localStorage.getItem('cd_pc_secret'):localStorage.getItem('cd_pp_secret');
+  if(key&&sec){ localStorage.setItem('cd_api_key',key); localStorage.setItem('cd_api_secret',sec); }
+  const name=localStorage.getItem('cd_user')||localStorage.getItem('cd_user_email')||'User';
+  document.getElementById('cdUserName').textContent=name;
+  document.getElementById('cdAvatar').textContent=name.split('@')[0].split(/[\s.]+/).map(w=>w[0]||'').join('').slice(0,2).toUpperCase()||'U';
+  cdInitInstanceToggle();
+})();
+
+document.getElementById('cdLogoutBtn').addEventListener('click',async()=>{
+  const ppK=localStorage.getItem('cd_pp_key'), ppS=localStorage.getItem('cd_pp_secret');
+  const pcK=localStorage.getItem('cd_pc_key'), pcS=localStorage.getItem('cd_pc_secret');
+  try{ if(ppK&&ppS) await fetch(`${DEV1}/api/method/logout`,{method:'POST',headers:{Authorization:`token ${ppK}:${ppS}`}}); }catch(e){}
+  try{ if(pcK&&pcS) await fetch(`${DEV2}/api/method/logout`,{method:'POST',headers:{Authorization:`token ${pcK}:${pcS}`}}); }catch(e){}
+  ['cd_api_key','cd_api_secret','cd_pp_key','cd_pp_secret','cd_pc_key','cd_pc_secret',
+   'cd_user','cd_user_email','cd_active_instance','cd_available_instances'].forEach(k=>localStorage.removeItem(k));
+  window.location.replace('/caratdesk-login?logout=1');
+});
+
+init();
+</script>
