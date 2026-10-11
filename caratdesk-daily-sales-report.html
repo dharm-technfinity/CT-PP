@@ -1,0 +1,967 @@
+<!-- CaratDesk – Daily Sales Report -->
+<head>
+  <meta charset="UTF-8">
+</head>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap');
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  .navbar,.page-header,footer.web-footer,.container>.row>.col-sm-10,.frappe-footer{display:none!important}
+  .web-page-container,.container{padding:0!important;max-width:100%!important}
+  body{overflow-x:hidden}
+  :root{--bg:#F7F6F3;--surface:#FFF;--border:rgba(0,0,0,.07);--border-strong:rgba(0,0,0,.12);--text-primary:#1A1A18;--text-secondary:#6B6B65;--text-muted:#A8A8A2;--accent:#1A1A18;--accent-light:#F0EFE9;--nav-hover:#F7F6F3;--nav-active-bg:#EBEBE5;--pill-green-bg:#EAF3DE;--pill-green-txt:#3B6D11;--pill-red-bg:#FCEBEB;--pill-red-txt:#A32D2D;--pill-amber-bg:#FAEEDA;--pill-amber-txt:#854F0B;--pill-blue-bg:#E8F0FD;--pill-blue-txt:#1A4A8A;--pill-purple-bg:#F3E8FD;--pill-purple-txt:#7C3AED;--shadow-sm:0 2px 12px rgba(0,0,0,.04),0 0 0 .5px rgba(0,0,0,.03);--shadow-md:0 4px 24px rgba(0,0,0,.08)}
+  .dark{--bg:#121212;--surface:#1E1E1E;--border:rgba(255,255,255,.08);--border-strong:rgba(255,255,255,.15);--text-primary:#EDEDED;--text-secondary:#A0A0A0;--text-muted:#6E6E6E;--accent:#D4D4D4;--accent-light:#2C2C2C;--nav-hover:#252525;--nav-active-bg:#2D2D2D;--pill-green-bg:#1E3A2E;--pill-green-txt:#9CD45E;--pill-red-bg:#3E1E1E;--pill-red-txt:#F28B82;--pill-amber-bg:#3E2E1E;--pill-amber-txt:#FDBF6B;--pill-blue-bg:#1A2A3E;--pill-blue-txt:#7AABF0;--pill-purple-bg:#2E1B47;--pill-purple-txt:#C4A6F5;--shadow-sm:0 2px 12px rgba(0,0,0,.3),0 0 0 .5px rgba(255,255,255,.05);--shadow-md:0 4px 24px rgba(0,0,0,.3)}
+  html,body{color:var(--text-primary)}
+  *{transition:background-color .2s ease,border-color .2s ease,color .2s ease,box-shadow .2s ease}
+  .cd-app{font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);min-height:100vh;display:flex;-webkit-font-smoothing:antialiased;color:var(--text-primary)}
+  .cd-sidebar{width:260px;background:var(--surface);border-right:.5px solid var(--border);display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;z-index:200;transform:translateX(0);transition:transform .3s cubic-bezier(.2,.9,.4,1.1);box-shadow:var(--shadow-sm)}
+  @media(max-width:768px){.cd-sidebar{transform:translateX(-100%)}.cd-sidebar.mobile-open{transform:translateX(0);width:80%;max-width:280px}}
+  .cd-sidebar-logo{display:flex;align-items:center;gap:11px;padding:20px 16px 18px;border-bottom:.5px solid var(--border);text-decoration:none;color:inherit}
+  .cd-sidebar-logo img{width:30px;height:30px;object-fit:contain;border-radius:9px}
+  .cd-logo-name{font-family:'DM Serif Display',Georgia,serif;font-size:17px;color:var(--text-primary);letter-spacing:-.2px}
+  .cd-logo-sub{font-size:10px;color:var(--text-muted);font-weight:300;letter-spacing:.07em;text-transform:uppercase}
+  .cd-nav{flex:1;padding:10px 8px;overflow-y:auto}
+  .cd-nav-section{font-size:10px;font-weight:500;color:var(--text-muted);letter-spacing:.08em;text-transform:uppercase;padding:14px 8px 5px}
+  .cd-nav-item{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:9px;cursor:pointer;margin-bottom:1px;text-decoration:none;color:var(--text-secondary);font-size:13.5px;font-weight:400;transition:background .14s,color .14s}
+  .cd-nav-item:hover{background:var(--nav-hover);color:var(--text-primary)}
+  .cd-nav-item.active{background:var(--nav-active-bg);color:var(--text-primary);font-weight:500}
+  .cd-nav-icon{width:20px;height:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:inherit}
+  .cd-nav-icon svg{width:15px;height:15px;stroke:currentColor;stroke-width:1.75;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .cd-sidebar-bottom{padding:10px 8px;border-top:.5px solid var(--border)}
+  .cd-user-card{display:flex;align-items:center;gap:10px;padding:10px;border-radius:9px;cursor:pointer;transition:background .14s}
+  .cd-user-card:hover{background:var(--nav-hover)}
+  .cd-avatar{width:32px;height:32px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:var(--surface);flex-shrink:0}
+  .cd-user-name{font-size:13px;font-weight:500;color:var(--text-primary)}
+  .cd-user-role{font-size:11px;color:var(--text-muted);font-weight:300}
+  .cd-logout-btn{display:flex;align-items:center;gap:7px;padding:9px 10px;border-radius:9px;cursor:pointer;font-size:13px;color:var(--text-secondary);margin-top:3px;border:none;background:none;font-family:'DM Sans',sans-serif;width:100%;transition:background .14s,color .14s}
+  .cd-logout-btn:hover{background:var(--pill-red-bg);color:var(--pill-red-txt)}
+  .cd-instance-bar{display:flex;align-items:center;gap:6px;padding:8px 10px 4px}
+  .cd-instance-label{font-size:10px;font-weight:500;color:var(--text-muted);letter-spacing:.07em;text-transform:uppercase;flex:1}
+  .cd-instance-pills{display:flex;gap:4px}
+  .cd-instance-pill{font-size:11px;font-weight:500;padding:3px 10px;border-radius:6px;border:.5px solid var(--border);color:var(--text-secondary);cursor:pointer;transition:background .14s,color .14s,border-color .14s;font-family:'DM Sans',sans-serif;background:none}
+  .cd-instance-pill:hover{background:var(--nav-hover);color:var(--text-primary)}
+  .cd-instance-pill.active{background:var(--accent);color:var(--surface);border-color:var(--accent)}
+  .cd-main{margin-left:260px;flex:1;min-height:100vh;display:flex;flex-direction:column;width:100%}
+  @media(max-width:768px){.cd-main{margin-left:0}}
+  .cd-topbar{height:58px;background:var(--surface);border-bottom:.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 20px;position:sticky;top:0;z-index:100}
+  .cd-menu-btn{display:none;background:none;border:none;cursor:pointer;color:var(--text-secondary);margin-right:12px}
+  @media(max-width:768px){.cd-menu-btn{display:flex;align-items:center;justify-content:center}}
+  .cd-topbar-left{display:flex;align-items:center;gap:10px}
+  .cd-breadcrumb{display:flex;align-items:center;gap:6px;font-size:13.5px}
+  .cd-breadcrumb a{color:var(--text-muted);text-decoration:none;transition:color .14s}
+  .cd-breadcrumb a:hover{color:var(--text-primary)}
+  .cd-breadcrumb-sep{color:var(--text-muted);font-size:12px}
+  .cd-breadcrumb-cur{color:var(--text-primary);font-weight:500}
+  .cd-topbar-right{display:flex;align-items:center;gap:8px}
+  .cd-icon-btn{width:34px;height:34px;border-radius:9px;border:.5px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-secondary);transition:background .14s,color .14s}
+  .cd-icon-btn:hover{background:var(--nav-hover);color:var(--text-primary)}
+  .cd-icon-btn svg{width:15px;height:15px;stroke:currentColor;stroke-width:1.75;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .cd-content{padding:24px 28px;flex:1;animation:fadeIn .35s cubic-bezier(.16,1,.3,1) both}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+  .cd-page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+  .cd-page-title{font-size:20px;font-weight:500;letter-spacing:-.3px}
+  .cd-page-sub{font-size:12.5px;color:var(--text-muted);margin-top:2px;font-weight:300}
+  .cd-btn{font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;padding:8px 16px;border-radius:9px;border:none;cursor:pointer;transition:background .14s,transform .1s;display:inline-flex;align-items:center;gap:7px;text-decoration:none}
+  .cd-btn:active{transform:scale(.98)}
+  .cd-btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .cd-btn-primary{background:var(--text-primary);color:var(--surface)}
+  .cd-btn-primary:hover{opacity:.85}
+  .cd-btn-secondary{background:var(--surface);color:var(--text-primary);border:.5px solid var(--border-strong)}
+  .cd-btn-secondary:hover{background:var(--accent-light)}
+  .cd-summary-bar{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+  .cd-pill-filter{display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:100px;border:.5px solid var(--border);background:var(--surface);font-size:12.5px;cursor:pointer;transition:box-shadow .14s,border-color .14s,background .14s;white-space:nowrap}
+  .cd-pill-filter:hover{box-shadow:0 2px 8px rgba(0,0,0,.06);border-color:var(--border-strong)}
+  .cd-pill-filter.active{background:var(--text-primary);color:var(--surface);border-color:var(--text-primary)}
+  .cd-pill-filter.active .pf-count{background:rgba(255,255,255,.2);color:var(--surface)}
+  .pf-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+  .pf-count{font-size:11px;font-weight:600;background:var(--accent-light);color:var(--text-secondary);padding:2px 7px;border-radius:100px;font-variant-numeric:tabular-nums}
+  .pf-amt{font-size:11px;color:var(--text-muted);font-variant-numeric:tabular-nums}
+  .cd-toolbar{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+  .cd-search-wrap{position:relative;flex:1;min-width:200px;max-width:360px}
+  .cd-search-wrap svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:14px;height:14px;stroke:var(--text-muted);fill:none;stroke-width:1.8;pointer-events:none}
+  .cd-search-input{width:100%;font-family:'DM Sans',sans-serif;font-size:13px;background:var(--surface);border:.5px solid var(--border-strong);border-radius:9px;padding:8px 12px 8px 34px;color:var(--text-primary);outline:none;transition:border-color .14s,box-shadow .14s}
+  .cd-search-input:focus{border-color:var(--text-secondary);box-shadow:0 0 0 3px rgba(0,0,0,.05)}
+  .cd-search-input::placeholder{color:var(--text-muted)}
+  .cd-toolbar-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+  .cd-result-count{font-size:12px;color:var(--text-muted);white-space:nowrap}
+  .cd-table-wrap{background:var(--surface);border:.5px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:var(--shadow-sm)}
+  .cd-table{width:100%;border-collapse:collapse}
+  .cd-table thead{background:var(--bg)}
+  .cd-table th{font-size:11px;font-weight:500;color:var(--text-muted);text-align:left;padding:11px 16px;letter-spacing:.05em;text-transform:uppercase;border-bottom:.5px solid var(--border);white-space:nowrap;user-select:none}
+  .cd-table th .thi{display:flex;align-items:center;gap:5px}
+  .cd-table td{font-size:13px;padding:13px 16px;border-bottom:.5px solid var(--border);vertical-align:middle}
+  .cd-table tr:last-child td{border-bottom:none}
+  .cd-table tbody tr{cursor:pointer;transition:background .1s}
+  .cd-table tbody tr:hover{background:var(--nav-hover)}
+  .doc-num{font-weight:500;font-size:13px}
+  .doc-sub{font-size:11px;color:var(--text-muted);margin-top:2px}
+  .cd-pill{display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:3px 9px;border-radius:100px;font-weight:500;white-space:nowrap}
+  .cd-pill-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+  .cd-pill.green{background:var(--pill-green-bg);color:var(--pill-green-txt)}.cd-pill.green .cd-pill-dot{background:var(--pill-green-txt)}
+  .cd-pill.red{background:var(--pill-red-bg);color:var(--pill-red-txt)}.cd-pill.red .cd-pill-dot{background:var(--pill-red-txt)}
+  .cd-pill.amber{background:var(--pill-amber-bg);color:var(--pill-amber-txt)}.cd-pill.amber .cd-pill-dot{background:var(--pill-amber-txt)}
+  .cd-pill.blue{background:var(--pill-blue-bg);color:var(--pill-blue-txt)}.cd-pill.blue .cd-pill-dot{background:var(--pill-blue-txt)}
+  .cd-pill.grey{background:var(--accent-light);color:var(--text-secondary)}.cd-pill.grey .cd-pill-dot{background:var(--text-muted)}
+  .cd-pill.purple{background:var(--pill-purple-bg);color:var(--pill-purple-txt)}.cd-pill.purple .cd-pill-dot{background:var(--pill-purple-txt)}
+  .mode-badge{display:inline-flex;align-items:center;font-size:10.5px;font-weight:500;padding:2px 8px;border-radius:100px;white-space:nowrap;margin:1px 3px 1px 0}
+  .cd-empty{text-align:center;padding:60px 20px;color:var(--text-muted)}
+  .cd-empty svg{width:44px;height:44px;stroke:var(--text-muted);fill:none;stroke-width:1.2;margin:0 auto 14px;display:block}
+  .cd-empty-title{font-size:14px;font-weight:500;color:var(--text-secondary);margin-bottom:5px}
+  .cd-empty-sub{font-size:12.5px}
+  .cd-pagination{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-top:.5px solid var(--border);flex-wrap:wrap;gap:10px}
+  .cd-page-info{font-size:12px;color:var(--text-muted)}
+  .cd-page-btns{display:flex;gap:4px;align-items:center}
+  .cd-page-btn{min-width:30px;height:30px;border-radius:7px;border:.5px solid var(--border);background:var(--surface);font-family:'DM Sans',sans-serif;font-size:12.5px;color:var(--text-secondary);cursor:pointer;padding:0 8px;display:flex;align-items:center;justify-content:center;transition:background .12s,color .12s}
+  .cd-page-btn:hover{background:var(--nav-hover);color:var(--text-primary)}
+  .cd-page-btn.active{background:var(--text-primary);color:var(--surface);border-color:var(--text-primary);font-weight:500}
+  .cd-page-btn:disabled{opacity:.38;cursor:not-allowed}
+  .cd-page-btn svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2}
+  .cd-fchip-wrap{position:relative;display:inline-flex}
+  .cd-fchip{font-family:'DM Sans',sans-serif;font-size:12.5px;font-weight:400;padding:7px 11px;border-radius:9px;border:.5px solid var(--border-strong);background:var(--surface);color:var(--text-secondary);cursor:pointer;display:inline-flex;align-items:center;gap:5px;white-space:nowrap;transition:background .14s,border-color .14s,color .14s;line-height:1}
+  .cd-fchip:hover{background:var(--nav-hover);color:var(--text-primary)}
+  .cd-fchip.active{background:var(--text-primary);color:var(--surface);border-color:var(--text-primary)}
+  .cd-fchip svg.caret{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0;transition:transform .14s}
+  .cd-fchip.open svg.caret{transform:rotate(180deg)}
+  .cd-fpop{position:absolute;top:calc(100% + 6px);left:0;background:var(--surface);border:.5px solid var(--border-strong);border-radius:12px;box-shadow:var(--shadow-md);z-index:600;min-width:250px;max-width:calc(100vw - 32px);padding:14px;display:none}
+  .cd-fpop.align-right{left:auto;right:0}
+  .cd-fpop.open{display:block;animation:fadeIn .15s ease}
+  .cd-fpop-title{font-size:10.5px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px}
+  .cd-fpop label{font-size:12px;color:var(--text-secondary);display:block;margin-bottom:4px}
+  .cd-fpop input[type=date]{width:100%;font-family:'DM Sans',sans-serif;font-size:12.5px;background:var(--bg);border:.5px solid var(--border-strong);border-radius:8px;padding:7px 10px;color:var(--text-primary);outline:none;margin-bottom:10px;transition:border-color .14s}
+  .cd-fpop input[type=date]:focus{border-color:var(--text-secondary)}
+  .cd-fpop-acts{display:flex;gap:6px;justify-content:flex-end;margin-top:2px}
+  .cd-fpop-clear{font-family:'DM Sans',sans-serif;font-size:12px;padding:6px 11px;border-radius:7px;border:.5px solid var(--border-strong);background:none;color:var(--text-secondary);cursor:pointer;transition:background .14s}
+  .cd-fpop-clear:hover{background:var(--nav-hover)}
+  .cd-fpop-apply{font-family:'DM Sans',sans-serif;font-size:12px;padding:6px 11px;border-radius:7px;border:none;background:var(--text-primary);color:var(--surface);cursor:pointer;font-weight:500;transition:opacity .14s}
+  .cd-fpop-apply:hover{opacity:.85}
+  .cd-quick-ranges{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+  .cd-quick-range{font-family:'DM Sans',sans-serif;font-size:11.5px;padding:5px 10px;border-radius:100px;border:.5px solid var(--border-strong);background:var(--bg);color:var(--text-secondary);cursor:pointer;transition:background .14s,color .14s}
+  .cd-quick-range:hover{background:var(--nav-active-bg);color:var(--text-primary)}
+  .cd-sc-wrap{position:relative;display:inline-flex;align-items:center;gap:3px}
+  .cd-sc{display:inline-flex;align-items:center;border-radius:9px;border:.5px solid var(--border-strong);background:var(--surface);overflow:hidden;transition:border-color .14s}
+  .cd-sc:hover{border-color:var(--text-secondary)}
+  .cd-sc-dir{padding:6px 9px;border-right:.5px solid var(--border);cursor:pointer;display:flex;align-items:center;color:var(--text-secondary);background:none;border-top:none;border-bottom:none;border-left:none;transition:background .14s,color .14s;font-family:'DM Sans',sans-serif}
+  .cd-sc-dir:hover{background:var(--nav-hover);color:var(--text-primary)}
+  .cd-sc-dir svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8;display:block}
+  .cd-sc-lbl{padding:6px 10px 6px 8px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12.5px;color:var(--text-secondary);display:inline-flex;align-items:center;gap:5px;background:none;border:none;transition:background .14s,color .14s;white-space:nowrap;line-height:1}
+  .cd-sc-lbl:hover{background:var(--nav-hover);color:var(--text-primary)}
+  .cd-sc-lbl svg.caret{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2;transition:transform .14s;flex-shrink:0}
+  .cd-sc-lbl.open svg.caret{transform:rotate(180deg)}
+  .cd-sc-pop{position:absolute;top:calc(100% + 6px);left:0;background:var(--surface);border:.5px solid var(--border-strong);border-radius:10px;box-shadow:var(--shadow-md);z-index:600;min-width:170px;padding:4px;display:none}
+  .cd-sc-pop.open{display:block;animation:fadeIn .15s ease}
+  .cd-sc-opt{font-family:'DM Sans',sans-serif;font-size:13px;padding:8px 12px;border-radius:7px;cursor:pointer;color:var(--text-secondary);transition:background .12s,color .12s;display:flex;align-items:center;gap:8px}
+  .cd-sc-opt:hover{background:var(--nav-hover);color:var(--text-primary)}
+  .cd-sc-opt.active{color:var(--text-primary);font-weight:500}
+  .cd-sc-opt::before{content:'';width:6px;height:6px;border-radius:50%;flex-shrink:0;background:transparent}
+  .cd-sc-opt.active::before{background:var(--text-primary)}
+  .cd-idialog-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:800;opacity:0;pointer-events:none;transition:opacity .22s;backdrop-filter:blur(3px)}
+  .cd-idialog-overlay.open{opacity:1;pointer-events:all}
+  .cd-idialog{position:fixed;top:50%;left:50%;transform:translate(-50%,-46%);background:var(--surface);border-radius:16px;border:.5px solid var(--border);box-shadow:0 20px 60px rgba(0,0,0,.2);z-index:801;width:760px;max-width:96vw;max-height:88vh;display:flex;flex-direction:column;opacity:0;pointer-events:none;transition:opacity .22s,transform .22s}
+  .cd-idialog.open{opacity:1;pointer-events:all;transform:translate(-50%,-50%)}
+  .cd-idialog-header{padding:18px 24px 14px;border-bottom:.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+  .cd-idialog-title{font-size:15px;font-weight:600;display:flex;align-items:center;gap:8px}
+  .cd-idialog-close{width:28px;height:28px;border-radius:7px;border:.5px solid var(--border);background:var(--bg);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-secondary);transition:background .14s}
+  .cd-idialog-close:hover{background:var(--pill-red-bg);color:var(--pill-red-txt)}
+  .cd-idialog-close svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2}
+  .cd-idialog-body{flex:1;overflow-y:auto;padding:20px 24px}
+  .cd-idialog-footer{padding:14px 24px;border-top:.5px solid var(--border);display:flex;gap:8px;flex-shrink:0;align-items:center}
+  .cd-dmeta{background:var(--bg);border-radius:12px;padding:16px;margin-bottom:16px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .cd-dmeta-lbl{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+  .cd-dmeta-val{font-size:13px;font-weight:500}
+</style>
+
+<div class="cd-app" id="cdApp">
+  <nav class="cd-sidebar" id="cdSidebar">
+    <a class="cd-sidebar-logo" href="/caratdesk">
+      <img src="https://i.postimg.cc/NMgHCKvC/letter-cc-cd-diamond-initial-600nw-2206465849.png" alt="CaratDesk"/>
+      <div><div class="cd-logo-name">PPJ Retail</div><div class="cd-logo-sub">Jewellery POS</div></div>
+    </a>
+    <div class="cd-nav">
+      <div class="cd-nav-section">Main</div>
+      <a href="/caratdesk" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>Dashboard</a>
+      <div class="cd-nav-section">Operations</div>
+      <a href="/caratdesk-pos" class="cd-nav-item">
+        <span class="cd-nav-icon"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>
+        POS Billing
+      </a>
+      <a href="/caratdesk-selling" class="cd-nav-item active"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg></span>Selling</a>
+      <a href="/caratdesk-buying" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></span>Buying</a>
+      <a href="/caratdesk-stock" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg></span>Stock</a>
+      <a href="/caratdesk-items" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></span>Items</a>
+      <div class="cd-nav-section">Finance</div>
+      <a href="/caratdesk-finance" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></span>Finance</a>
+      <a href="/caratdesk-accounts" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg></span>Accounts</a>
+      <a href="/caratdesk-reports" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>Reports</a>
+      <div class="cd-nav-section">System</div>
+      <a href="/caratdesk-settings" class="cd-nav-item"><span class="cd-nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M12 2v2M12 20v2M2 12h2M20 12h2M4.93 19.07l1.41-1.41M19.07 19.07l-1.41-1.41"/></svg></span>Settings</a>
+    </div>
+    <div class="cd-sidebar-bottom">
+      <div class="cd-instance-bar" id="cdInstanceBar" style="display:none">
+        <span class="cd-instance-label">Instance</span>
+        <div class="cd-instance-pills">
+          <button class="cd-instance-pill" id="cdInstPP" onclick="cdSwitchInstance('PP')">PP</button>
+          <button class="cd-instance-pill" id="cdInstPC" onclick="cdSwitchInstance('PC')">PC</button>
+        </div>
+      </div>
+      <div class="cd-user-card"><div class="cd-avatar" id="cdAvatar">-</div><div><div class="cd-user-name" id="cdUserName">Loading...</div><div class="cd-user-role" id="cdUserRole">POS Manager</div></div></div>
+      <button class="cd-logout-btn" id="cdLogoutBtn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign out</button>
+    </div>
+  </nav>
+
+  <div class="cd-main">
+    <div class="cd-topbar">
+      <div class="cd-topbar-left">
+        <button class="cd-menu-btn" id="cdMenuToggle"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+        <div class="cd-breadcrumb">
+          <a href="/caratdesk-selling">Selling</a>
+          <span class="cd-breadcrumb-sep">›</span>
+          <span class="cd-breadcrumb-cur">Daily Sales Report</span>
+        </div>
+      </div>
+      <div class="cd-topbar-right">
+        <div class="cd-icon-btn" id="cdThemeToggle"><svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div>
+      </div>
+    </div>
+
+    <div class="cd-content">
+      <div class="cd-page-header">
+        <div>
+          <div class="cd-page-title">Daily Sales Report</div>
+          <div class="cd-page-sub" id="dsrSub">Loading...</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <div class="cd-fchip-wrap">
+            <button class="cd-fchip active" id="dateRangeChip" onclick="toggleDatePop(event)">
+              <svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              <span id="dateRangeLabel">Today</span>
+              <svg class="caret" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="cd-fpop align-right" id="dateRangePop">
+              <div class="cd-fpop-title">Date Range</div>
+              <div class="cd-quick-ranges">
+                <button type="button" class="cd-quick-range" onclick="setQuickRange('today')">Today</button>
+                <button type="button" class="cd-quick-range" onclick="setQuickRange('yesterday')">Yesterday</button>
+                <button type="button" class="cd-quick-range" onclick="setQuickRange('week')">This Week</button>
+                <button type="button" class="cd-quick-range" onclick="setQuickRange('month')">This Month</button>
+              </div>
+              <label>From</label><input type="date" id="dsrFrom"/>
+              <label>To</label><input type="date" id="dsrTo"/>
+              <div class="cd-fpop-acts">
+                <button class="cd-fpop-clear" onclick="setQuickRange('today')">Reset</button>
+                <button class="cd-fpop-apply" onclick="applyDateRange()">Apply</button>
+              </div>
+            </div>
+          </div>
+          <button class="cd-btn cd-btn-secondary" onclick="exportCSV()"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export</button>
+        </div>
+      </div>
+
+      <!-- Transaction Type pills (also act as filters) -->
+      <div class="cd-summary-bar" id="typeSummaryBar">
+        <div class="cd-pill-filter active" onclick="filterType('all',this)"><span class="pf-dot" style="background:var(--text-muted)"></span>All<span class="pf-count" id="tc-all">0</span><span class="pf-amt" id="ta-all"></span></div>
+        <div class="cd-pill-filter" onclick="filterType('sale',this)"><span class="pf-dot" style="background:var(--pill-green-txt)"></span>Sales<span class="pf-count" id="tc-sale">0</span><span class="pf-amt" id="ta-sale"></span></div>
+        <div class="cd-pill-filter" onclick="filterType('sales_return',this)"><span class="pf-dot" style="background:var(--pill-purple-txt)"></span>Sales Return<span class="pf-count" id="tc-sales_return">0</span><span class="pf-amt" id="ta-sales_return"></span></div>
+        <div class="cd-pill-filter" onclick="filterType('gold_purchase',this)"><span class="pf-dot" style="background:var(--pill-amber-txt)"></span>Gold Purchase<span class="pf-count" id="tc-gold_purchase">0</span><span class="pf-amt" id="ta-gold_purchase"></span></div>
+        <div class="cd-pill-filter" onclick="filterType('advance',this)"><span class="pf-dot" style="background:var(--pill-blue-txt)"></span>Advance<span class="pf-count" id="tc-advance">0</span><span class="pf-amt" id="ta-advance"></span></div>
+        <div class="cd-pill-filter" onclick="filterType('refund',this)"><span class="pf-dot" style="background:var(--pill-red-txt)"></span>Refund<span class="pf-count" id="tc-refund">0</span><span class="pf-amt" id="ta-refund"></span></div>
+      </div>
+
+      <!-- Mode of Payment pills (also act as filters, scoped to the active Transaction Type) -->
+      <div class="cd-summary-bar" id="modeSummaryBar">
+        <div class="cd-pill-filter active" onclick="filterMode('all',this)"><span class="pf-dot" style="background:var(--text-muted)"></span>All<span class="pf-count" id="mc-all">0</span><span class="pf-amt" id="ma-all"></span></div>
+      </div>
+
+      <!-- Toolbar -->
+      <div class="cd-toolbar">
+        <div class="cd-search-wrap"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input class="cd-search-input" id="dsrSearch" placeholder="Search invoice number or customer..." oninput="applyFilters()"/></div>
+        <div class="cd-sc-wrap" id="scWrap">
+          <div class="cd-sc">
+            <button class="cd-sc-dir" id="scDirBtn" onclick="toggleSortDir(event)">
+              <svg id="scDirIcon" viewBox="0 0 16 16"><line x1="1" y1="4" x2="9" y2="4"/><line x1="1" y1="8" x2="7" y2="8"/><line x1="1" y1="12" x2="5" y2="12"/><line x1="13" y1="2" x2="13" y2="14"/><polyline points="10 11 13 14 16 11"/></svg>
+            </button>
+            <button class="cd-sc-lbl" id="scLblBtn" onclick="toggleScPop(event)">
+              <span id="scLbl">Time</span>
+              <svg class="caret" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+          </div>
+          <div class="cd-sc-pop" id="scPop">
+            <div class="cd-sc-opt active" data-field="time" onclick="setSortField('time',event)">Time</div>
+            <div class="cd-sc-opt" data-field="amount" onclick="setSortField('amount',event)">Amount</div>
+            <div class="cd-sc-opt" data-field="id" onclick="setSortField('id',event)">Invoice No.</div>
+          </div>
+        </div>
+        <div class="cd-toolbar-right"><span class="cd-result-count" id="dsrCount"></span><div class="cd-icon-btn" onclick="load()"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></div></div>
+      </div>
+
+      <!-- Table -->
+      <div class="cd-table-wrap">
+        <table class="cd-table">
+          <thead><tr>
+            <th><div class="thi">Invoice No.</div></th>
+            <th><div class="thi">Type</div></th>
+            <th><div class="thi">Customer</div></th>
+            <th><div class="thi">Time</div></th>
+            <th><div class="thi">Mode(s) of Payment</div></th>
+            <th style="text-align:right"><div class="thi" style="justify-content:flex-end">Amount</div></th>
+            <th>Status</th>
+          </tr></thead>
+          <tbody id="dsrTbody"><tr><td colspan="7"><div class="cd-empty"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><div class="cd-empty-title">Loading...</div></div></td></tr></tbody>
+        </table>
+        <div class="cd-pagination" id="dsrPag" style="display:none"><span class="cd-page-info" id="dsrPagInfo"></span><div class="cd-page-btns" id="dsrPagBtns"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Item Detail Dialog -->
+<div class="cd-idialog-overlay" id="itemDlgOverlay" onclick="closeItemDialog()"></div>
+<div class="cd-idialog" id="itemDlg">
+  <div class="cd-idialog-header">
+    <span class="cd-idialog-title" id="itemDlgTitle">Invoice</span>
+    <div class="cd-idialog-close" onclick="closeItemDialog()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+  </div>
+  <div class="cd-idialog-body" id="itemDlgBody"></div>
+  <div class="cd-idialog-footer">
+    <button class="cd-btn cd-btn-secondary" onclick="openInFrappeDlg()"><svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Open in ERPNext</button>
+  </div>
+</div>
+
+<script>
+const DEV1 = 'https://ppj-dev1.m.frappe.cloud';
+const DEV2 = 'https://ppj-dev2.m.frappe.cloud';
+function cdGetActiveInstance(){ return localStorage.getItem('cd_active_instance')||'PP'; }
+function cdGetAvailableInstances(){ return (localStorage.getItem('cd_available_instances')||'PP').split(',').filter(Boolean); }
+function cdGetInstanceUrl(inst){ return (inst||cdGetActiveInstance())==='PC'?DEV2:DEV1; }
+function cdSwitchInstance(inst){
+  const available=cdGetAvailableInstances();
+  if(!available.includes(inst)) return;
+  const key=inst==='PC'?localStorage.getItem('cd_pc_key'):localStorage.getItem('cd_pp_key');
+  const sec=inst==='PC'?localStorage.getItem('cd_pc_secret'):localStorage.getItem('cd_pp_secret');
+  localStorage.setItem('cd_active_instance',inst);
+  localStorage.setItem('cd_api_key',key);
+  localStorage.setItem('cd_api_secret',sec);
+  window.location.reload();
+}
+function cdInitInstanceToggle(){
+  const available=cdGetAvailableInstances();
+  const active=cdGetActiveInstance();
+  const bar=document.getElementById('cdInstanceBar');
+  if(!bar) return;
+  if(available.length<2){ bar.style.display='none'; return; }
+  bar.style.display='flex';
+  ['PP','PC'].forEach(inst=>{
+    const btn=document.getElementById('cdInst'+inst);
+    if(!btn) return;
+    btn.classList.toggle('active',inst===active);
+    btn.style.display=available.includes(inst)?'':'none';
+  });
+  const roleEl=document.getElementById('cdUserRole');
+  if(roleEl) roleEl.textContent='Active: '+active;
+}
+
+// ── STATE ──
+let DSR_DATA = [];
+let filtered = [], activeMode = 'all', activeType = 'all', currentPage = 1;
+let sortDir = 'desc', sortField = 'time';
+const PAGE_SIZE = 20;
+let RANGE_FROM = '', RANGE_TO = '';
+let dlgInvoiceName = '', dlgInvoiceInst = 'PP', dlgInvoiceDoctype = 'Sales Invoice';
+const MODE_COLORS = ['blue','green','amber','purple','red','grey'];
+let MODE_ORDER = []; // stable color assignment across re-renders
+
+const ST_MAP = {
+  'Paid':                {cls:'green', lbl:'Paid'},
+  'Unpaid':              {cls:'amber', lbl:'Unpaid'},
+  'Overdue':             {cls:'red',   lbl:'Overdue'},
+  'Partly Paid':         {cls:'blue',  lbl:'Partly Paid'},
+  'Unpaid and Discounted':      {cls:'amber', lbl:'Unpaid'},
+  'Overdue and Discounted':     {cls:'red',   lbl:'Overdue'},
+  'Partly Paid and Discounted': {cls:'blue',  lbl:'Partly Paid'},
+  'Return':              {cls:'purple', lbl:'Return'},
+  'Credit Note Issued':  {cls:'purple', lbl:'Credit Note'},
+};
+function pill(rawStatus){
+  const s = ST_MAP[rawStatus] || {cls:'grey', lbl: rawStatus || 'Unknown'};
+  return `<span class="cd-pill ${s.cls}"><span class="cd-pill-dot"></span>${s.lbl}</span>`;
+}
+function modeClass(mode){
+  let idx = MODE_ORDER.indexOf(mode);
+  if(idx===-1){ MODE_ORDER.push(mode); idx = MODE_ORDER.length-1; }
+  return MODE_COLORS[idx % MODE_COLORS.length];
+}
+function modeBadges(modes){
+  if(!modes||!modes.length) return '<span style="color:var(--text-muted);font-size:12px">—</span>';
+  return modes.map(m=>`<span class="cd-pill ${modeClass(m.mode)} mode-badge">${esc(m.mode)}</span>`).join('');
+}
+const TYPE_MAP = {
+  sale:          {cls:'green',  lbl:'Sale'},
+  sales_return:  {cls:'purple', lbl:'Sales Return'},
+  gold_purchase: {cls:'amber',  lbl:'Gold Purchase'},
+  advance:       {cls:'blue',   lbl:'Advance'},
+  refund:        {cls:'red',    lbl:'Refund'},
+};
+function typeBadge(type){
+  const t = TYPE_MAP[type] || {cls:'grey', lbl:type||'Unknown'};
+  return `<span class="cd-pill ${t.cls}"><span class="cd-pill-dot"></span>${t.lbl}</span>`;
+}
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function fmt(n){ return '₹'+(Math.round(n||0)).toLocaleString('en-IN'); }
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+function fmtDate(d){ if(!d) return '—'; try{ return new Date(d).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}); }catch(e){return d;} }
+function fmtTime(dt){
+  if(!dt) return '—';
+  try{
+    const d = new Date(String(dt).replace(' ','T').slice(0,23));
+    if(isNaN(d.getTime())) return '—';
+    return d.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true});
+  }catch(e){ return '—'; }
+}
+
+// ── DATA LOADING ──
+// One scoped Sales Invoice Payment query (filtered by parent IN [invoice names]) instead of
+// fetching each invoice's full document one at a time — the same N+1 pitfall fixed elsewhere
+// in this app. Also merges in payments made via a separate, linked Payment Entry (the "New
+// Sales Invoice" page doesn't record payments on the invoice itself the way POS Billing does),
+// so invoices from either flow show their real mode(s) of payment here.
+
+// Shared by both Sales Invoice and Gold Purchase (Purchase Invoice) lookups below: finds every
+// Payment Entry linked to the given documents via Payment Entry Reference, in two scoped
+// queries total regardless of how many documents are passed in — not one call per document.
+async function fetchPaymentModesByReference(base, headers, refDoctype, names){
+  const byParent = {};
+  if(!names.length) return byParent;
+  try{
+    const refFields = encodeURIComponent(JSON.stringify(['parent','reference_name','allocated_amount']));
+    const refFilters = encodeURIComponent(JSON.stringify([['Payment Entry Reference','reference_doctype','=',refDoctype],['Payment Entry Reference','reference_name','in',names]]));
+    const refRes = await fetch(`${base}/api/resource/Payment%20Entry%20Reference?fields=${refFields}&filters=${refFilters}&limit_page_length=0`, {headers});
+    if(refRes.ok){
+      const refJson = await refRes.json();
+      const refRows = refJson.data||refJson.message||[];
+      if(refRows.length){
+        const peNames = [...new Set(refRows.map(r=>r.parent))];
+        const peFields = encodeURIComponent(JSON.stringify(['name','mode_of_payment']));
+        const peFilters = encodeURIComponent(JSON.stringify([['Payment Entry','name','in',peNames],['Payment Entry','docstatus','=',1]]));
+        const peRes = await fetch(`${base}/api/resource/Payment%20Entry?fields=${peFields}&filters=${peFilters}&limit_page_length=0`, {headers});
+        if(peRes.ok){
+          const peJson = await peRes.json();
+          const modeByPE = {};
+          (peJson.data||peJson.message||[]).forEach(pe=>{ modeByPE[pe.name]=pe.mode_of_payment||'Other'; });
+          refRows.forEach(r=>{
+            const mode = modeByPE[r.parent];
+            if(!mode) return; // parent PE is cancelled/draft — not returned above
+            (byParent[r.reference_name] || (byParent[r.reference_name]=[])).push({mode, amount:parseFloat(r.allocated_amount||0)});
+          });
+        }
+      }
+    }
+  }catch(e){ console.warn(`Payment Entry Reference lookup failed (${refDoctype}):`, e.message); }
+  return byParent;
+}
+
+async function fetchInstanceDSR(instName, fromDate, toDate){
+  const key = instName==='PC' ? localStorage.getItem('cd_pc_key') : localStorage.getItem('cd_pp_key');
+  const sec = instName==='PC' ? localStorage.getItem('cd_pc_secret') : localStorage.getItem('cd_pp_secret');
+  if(!key||!sec) return [];
+  const base = instName==='PC' ? DEV2 : DEV1;
+  const headers = {'Authorization':`token ${key}:${sec}`,'Accept':'application/json'};
+
+  const fields = ['name','customer','customer_name','posting_date','creation','grand_total','outstanding_amount','status','is_return'];
+  const filters = [
+    ['Sales Invoice','posting_date','>=',fromDate],
+    ['Sales Invoice','posting_date','<=',toDate],
+    ['Sales Invoice','docstatus','=',1],
+  ];
+  const res = await fetch(`${base}/api/resource/Sales%20Invoice?fields=${encodeURIComponent(JSON.stringify(fields))}&filters=${encodeURIComponent(JSON.stringify(filters))}&order_by=creation%20desc&limit_page_length=0`, {headers});
+  if(!res.ok) throw new Error(`HTTP ${res.status} (${instName})`);
+  const json = await res.json();
+  const invoices = (json.data||json.message||[]).map(r=>({
+    name:r.name, instance:instName, doctype:'Sales Invoice',
+    type: r.is_return ? 'sales_return' : 'sale',
+    customer:r.customer_name||r.customer,
+    date:r.posting_date, creation:r.creation,
+    amount:r.grand_total||0, outstanding:r.outstanding_amount||0,
+    status:r.status||'Submitted',
+    modes:[],
+  }));
+  if(!invoices.length) return invoices;
+  const names = invoices.map(i=>i.name);
+  const byParent = {};
+
+  try{
+    const payFields = encodeURIComponent(JSON.stringify(['parent','mode_of_payment','amount']));
+    const payFilters = encodeURIComponent(JSON.stringify([['Sales Invoice Payment','parent','in',names]]));
+    const payRes = await fetch(`${base}/api/resource/Sales%20Invoice%20Payment?fields=${payFields}&filters=${payFilters}&limit_page_length=0`, {headers});
+    if(payRes.ok){
+      const payJson = await payRes.json();
+      (payJson.data||payJson.message||[]).forEach(p=>{
+        (byParent[p.parent] || (byParent[p.parent]=[])).push({mode:p.mode_of_payment||'Other', amount:parseFloat(p.amount||0)});
+      });
+    }
+  }catch(e){ console.warn('Sales Invoice Payment lookup failed:', e.message); }
+
+  const refByParent = await fetchPaymentModesByReference(base, headers, 'Sales Invoice', names);
+  Object.keys(refByParent).forEach(k=>{ (byParent[k] || (byParent[k]=[])).push(...refByParent[k]); });
+
+  invoices.forEach(inv=>{ inv.modes = byParent[inv.name] || []; });
+  return invoices;
+}
+
+// "Gold Purchase" (gold bought back from a customer) is recorded as a Purchase Invoice —
+// not a Sales Invoice at all — tagged custom_type='Gold Purchase' (see OperationsModal's Gold
+// Purchase flow). Its payment (paying the customer) comes only via a linked Payment Entry, same
+// lookup as Sales Invoice's Payment-Entry-Reference path above.
+async function fetchInstanceGoldPurchase(instName, fromDate, toDate){
+  const key = instName==='PC' ? localStorage.getItem('cd_pc_key') : localStorage.getItem('cd_pp_key');
+  const sec = instName==='PC' ? localStorage.getItem('cd_pc_secret') : localStorage.getItem('cd_pp_secret');
+  if(!key||!sec) return [];
+  const base = instName==='PC' ? DEV2 : DEV1;
+  const headers = {'Authorization':`token ${key}:${sec}`,'Accept':'application/json'};
+
+  const fields = ['name','supplier','supplier_name','posting_date','creation','grand_total','outstanding_amount','status'];
+  const filters = [
+    ['Purchase Invoice','posting_date','>=',fromDate],
+    ['Purchase Invoice','posting_date','<=',toDate],
+    ['Purchase Invoice','docstatus','=',1],
+    ['Purchase Invoice','custom_type','=','Gold Purchase'],
+  ];
+  const res = await fetch(`${base}/api/resource/Purchase%20Invoice?fields=${encodeURIComponent(JSON.stringify(fields))}&filters=${encodeURIComponent(JSON.stringify(filters))}&order_by=creation%20desc&limit_page_length=0`, {headers});
+  if(!res.ok) throw new Error(`HTTP ${res.status} (${instName} gold purchase)`);
+  const json = await res.json();
+  const invoices = (json.data||json.message||[]).map(r=>({
+    name:r.name, instance:instName, doctype:'Purchase Invoice', type:'gold_purchase',
+    customer:r.supplier_name||r.supplier,
+    date:r.posting_date, creation:r.creation,
+    amount:r.grand_total||0, outstanding:r.outstanding_amount||0,
+    status:r.status||'Submitted',
+    modes:[],
+  }));
+  if(!invoices.length) return invoices;
+  const names = invoices.map(i=>i.name);
+  const byParent = await fetchPaymentModesByReference(base, headers, 'Purchase Invoice', names);
+  invoices.forEach(inv=>{ inv.modes = byParent[inv.name] || []; });
+  return invoices;
+}
+
+// Standalone Advance/Refund Payment Entries — money received or paid back to a customer with
+// no Sales Invoice reference (created via the Payment Entry page's "Advance/Receipt" or
+// "Refund/Payment" entry type). A Receive-type entry can later be *partially* allocated to a
+// Sales Invoice via POS Billing's settlement flow — that allocated portion is already counted
+// as that invoice's own mode of payment (see fetchInstanceDSR's Payment Entry Reference
+// lookup), so only the entry's still-unallocated amount is counted here, never the full
+// paid_amount, to avoid double-counting the same rupee under both Sales and Advance.
+async function fetchInstancePaymentEntries(instName, fromDate, toDate){
+  const key = instName==='PC' ? localStorage.getItem('cd_pc_key') : localStorage.getItem('cd_pp_key');
+  const sec = instName==='PC' ? localStorage.getItem('cd_pc_secret') : localStorage.getItem('cd_pp_secret');
+  if(!key||!sec) return [];
+  const base = instName==='PC' ? DEV2 : DEV1;
+  const headers = {'Authorization':`token ${key}:${sec}`,'Accept':'application/json'};
+
+  const fields = ['name','party','party_name','payment_type','posting_date','creation','paid_amount','received_amount','unallocated_amount','mode_of_payment','reference_no'];
+  const filters = [
+    ['Payment Entry','party_type','=','Customer'],
+    ['Payment Entry','payment_type','in',['Receive','Pay']],
+    ['Payment Entry','posting_date','>=',fromDate],
+    ['Payment Entry','posting_date','<=',toDate],
+    ['Payment Entry','docstatus','=',1],
+  ];
+  const res = await fetch(`${base}/api/resource/Payment%20Entry?fields=${encodeURIComponent(JSON.stringify(fields))}&filters=${encodeURIComponent(JSON.stringify(filters))}&order_by=creation%20desc&limit_page_length=0`, {headers});
+  if(!res.ok) throw new Error(`HTTP ${res.status} (${instName} payment entries)`);
+  const json = await res.json();
+  const rows = [];
+  (json.data||json.message||[]).forEach(r=>{
+    const mode = r.mode_of_payment || 'Other';
+    if(r.payment_type==='Receive'){
+      const unalloc = parseFloat(r.unallocated_amount||0);
+      if(unalloc<=0) return; // fully allocated to invoice(s) already — counted there, not here
+      rows.push({
+        name:r.name, instance:instName, doctype:'Payment Entry', type:'advance',
+        customer:r.party_name||r.party,
+        date:r.posting_date, creation:r.creation,
+        amount:unalloc, outstanding:0, status:'Submitted',
+        modes:[{mode, amount:unalloc}],
+        _referenceNo:r.reference_no||'',
+      });
+    } else {
+      const amt = parseFloat(r.paid_amount||r.received_amount||0);
+      if(amt<=0) return;
+      rows.push({
+        name:r.name, instance:instName, doctype:'Payment Entry', type:'refund',
+        customer:r.party_name||r.party,
+        date:r.posting_date, creation:r.creation,
+        amount:amt, outstanding:0, status:'Submitted',
+        modes:[{mode, amount:amt}],
+        _referenceNo:r.reference_no||'',
+      });
+    }
+  });
+  return rows;
+}
+
+async function load(){
+  document.getElementById('dsrTbody').innerHTML = `<tr><td colspan="7"><div class="cd-empty"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><div class="cd-empty-title">Loading sales...</div></div></td></tr>`;
+  try{
+    const available = cdGetAvailableInstances();
+    if(!available.length){ window.location.replace('/caratdesk-login?logout=1'); return; }
+    const tasks = [];
+    available.forEach(inst=>{
+      tasks.push({label:inst+' sales', fn:()=>fetchInstanceDSR(inst, RANGE_FROM, RANGE_TO)});
+      tasks.push({label:inst+' gold purchase', fn:()=>fetchInstanceGoldPurchase(inst, RANGE_FROM, RANGE_TO)});
+      tasks.push({label:inst+' payment entries', fn:()=>fetchInstancePaymentEntries(inst, RANGE_FROM, RANGE_TO)});
+    });
+    const results = await Promise.allSettled(tasks.map(t=>t.fn()));
+    DSR_DATA = [];
+    let anyOk = false;
+    results.forEach((r,i)=>{ if(r.status==='fulfilled'){ DSR_DATA.push(...r.value); anyOk=true; } else console.warn('Failed', tasks[i].label, r.reason?.message); });
+    if(!anyOk) throw new Error('All instances failed to load');
+    DSR_DATA.sort((a,b)=>new Date(b.creation||b.date)-new Date(a.creation||a.date));
+    MODE_ORDER = [];
+    activeType='all'; activeMode='all';
+    document.querySelectorAll('#typeSummaryBar .cd-pill-filter').forEach((p,i)=>p.classList.toggle('active', i===0));
+    renderTypeSummary();
+    renderModeSummary();
+    applyFilters();
+  }catch(e){
+    console.error('Load DSR error:', e);
+    document.getElementById('dsrTbody').innerHTML = `<tr><td colspan="7"><div class="cd-empty"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><div class="cd-empty-title">Failed to load data</div><div class="cd-empty-sub"><a href="#" onclick="load()" style="color:var(--pill-blue-txt)">Retry</a></div></div></td></tr>`;
+  }
+}
+
+// ── TYPE SUMMARY / FILTER PILLS ──
+// Always computed over the full unfiltered DSR_DATA (this is the outer dimension — its counts
+// don't change based on which type or mode is currently selected).
+function renderTypeSummary(){
+  const totals = {sale:{count:0,amount:0}, sales_return:{count:0,amount:0}, gold_purchase:{count:0,amount:0}, advance:{count:0,amount:0}, refund:{count:0,amount:0}};
+  let grandTotal = 0;
+  DSR_DATA.forEach(d=>{
+    grandTotal += d.amount||0;
+    if(totals[d.type]){ totals[d.type].count++; totals[d.type].amount += d.amount||0; }
+  });
+  document.getElementById('tc-all').textContent = DSR_DATA.length;
+  document.getElementById('ta-all').textContent = DSR_DATA.length ? fmt(grandTotal) : '';
+  Object.keys(totals).forEach(t=>{
+    document.getElementById('tc-'+t).textContent = totals[t].count;
+    document.getElementById('ta-'+t).textContent = totals[t].count ? fmt(totals[t].amount) : '';
+  });
+}
+function filterType(type, el){
+  activeType = type;
+  activeMode = 'all'; // mode choices are scoped to the active type — start fresh on switch
+  document.querySelectorAll('#typeSummaryBar .cd-pill-filter').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  currentPage=1;
+  renderModeSummary();
+  applyFilters();
+}
+
+// ── MODE SUMMARY / FILTER PILLS ──
+// Scoped to whichever Transaction Type is currently active — selecting "Gold Purchase" shows
+// mode-of-payment totals for gold purchases only, not blended with Sales figures.
+function renderModeSummary(){
+  const scoped = DSR_DATA.filter(d=> activeType==='all' || d.type===activeType);
+  const totals = {}; // mode -> {count, amount}
+  let grandTotal = 0;
+  scoped.forEach(inv=>{
+    grandTotal += inv.amount||0;
+    const seen = new Set();
+    (inv.modes||[]).forEach(m=>{
+      if(!totals[m.mode]) totals[m.mode] = {count:0, amount:0};
+      totals[m.mode].amount += m.amount||0;
+      if(!seen.has(m.mode)){ totals[m.mode].count++; seen.add(m.mode); }
+    });
+  });
+  document.getElementById('mc-all').textContent = scoped.length;
+  document.getElementById('ma-all').textContent = scoped.length ? fmt(grandTotal) : '';
+  const modes = Object.keys(totals).sort((a,b)=> totals[b].amount - totals[a].amount);
+  const bar = document.getElementById('modeSummaryBar');
+  bar.querySelectorAll('[data-mode-pill]').forEach(el=>el.remove());
+  const dotVar = {green:'--pill-green-txt', red:'--pill-red-txt', amber:'--pill-amber-txt', blue:'--pill-blue-txt', purple:'--pill-purple-txt', grey:'--text-muted'};
+  modes.forEach(mode=>{
+    const cls = modeClass(mode);
+    const div = document.createElement('div');
+    div.className = 'cd-pill-filter'+(mode===activeMode?' active':'');
+    div.dataset.modePill = '1';
+    div.setAttribute('onclick', `filterMode(${JSON.stringify(mode)},this)`);
+    div.innerHTML = `<span class="pf-dot" style="background:var(${dotVar[cls]||'--text-muted'})"></span>${esc(mode)}<span class="pf-count">${totals[mode].count}</span><span class="pf-amt">${fmt(totals[mode].amount)}</span>`;
+    bar.appendChild(div);
+  });
+  if(activeMode!=='all' && !modes.includes(activeMode)) activeMode='all';
+  bar.querySelector('.cd-pill-filter:not([data-mode-pill])').classList.toggle('active', activeMode==='all');
+}
+function filterMode(mode, el){
+  activeMode = mode;
+  document.querySelectorAll('#modeSummaryBar .cd-pill-filter').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  currentPage=1; applyFilters();
+}
+
+// ── DATE RANGE ──
+function toggleDatePop(e){
+  if(e) e.stopPropagation();
+  const pop=document.getElementById('dateRangePop');
+  const isOpen=pop.classList.contains('open');
+  closeAllPops();
+  if(!isOpen){ pop.classList.add('open'); document.getElementById('dateRangeChip').classList.add('open'); }
+}
+function setQuickRange(kind){
+  const now=new Date();
+  let from, to;
+  if(kind==='today'){ from=to=todayISO(); }
+  else if(kind==='yesterday'){ const y=new Date(now); y.setDate(y.getDate()-1); from=to=y.toISOString().slice(0,10); }
+  else if(kind==='week'){ const d=new Date(now); const day=d.getDay(); const diff=(day===0?6:day-1); const mon=new Date(d); mon.setDate(d.getDate()-diff); from=mon.toISOString().slice(0,10); to=todayISO(); }
+  else if(kind==='month'){ const first=new Date(now.getFullYear(),now.getMonth(),1); from=first.toISOString().slice(0,10); to=todayISO(); }
+  document.getElementById('dsrFrom').value=from;
+  document.getElementById('dsrTo').value=to;
+  applyDateRange();
+}
+function applyDateRange(){
+  const from=document.getElementById('dsrFrom').value;
+  const to=document.getElementById('dsrTo').value;
+  if(!from||!to){ showToast('Please pick both From and To dates','error'); return; }
+  if(from>to){ showToast('From date cannot be after To date','error'); return; }
+  RANGE_FROM=from; RANGE_TO=to;
+  updateDateRangeLabel();
+  closeAllPops();
+  load();
+}
+function updateDateRangeLabel(){
+  const lbl=document.getElementById('dateRangeLabel');
+  const chip=document.getElementById('dateRangeChip');
+  if(RANGE_FROM===RANGE_TO){
+    lbl.textContent = RANGE_FROM===todayISO() ? 'Today' : fmtDate(RANGE_FROM);
+  } else {
+    lbl.textContent = fmtDate(RANGE_FROM)+' – '+fmtDate(RANGE_TO);
+  }
+  chip.classList.toggle('active', true);
+}
+function closeAllPops(){
+  document.querySelectorAll('.cd-fpop,.cd-sc-pop').forEach(p=>p.classList.remove('open'));
+  document.querySelectorAll('.cd-fchip,.cd-sc-lbl').forEach(c=>c.classList.remove('open'));
+}
+
+// ── SORT ──
+const SC_ICONS = {
+  desc:'<line x1="1" y1="4" x2="9" y2="4"/><line x1="1" y1="8" x2="7" y2="8"/><line x1="1" y1="12" x2="5" y2="12"/><line x1="13" y1="2" x2="13" y2="14"/><polyline points="10 11 13 14 16 11"/>',
+  asc: '<line x1="1" y1="4" x2="5" y2="4"/><line x1="1" y1="8" x2="7" y2="8"/><line x1="1" y1="12" x2="9" y2="12"/><line x1="13" y1="14" x2="13" y2="2"/><polyline points="10 5 13 2 16 5"/>',
+};
+const SC_LABELS = {time:'Time', amount:'Amount', id:'Invoice No.'};
+function updateScChip(){
+  document.getElementById('scDirIcon').innerHTML=SC_ICONS[sortDir];
+  document.getElementById('scLbl').textContent=SC_LABELS[sortField];
+  document.querySelectorAll('.cd-sc-opt').forEach(opt=>opt.classList.toggle('active',opt.dataset.field===sortField));
+}
+function toggleSortDir(e){ if(e) e.stopPropagation(); sortDir=sortDir==='desc'?'asc':'desc'; updateScChip(); applyFilters(); }
+function toggleScPop(e){
+  if(e) e.stopPropagation();
+  const pop=document.getElementById('scPop'); const lbl=document.getElementById('scLblBtn');
+  const isOpen=pop.classList.contains('open'); closeAllPops();
+  if(!isOpen){ pop.classList.add('open'); lbl.classList.add('open'); }
+}
+function setSortField(field,e){
+  if(e) e.stopPropagation(); sortField=field; updateScChip();
+  document.getElementById('scPop').classList.remove('open');
+  document.getElementById('scLblBtn').classList.remove('open');
+  applyFilters();
+}
+
+// ── FILTER / RENDER ──
+function applyFilters(){
+  const q = document.getElementById('dsrSearch').value.toLowerCase();
+  filtered = DSR_DATA.filter(d=>{
+    const mt = activeType==='all' || d.type===activeType;
+    const mm = activeMode==='all' || (d.modes||[]).some(m=>m.mode===activeMode);
+    const mq = !q || d.name.toLowerCase().includes(q) || (d.customer||'').toLowerCase().includes(q);
+    return mt && mm && mq;
+  });
+  if(sortField==='id') filtered.sort((a,b)=>sortDir==='asc'?a.name.localeCompare(b.name):b.name.localeCompare(a.name));
+  else if(sortField==='amount') filtered.sort((a,b)=>sortDir==='asc'?a.amount-b.amount:b.amount-a.amount);
+  else filtered.sort((a,b)=>sortDir==='asc'?new Date(a.creation)-new Date(b.creation):new Date(b.creation)-new Date(a.creation));
+  currentPage=1; renderTable(); renderPag();
+  const dateTxt = RANGE_FROM===RANGE_TO ? fmtDate(RANGE_FROM) : `${fmtDate(RANGE_FROM)} – ${fmtDate(RANGE_TO)}`;
+  const totalAmt = filtered.reduce((s,d)=>s+(d.amount||0),0);
+  document.getElementById('dsrSub').textContent = `${dateTxt} · ${filtered.length} record${filtered.length!==1?'s':''} · Total ${fmt(totalAmt)}`;
+}
+
+function renderTable(){
+  const tbody=document.getElementById('dsrTbody');
+  const start=(currentPage-1)*PAGE_SIZE;
+  const page=filtered.slice(start,start+PAGE_SIZE);
+  document.getElementById('dsrCount').textContent=filtered.length+' result'+(filtered.length!==1?'s':'');
+  if(!page.length){
+    tbody.innerHTML=`<tr><td colspan="7"><div class="cd-empty"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><div class="cd-empty-title">No sales found</div><div class="cd-empty-sub">Try a different date range or mode filter</div></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = page.map(d=>{
+    const safeName=encodeURIComponent(d.name);
+    const instBadge=d.instance==='PC'
+      ?`<span style="font-size:10px;font-weight:600;padding:1px 5px;border-radius:4px;background:var(--pill-amber-bg);color:var(--pill-amber-txt);margin-left:5px;vertical-align:middle">PC</span>`
+      :`<span style="font-size:10px;font-weight:600;padding:1px 5px;border-radius:4px;background:var(--pill-blue-bg);color:var(--pill-blue-txt);margin-left:5px;vertical-align:middle">PP</span>`;
+    return `
+    <tr class="dsr-row" data-name="${safeName}" data-inst="${d.instance||'PP'}" data-doctype="${d.doctype}">
+      <td><div class="doc-num">${esc(d.name)}${instBadge}</div><div class="doc-sub">${fmtDate(d.date)}</div></td>
+      <td>${typeBadge(d.type)}</td>
+      <td><div style="font-weight:500">${esc(d.customer)}</div></td>
+      <td style="font-size:13px;color:var(--text-secondary)">${fmtTime(d.creation)}</td>
+      <td>${modeBadges(d.modes)}</td>
+      <td style="text-align:right"><div style="font-variant-numeric:tabular-nums;font-weight:500;font-size:13.5px">${fmt(d.amount)}</div></td>
+      <td>${pill(d.status)}</td>
+    </tr>`;
+  }).join('');
+}
+
+document.getElementById('dsrTbody').addEventListener('click', function(e){
+  const row=e.target.closest('.dsr-row');
+  if(row) openItemDialog(decodeURIComponent(row.dataset.name), row.dataset.inst||'PP', row.dataset.doctype||'Sales Invoice');
+});
+
+// ── PAGINATION ──
+function renderPag(){
+  const total=filtered.length, pages=Math.ceil(total/PAGE_SIZE), pag=document.getElementById('dsrPag');
+  if(!total){ pag.style.display='none'; return; } pag.style.display='flex';
+  const s=(currentPage-1)*PAGE_SIZE+1, e2=Math.min(currentPage*PAGE_SIZE,total);
+  document.getElementById('dsrPagInfo').textContent=`Showing ${s}-${e2} of ${total}`;
+  let html=`<button class="cd-page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>`;
+  for(let i=1;i<=pages;i++){ if(pages>7&&i>2&&i<pages-1&&Math.abs(i-currentPage)>1){ if(i===3||i===pages-2) html+='<span style="padding:0 4px;color:var(--text-muted);font-size:12px">...</span>'; continue; } html+=`<button class="cd-page-btn${i===currentPage?' active':''}" onclick="goPage(${i})">${i}</button>`; }
+  html+=`<button class="cd-page-btn" onclick="goPage(${currentPage+1})" ${currentPage===pages?'disabled':''}><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>`;
+  document.getElementById('dsrPagBtns').innerHTML=html;
+}
+function goPage(p){ const pages=Math.ceil(filtered.length/PAGE_SIZE); if(p<1||p>pages) return; currentPage=p; renderTable(); renderPag(); }
+
+// ── ITEM DIALOG ──
+async function openItemDialog(name, inst, doctype){
+  dlgInvoiceName=name; dlgInvoiceInst=inst||'PP'; dlgInvoiceDoctype=doctype||'Sales Invoice';
+  const d = DSR_DATA.find(x=>x.name===name);
+  document.getElementById('itemDlgTitle').textContent = name;
+  document.getElementById('itemDlg').classList.add('open');
+  document.getElementById('itemDlgOverlay').classList.add('open');
+
+  // Payment Entry (Advance/Refund) is just a payment record — no item table to show, so skip
+  // straight to a small detail card instead of fetching a child doctype that doesn't exist.
+  if(doctype==='Payment Entry'){
+    document.getElementById('itemDlgBody').innerHTML = `
+      <div class="cd-dmeta">
+        <div><div class="cd-dmeta-lbl">Party</div><div class="cd-dmeta-val">${esc(d?.customer||'—')}</div></div>
+        <div><div class="cd-dmeta-lbl">Date &amp; Time</div><div class="cd-dmeta-val">${fmtDate(d?.date)} · ${fmtTime(d?.creation)}</div></div>
+        <div><div class="cd-dmeta-lbl">Mode of Payment</div><div class="cd-dmeta-val">${modeBadges(d?.modes)}</div></div>
+        <div><div class="cd-dmeta-lbl">${d?.type==='refund'?'Refund Amount':'Unallocated Amount'}</div><div class="cd-dmeta-val">${fmt(d?.amount)}</div></div>
+        ${d?._referenceNo?`<div><div class="cd-dmeta-lbl">Reference No.</div><div class="cd-dmeta-val">${esc(d._referenceNo)}</div></div>`:''}
+      </div>
+      ${d?.type==='advance'?'<div style="padding:10px 2px;font-size:12px;color:var(--text-muted)">This is the portion of this Advance not yet applied to any invoice — if part of it has already been used to settle a bill, that part is counted under Sales instead, not here.</div>':''}`;
+    return;
+  }
+
+  document.getElementById('itemDlgBody').innerHTML = `
+    <div class="cd-dmeta">
+      <div><div class="cd-dmeta-lbl">Customer</div><div class="cd-dmeta-val">${esc(d?.customer||'—')}</div></div>
+      <div><div class="cd-dmeta-lbl">Date &amp; Time</div><div class="cd-dmeta-val">${fmtDate(d?.date)} · ${fmtTime(d?.creation)}</div></div>
+      <div><div class="cd-dmeta-lbl">Mode(s) of Payment</div><div class="cd-dmeta-val">${modeBadges(d?.modes)}</div></div>
+      <div><div class="cd-dmeta-lbl">Grand Total</div><div class="cd-dmeta-val">${fmt(d?.amount)}</div></div>
+    </div>
+    <div style="text-align:center;padding:24px;color:var(--text-muted);font-size:13px">Loading items...</div>`;
+
+  try{
+    const key = inst==='PC' ? localStorage.getItem('cd_pc_key') : localStorage.getItem('cd_pp_key');
+    const sec = inst==='PC' ? localStorage.getItem('cd_pc_secret') : localStorage.getItem('cd_pp_secret');
+    const base = inst==='PC' ? DEV2 : DEV1;
+    const itemDoctype = dlgInvoiceDoctype+' Item';
+    const fields = encodeURIComponent(JSON.stringify(['item_code','item_name','qty','rate','amount','uom']));
+    const filters = encodeURIComponent(JSON.stringify([[itemDoctype,'parent','=',name]]));
+    const res = await fetch(`${base}/api/resource/${encodeURIComponent(itemDoctype)}?fields=${fields}&filters=${filters}&limit_page_length=0`,
+      {headers:{'Authorization':`token ${key}:${sec}`,'Accept':'application/json'}});
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const json = await res.json();
+    const items = (json.data||json.message||[]).map(it=>({n:it.item_name||it.item_code, code:it.item_code, qty:it.qty, rate:it.rate, amt:it.amount||(it.qty*it.rate), uom:it.uom||'Nos'}));
+    document.getElementById('itemDlgBody').innerHTML = `
+      <div class="cd-dmeta">
+        <div><div class="cd-dmeta-lbl">Customer</div><div class="cd-dmeta-val">${esc(d?.customer||'—')}</div></div>
+        <div><div class="cd-dmeta-lbl">Date &amp; Time</div><div class="cd-dmeta-val">${fmtDate(d?.date)} · ${fmtTime(d?.creation)}</div></div>
+        <div><div class="cd-dmeta-lbl">Mode(s) of Payment</div><div class="cd-dmeta-val">${modeBadges(d?.modes)}</div></div>
+        <div><div class="cd-dmeta-lbl">Grand Total</div><div class="cd-dmeta-val">${fmt(d?.amount)}</div></div>
+      </div>
+      ${items.length?`
+      <table class="cd-table" style="border:.5px solid var(--border);border-radius:10px;overflow:hidden">
+        <thead><tr><th>Item</th><th style="text-align:right">Qty</th><th style="text-align:right">Rate</th><th style="text-align:right">Amount</th></tr></thead>
+        <tbody>
+          ${items.map(it=>`<tr><td><div style="font-weight:500">${esc(it.n)}</div><div class="doc-sub">${esc(it.code)}</div></td><td style="text-align:right">${it.qty} ${esc(it.uom)}</td><td style="text-align:right">${fmt(it.rate)}</td><td style="text-align:right;font-weight:500">${fmt(it.amt)}</td></tr>`).join('')}
+        </tbody>
+      </table>`:'<div style="padding:14px;font-size:13px;color:var(--text-muted)">No items found.</div>'}`;
+  }catch(e){
+    console.error('Item dialog error:', e);
+    document.getElementById('itemDlgBody').innerHTML += `<div style="color:var(--pill-red-txt);font-size:12.5px;padding:10px">Could not load items.</div>`;
+  }
+}
+function closeItemDialog(){ document.getElementById('itemDlg').classList.remove('open'); document.getElementById('itemDlgOverlay').classList.remove('open'); }
+function openInFrappeDlg(){
+  if(!dlgInvoiceName) return;
+  const base=dlgInvoiceInst==='PC'?DEV2:DEV1;
+  window.open(`${base}/${encodeURIComponent(dlgInvoiceDoctype)}/${encodeURIComponent(dlgInvoiceName)}`,'_blank');
+}
+
+// ── EXPORT ──
+function exportCSV(){
+  if(!filtered.length){ showToast('Nothing to export','error'); return; }
+  const headers=['Invoice No.','Type','Customer','Date','Time','Mode(s) of Payment','Amount','Status','Instance'];
+  const rows=filtered.map(d=>[d.name, (TYPE_MAP[d.type]||{}).lbl||d.type, d.customer, fmtDate(d.date), fmtTime(d.creation), (d.modes||[]).map(m=>`${m.mode}: ${m.amount}`).join(' | '), d.amount, d.status, d.instance||'PP']);
+  const esc2=v=>{ const s=String(v==null?'':v); return /[",\n]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s; };
+  const csv=[headers,...rows].map(r=>r.map(esc2).join(',')).join('\r\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download=`daily-sales-report-${RANGE_FROM}-to-${RANGE_TO}.csv`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// ── TOAST ──
+function showToast(msg,type='info'){
+  let t=document.getElementById('cdToast');
+  if(!t){ t=document.createElement('div'); t.id='cdToast'; t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--text-primary);color:var(--surface);padding:11px 20px;border-radius:10px;font-size:13px;font-weight:500;box-shadow:0 4px 24px rgba(0,0,0,.12);z-index:900;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;white-space:nowrap;'; document.body.appendChild(t); }
+  t.textContent=msg;
+  if(type==='success') t.style.background='#2D6A4F';
+  else if(type==='error') t.style.background='#A32D2D';
+  else t.style.background='#1A4A8A';
+  t.style.opacity='1'; t.style.transform='translateX(-50%) translateY(0)';
+  clearTimeout(t._t); t._t=setTimeout(()=>{ t.style.opacity='0'; t.style.transform='translateX(-50%) translateY(20px)'; },3000);
+}
+
+document.addEventListener('click',(e)=>{
+  if(!e.target.closest('.cd-fchip-wrap')&&!e.target.closest('.cd-sc-wrap')) closeAllPops();
+});
+
+const moonIcon='<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+const sunIcon='<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+function initTheme(){ const s=localStorage.getItem('cdTheme'); if(s==='dark'){ document.documentElement.classList.add('dark'); document.getElementById('themeIcon').innerHTML=sunIcon; } else { document.documentElement.classList.remove('dark'); document.getElementById('themeIcon').innerHTML=moonIcon; } }
+function toggleTheme(){ const d=document.documentElement.classList.toggle('dark'); localStorage.setItem('cdTheme',d?'dark':'light'); document.getElementById('themeIcon').innerHTML=d?sunIcon:moonIcon; }
+document.getElementById('cdThemeToggle').addEventListener('click',toggleTheme); initTheme();
+const sidebar=document.getElementById('cdSidebar');
+document.getElementById('cdMenuToggle').addEventListener('click',()=>sidebar.classList.toggle('mobile-open'));
+document.querySelectorAll('.cd-nav-item').forEach(l=>l.addEventListener('click',()=>{ if(window.innerWidth<=768) sidebar.classList.remove('mobile-open'); }));
+
+(function(){
+  const hasSession=localStorage.getItem('cd_pp_key')||localStorage.getItem('cd_pc_key');
+  if(!hasSession){ window.location.replace('/caratdesk-login?logout=1'); return; }
+  const active=cdGetActiveInstance();
+  const key=active==='PC'?localStorage.getItem('cd_pc_key'):localStorage.getItem('cd_pp_key');
+  const sec=active==='PC'?localStorage.getItem('cd_pc_secret'):localStorage.getItem('cd_pp_secret');
+  if(key&&sec){ localStorage.setItem('cd_api_key',key); localStorage.setItem('cd_api_secret',sec); }
+  const name=localStorage.getItem('cd_user')||localStorage.getItem('cd_user_email')||'User';
+  document.getElementById('cdUserName').textContent=name;
+  document.getElementById('cdAvatar').textContent=name.split('@')[0].split(/[\s.]+/).map(w=>w[0]||'').join('').slice(0,2).toUpperCase()||'U';
+  cdInitInstanceToggle();
+})();
+
+document.getElementById('cdLogoutBtn').addEventListener('click',async()=>{
+  const ppK=localStorage.getItem('cd_pp_key'), ppS=localStorage.getItem('cd_pp_secret');
+  const pcK=localStorage.getItem('cd_pc_key'), pcS=localStorage.getItem('cd_pc_secret');
+  try{ if(ppK&&ppS) await fetch(`${DEV1}/api/method/logout`,{method:'POST',headers:{Authorization:`token ${ppK}:${ppS}`}}); }catch(e){}
+  try{ if(pcK&&pcS) await fetch(`${DEV2}/api/method/logout`,{method:'POST',headers:{Authorization:`token ${pcK}:${pcS}`}}); }catch(e){}
+  ['cd_api_key','cd_api_secret','cd_pp_key','cd_pp_secret','cd_pc_key','cd_pc_secret','cd_user','cd_user_email','cd_active_instance','cd_available_instances'].forEach(k=>localStorage.removeItem(k));
+  window.location.replace('/caratdesk-login?logout=1');
+});
+
+// ── INIT ──
+RANGE_FROM = todayISO(); RANGE_TO = todayISO();
+document.getElementById('dsrFrom').value = RANGE_FROM;
+document.getElementById('dsrTo').value = RANGE_TO;
+updateDateRangeLabel();
+load();
+</script>

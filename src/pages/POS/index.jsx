@@ -2,18 +2,31 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import PosHeader from './PosHeader.jsx';
 import CustomerPanel from './CustomerPanel.jsx';
 import CartGrid, { DiscountRow } from './CartGrid.jsx';
+import { batchLineError } from './posCalculations.js';
 import PaymentModal from './PaymentModal.jsx';
 import DaySummary from './DaySummary.jsx';
 import ShiftModal from './ShiftModal.jsx';
-import OperationsModal from './OperationsModal.jsx';
+import SettlementDialog from './SettlementDialog.jsx';
+import CreateSettlementRecordModal from './CreateSettlementRecordModal.jsx';
 import SalesTeamDialog from './SalesTeamDialog.jsx';
+import GoldPurchaseDetailsModal from './GoldPurchaseDetailsModal.jsx';
 import { usePosCart } from './usePosCart.js';
 import { useToast } from '../../hooks/useToast.jsx';
 import { loadMetalRates } from '../../lib/metalRates.js';
 import {
   lookupByTag,
+  lookupLinesByTag,
+  breakSetsForSoldLines,
+  adjustBatchPcs,
   saveSalesInvoice,
   submitSalesInvoice,
+  fetchSalesInvoice,
+  fetchSalesInvoicePermissions,
+  cancelSalesInvoice,
+  createAmendedSalesInvoice,
+  releaseSchemeAssignmentsForInvoice,
+  activateBom,
+  getCustomerDetails,
   postPurityLedgerForInvoice,
   fetchLoggedUser,
   fetchDaySummary,
@@ -28,6 +41,12 @@ import {
   deactivateBom,
   fetchPosButtonPermissions,
   canShowPosButton,
+  fetchGoldPurchaseInvoice,
+  fetchGoldPurchaseCreditRows,
+  fetchGoldPurchasesUsedOnSalesInvoices,
+  fetchSalesReturnCreditRows,
+  fetchSettlementAvailableCredit,
+  salesInvoiceHasSettlementReferences,
 } from '../../lib/api.js';
 import { parseApiError, fmtINR, fmtWeight, fmtTime, fmtDateTime, round2 } from '../../lib/format.js';
 import {
@@ -36,7 +55,7 @@ import {
   POS_LAST_INVOICE_KEY,
   POS_SHIFT_KEY,
 } from '../../lib/constants.js';
-import { buildSalesInvoicePayload, getInvoiceName } from './posInvoice.js';
+import { buildSalesInvoicePayload, creditSettlementEntry, getInvoiceName, invoiceToCartState, settlementsFromInvoice } from './posInvoice.js';
 
 function readHolds() {
   try {
@@ -174,6 +193,7 @@ export default function PosPage() {
     canShowPosButton(buttonType, posPermissions.userRoles, posPermissions.posRoleMap);
   const [goldRate, setGoldRate] = useState(0);
   const [gstSplit, setGstSplit] = useState([]);
+  const [gstAddressFields, setGstAddressFields] = useState({});
   const [customer, setCustomer] = useState(null);
   // Sales Team — who gets credit for this sale, each with a Contribution %. Reset alongside
   // customer/cart per bill (see handleCancel/handleHold/handleConfirmPayment), not persisted
@@ -197,8 +217,13 @@ export default function PosPage() {
   const [shift, setShift] = useState(null);
   const [shiftMode, setShiftMode] = useState(null);
   const [discountOpen, setDiscountOpen] = useState(false);
-  const [operation, setOperation] = useState(null);
+  const [settlementOpen, setSettlementOpen] = useState(false);
+  // Gold Purchase / Sales Return buttons — 'gold' | 'return' while their create-only dialog is open.
+  const [createRecordType, setCreateRecordType] = useState(null);
   const [settlements, setSettlements] = useState([]);
+  // Gold Purchase chip clicked — { name, readOnly } of the Purchase Invoice being shown.
+  const [goldDetails, setGoldDetails] = useState(null);
+  const [batchWarehousePick, setBatchWarehousePick] = useState(null);
   const [transactionNo, setTransactionNo] = useState(() => localStorage.getItem("cd_pos_current_txn") || "Not reserved");
   const menuRef = useRef(null);
 
@@ -248,14 +273,16 @@ export default function PosPage() {
     };
   }, [refreshDaySummary]);
 
-  // CGST+SGST vs IGST depends on whether the selected customer's state matches the
-  // Company's — recompute whenever the customer changes (including back to "no customer",
-  // which falls back to the default template) instead of fetching one fixed split at mount.
+  // CGST+SGST vs IGST depends on the selected customer — recompute whenever it changes
+  // (including back to "no customer", which falls back to the default template). The address
+  // fields ERPNext picked them from go on the invoice too (see fetchGstSplitForCustomer).
   useEffect(() => {
     let cancelled = false;
-    fetchGstSplitForCustomer(COMPANY, customer?.name).then((rows) => {
-      if (!cancelled) setGstSplit(rows);
-      if (!rows.length) console.warn('No Sales Taxes and Charges Template found — invoices will save without GST rows.');
+    fetchGstSplitForCustomer(COMPANY, customer?.name).then(({ taxes, addressFields }) => {
+      if (cancelled) return;
+      setGstSplit(taxes);
+      setGstAddressFields(addressFields);
+      if (!taxes.length) console.warn('No Sales Taxes and Charges Template found — invoices will save without GST rows.');
     });
     return () => {
       cancelled = true;
@@ -301,6 +328,159 @@ export default function PosPage() {
       cancelled = true;
     };
   }, []);
+
+  // "Open in POS" from the Sales Invoice list lands here as /caratdesk-pos?invoice=<name>.
+  //  - Draft: loaded into the cart for editing. Its name is kept as cart.draftInvoiceName so
+  //    Save Draft / Pay update that same invoice instead of creating a new one.
+  //  - Submitted: shown read-only (viewingInvoice). Cancel & Amend is offered only when
+  //    ERPNext says this user may cancel AND amend this invoice (Role Permissions Manager).
+  const [invoiceToOpen] = useState(() => new URLSearchParams(window.location.search).get('invoice'));
+  const [viewingInvoice, setViewingInvoice] = useState(null);
+  const [amending, setAmending] = useState(false);
+  const { loadCart } = cart;
+
+  // Throws on failure — callers decide how to report it. Returns the loaded cart state.
+  const loadInvoice = useCallback(async (invoiceName) => {
+    const doc = await fetchSalesInvoice(invoiceName);
+    if (!doc?.name) throw new Error(`Sales Invoice ${invoiceName} not found`);
+    if (doc.is_return) throw new Error(`${doc.name} is a return — open it from Sales Invoices instead`);
+    if (Number(doc.docstatus) === 2) throw new Error(`${doc.name} is cancelled`);
+    const submitted = Number(doc.docstatus) === 1;
+    const [customerDoc, state, perms, restored] = await Promise.all([
+      getCustomerDetails(doc.customer).catch(() => ({ name: doc.customer, customer_name: doc.customer_name })),
+      invoiceToCartState(doc, lookupByTag, { submitted }),
+      submitted ? fetchSalesInvoicePermissions(doc.name) : null,
+      // A submitted invoice's settlements are display-only — no need to re-check its Gold
+      // Purchases or look up their (already reconciled) credit.
+      settlementsFromInvoice(doc, submitted ? {} : {
+        getGoldPurchase: fetchGoldPurchaseInvoice,
+        getGoldCredit: fetchGoldPurchaseCreditRows,
+        getReturnCredit: fetchSalesReturnCreditRows,
+      }),
+    ]);
+    state.warnings.push(...restored.warnings);
+    setCustomer(customerDoc);
+    setSalesTeam(state.salesTeam);
+    // A submitted invoice isn't a draft POS can save back to — never let its name reach
+    // saveSalesInvoice as draftInvoiceName.
+    loadCart(submitted ? { ...state.snapshot, draftInvoiceName: null } : state.snapshot);
+    setSettlements(restored.settlements);
+    setViewingInvoice(submitted ? { doc, canCancelAmend: perms.canCancel && perms.canAmend } : null);
+    return { doc, state };
+  }, [loadCart]);
+
+  useEffect(() => {
+    const invoiceName = invoiceToOpen;
+    if (!invoiceName) return;
+    const params = new URLSearchParams(window.location.search);
+    params.delete('invoice');
+    const qs = params.toString();
+    window.history.replaceState({}, '', window.location.pathname + (qs ? `?${qs}` : ''));
+
+    let cancelled = false;
+    (async () => {
+      setScanning(true);
+      try {
+        const { doc, state } = await loadInvoice(invoiceName);
+        if (cancelled) return;
+        if (Number(doc.docstatus) === 1) {
+          showToast(`Viewing submitted invoice ${doc.name} (read only)`, 'info');
+        } else if (state.warnings.length) {
+          showToast(`Opened ${doc.name} — some items used saved rates: ${state.warnings[0]}`, 'info');
+        } else {
+          showToast(`Opened draft ${doc.name}`, 'success');
+        }
+      } catch (e) {
+        if (!cancelled) showToast(parseApiError(e), 'error');
+      } finally {
+        if (!cancelled) setScanning(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [invoiceToOpen, loadInvoice, showToast]);
+
+  function closeViewedInvoice() {
+    setViewingInvoice(null);
+    setCustomer(null);
+    setSalesTeam(defaultSalesTeam(shift));
+    cart.clearCart();
+    setSettlements([]);
+  }
+
+  // Cancels the submitted invoice, undoes what POS's own checkout did on top of ERPNext
+  // (Purity Ledger debit, BOM deactivation, scheme marked used — ERPNext's cancel already
+  // reverses stock, serials, GL and payments), then opens an amended draft for re-billing.
+  // Cancelling is the one step that must succeed; the clean-up steps after it are each
+  // attempted and anything that fails is reported by name so it can be fixed by hand.
+  async function handleCancelAndAmend() {
+    const doc = viewingInvoice?.doc;
+    if (!doc) return;
+    if (!window.confirm(
+      `Cancel ${doc.name} and create an amended draft?\n\n` +
+      'The original invoice will be cancelled (stock, payments and accounting reversed). ' +
+      'The amended bill must be paid again, and any Jewellery Scheme must be re-applied. ' +
+      'Gold Purchases and Sales Returns stay on the amended bill.',
+    )) return;
+
+    setAmending(true);
+    try {
+      await cancelSalesInvoice(doc.name);
+    } catch (e) {
+      showToast(`Could not cancel ${doc.name}: ${parseApiError(e)}`, 'error');
+      setAmending(false);
+      return;
+    }
+
+    const notUndone = [];
+    const serialLines = (doc.items || []).flatMap((it) =>
+      String(it.serial_no || '').split('\n').map((s) => s.trim()).filter(Boolean).map((serial_no) => ({ serial_no })),
+    );
+    const ledger = await postPurityLedgerForInvoice(doc.name, doc.customer, serialLines, {
+      isCredit: true,
+      branch: doc.branch || undefined,
+    });
+    if (ledger.failed.length) notUndone.push('Purity Ledger reversal');
+    const batchPcs = await adjustBatchPcs(doc.items || [], +1);
+    if (batchPcs.failed.length) notUndone.push(`Pcs back on batch ${batchPcs.failed.join(', ')}`);
+    try {
+      const schemes = await releaseSchemeAssignmentsForInvoice(doc.customer, doc.advances || [], doc.custom_settlement_references || []);
+      if (schemes.failed.length) notUndone.push(`release of scheme ${schemes.failed.join(', ')}`);
+    } catch (e) {
+      console.warn('releaseSchemeAssignmentsForInvoice failed:', e.message);
+      notUndone.push('Jewellery Scheme release');
+    }
+
+    try {
+      const amendedName = await createAmendedSalesInvoice(doc);
+      // Re-scanning the now-Active serials in the amended draft is also what tells us each
+      // piece's BOM, so reactivation happens after the draft is loaded.
+      const { state } = await loadInvoice(amendedName);
+      // Cancelling freed each Gold Purchase's / Sales Return's credit again, so they carry
+      // straight over to the amended bill instead of having to be recalled one by one.
+      const carried = await settlementsFromInvoice(
+        { ...doc, custom_settlement_references: (doc.custom_settlement_references || []).filter((r) => ['Gold Purchase', 'Sales Return'].includes(r.settlement_type)) },
+        { getGoldPurchase: fetchGoldPurchaseInvoice, getGoldCredit: fetchGoldPurchaseCreditRows, getReturnCredit: fetchSalesReturnCreditRows },
+      );
+      if (carried.settlements.length) setSettlements(carried.settlements);
+      const bomNames = [...new Set(state.snapshot.lines.map((l) => l.bom_name).filter(Boolean))];
+      const bomResults = await Promise.allSettled(bomNames.map((n) => activateBom(n)));
+      const failedBoms = bomNames.filter((_, i) => bomResults[i].status === 'rejected');
+      if (failedBoms.length) notUndone.push(`reactivation of BOM ${failedBoms.join(', ')}`);
+      if (notUndone.length) {
+        showToast(`${doc.name} cancelled, amended draft ${amendedName} opened — but could not complete: ${notUndone.join('; ')}`, 'error');
+      } else {
+        showToast(`${doc.name} cancelled — amended draft ${amendedName} opened`, 'success');
+      }
+    } catch (e) {
+      closeViewedInvoice();
+      showToast(`${doc.name} cancelled, but the amended draft could not be created: ${parseApiError(e)}`, 'error');
+    } finally {
+      setAmending(false);
+      refreshDaySummary();
+    }
+  }
 
   async function handleShift(data) {
     if (shiftMode === 'start') {
@@ -371,62 +551,155 @@ export default function PosPage() {
     }
   }
 
-  // OperationsModal's Jewellery Scheme flow can settle several matured schemes for the same
-  // customer in one go, so this accepts either a single entry (gold/return, if ever wired up
-  // to settlements) or an array (kitty's multi-select) and reports one consolidated toast.
+  // A Settlement row's Jewellery Scheme form can settle several matured schemes for the same
+  // customer in one go, so this accepts either a single entry (gold/return) or an array (kitty's
+  // multi-select) and reports one consolidated toast. Returns whether anything was added.
   // Each entry's own componentDiscounts (Making/Diamond %) stays on the settlement itself —
   // schemeComponentDiscounts above derives the combined list every render — rather than being
   // written into cart.billComponentDiscounts, so multiple schemes discounting the same
   // component both apply instead of one overwriting the other.
   function handleSettlement(entryOrEntries) {
-    const entries = Array.isArray(entryOrEntries) ? entryOrEntries : [entryOrEntries];
-    if (!entries.length) return;
+    const onBill = new Set(settlements.map((s) => s.number));
+    const all = Array.isArray(entryOrEntries) ? entryOrEntries : [entryOrEntries];
+    const entries = all.filter((e) => !onBill.has(e.number));
+    if (entries.length < all.length) {
+      showToast(`${all.filter((e) => onBill.has(e.number)).map((e) => e.number).join(', ')} is already on this bill`, 'error');
+    }
+    if (!entries.length) return false;
     setSettlements((prev) => [...prev, ...entries]);
-    setOperation(null);
     showToast(
       entries.length > 1 ? `${entries.length} schemes added as invoice settlement` : `${entries[0].number} added as invoice settlement`,
       'success',
     );
+    return true;
+  }
+
+  // Settlement types this user's role may use (PP Settings1 pos_role, same button names as before).
+  const SETTLEMENT_BUTTONS = { gold: 'Gold Purchase', kitty: 'Jewellery Scheme', return: 'Sales Return' };
+  const allowedSettlementTypes = Object.keys(SETTLEMENT_BUTTONS).filter((t) => canShowButton(SETTLEMENT_BUTTONS[t]));
+  // Batch (raw material) bills don't take Gold Purchase / Jewellery Scheme settlements.
+  const batchReason = cart.lines.some((l) => l.is_batch) ? 'Not available on a bill with batch (raw material) items' : '';
+  const settlementDisabledReasons = { gold: batchReason, kitty: batchReason };
+
+  // Settlements are made for the bill's own customer, so one has to be picked first.
+  function openSettlement() {
+    if (!customer?.name) {
+      showToast('Select a customer before adding a settlement', 'error');
+      openCustomerPicker();
+      return;
+    }
+    setSettlementOpen(true);
   }
 
   // Safe to just drop client-side — a settlement is only ever written to the backend (marking
   // the scheme's own record as used) once the invoice is actually confirmed and submitted, so
   // removing it here before that point leaves the scheme untouched and redeemable again.
-  function handleRemoveSettlement(number) {
+  function removeSettlement(number) {
     setSettlements((prev) => prev.filter((s) => s.number !== number));
-    showToast(`${number} removed from this bill`, 'success');
+  }
+
+  // A Gold Purchase is already a submitted Purchase Invoice, so its × opens the details dialog
+  // instead — the cashier chooses there between just removing it from the bill (recallable
+  // later) and cancelling the Purchase Invoice itself.
+  function handleRemoveSettlement(settlement) {
+    if (settlement.type === 'gold') {
+      setGoldDetails({ name: settlement.number, readOnly: false });
+      return;
+    }
+    removeSettlement(settlement.number);
+    showToast(`${settlement.number} removed from this bill`, 'success');
+  }
+
+  function handleOpenSettlement(settlement) {
+    setGoldDetails({ name: settlement.number, readOnly: Boolean(viewingInvoice) });
   }
 
   async function handleScan(tag) {
     const trimmed = (tag || '').trim();
-    if (!trimmed) return;
+    if (!trimmed || viewingInvoice) return;
     if (!shift) { showToast('Start a shift before scanning', 'error'); setShiftMode('start'); return; }
     if (!customer?.name) { showToast('Select a customer before scanning', 'error'); openCustomerPicker(); return; }
-    const duplicate = cart.lines.some((line) =>
+    const duplicate = cart.lines.find((line) =>
       [line.tag, line.serial_no, line.item_code].some((value) =>
         String(value || "").toLowerCase() === trimmed.toLowerCase(),
       ),
     );
+    if (duplicate?.is_batch) {
+      // Same batch again — sell more of it by changing the Qty on the line already there.
+      showToast(`Batch ${duplicate.batch_no} is already in this bill — change its Qty there`, 'info');
+      setTimeout(() => document.getElementById(`qty-${duplicate.id}`)?.focus(), 0);
+      return;
+    }
     if (duplicate) {
       showToast(`Serial number "${trimmed}" is already in this bill`, "error");
       return;
     }
     setScanning(true);
     try {
-      const item = await lookupByTag(trimmed);
-      if (!item) {
+      // A set's serial comes back as its ₹0 set tag + each piece; anything else is one line
+      const items = await lookupLinesByTag(trimmed);
+      if (!items.length) {
         showToast(`No item found for tag "${trimmed}"`, 'error');
         return;
       }
-      cart.addUniqueLine(item);
-      showToast(
-        item.pricing_warning || `Added ${item.item_name || item.item_code}`,
-        item.pricing_warning ? 'info' : 'success',
-      );
+      // Batch (raw material) bills don't take Gold Purchase / Jewellery Scheme settlements.
+      if (items[0].is_batch && settlements.some((st) => st.type === 'gold' || st.type === 'kitty')) {
+        showToast('Remove the Gold Purchase / Jewellery Scheme from this bill before adding batch items.', 'error');
+        return;
+      }
+      if (items[0].batch_warehouse_options) {
+        setBatchWarehousePick(items[0]);
+        return;
+      }
+      items.forEach((item) => cart.addUniqueLine(item));
+      const [first] = items;
+      const warning = items.find((item) => item.pricing_warning)?.pricing_warning;
+      let message = warning || `Added ${first.item_name || first.item_code}`;
+      if (first.is_set_tag) message = warning || `Added set ${first.serial_no} with ${items.length - 1} piece(s)`;
+      else if (first.set_serial && !cart.lines.some((l) => l.serial_no === first.set_serial)) {
+        message = `${first.item_name || first.item_code} is part of set ${first.set_serial} — selling it alone will break the set`;
+      }
+      showToast(message, warning || first.set_serial ? 'info' : 'success');
     } catch (e) {
       showToast(parseApiError(e), 'error');
     } finally {
       setScanning(false);
+    }
+  }
+
+  // A batch with stock in more than one warehouse — the cashier picks which one it sells from.
+  function handlePickBatchWarehouse(option) {
+    const line = batchWarehousePick;
+    setBatchWarehousePick(null);
+    if (!line) return;
+    cart.addUniqueLine({
+      ...line,
+      warehouse: option.warehouse,
+      batch_available_qty: option.qty,
+      qty: Math.min(1, option.qty) || 1,
+      batch_warehouse_options: null,
+    });
+    showToast(line.pricing_warning || `Added ${line.item_name || line.item_code} from ${option.warehouse}`, line.pricing_warning ? 'info' : 'success');
+  }
+
+  // First batch line that can't be billed yet (no Qty, more than the batch has, ...).
+  function findBatchLineProblem() {
+    for (const line of cart.lines) {
+      const error = batchLineError(line);
+      if (error) return `${line.batch_no}: ${error}`;
+    }
+    return '';
+  }
+
+  // Removing one piece of a set billed whole means the rest is no longer the full set — drop
+  // the set tag too, so the remaining pieces sell individually (and the set gets broken).
+  function handleRemoveLine(id) {
+    const line = cart.lines.find((l) => l.id === id);
+    const setTag = line?.set_serial && cart.lines.find((l) => l.is_set_tag && l.serial_no === line.set_serial);
+    cart.removeLine(id);
+    if (setTag) {
+      cart.removeLine(setTag.id);
+      showToast(`Set ${setTag.serial_no} will be broken — the remaining piece(s) sell individually`, 'info');
     }
   }
 
@@ -438,6 +711,11 @@ export default function PosPage() {
     }
     if (!cart.lines.length) {
       showToast('Scan at least one item', 'error');
+      return false;
+    }
+    const batchProblem = findBatchLineProblem();
+    if (batchProblem) {
+      showToast(batchProblem, 'error');
       return false;
     }
     if (!localStorage.getItem('cd_branch')) {
@@ -458,7 +736,10 @@ export default function PosPage() {
         goldRate,
         docstatus: 0,
         shiftName: shift?.name,
+        settlements,
         salesTeam,
+        gstAddressFields,
+        includeSettlementReferences: await salesInvoiceHasSettlementReferences(),
       });
       const res = await saveSalesInvoice(payload, cart.draftInvoiceName);
       const name = getInvoiceName(res);
@@ -520,6 +801,11 @@ export default function PosPage() {
   }
 
   function handleCancel() {
+    if (viewingInvoice) {
+      closeViewedInvoice();
+      setMenuOpen(false);
+      return;
+    }
     if (
       cart.lines.length &&
       !window.confirm('Clear current bill and customer?')
@@ -553,6 +839,11 @@ export default function PosPage() {
       showToast("Scan at least one item", "error");
       return;
     }
+    const batchProblem = findBatchLineProblem();
+    if (batchProblem) {
+      showToast(batchProblem, 'error');
+      return;
+    }
     if (!customer?.name) {
       setCustomerPromptForPayment(true);
       setCustomerOpen(true);
@@ -567,6 +858,7 @@ export default function PosPage() {
   }
 
   function openCustomerPicker() {
+    if (viewingInvoice) return;
     setCustomerPromptForPayment(false);
     setCustomerOpen(true);
   }
@@ -574,6 +866,24 @@ export default function PosPage() {
   async function handleConfirmPayment(payments) {
     setConfirming(true);
     try {
+      // Last check before the bill locks the Gold Purchases / Sales Returns in — another counter
+      // may have used some of their credit since they were added here, and the Journal Entry
+      // rows behind them may have been split since. Re-read each one and re-allocate this bill's
+      // amount on the rows as they are now.
+      const billSettlements = await Promise.all(settlements.map(async (s) => {
+        if (s.type !== 'gold' && s.type !== 'return') return s;
+        const { rows, available } = await fetchSettlementAvailableCredit(s.type, s.number, customer.name, cart.draftInvoiceName);
+        if (available === null) {
+          const used = await fetchGoldPurchasesUsedOnSalesInvoices([s.number], cart.draftInvoiceName);
+          if (used.has(s.number)) throw new Error(`Gold Purchase ${s.number} is already used on Sales Invoice ${used.get(s.number)} — remove it from this bill first`);
+          return s;
+        }
+        if (s.amount > available + 0.009) {
+          throw new Error(`Only ${fmtINR(available)} is left on ${s.number} — remove it from this bill and add it again`);
+        }
+        return creditSettlementEntry(s.type, s.number, s.customer, rows, s.amount, s.creditTotal);
+      }));
+
       const paidAmount = payments.reduce(
         (s, p) => s + (parseFloat(p.amount) || 0),
         0,
@@ -588,8 +898,10 @@ export default function PosPage() {
         payments,
         paidAmount,
         shiftName: shift?.name,
-        settlements,
+        settlements: billSettlements,
         salesTeam,
+        gstAddressFields,
+        includeSettlementReferences: await salesInvoiceHasSettlementReferences(),
       });
 
       const res = await saveSalesInvoice(payload, cart.draftInvoiceName);
@@ -611,6 +923,19 @@ export default function PosPage() {
       // for that item code.
       const soldBomNames = [...new Set(cart.lines.filter((l) => l.bom_name).map((l) => l.bom_name))];
       await Promise.all(soldBomNames.map((n) => deactivateBom(n)));
+
+      // A set piece sold without its set tag breaks that set: the ₹0 set serial leaves stock and
+      // the remaining pieces become individual items.
+      const sets = await breakSetsForSoldLines(cart.lines, name);
+      if (sets.failed.length) {
+        showToast(`Could not break set ${sets.failed.join(', ')} — check the Error Log / break it by hand`, 'error');
+      }
+
+      // Pcs sold out of a batch come off the Batch's own Pcs count (ERPNext moves only the qty).
+      const batchPcs = await adjustBatchPcs(cart.lines, -1);
+      if (batchPcs.failed.length) {
+        showToast(`Could not reduce Pcs on batch ${batchPcs.failed.join(', ')} — update it by hand`, 'error');
+      }
 
       // Belt-and-suspenders on top of ERPNext's own unallocated_amount tracking — once a
       // redeemed scheme's credit is actually locked into a submitted invoice, mark it used so
@@ -645,11 +970,35 @@ export default function PosPage() {
         <span><ContextIcon name="counter" />Counter <strong>{shift?.counter || "Unallocated"}</strong></span>
         <span><ContextIcon name="user" />Cashier <strong>{shift?.cashier || user?.fullName || "—"}</strong></span>
         <span><ContextIcon name="user" />Customer <button type="button" className="cd-pos-context-btn" onClick={openCustomerPicker}>{customer?.customer_name || "Select customer"}</button></span>
-        <span><ContextIcon name="user" />Sales Team <button type="button" className="cd-pos-context-btn" onClick={() => setSalesTeamOpen(true)}>{salesTeam.length ? `${salesTeam[0].salesPerson}${salesTeam.length > 1 ? ` +${salesTeam.length - 1} more` : ''}` : "Select sales team"}</button></span>
+        <span><ContextIcon name="user" />Sales Team <button type="button" className="cd-pos-context-btn" disabled={Boolean(viewingInvoice)} onClick={() => setSalesTeamOpen(true)}>{salesTeam.length ? `${salesTeam[0].salesPerson}${salesTeam.length > 1 ? ` +${salesTeam.length - 1} more` : ''}` : "Select sales team"}</button></span>
       </div>
+
+      {viewingInvoice && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', padding: '10px 16px', background: 'var(--pill-blue-bg)', color: 'var(--pill-blue-txt)', borderBottom: '.5px solid var(--border)', fontSize: 13 }}>
+          <span>
+            Submitted invoice <strong>{viewingInvoice.doc.name}</strong> · {viewingInvoice.doc.status} · {viewingInvoice.doc.posting_date} · Grand Total <strong>{fmtINR(viewingInvoice.doc.grand_total)}</strong>
+            {(viewingInvoice.doc.payments || []).filter((p) => p.amount).length > 0 && (
+              <> · Paid by {(viewingInvoice.doc.payments || []).filter((p) => p.amount).map((p) => `${p.mode_of_payment} ${fmtINR(p.amount)}`).join(', ')}</>
+            )}
+            {' '}— read only
+            <div style={{ fontSize: 11.5, opacity: 0.8, marginTop: 2 }}>
+              Weights and components come from each tag's receipt/BOM; the metal rate is worked out from the billed amount.
+            </div>
+          </span>
+          <span style={{ marginLeft: 'auto', display: 'flex', gap: 8 }}>
+            {viewingInvoice.canCancelAmend && (
+              <button type="button" className="cd-btn cd-btn-secondary" disabled={amending} onClick={handleCancelAndAmend}>
+                {amending ? 'Cancelling…' : 'Cancel & Amend'}
+              </button>
+            )}
+            <button type="button" className="cd-btn cd-btn-secondary" disabled={amending} onClick={closeViewedInvoice}>Close</button>
+          </span>
+        </div>
+      )}
 
       <div className="cd-pos-body cd-pos-body-full">
         <CartGrid
+          readOnly={Boolean(viewingInvoice)}
           lines={cart.lines}
           goldRate={goldRate}
           totals={cart.totals}
@@ -658,11 +1007,12 @@ export default function PosPage() {
           onScan={handleScan}
           scanning={scanning}
           onUpdateLine={cart.updateLine}
-          onRemoveLine={cart.removeLine}
+          onRemoveLine={handleRemoveLine}
           onBillDiscountChange={(patch) =>
             cart.setBillDiscount((prev) => ({ ...prev, ...patch }))
           }
-          onRemoveSettlement={handleRemoveSettlement}
+          onRemoveSettlement={viewingInvoice ? undefined : handleRemoveSettlement}
+          onOpenSettlement={handleOpenSettlement}
         />
       </div>
 
@@ -674,17 +1024,19 @@ export default function PosPage() {
             <button type="button" className="cd-btn cd-btn-blue" onClick={() => setManagerModeOpen(true)}>Manager Mode</button>
             <button type="button" className="cd-btn cd-btn-secondary" onClick={() => setShiftMode("end")}>Shift End</button>
           </>}
-          {canShowButton('Discount') && (
+          {!viewingInvoice && canShowButton('Discount') && (
             <button type="button" className="cd-btn cd-btn-secondary" onClick={() => setDiscountOpen(true)}>Discount</button>
           )}
-          {canShowButton('Gold Purchase') && (
-            <button type="button" className="cd-btn cd-btn-secondary" onClick={() => setOperation("gold")}>Gold Purchase</button>
-          )}
-          {canShowButton('Jewellery Scheme') && (
-            <button type="button" className="cd-btn cd-btn-secondary" onClick={() => setOperation("kitty")}>Jewellery Scheme</button>
+          {!viewingInvoice && canShowButton('Gold Purchase') && (
+            <button type="button" className="cd-btn cd-btn-secondary" onClick={() => setCreateRecordType('gold')}>Gold Purchase</button>
           )}
           {canShowButton('Sales Return') && (
-            <button type="button" className="cd-btn cd-btn-secondary" onClick={() => setOperation("return")}>Sales Return</button>
+            <button type="button" className="cd-btn cd-btn-secondary" onClick={() => setCreateRecordType('return')}>Sales Return</button>
+          )}
+          {!viewingInvoice && allowedSettlementTypes.length > 0 && (
+            <button type="button" className="cd-btn cd-btn-secondary" onClick={openSettlement}>
+              Settlement{settlements.length ? ` (${settlements.length})` : ''}
+            </button>
           )}
           <button
             type="button"
@@ -694,6 +1046,7 @@ export default function PosPage() {
             Clear
           </button>
 
+          {!viewingInvoice && <>
           <button
             type="button"
             className="cd-btn cd-btn-secondary"
@@ -782,6 +1135,7 @@ export default function PosPage() {
           >
             Pay {cart.lines.length ? `· ${fmtINR(balancePayable)}` : ''}
           </button>
+          </>}
         </div>
       </footer>
 
@@ -817,7 +1171,29 @@ export default function PosPage() {
       )}
 
       <ShiftModal key={shiftMode || 'closed'} open={Boolean(shiftMode)} mode={shiftMode} shift={shift} user={user} onClose={() => setShiftMode(null)} onSave={handleShift} />
-      <OperationsModal key={operation || 'op-none'} type={operation} customer={customer} settlements={settlements} onClose={() => setOperation(null)} onSettle={handleSettlement} onCreated={refreshDaySummary} />
+      {settlementOpen && (
+        <SettlementDialog
+          allowedTypes={allowedSettlementTypes}
+          disabledReasons={settlementDisabledReasons}
+          customer={customer}
+          settlements={settlements}
+          balancePayable={balancePayable}
+          draftInvoiceName={cart.draftInvoiceName}
+          heldSettlementNumbers={holds.flatMap((h) => (h.settlements || []).map((s) => s.number))}
+          onSettle={handleSettlement}
+          onRemove={handleRemoveSettlement}
+          onOpenSettlement={handleOpenSettlement}
+          onClose={() => setSettlementOpen(false)}
+        />
+      )}
+      {createRecordType && (
+        <CreateSettlementRecordModal
+          type={createRecordType}
+          customer={customer}
+          onClose={() => setCreateRecordType(null)}
+          onCreated={refreshDaySummary}
+        />
+      )}
 
       <PaymentModal
         open={paymentOpen}
@@ -831,6 +1207,51 @@ export default function PosPage() {
         confirming={confirming}
         lastInvoice={lastInvoice}
         onRemoveSettlement={handleRemoveSettlement}
+        onOpenSettlement={handleOpenSettlement}
+      />
+
+      {batchWarehousePick && (
+        <>
+          <div className="cd-idialog-overlay" onClick={() => setBatchWarehousePick(null)} role="presentation" />
+          <div className="cd-idialog" role="dialog" aria-modal="true">
+            <div className="cd-idialog-header">
+              <span className="cd-idialog-title">Batch {batchWarehousePick.batch_no} · pick a warehouse</span>
+              <button type="button" className="cd-idialog-close" onClick={() => setBatchWarehousePick(null)}>×</button>
+            </div>
+            <div className="cd-idialog-body" style={{ display: 'grid', gap: 8 }}>
+              <div className="cd-hint">This batch has stock in more than one warehouse. Choose where this sale comes from.</div>
+              {batchWarehousePick.batch_warehouse_options.map((option) => (
+                <button
+                  key={option.warehouse}
+                  type="button"
+                  className="cd-btn"
+                  style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}
+                  onClick={() => handlePickBatchWarehouse(option)}
+                >
+                  <span>{option.warehouse}</span>
+                  <strong>{fmtWeight(option.qty)} {batchWarehousePick.batch_uom_label || batchWarehousePick.uom}</strong>
+                </button>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
+
+      <GoldPurchaseDetailsModal
+        key={goldDetails?.name || 'gold-details-none'}
+        name={goldDetails?.name}
+        readOnly={goldDetails?.readOnly}
+        onClose={() => setGoldDetails(null)}
+        onRemove={(name) => {
+          removeSettlement(name);
+          setGoldDetails(null);
+          showToast(`Gold Purchase ${name} removed from this bill — add it back from Settlement → Gold Purchase → Pending Gold Purchases`, 'success');
+        }}
+        onCancelled={(name) => {
+          removeSettlement(name);
+          setGoldDetails(null);
+          refreshDaySummary();
+        }}
       />
     </div>
   );

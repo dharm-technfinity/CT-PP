@@ -356,6 +356,11 @@ let SUPPLIERS = [];
 let ACCOUNTS = [];
 let BRANCHES = [];
 let COMPANY_DOC = {};
+// Cash caps for Advance and Refund entries — configured on PP Settings1 (Accounting Limit tab:
+// advance_limit / refund_limit), not hardcoded here. A limit of 0/unset means "not configured",
+// in which case that cap simply isn't enforced rather than falling back to a made-up number.
+let ADVANCE_LIMIT = 0;
+let REFUND_LIMIT = 0;
 let paymentType = 'Receive'; // 'Receive' or 'Pay' — controls cash flow direction only, independent of Party Type
 let locked = false;
 let submitted = false;
@@ -603,6 +608,20 @@ function validate(){
   if(mode && mode!=='Cash' && !document.getElementById('peRefNo').value.trim()){
     showToast('Reference No. is required for '+mode,'error'); document.getElementById('peRefNo').focus(); return false;
   }
+  // Cash caps come from PP Settings1 (advance_limit / refund_limit on the Accounting Limit
+  // tab) — a Refund to a customer is capped separately and typically much lower than a plain
+  // Advance/Receipt, so it's checked in place of (not on top of) the general limit below. A
+  // limit of 0 means it isn't configured, so that particular check is skipped rather than
+  // silently enforcing some hardcoded number.
+  const isRefund = sellingContext && paymentType==='Pay';
+  if(mode==='Cash' && isRefund && REFUND_LIMIT>0 && amount>REFUND_LIMIT){
+    showToast(`Cash refunds cannot exceed ₹${REFUND_LIMIT.toLocaleString('en-IN')} — please use Bank/UPI for the remaining amount`,'error');
+    document.getElementById('peAmount').focus(); return false;
+  }
+  if(mode==='Cash' && !isRefund && ADVANCE_LIMIT>0 && amount>ADVANCE_LIMIT){
+    showToast(`Cash payments cannot exceed ₹${ADVANCE_LIMIT.toLocaleString('en-IN')} — please split across multiple modes/entries or use Bank/UPI`,'error');
+    document.getElementById('peAmount').focus(); return false;
+  }
   return true;
 }
 
@@ -806,13 +825,14 @@ async function init(){
   }
 
   try{
-    const [custRes, supRes, acctRes, companyRes, modeRes, branchRes] = await Promise.allSettled([
+    const [custRes, supRes, acctRes, companyRes, modeRes, branchRes, ppSettingsRes] = await Promise.allSettled([
       dev1Get(`/api/resource/Customer?fields=${encodeURIComponent(JSON.stringify(["name","customer_name","mobile_no","default_currency"]))}&limit_page_length=0`),
       dev1Get(`/api/resource/Supplier?fields=${encodeURIComponent(JSON.stringify(["name","supplier_name","mobile_no","default_currency"]))}&limit_page_length=0`),
       dev1Get(`/api/resource/Account?filters=${encodeURIComponent(JSON.stringify([["company","=",COMPANY],["is_group","=",0],["account_type","in",["Cash","Bank"]]]))}&fields=${encodeURIComponent(JSON.stringify(["name","account_type"]))}&limit_page_length=0`),
       dev1Get(`/api/resource/Company/${encodeURIComponent(COMPANY)}`),
       dev1Get(`/api/resource/Mode%20of%20Payment?fields=${encodeURIComponent(JSON.stringify(["name"]))}&limit_page_length=0`),
       dev1Get(`/api/resource/Branch?fields=${encodeURIComponent(JSON.stringify(["name"]))}&limit_page_length=100`),
+      dev1Get(`/api/resource/PP%20Settings1/PP%20Settings1`),
     ]);
     if(custRes.status==='fulfilled') CUSTOMERS=(custRes.value.data||custRes.value.message||[]).map(c=>({name:c.name, display:c.customer_name||c.name, phone:c.mobile_no||'', currency:c.default_currency||''}));
     if(supRes.status==='fulfilled') SUPPLIERS=(supRes.value.data||supRes.value.message||[]).map(s=>({name:s.name, display:s.supplier_name||s.name, phone:s.mobile_no||'', currency:s.default_currency||''}));
@@ -828,6 +848,11 @@ async function init(){
       const sel=document.getElementById('peMode');
       modes.forEach(m=>{ const opt=document.createElement('option'); opt.value=m; opt.textContent=m; sel.appendChild(opt); });
     }
+    if(ppSettingsRes.status==='fulfilled'){
+      const ppDoc = ppSettingsRes.value.data||ppSettingsRes.value.message||{};
+      ADVANCE_LIMIT = parseFloat(ppDoc.advance_limit)||0;
+      REFUND_LIMIT = parseFloat(ppDoc.refund_limit)||0;
+    } else { console.warn('PP Settings1 load failed — Advance/Refund cash limits will not be enforced:', ppSettingsRes.reason); }
   }catch(e){ console.warn('Init load error:', e); }
 
   const peName = params.get('name');

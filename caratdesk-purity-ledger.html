@@ -315,6 +315,7 @@
       </div>
     </div>
 
+    <script src="/caratdesk-metal-rates.js"></script>
     <script>
 // ══ INSTANCE HELPERS ══
 const DEV1 = 'https://ppj-dev1.m.frappe.cloud';
@@ -473,18 +474,13 @@ async function postPLE(instName, payload){
   return res.json();
 }
 
+// General rate for a metal type on one instance — shared rule in /caratdesk-metal-rates.js
+// (highest touch, latest date within it).
 async function getTodayMetalRateFor(instName, metalType){
-  try{
-    const key = instName==='PC' ? localStorage.getItem('cd_pc_key') : localStorage.getItem('cd_pp_key');
-    const sec = instName==='PC' ? localStorage.getItem('cd_pc_secret') : localStorage.getItem('cd_pp_secret');
-    const headers = {'Authorization':`token ${key}:${sec}`,'Accept':'application/json'};
-    const fields  = encodeURIComponent(JSON.stringify(['rate']));
-    const filters = encodeURIComponent(JSON.stringify([['metal_type','=',metalType]]));
-    const res = await fetch(`${cdGetInstanceUrl(instName)}/api/resource/Metal%20Price%20List?fields=${fields}&filters=${filters}&order_by=date%20desc&limit_page_length=1`,{headers});
-    if(!res.ok) return 0;
-    const d = await res.json();
-    return parseFloat((d?.data||d?.message||[])[0]?.rate) || 0;
-  }catch(e){ return 0; }
+  const key = instName==='PC' ? localStorage.getItem('cd_pc_key') : localStorage.getItem('cd_pp_key');
+  const sec = instName==='PC' ? localStorage.getItem('cd_pc_secret') : localStorage.getItem('cd_pp_secret');
+  const headers = {'Authorization':`token ${key}:${sec}`,'Accept':'application/json'};
+  return cdGetMetalRate(metalType, { baseUrl: cdGetInstanceUrl(instName), headers });
 }
 
 async function load(){

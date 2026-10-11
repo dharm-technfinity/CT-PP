@@ -72,6 +72,10 @@
   .cd-breadcrumb-sep{color:var(--text-muted);font-size:12px}
   .cd-breadcrumb-cur{color:var(--text-primary);font-weight:500}
   .cd-topbar-right{display:flex;align-items:center;gap:8px}
+  /* Metal rate banner */
+  .cd-chip{display:inline-flex;align-items:center;gap:6px;background:var(--pill-amber-bg);color:var(--pill-amber-txt);font-size:12px;padding:5px 12px;border-radius:7px;white-space:nowrap}
+  .cd-chip svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0}
+  @media(max-width:1100px){.cd-topbar-right .cd-chip{display:none}}
   .cd-icon-btn{width:34px;height:34px;border-radius:9px;border:.5px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-secondary);transition:background .14s,color .14s}
   .cd-icon-btn:hover{background:var(--nav-hover);color:var(--text-primary)}
   .cd-icon-btn svg{width:15px;height:15px;stroke:currentColor;stroke-width:1.75;fill:none;stroke-linecap:round;stroke-linejoin:round}
@@ -85,6 +89,7 @@
   .cd-status-badge.draft{background:var(--accent-light);color:var(--text-secondary)}
   .cd-status-badge.submitted{background:var(--pill-green-bg);color:var(--pill-green-txt)}
   .cd-status-badge.cancelled{background:var(--pill-red-bg);color:var(--pill-red-txt)}
+  .cd-status-badge.unsaved{background:var(--pill-amber-bg);color:var(--pill-amber-txt)}
   .cd-header-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
   .cd-btn{font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;padding:8px 16px;border-radius:9px;border:none;cursor:pointer;transition:background .14s,transform .1s,opacity .14s;display:inline-flex;align-items:center;gap:7px}
   .cd-btn:active{transform:scale(.98)}
@@ -139,6 +144,7 @@
   .cd-items-tbl td{padding:5px 4px;border-bottom:.5px solid var(--border);vertical-align:middle}
   .cd-items-tbl tr:last-child td{border-bottom:none}
   .cd-items-tbl td input,.cd-items-tbl td select{width:100%;height:30px;border:none;outline:none;padding:0 8px;font-size:13px;background:var(--bg);color:var(--text-primary);font-family:'DM Sans',sans-serif;border-radius:6px;transition:background .14s,box-shadow .14s}
+  .cd-items-tbl input.cd-row-chk,.cd-items-tbl input#soItemsChkAll{width:auto;height:auto;border:none;padding:0;cursor:pointer}
   .cd-items-tbl td input:focus,.cd-items-tbl td select:focus{background:var(--surface);box-shadow:0 0 0 2px rgba(0,0,0,.08)}
   .cd-items-tbl td input[readonly]{background:var(--accent-light);cursor:not-allowed;color:var(--text-secondary)}
   .cd-row-num{font-size:11px;color:var(--text-muted);text-align:center;width:28px}
@@ -150,6 +156,8 @@
   .cd-pick-btn{width:26px;height:26px;flex-shrink:0;border:.5px solid var(--border-strong);background:var(--surface);border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-muted);transition:background .12s,color .12s}
   .cd-pick-btn:hover{background:var(--nav-active-bg);color:var(--text-primary)}
   .cd-pick-btn svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2}
+  .cd-add-row{font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;padding:6px 12px;border-radius:9px;border:.5px solid var(--border-strong);background:var(--surface);color:var(--text-primary);cursor:pointer;transition:background .14s}
+  .cd-add-row:hover{background:var(--accent-light)}
   /* Totals */
   .cd-words{font-size:12px;color:var(--text-secondary);margin-top:8px;padding:8px 12px;background:var(--bg);border-radius:8px;border:.5px solid var(--border);line-height:1.5}
   .cd-tax-row td{border-bottom:.5px solid var(--border);vertical-align:middle;height:36px}
@@ -161,7 +169,6 @@
   /* Footer */
   .cd-footer{position:fixed;bottom:0;left:260px;right:0;background:var(--surface);border-top:.5px solid var(--border);padding:14px 28px;display:flex;align-items:center;gap:10px;z-index:50;box-shadow:0 -4px 20px rgba(0,0,0,.04)}
   @media(max-width:768px){.cd-footer{left:0}}
-  .cd-footer-status{font-size:12.5px;color:var(--text-muted);flex:1}
   /* Item picker dialog */
   .cd-idialog-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:800;opacity:0;pointer-events:none;transition:opacity .22s;backdrop-filter:blur(3px)}
   .cd-idialog-overlay.open{opacity:1;pointer-events:all}
@@ -256,6 +263,7 @@
           <a href="/caratdesk-sales-order">Sales Orders</a>
           <span class="cd-breadcrumb-sep">›</span>
           <span class="cd-breadcrumb-cur" id="bcCur">New Sales Order</span>
+          <span class="cd-status-badge draft" id="docStatusBadge" style="margin-left:2px;display:none"></span>
         </div>
       </div>
       <div class="cd-topbar-right">
@@ -264,20 +272,6 @@
     </div>
 
     <div class="cd-form-content">
-      <!-- Doc Header -->
-      <div class="cd-doc-header">
-        <div>
-          <div class="cd-doc-title" id="docTitle">New Sales Order</div>
-          <div class="cd-doc-meta">
-            <span class="cd-doc-id" id="docId" style="display:none">SO-NEW</span>
-            <span class="cd-status-badge draft" id="docStatusBadge">Draft</span>
-          </div>
-        </div>
-        <div class="cd-header-actions" id="headerActions">
-          <!-- populated by JS -->
-        </div>
-      </div>
-
       <!-- SECTION 1: Customer & Order Info -->
       <div class="cd-section">
         <div class="cd-section-header" onclick="toggleSec(this)">
@@ -341,21 +335,15 @@
           <div class="cd-sec-title"><svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>Items</div>
         </div>
         <div class="cd-section-body">
-          <!-- Scan Serial No -->
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
-            <div style="position:relative;flex:1;max-width:340px">
-              <svg style="position:absolute;left:10px;top:50%;transform:translateY(-50%);width:14px;height:14px;stroke:var(--text-muted);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;pointer-events:none" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-              <input id="scanSerialInput" type="text" placeholder="Scan or type Serial No…" autocomplete="off"
-                style="width:100%;height:34px;border:.5px solid var(--border-strong);border-radius:9px;padding:0 10px 0 32px;font-size:13px;background:var(--bg);color:var(--text-primary);outline:none;font-family:'DM Sans',sans-serif"
-                onkeydown="if(event.key==='Enter'){scanSerialNo(this.value);this.value='';this.focus();}"/>
-            </div>
-            <button class="cd-btn cd-btn-secondary" onclick="const v=document.getElementById('scanSerialInput');scanSerialNo(v.value);v.value='';v.focus();" style="font-size:12px;padding:6px 12px;height:34px">
-              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Add
-            </button>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+            <input class="cd-input" id="scanCode" placeholder="Scan or type a Serial No / Batch No, then press Enter" autocomplete="off"
+              onkeydown="if(event.key==='Enter'){event.preventDefault();handleScanCode();}" style="max-width:340px"/>
+            <span style="font-size:11px;color:var(--text-muted)">Auto-detects Serial vs Batch and adds/updates the matching row</span>
           </div>
           <div class="cd-items-wrap">
             <table class="cd-items-tbl">
               <thead><tr>
+                <th style="width:28px"><input type="checkbox" id="soItemsChkAll" onchange="soItemsChkAllToggle(this)"/></th>
                 <th style="width:30px">#</th>
                 <th style="min-width:160px">Item Code</th>
                 <th style="min-width:140px">Item Name</th>
@@ -366,9 +354,9 @@
                 <th style="width:100px">Rate</th>
                 <th style="width:75px">Disc %</th>
                 <th style="width:110px">Amount</th>
-                <th style="width:120px">Warehouse</th>
+                <th style="width:140px">Warehouse</th>
                 <th style="width:90px">HSN</th>
-                <th style="width:80px">Tounch</th>
+                <th style="width:80px">Tunch</th>
                 <th style="width:110px">Batch No</th>
                 <th style="width:110px">Packet No</th>
                 <th style="width:120px">Serial No</th>
@@ -383,6 +371,7 @@
               <button class="cd-btn cd-btn-secondary" onclick="addSOItem()" style="font-size:12px;padding:6px 12px">
                 <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Row
               </button>
+              <button type="button" id="soItemsDeleteBtn" class="cd-add-row" style="color:var(--pill-red-txt);display:none" onclick="deleteSelectedSOItemRows()">Delete</button>
               <button type="button" class="cd-add-row" onclick="downloadSOExcel()">Download</button>
               <button type="button" class="cd-add-row" onclick="document.getElementById('soExcelUpload').click()">Upload</button>
               <input type="file" id="soExcelUpload" accept=".csv" onchange="uploadSOExcel(event)" hidden>
@@ -475,15 +464,12 @@
 
 <!-- Footer -->
 <div class="cd-footer" id="soFooter">
-  <span class="cd-footer-status" id="footerStatus">Draft — not saved</span>
-  <button class="cd-btn cd-btn-secondary" id="cancelSOBtn" style="display:none" onclick="cancelSO()">
-    <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Cancel Order
+  <span style="flex:1"></span>
+  <button class="cd-btn cd-btn-danger" id="cdCancelBtn" onclick="discardDoc()">
+    <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Discard
   </button>
-  <button class="cd-btn cd-btn-secondary" id="saveDraftBtn" onclick="saveDraft()">
-    <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Save Draft
-  </button>
-  <button class="cd-btn cd-btn-green" id="submitSOBtn" onclick="submitSO()">
-    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Submit Order
+  <button class="cd-btn cd-btn-primary" id="cdMainActionBtn" onclick="saveDraft()">
+    <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Save
   </button>
 </div>
 
@@ -574,6 +560,7 @@
   </div>
 </div>
 
+<script src="/caratdesk-metal-rates.js"></script>
 <script>
 const DEV1 = 'https://ppj-dev1.m.frappe.cloud';
 const DEV2 = 'https://ppj-dev2.m.frappe.cloud';
@@ -640,6 +627,13 @@ async function dev1Put(path,body){
   if(!res.ok){ const t=await res.text(); throw new Error(t||'HTTP '+res.status); }
   return res.json();
 }
+async function dev1Delete(path){
+  const h=cdGetInstanceHeaders();
+  if(!h) throw new Error('No auth');
+  const res=await fetch(cdGetInstanceUrl()+path,{method:'DELETE',headers:h});
+  if(!res.ok){ const t=await res.text(); throw new Error(t||'HTTP '+res.status); }
+  return res.json();
+}
 // Returns fieldnames flagged "In Global Search" on a doctype, so link pickers can search them too.
 async function getGlobalSearchFields(doctype){
   try{
@@ -656,6 +650,7 @@ let WAREHOUSES = [];
 let BRANCHES = [];
 let TAX_TEMPLATES = [];
 let currentSOName = null;
+let soBackendStatus = ''; // backend Sales Order `status`, shown in the breadcrumb badge
 let submitted = false;
 let cancelled = false;
 let soRowCount = 0;
@@ -677,6 +672,9 @@ async function init(){
   if(!h){ window.location.replace('/caratdesk-login?logout=1'); return; }
 
   showToast('Loading data...','info');
+
+  // Right-edge "Metal Rate" tab + panel — shared in /caratdesk-metal-rates.js
+  cdMountRatePanel();
 
   // Load customers and items in parallel (including any "In Global Search" fields so pickers can match on them)
   try {
@@ -733,6 +731,7 @@ async function init(){
   } else {
     addSOItem(); // Start with 1 blank row
     setEditable(true);
+    setCancelBtnState('discard');
     updateHeaderUI();
   }
   showToast('','info'); // clear toast
@@ -747,11 +746,9 @@ async function loadExistingSO(name){
     currentSOName = doc.name;
     submitted = doc.docstatus === 1;
     cancelled = doc.docstatus === 2;
+    soBackendStatus = doc.status || '';
 
-    document.getElementById('docTitle').textContent = doc.name;
     document.getElementById('bcCur').textContent = doc.name;
-    document.getElementById('docId').textContent = doc.name;
-    document.getElementById('docId').style.display = '';
     document.getElementById('txDate').value = doc.transaction_date||'';
     document.getElementById('delivDate').value = doc.delivery_date||'';
     document.getElementById('customer').value = doc.customer_name||doc.customer||'';
@@ -789,6 +786,17 @@ async function loadExistingSO(name){
     recalc();
     setEditable(!submitted && !cancelled);
     updateHeaderUI();
+    if(cancelled){
+      setCancelBtnState('hidden');
+      showOpenInErpBtn();
+    } else if(submitted){
+      setCancelBtnState('cancel');
+      showOpenInErpBtn();
+    } else {
+      switchToSubmitButton();
+      setCancelBtnState('delete');
+      startChangeTracking();
+    }
     showToast('Loaded '+doc.name,'success');
   } catch(e){
     showToast('Error loading SO: '+String(e.message).slice(0,80),'error');
@@ -803,6 +811,7 @@ function addSOItem(d={}){
   tr.id = id;
   const whOpts = WAREHOUSES.map(w=>`<option value="${esc(w)}" ${w===(d.warehouse||'')?'selected':''}>${esc(w)}</option>`).join('');
   tr.innerHTML = `
+    <td style="text-align:center;padding:4px"><input type="checkbox" class="cd-row-chk"/></td>
     <td class="cd-row-num">${soRowCount}</td>
     <td>
       <div class="cd-pick-wrap">
@@ -822,12 +831,23 @@ function addSOItem(d={}){
     <td><div style="display:flex;align-items:center;height:30px;padding:0 2px"><input type="number" min="0" step="0.01" placeholder="0" data-f="rate" value="${d.rate||''}" style="flex:1;text-align:right;border:none;outline:none;padding:0 6px;font-size:13px;background:transparent;color:var(--text-primary)" oninput="calcSORow('${id}')"/></div></td>
     <td><div style="display:flex;align-items:center;height:30px"><input type="number" min="0" max="100" step="0.01" value="${d.disc||d.discount_percentage||0}" data-f="disc" style="flex:1;text-align:right;border:none;outline:none;padding:0 6px;font-size:13px;background:transparent;color:var(--text-primary)" oninput="calcSORow('${id}')"/><span style="font-size:11px;color:var(--text-muted);padding:0 4px;flex-shrink:0">%</span></div></td>
     <td><input type="number" placeholder="0" data-f="amt" value="${d.amount||''}" readonly style="width:100%;text-align:right;background:var(--accent-light);color:var(--text-primary);font-weight:600;border:none;outline:none;padding:0 8px;font-size:13px;border-radius:6px"/></td>
-    <td><select data-f="wh" style="width:100%;height:30px;border:none;outline:none;padding:0 6px;font-size:12px;background:var(--bg);color:var(--text-primary);border-radius:6px"><option value=""></option>${whOpts}</select></td>
+    <td><select data-f="wh" style="width:100%;height:26px;line-height:26px;border:none;outline:none;padding:0 18px 0 6px;font-size:11px;background:var(--bg);color:var(--text-primary);border-radius:6px;box-sizing:border-box;appearance:none;-webkit-appearance:none;-moz-appearance:none;background-image:url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23A8A8A2' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E&quot;);background-repeat:no-repeat;background-position:right 5px center"><option value=""></option>${whOpts}</select></td>
     <td><input class="cd-input" placeholder="HSN" data-f="hsn" value="${esc(d.gst_hsn_code||d.hsn||'')}" style="font-size:11px"/></td>
-    <td><input type="number" min="0" step="0.001" placeholder="" data-f="tounch" value="${d.tounch||''}" style="width:100%;text-align:right;border:none;outline:none;padding:0 6px;font-size:11px;background:transparent;color:var(--text-primary)"/></td>
-    <td style="white-space:normal;min-width:100px"><textarea class="cd-input" placeholder="Batch No" data-f="batch_no" rows="1" style="font-size:11px;resize:none;overflow:hidden;min-height:26px;line-height:1.5;width:100%;padding:3px 6px;word-break:break-all" oninput="autoResize(this)">${esc(d.batch_no||'')}</textarea></td>
-    <td style="white-space:normal;min-width:100px"><textarea class="cd-input" placeholder="Packet No" data-f="packet_no" rows="1" style="font-size:11px;resize:none;overflow:hidden;min-height:26px;line-height:1.5;width:100%;padding:3px 6px;word-break:break-all" oninput="autoResize(this)">${esc(d.packet_no||'')}</textarea></td>
-    <td style="white-space:normal;min-width:120px"><textarea class="cd-input" placeholder="Serial No" data-f="serial_no" rows="1" style="font-size:11px;resize:none;overflow:hidden;min-height:26px;line-height:1.5;width:100%;padding:3px 6px;word-break:break-all" oninput="autoResize(this)">${esc(d.serial_no||'')}</textarea></td>
+    <td><input class="cd-input" type="number" min="0" step="0.001" placeholder="Tunch" data-f="tounch" value="${d.tounch||''}" style="font-size:11px;text-align:right"/></td>
+    <td style="white-space:normal;min-width:110px">
+      <div class="cd-ac" style="position:relative">
+        <input class="cd-input" placeholder="Batch No" data-f="batch_no" value="${esc(d.batch_no||'')}" autocomplete="off"
+          style="font-size:11px;height:26px;padding:3px 6px" oninput="batchAc(this,'${id}')" onfocus="batchAc(this,'${id}')" onblur="setTimeout(()=>closeBatchAc('${id}'),150)"/>
+        <div class="cd-ac-list" id="batchac-${id}" style="min-width:220px"></div>
+      </div>
+    </td>
+    <td style="white-space:normal;min-width:110px"><input class="cd-input" placeholder="Packet No" data-f="packet_no" value="${esc(d.packet_no||'')}" style="font-size:11px;height:26px;padding:3px 6px"/></td>
+    <td style="white-space:normal;min-width:130px">
+      <div class="cd-ac" style="position:relative">
+        <textarea class="cd-input" placeholder="Serial No" data-f="serial_no" rows="1" style="font-size:11px;resize:none;overflow:hidden;min-height:26px;line-height:1.5;width:100%;padding:3px 6px;word-break:break-all" oninput="autoResize(this);serialAc(this,'${id}')" onfocus="serialAc(this,'${id}')" onblur="setTimeout(()=>closeSerialAc('${id}'),150)">${esc(d.serial_no||'')}</textarea>
+        <div class="cd-ac-list" id="serialac-${id}" style="min-width:220px"></div>
+      </div>
+    </td>
     <td style="text-align:center;padding:4px">
       <input type="file" id="soImgFile-${id}" accept="image/*" hidden onchange="soPreviewImg('${id}',this)"/>
       <button onclick="document.getElementById('soImgFile-${id}').click()" title="Attach image" style="width:26px;height:26px;border-radius:6px;border:.5px solid var(--border-strong);background:var(--surface);color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;margin:auto">
@@ -862,6 +882,28 @@ function delSORow(rowId){
 
 function renumberSORows(){
   document.querySelectorAll('#soItemsTbody tr').forEach((tr,i)=>{ const n=tr.querySelector('.cd-row-num'); if(n) n.textContent=i+1; });
+}
+
+function soItemsChkAllToggle(chk){ document.querySelectorAll('#soItemsTbody .cd-row-chk').forEach(c=>c.checked=chk.checked); updateSOItemsDeleteBtnVisibility(); }
+
+function updateSOItemsDeleteBtnVisibility(){
+  const anyChecked = !!document.querySelector('#soItemsTbody .cd-row-chk:checked');
+  const btn = document.getElementById('soItemsDeleteBtn');
+  if(btn) btn.style.display = anyChecked ? '' : 'none';
+}
+document.getElementById('soItemsTbody')?.addEventListener('change', e => {
+  if(e.target.classList.contains('cd-row-chk')) updateSOItemsDeleteBtnVisibility();
+});
+
+function deleteSelectedSOItemRows(){
+  const rows = [...document.querySelectorAll('#soItemsTbody tr')].filter(tr => tr.querySelector('.cd-row-chk')?.checked);
+  if(!rows.length){ showToast('No rows selected', 'error'); return; }
+  rows.forEach(tr => tr.remove());
+  const chkAll = document.getElementById('soItemsChkAll'); if(chkAll) chkAll.checked = false;
+  updateSOItemsDeleteBtnVisibility();
+  renumberSORows();
+  recalc();
+  updateSOItemCount();
 }
 
 function numWords(n){
@@ -1141,22 +1183,172 @@ function soFillItem(rowId, it){
   calcSORow(rowId);
   document.getElementById('soiac-'+rowId)?.classList.remove('open');
 }
-function scanSerialNo(serial){
-  serial = (serial||'').trim();
-  if(!serial){ showToast('Enter a serial number','error'); return; }
-  // Check if serial already exists in the table
-  const existing = [...document.querySelectorAll('#soItemsTbody [data-f="serial_no"]')]
-    .find(el => el.value.trim().toLowerCase() === serial.toLowerCase());
-  if(existing){
-    existing.closest('tr').scrollIntoView({behavior:'smooth',block:'center'});
-    showToast('Serial No already in table','error'); return;
+function autoResize(el){ el.style.height='auto'; el.style.height=el.scrollHeight+'px'; }
+
+// ── BATCH NO TYPEAHEAD (in-stock only, scoped to the row's item) ──
+async function batchAc(inp, rowId){
+  const tr = document.getElementById(rowId);
+  const itemCode = tr?.querySelector('[data-f="code"]')?.value?.trim();
+  const list = document.getElementById('batchac-'+rowId);
+  if(!list) return;
+  if(!itemCode){ list.innerHTML = '<div class="cd-ac-empty">Pick an item first</div>'; list.classList.add('open'); return; }
+  const q = inp.value.trim().toLowerCase();
+  try{
+    const filters = encodeURIComponent(JSON.stringify([['item','=',itemCode],['disabled','=',0]]));
+    const fields = encodeURIComponent(JSON.stringify(['name','expiry_date']));
+    const res = await dev1Get(`/api/resource/Batch?filters=${filters}&fields=${fields}&limit_page_length=50`);
+    let batches = res.data || res.message || [];
+    if(q) batches = batches.filter(b=>b.name.toLowerCase().includes(q));
+    batches = batches.slice(0,15);
+    // Best-effort in-stock check; if it can't be verified the batch is still shown, just unlabeled.
+    const withQty = await Promise.all(batches.map(async b=>{
+      try{
+        const r = await dev1Get(`/api/method/erpnext.stock.doctype.batch.batch.get_batch_qty?batch_no=${encodeURIComponent(b.name)}&item_code=${encodeURIComponent(itemCode)}`);
+        const qty = parseFloat(r.message ?? r.data ?? NaN);
+        return { ...b, qty: isNaN(qty) ? null : qty };
+      }catch(e){ return { ...b, qty: null }; }
+    }));
+    const shown = withQty.filter(b => b.qty === null || b.qty > 0);
+    list.innerHTML = shown.length
+      ? shown.map(b=>`<div class="cd-ac-item" onmousedown="selBatch('${rowId}','${esc(b.name)}')"><div class="main">${esc(b.name)}</div><div class="sub">${b.qty!=null?('Qty: '+b.qty):(b.expiry_date?'Exp: '+b.expiry_date:'')}</div></div>`).join('')
+      : '<div class="cd-ac-empty">No in-stock batch found</div>';
+    list.classList.add('open');
+  }catch(e){
+    console.warn('batchAc error:', e.message);
+    list.innerHTML = '<div class="cd-ac-empty">Batch lookup failed</div>';
+    list.classList.add('open');
   }
-  const tr = addSOItem({ serial_no: serial });
-  tr.scrollIntoView({behavior:'smooth', block:'center'});
-  tr.querySelector('[data-f="code"]')?.focus();
+}
+function closeBatchAc(rowId){ document.getElementById('batchac-'+rowId)?.classList.remove('open'); }
+function selBatch(rowId, batchNo){
+  const tr = document.getElementById(rowId);
+  const inp = tr?.querySelector('[data-f="batch_no"]');
+  if(inp) inp.value = batchNo;
+  closeBatchAc(rowId);
 }
 
-function autoResize(el){ el.style.height='auto'; el.style.height=el.scrollHeight+'px'; }
+// ── SERIAL NO TYPEAHEAD (in-stock only, scoped to the row's item; appends since one row can
+// carry multiple serials, qty == count of serials) ──
+async function serialAc(inp, rowId){
+  const tr = document.getElementById(rowId);
+  const itemCode = tr?.querySelector('[data-f="code"]')?.value?.trim();
+  const list = document.getElementById('serialac-'+rowId);
+  if(!list) return;
+  if(!itemCode){ list.innerHTML = '<div class="cd-ac-empty">Pick an item first</div>'; list.classList.add('open'); return; }
+  const lines = inp.value.split('\n');
+  const q = (lines[lines.length-1]||'').trim().toLowerCase();
+  try{
+    const filters = encodeURIComponent(JSON.stringify([['item_code','=',itemCode],['warehouse','!=','']]));
+    const fields = encodeURIComponent(JSON.stringify(['name','warehouse']));
+    const res = await dev1Get(`/api/resource/Serial No?filters=${filters}&fields=${fields}&limit_page_length=50`);
+    let rows = res.data || res.message || [];
+    if(q) rows = rows.filter(r=>r.name.toLowerCase().includes(q));
+    const already = new Set(lines.map(l=>l.trim()).filter(Boolean));
+    rows = rows.filter(r=>!already.has(r.name)).slice(0,15);
+    list.innerHTML = rows.length
+      ? rows.map(r=>`<div class="cd-ac-item" onmousedown="selSerial('${rowId}','${esc(r.name)}')"><div class="main">${esc(r.name)}</div><div class="sub">${esc(r.warehouse||'')}</div></div>`).join('')
+      : '<div class="cd-ac-empty">No in-stock serial found</div>';
+    list.classList.add('open');
+  }catch(e){
+    console.warn('serialAc error:', e.message);
+    list.innerHTML = '<div class="cd-ac-empty">Serial lookup failed</div>';
+    list.classList.add('open');
+  }
+}
+function closeSerialAc(rowId){ document.getElementById('serialac-'+rowId)?.classList.remove('open'); }
+function selSerial(rowId, serialNo){
+  const tr = document.getElementById(rowId);
+  const ta = tr?.querySelector('[data-f="serial_no"]');
+  if(!ta) return;
+  const lines = ta.value.split('\n').map(l=>l.trim()).filter(Boolean);
+  if(!lines.includes(serialNo)) lines.push(serialNo);
+  ta.value = lines.join('\n');
+  autoResize(ta);
+  const qtyInp = tr.querySelector('[data-f="qty"]');
+  if(qtyInp){ qtyInp.value = lines.length; calcSORow(rowId); }
+  closeSerialAc(rowId);
+  ta.focus();
+}
+
+// ── SCAN: auto-detects Serial No vs Batch No and adds/updates the matching row. Serial No
+// names are globally unique in Frappe, so trying it first is unambiguous; Batch No is the fallback. ──
+async function handleScanCode(){
+  const inp = document.getElementById('scanCode');
+  const code = (inp?.value||'').trim();
+  if(!code) return;
+  inp.value = '';
+  showToast('Looking up '+code+'…', 'info');
+
+  try{
+    const scanFields = encodeURIComponent(JSON.stringify(['name','item_code','warehouse']));
+    const res = await dev1Get(`/api/resource/Serial No/${encodeURIComponent(code)}?fields=${scanFields}`);
+    const sn = res.data || res.message;
+    if(sn && sn.name){
+      if(!sn.warehouse){ showToast('Serial No '+code+' is not currently in stock', 'error'); return; }
+      addOrBumpScanRow({ itemCode: sn.item_code, warehouse: sn.warehouse, serialNo: sn.name });
+      return;
+    }
+  }catch(e){ /* not a Serial No — fall through to Batch */ }
+
+  try{
+    const res = await dev1Get(`/api/resource/Batch/${encodeURIComponent(code)}`);
+    const batch = res.data || res.message;
+    if(batch && batch.name){
+      let qty = null;
+      try{
+        const qRes = await dev1Get(`/api/method/erpnext.stock.doctype.batch.batch.get_batch_qty?batch_no=${encodeURIComponent(batch.name)}&item_code=${encodeURIComponent(batch.item)}`);
+        const parsed = parseFloat(qRes.message ?? qRes.data ?? NaN);
+        qty = isNaN(parsed) ? null : parsed;
+      }catch(e){ /* couldn't verify — proceed rather than block a possibly-valid batch */ }
+      if(qty === 0){ showToast('Batch '+code+' has no available stock', 'error'); return; }
+      addOrBumpScanRow({ itemCode: batch.item, batchNo: batch.name });
+      return;
+    }
+  }catch(e){ /* not a Batch either */ }
+
+  showToast('No Serial No or Batch No found for "'+code+'"', 'error');
+}
+
+function addOrBumpScanRow({ itemCode, warehouse, serialNo, batchNo }){
+  const it = ITEMS_LIST.find(i=>i.code===itemCode);
+  const rows = [...document.querySelectorAll('#soItemsTbody tr')];
+
+  if(serialNo){
+    const match = rows.find(tr =>
+      tr.querySelector('[data-f="code"]')?.value?.trim() === itemCode &&
+      (!warehouse || tr.querySelector('[data-f="wh"]')?.value === warehouse)
+    );
+    if(match){
+      const ta = match.querySelector('[data-f="serial_no"]');
+      const lines = (ta?.value||'').split('\n').map(l=>l.trim()).filter(Boolean);
+      if(lines.includes(serialNo)){ showToast('Serial '+serialNo+' is already on this order', 'error'); return; }
+      lines.push(serialNo);
+      ta.value = lines.join('\n'); autoResize(ta);
+      match.querySelector('[data-f="qty"]').value = lines.length;
+      calcSORow(match.id);
+      showToast('Added serial '+serialNo+' — qty now '+lines.length, 'success');
+    } else {
+      const tr = addSOItem({ item_code: itemCode, item_name: it?.name||itemCode, uom: it?.uom||'Nos', rate: it?.rate||0, warehouse, qty:1, serial_no: serialNo });
+      if(it) soFillItem(tr.id, it); else calcSORow(tr.id);
+      showToast('Added '+itemCode+' (serial '+serialNo+')', 'success');
+    }
+  } else if(batchNo){
+    const match = rows.find(tr =>
+      tr.querySelector('[data-f="code"]')?.value?.trim() === itemCode &&
+      tr.querySelector('[data-f="batch_no"]')?.value?.trim() === batchNo
+    );
+    if(match){
+      const qtyInp = match.querySelector('[data-f="qty"]');
+      qtyInp.value = (parseFloat(qtyInp.value)||0) + 1;
+      calcSORow(match.id);
+      showToast('Bumped '+itemCode+' (batch '+batchNo+') to qty '+qtyInp.value, 'success');
+    } else {
+      const tr = addSOItem({ item_code: itemCode, item_name: it?.name||itemCode, uom: it?.uom||'Nos', rate: it?.rate||0, qty:1, batch_no: batchNo });
+      if(it) soFillItem(tr.id, it); else calcSORow(tr.id);
+      showToast('Added '+itemCode+' (batch '+batchNo+')', 'success');
+    }
+  }
+}
 function soPreviewImg(rowId, input){
   const file=input.files?.[0]; if(!file) return;
   const prev=document.getElementById('soImgPrev-'+rowId); if(!prev) return;
@@ -1383,31 +1575,101 @@ function setEditable(editable){
   });
   // Items table pick buttons & del buttons
   document.querySelectorAll('.cd-pick-btn,.cd-del-btn').forEach(btn=>{ btn.disabled=!editable; btn.style.opacity=editable?'':'0.4'; });
-  // Footer buttons
-  document.getElementById('saveDraftBtn').style.display = editable && !submitted ? '' : 'none';
-  document.getElementById('submitSOBtn').style.display  = editable && !submitted ? '' : 'none';
-  document.getElementById('cancelSOBtn').style.display  = submitted ? '' : 'none';
 }
 
 // ── HEADER STATUS UI ──
-function updateHeaderUI(){
+// Badge shows the backend Sales Order `status` (Draft, To Deliver and Bill, To Bill,
+// Completed, On Hold, Closed, Cancelled, ...) or the local 'Unsaved', and stays hidden
+// until the order is saved.
+function updateHeaderUI(overrideStatus){
   const badge=document.getElementById('docStatusBadge');
-  const ha=document.getElementById('headerActions');
-  if(cancelled){
-    badge.className='cd-status-badge cancelled'; badge.textContent='Cancelled';
-    ha.innerHTML='';
-  } else if(submitted){
-    badge.className='cd-status-badge submitted'; badge.textContent='Submitted';
-    ha.innerHTML=`<button class="cd-btn cd-btn-secondary" onclick="openInFrappe()"><svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Open in Frappe</button>`;
+  const status = overrideStatus || soBackendStatus || (cancelled ? 'Cancelled' : submitted ? 'Submitted' : currentSOName ? 'Draft' : '');
+  if(status){
+    const cls = status==='Draft' ? 'draft' : status==='Unsaved' ? 'unsaved' : (status==='Cancelled' || status==='Closed') ? 'cancelled' : 'submitted';
+    badge.className='cd-status-badge '+cls; badge.textContent=status; badge.style.display='';
   } else {
-    badge.className='cd-status-badge draft'; badge.textContent='Draft';
-    ha.innerHTML='';
+    badge.style.display='none'; badge.textContent='';
   }
-  const stat=document.getElementById('footerStatus');
-  if(cancelled) stat.textContent='This order has been cancelled';
-  else if(submitted) stat.textContent='Submitted · '+currentSOName;
-  else if(currentSOName) stat.textContent='Draft · '+currentSOName;
-  else stat.textContent='Draft — not saved';
+}
+
+function showOpenInErpBtn(){
+  const btn=document.getElementById('cdMainActionBtn');
+  if(!btn) return;
+  btn.style.display='';
+  btn.dataset.mode='openInErp';
+  btn.className='cd-btn cd-btn-secondary';
+  btn.setAttribute('onclick','openInFrappe()');
+  btn.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Open in ERPNext`;
+}
+
+function switchToSubmitButton(){
+  const btn=document.getElementById('cdMainActionBtn');
+  if(!btn||btn.dataset.mode==='submit') return;
+  btn.dataset.mode='submit';
+  btn.className='cd-btn cd-btn-primary';
+  btn.setAttribute('onclick','submitSO()');
+  btn.innerHTML=`<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Submit`;
+}
+function switchToSaveButton(){
+  const btn=document.getElementById('cdMainActionBtn');
+  if(!btn||btn.dataset.mode==='save') return;
+  btn.dataset.mode='save';
+  btn.className='cd-btn cd-btn-primary';
+  btn.setAttribute('onclick','saveDraft()');
+  btn.innerHTML=`<svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Save`;
+}
+
+let _changeTrackingActive=false;
+function startChangeTracking(){
+  if(_changeTrackingActive) return;
+  _changeTrackingActive=true;
+  const form=document.querySelector('.cd-form-content');
+  if(form){ form.addEventListener('input', onFormChange); form.addEventListener('change', onFormChange); }
+}
+function onFormChange(){
+  if(!currentSOName||submitted||cancelled) return;
+  updateHeaderUI('Unsaved');
+  switchToSaveButton();
+}
+
+// ── DISCARD / DELETE / CANCEL button (single footer button, state-driven) ──
+// 'discard' = unsaved new doc, 'delete' = saved draft not yet submitted,
+// 'cancel'  = submitted doc, 'hidden' = cancelled doc
+function setCancelBtnState(state){
+  const btn=document.getElementById('cdCancelBtn');
+  if(!btn) return;
+  if(state==='hidden'){ btn.style.display='none'; return; }
+  btn.style.display='';
+  btn.disabled=false;
+  btn.style.opacity='';
+  if(state==='discard'){
+    btn.dataset.mode='discard';
+    btn.setAttribute('onclick','discardDoc()');
+    btn.innerHTML=`<svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Discard`;
+  } else if(state==='delete'){
+    btn.dataset.mode='delete';
+    btn.setAttribute('onclick','deleteDoc()');
+    btn.innerHTML=`<svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>Delete`;
+  } else if(state==='cancel'){
+    btn.dataset.mode='cancel';
+    btn.setAttribute('onclick','cancelSO()');
+    btn.innerHTML=`<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>Cancel`;
+  }
+}
+
+function discardDoc(){
+  if(confirm('Discard this draft and go back?')) window.location.href='/caratdesk-sales-order';
+}
+
+async function deleteDoc(){
+  if(!currentSOName){ showToast('No record to delete','error'); return; }
+  if(!confirm('Delete this draft Sales Order? This cannot be undone.')) return;
+  try{
+    showToast('Deleting…','info');
+    await dev1Delete('/api/resource/Sales%20Order/'+encodeURIComponent(currentSOName));
+    showToast('Deleted','success');
+    setTimeout(()=>window.location.href='/caratdesk-sales-order',800);
+  }catch(e){ showToast('Error: '+String(e.message).slice(0,120),'error'); }
 }
 
 // ── BUILD PAYLOAD ──
@@ -1502,11 +1764,12 @@ async function saveDraft(){
     const name=res?.data?.name||res?.name||currentSOName;
     if(!name) throw new Error('Save failed — no name returned');
     currentSOName=name;
-    document.getElementById('docTitle').textContent=name;
+    soBackendStatus=res?.data?.status||'Draft';
     document.getElementById('bcCur').textContent=name;
-    document.getElementById('docId').textContent=name;
-    document.getElementById('docId').style.display='';
     updateHeaderUI();
+    switchToSubmitButton();
+    setCancelBtnState('delete');
+    startChangeTracking();
     showToast('Saved: '+name,'success');
     history.replaceState({},'','/caratdesk-new-sales-order?name='+encodeURIComponent(name));
   } catch(e){ showToast('Error: '+String(e.message).slice(0,100),'error'); }
@@ -1528,11 +1791,15 @@ async function submitSO(){
       await dev1Put('/api/resource/Sales%20Order/'+encodeURIComponent(currentSOName), buildPayload(0));
     }
     // Submit
-    await dev1Put('/api/resource/Sales%20Order/'+encodeURIComponent(currentSOName), {docstatus:1});
+    const subRes = await dev1Put('/api/resource/Sales%20Order/'+encodeURIComponent(currentSOName), {docstatus:1});
     submitted=true;
+    soBackendStatus=subRes?.data?.status||'';
+    document.getElementById('bcCur').textContent=currentSOName;
     showToast('Submitted: '+currentSOName,'success');
     setEditable(false);
     updateHeaderUI();
+    setCancelBtnState('cancel');
+    showOpenInErpBtn();
     setTimeout(()=>window.location.href='/caratdesk-sales-order?saved='+encodeURIComponent(currentSOName), 1200);
   } catch(e){ showToast('Error: '+String(e.message).slice(0,100),'error'); }
 }
@@ -1543,11 +1810,14 @@ async function cancelSO(){
   if(!confirm('Cancel this Sales Order? This action cannot be undone.')) return;
   try {
     showToast('Cancelling...','info');
-    await dev1Put('/api/resource/Sales%20Order/'+encodeURIComponent(currentSOName), {docstatus:2});
+    const canRes = await dev1Put('/api/resource/Sales%20Order/'+encodeURIComponent(currentSOName), {docstatus:2});
     cancelled=true; submitted=false;
+    soBackendStatus=canRes?.data?.status||'';
     showToast('Cancelled: '+currentSOName,'success');
     setEditable(false);
     updateHeaderUI();
+    setCancelBtnState('hidden');
+    showOpenInErpBtn();
   } catch(e){ showToast('Error: '+String(e.message).slice(0,100),'error'); }
 }
 
@@ -1695,7 +1965,7 @@ const SO_CSV_COLS=[
   {label:'Amount',       field:'amt'       },
   {label:'Warehouse',    field:'wh'        },
   {label:'HSN',          field:'hsn'       },
-  {label:'Tounch',       field:'tounch'    },
+  {label:'Tunch',        field:'tounch'    },
   {label:'Batch No',     field:'batch_no'  },
   {label:'Packet No',    field:'packet_no' },
   {label:'Serial No',    field:'serial_no' },
@@ -1715,7 +1985,7 @@ function importSORows(rows,mapping){
     const itemCode=(cells[codeIdx]||'').trim(); if(!itemCode) return;
     const nameIdx=Object.keys(mapping).find(i=>mapping[i]==='item_name');
     const itemName=nameIdx?(cells[nameIdx]||'').trim():'';
-    const cached=ITEMS.find(i=>i.code.toLowerCase()===itemCode.toLowerCase());
+    const cached=ITEMS_LIST.find(i=>i.code.toLowerCase()===itemCode.toLowerCase());
     const tr=addSOItem({item_code:cached?.code||itemCode,item_name:cached?.name||itemName||itemCode,uom:cached?.uom||'Nos',rate:cached?.rate||0,gst_hsn_code:cached?.hsn||''});
     if(!tr) return;
     Object.entries(mapping).forEach(([csvIdx,field])=>{

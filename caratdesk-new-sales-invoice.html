@@ -72,6 +72,10 @@
   .cd-breadcrumb-sep{color:var(--text-muted);font-size:12px}
   .cd-breadcrumb-cur{color:var(--text-primary);font-weight:500}
   .cd-topbar-right{display:flex;align-items:center;gap:8px}
+  /* Metal rate banner */
+  .cd-chip{display:inline-flex;align-items:center;gap:6px;background:var(--pill-amber-bg);color:var(--pill-amber-txt);font-size:12px;padding:5px 12px;border-radius:7px;white-space:nowrap}
+  .cd-chip svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0}
+  @media(max-width:1100px){.cd-topbar-right .cd-chip{display:none}}
   .cd-icon-btn{width:34px;height:34px;border-radius:9px;border:.5px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-secondary);transition:background .14s,color .14s}
   .cd-icon-btn:hover{background:var(--nav-hover);color:var(--text-primary)}
   .cd-icon-btn svg{width:15px;height:15px;stroke:currentColor;stroke-width:1.75;fill:none;stroke-linecap:round;stroke-linejoin:round}
@@ -165,7 +169,6 @@
   /* Footer */
   .cd-footer{position:fixed;bottom:0;left:260px;right:0;background:var(--surface);border-top:.5px solid var(--border);padding:14px 28px;display:flex;align-items:center;gap:10px;z-index:50;box-shadow:0 -4px 20px rgba(0,0,0,.04)}
   @media(max-width:768px){.cd-footer{left:0}}
-  .cd-footer-status{font-size:12.5px;color:var(--text-muted);flex:1}
   /* Item picker dialog */
   .cd-idialog-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:800;opacity:0;pointer-events:none;transition:opacity .22s;backdrop-filter:blur(3px)}
   .cd-idialog-overlay.open{opacity:1;pointer-events:all}
@@ -260,6 +263,7 @@
           <a href="/caratdesk-sales-invoice">Sales Invoices</a>
           <span class="cd-breadcrumb-sep">›</span>
           <span class="cd-breadcrumb-cur" id="bcCur">New Sales Invoice</span>
+          <span class="cd-status-badge draft" id="docStatusBadge" style="margin-left:2px;display:none"></span>
         </div>
       </div>
       <div class="cd-topbar-right">
@@ -274,7 +278,6 @@
           <div class="cd-doc-title" id="docTitle">New Sales Invoice</div>
           <div class="cd-doc-meta">
             <span class="cd-doc-id" id="docId" style="display:none">SINV-NEW</span>
-            <span class="cd-status-badge draft" id="docStatusBadge">Draft</span>
           </div>
         </div>
         <div class="cd-header-actions" id="headerActions" style="margin-left:auto">
@@ -479,11 +482,27 @@
 
 <!-- Footer -->
 <div class="cd-footer" id="siFooter">
-  <span class="cd-footer-status" id="footerStatus">Draft — not saved</span>
+  <span style="flex:1"></span>
   <button class="cd-btn cd-btn-danger" id="cdCancelBtn" onclick="discardDoc()">
     <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Discard
   </button>
-  <button class="cd-btn cd-btn-secondary" id="cdReturnBtn" onclick="makeReturnSI()" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4"/></svg>Return / Credit Note</button>
+  <div style="position:relative;display:none" id="cdActionsWrap">
+    <button class="cd-btn cd-btn-secondary" id="cdActionsBtn" onclick="toggleActionsPop(event)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+      Actions
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:11px;height:11px;margin-left:2px"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div id="cdActionsPop" style="display:none;position:absolute;left:0;bottom:calc(100% + 6px);background:var(--surface);border:.5px solid var(--border-strong);border-radius:10px;box-shadow:var(--shadow-md);min-width:190px;z-index:500;overflow:hidden;padding:4px">
+      <button onclick="closeActionsPop();createPaymentRequest()" style="width:100%;display:flex;align-items:center;gap:9px;padding:9px 12px;border:none;background:none;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text-primary);cursor:pointer;border-radius:7px;text-align:left" onmouseover="this.style.background='var(--nav-hover)'" onmouseout="this.style.background='none'">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;flex-shrink:0"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+        Payment Request
+      </button>
+      <button onclick="closeActionsPop();makeReturnSI()" style="width:100%;display:flex;align-items:center;gap:9px;padding:9px 12px;border:none;background:none;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text-primary);cursor:pointer;border-radius:7px;text-align:left" onmouseover="this.style.background='var(--nav-hover)'" onmouseout="this.style.background='none'">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;flex-shrink:0"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4"/></svg>
+        Return / Credit Note
+      </button>
+    </div>
+  </div>
   <button class="cd-btn cd-btn-primary" id="cdMainActionBtn" onclick="saveDraft()">
     <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Save
   </button>
@@ -576,6 +595,7 @@
   </div>
 </div>
 
+<script src="/caratdesk-metal-rates.js"></script>
 <script>
 const DEV1 = 'https://ppj-dev1.m.frappe.cloud';
 const DEV2 = 'https://ppj-dev2.m.frappe.cloud';
@@ -688,6 +708,9 @@ async function init(){
 
   showToast('Loading data...','info');
 
+  // Right-edge "Metal Rate" tab + panel — shared in /caratdesk-metal-rates.js
+  cdMountRatePanel();
+
   // Load customers and items in parallel (including any "In Global Search" fields so pickers can match on them)
   try {
     const CUSTOMER_BASE_FIELDS = ["name","customer_name","customer_group","mobile_no"];
@@ -755,7 +778,7 @@ async function init(){
     addSIItem(); // Start with 1 blank row
     setDocReadOnly(false);
     setCancelBtnState('discard');
-    updateDocStatus('Draft', null);
+    updateDocStatus(null, null); // no badge until the doc exists in the backend
   }
   showToast('','info'); // clear toast
 }
@@ -816,23 +839,26 @@ async function loadExistingSI(name){
     recalc();
 
     // ── Status & button state (Purchase Receipt-style lifecycle) ──
+    const backendStatus = doc.status || (cancelled ? 'Cancelled' : submitted ? 'Submitted' : 'Draft');
     if(cancelled){
-      updateDocStatus('Cancelled', name);
+      updateDocStatus(backendStatus, name);
       setDocReadOnly(true);
       setCancelBtnState('hidden');
       showOpenInErpBtn();
+      document.getElementById('cdActionsWrap').style.display='none';
     } else if(submitted){
-      updateDocStatus('Submitted', name);
+      updateDocStatus(backendStatus, name);
       setDocReadOnly(true);
       setCancelBtnState('cancel');
       showOpenInErpBtn();
-      document.getElementById('cdReturnBtn').style.display='';
+      document.getElementById('cdActionsWrap').style.display='';
     } else {
-      updateDocStatus('Draft', name);
+      updateDocStatus(backendStatus, name);
       setDocReadOnly(false);
       switchToSubmitButton();
       setCancelBtnState('delete');
       startChangeTracking();
+      document.getElementById('cdActionsWrap').style.display='none';
     }
     showToast('Loaded '+doc.name,'success');
   } catch(e){
@@ -1301,12 +1327,25 @@ async function handleScanCode(){
     // Explicit fields keep this scan-gun lookup light — an unrestricted GET would also pull
     // back every custom field on the doc, including the image URLs now stored in
     // custom_serial_no_images, on every single scan.
-    const scanFields = encodeURIComponent(JSON.stringify(['name','item_code','warehouse']));
+    const scanFields = encodeURIComponent(JSON.stringify(['name','item_code','warehouse','custom_parent_serial_no']));
     const res = await dev1Get(`/api/resource/Serial No/${encodeURIComponent(code)}?fields=${scanFields}`);
     const sn = res.data || res.message;
     if(sn && sn.name){
       if(!sn.warehouse){ showToast('Serial No '+code+' is not currently in stock', 'error'); return; }
+      // A set's serial adds its ₹0 set tag + every piece still in stock (the pieces carry the value)
+      const pieces = await siFetchSetPieces(sn.name);
+      if(pieces.length){
+        addOrBumpScanRow({ itemCode: sn.item_code, warehouse: sn.warehouse, serialNo: sn.name });
+        siMarkSetTagRow(sn.name);
+        const inStock = pieces.filter(p => String(p.status||'').toLowerCase() === 'active' && p.warehouse);
+        inStock.forEach(p => { if(!siSerialOnInvoice(p.name)) addOrBumpScanRow({ itemCode: p.item_code, warehouse: p.warehouse, serialNo: p.name }); });
+        showToast(`Added set ${sn.name} with ${inStock.length} piece(s)`, 'success');
+        return;
+      }
       addOrBumpScanRow({ itemCode: sn.item_code, warehouse: sn.warehouse, serialNo: sn.name });
+      if(sn.custom_parent_serial_no && !siSerialOnInvoice(sn.custom_parent_serial_no)){
+        showToast(`${sn.name} is part of set ${sn.custom_parent_serial_no} — selling it alone will break the set`, 'info');
+      }
       return;
     }
   }catch(e){ /* not a Serial No — fall through to Batch */ }
@@ -1328,6 +1367,79 @@ async function handleScanCode(){
   }catch(e){ /* not a Batch either */ }
 
   showToast('No Serial No or Batch No found for "'+code+'"', 'error');
+}
+
+// ── Sets: a set's Serial No (GS2.xxxxx) is a ₹0 grouping tag; its pieces (custom_parent_serial_no
+// = the set serial, written by Purchase Receipt) carry the value. Selling a piece without its set
+// tag breaks the set on submit — see siBreakSetsForSoldPieces. ──
+async function siFetchSetPieces(setSerial){
+  try{
+    const filters = encodeURIComponent(JSON.stringify([['custom_parent_serial_no','=',setSerial]]));
+    const fields  = encodeURIComponent(JSON.stringify(['name','item_code','status','warehouse']));
+    const res = await dev1Get(`/api/resource/Serial No?filters=${filters}&fields=${fields}&order_by=name%20asc&limit_page_length=50`);
+    return res.data || res.message || [];
+  }catch(e){ console.warn('Set pieces lookup failed for', setSerial, ':', e.message); return []; }
+}
+function siInvoiceSerials(){
+  return [...document.querySelectorAll('#siItemsTbody [data-f="serial_no"]')]
+    .flatMap(ta => (ta.value||'').split('\n').map(s=>s.trim()).filter(Boolean));
+}
+function siSerialOnInvoice(serial){ return siInvoiceSerials().includes(serial); }
+// The row holding a set tag is always billed at ₹0
+function siMarkSetTagRow(setSerial){
+  const tr = [...document.querySelectorAll('#siItemsTbody tr')].find(r =>
+    (r.querySelector('[data-f="serial_no"]')?.value||'').split('\n').map(s=>s.trim()).includes(setSerial));
+  if(!tr) return;
+  tr.dataset.setTag = '1';
+  const rateEl = tr.querySelector('[data-f="rate"]');
+  if(rateEl){ rateEl.value = 0; rateEl.readOnly = true; rateEl.title = 'Set tag — the value is on its pieces'; }
+  calcSIRow(tr.id);
+}
+
+// After submit: each set that had a piece sold without its set tag is broken — its ₹0 Serial No
+// leaves stock (Material Issue, no accounting impact) and its other pieces are unlinked so they
+// sell individually. Best-effort, like the Purity Ledger posting.
+async function siBreakSetsForSoldPieces(siName){
+  const sold = new Set(siInvoiceSerials());
+  const sets = new Set();
+  for(const sn of sold){
+    try{
+      const fields = encodeURIComponent(JSON.stringify(['custom_parent_serial_no']));
+      const res = await dev1Get(`/api/resource/Serial No/${encodeURIComponent(sn)}?fields=${fields}`);
+      const parent = (res.data || res.message || {}).custom_parent_serial_no;
+      if(parent && !sold.has(parent)) sets.add(parent);
+    }catch(e){ console.warn('Set lookup failed for', sn, ':', e.message); }
+  }
+  const failed = [];
+  const branch = document.getElementById('branch')?.value || '';
+  for(const setSerial of sets){
+    try{
+      const fields = encodeURIComponent(JSON.stringify(['name','item_code','warehouse','status']));
+      const setRes = await dev1Get(`/api/resource/Serial No/${encodeURIComponent(setSerial)}?fields=${fields}`);
+      const setDoc = setRes.data || setRes.message || {};
+      if(String(setDoc.status||'').toLowerCase() === 'active' && setDoc.warehouse){
+        const se = await dev1Post('/api/resource/Stock Entry', {
+          doctype:'Stock Entry', stock_entry_type:'Material Issue', purpose:'Material Issue', company:COMPANY,
+          posting_date: new Date().toLocaleDateString('en-CA'), ...(branch?{branch}:{}),
+          remarks:`Set ${setSerial} broken — piece sold individually on ${siName}`,
+          items:[{ doctype:'Stock Entry Detail', item_code:setDoc.item_code, qty:1, transfer_qty:1, uom:'Nos', stock_uom:'Nos',
+            conversion_factor:1, s_warehouse:setDoc.warehouse, use_serial_batch_fields:1, serial_no:setSerial,
+            allow_zero_valuation_rate:1, basic_rate:0 }],
+        });
+        const seName = (se.data || se.message || {}).name;
+        if(!seName) throw new Error('Stock Entry was not created');
+        await dev1Put('/api/resource/Stock%20Entry/'+encodeURIComponent(seName), { docstatus:1 });
+      }
+      for(const piece of await siFetchSetPieces(setSerial)){
+        if(sold.has(piece.name)) continue;
+        await dev1Put('/api/resource/Serial No/'+encodeURIComponent(piece.name), { custom_parent_serial_no:'' });
+      }
+    }catch(e){
+      console.error('Breaking set', setSerial, 'failed:', e.message);
+      failed.push(setSerial);
+    }
+  }
+  if(failed.length) showToast('Could not break set '+failed.join(', ')+' — break it by hand', 'error');
 }
 
 function addOrBumpScanRow({ itemCode, warehouse, serialNo, batchNo }){
@@ -1603,17 +1715,15 @@ function setDocReadOnly(readonly){
 }
 
 // ── DOC STATUS (badge + footer text + breadcrumb) ──
+// status is the backend Sales Invoice `status` (Draft, Unpaid, Paid, Overdue, Return,
+// Credit Note Issued, Cancelled, ...) or the local 'Unsaved'; falsy hides the badge.
 function updateDocStatus(status, docName){
   const badge=document.getElementById('docStatusBadge');
-  const map={ 'Draft':'draft', 'Unsaved':'unsaved', 'Submitted':'submitted', 'Cancelled':'cancelled' };
-  badge.className='cd-status-badge '+(map[status]||'draft');
+  if(!status){ badge.style.display='none'; badge.textContent=''; return; }
+  const map={ 'Draft':'draft', 'Unsaved':'unsaved', 'Cancelled':'cancelled', 'Overdue':'cancelled' };
+  badge.className='cd-status-badge '+(map[status]||'submitted');
   badge.textContent=status;
-  const stat=document.getElementById('footerStatus');
-  if(status==='Cancelled') stat.textContent='This invoice has been cancelled';
-  else if(status==='Submitted') stat.textContent='Submitted · '+(docName||'');
-  else if(status==='Unsaved') stat.textContent='Unsaved changes · '+(docName||'');
-  else if(docName) stat.textContent='Draft · '+docName;
-  else stat.textContent='Draft — not saved';
+  badge.style.display='';
 }
 
 function showOpenInErpBtn(){
@@ -1623,14 +1733,14 @@ function showOpenInErpBtn(){
   btn.dataset.mode='openInErp';
   btn.className='cd-btn cd-btn-secondary';
   btn.setAttribute('onclick', `window.open(cdGetInstanceUrl()+'/desk/sales-invoice/'+encodeURIComponent(window.currentSIName||''),'_blank')`);
-  btn.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Open in Frappe`;
+  btn.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Open in ERPNext`;
 }
 
 function switchToSubmitButton(){
   const btn=document.getElementById('cdMainActionBtn');
   if(!btn||btn.dataset.mode==='submit') return;
   btn.dataset.mode='submit';
-  btn.className='cd-btn cd-btn-green';
+  btn.className='cd-btn cd-btn-primary';
   btn.setAttribute('onclick','submitSI()');
   btn.innerHTML=`<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Submit`;
 }
@@ -1712,22 +1822,11 @@ function purityLedgerDatetimeNow(){
   return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
 }
 
-// Latest rate for a metal type from Metal Price List (same source loadMetalRates() in the
-// Purchase Invoice / Bhav Cut pages uses) — used to value amount_credit/amount_debit on
-// each Purity Ledger Entry row alongside its Pure Wt.
+// General rate for a metal type (shared rule in /caratdesk-metal-rates.js: highest touch,
+// latest date within it) — used to value amount_credit/amount_debit on each Purity Ledger
+// Entry row alongside its Pure Wt.
 async function getTodayMetalRate(metalType){
-  try{
-    const headers = getDevHeaders(); if(!headers) return 0;
-    const fields  = encodeURIComponent(JSON.stringify(['rate']));
-    const filters = encodeURIComponent(JSON.stringify([['metal_type','=',metalType]]));
-    const res = await fetch(
-      `${cdGetInstanceUrl()}/api/resource/Metal%20Price%20List?fields=${fields}&filters=${filters}&order_by=date%20desc&limit_page_length=1`,
-      { headers }
-    );
-    if(!res.ok) return 0;
-    const d = await res.json();
-    return parseFloat((d?.data||d?.message||[])[0]?.rate) || 0;
-  }catch(e){ console.warn('getTodayMetalRate failed:', e.message); return 0; }
+  return cdGetMetalRate(metalType);
 }
 
 // Latest running Balance for a metal type — the single most recent Purity Ledger Entry
@@ -1766,6 +1865,8 @@ async function collectSIWeightDebits(){
         const netWt  = parseFloat(doc.custom_net_weight) || 0;
         const pureWt = parseFloat(doc.custom_pure_wt) || 0;
         if(netWt <= 0 && pureWt <= 0) continue;
+        // A set's own serial holds its pieces' combined weight; the pieces are counted themselves
+        if((await siFetchSetPieces(sn)).length) continue;
         const metalType = doc.custom_metal_type || 'Gold';
         if(!debits[metalType]) debits[metalType] = { netWt: 0, pureWt: 0 };
         debits[metalType].netWt  += netWt;
@@ -1879,13 +1980,13 @@ async function cancelDoc(){
   if(!confirm('Cancel this Sales Invoice? This cannot be undone.')) return;
   try{
     showToast('Cancelling…','info');
-    await dev1Put('/api/resource/Sales%20Invoice/'+encodeURIComponent(window.currentSIName), {docstatus:2});
+    const canRes = await dev1Put('/api/resource/Sales%20Invoice/'+encodeURIComponent(window.currentSIName), {docstatus:2});
     submitted=false; cancelled=true;
-    updateDocStatus('Cancelled', window.currentSIName);
+    updateDocStatus(canRes?.data?.status||'Cancelled', window.currentSIName);
     setDocReadOnly(true);
     setCancelBtnState('hidden');
     showOpenInErpBtn();
-    document.getElementById('cdReturnBtn').style.display='none';
+    document.getElementById('cdActionsWrap').style.display='none';
     try{ await reverseSIPurityLedgerEntries(window.currentSIName); }
     catch(e){ console.error('reverseSIPurityLedgerEntries failed:', e.message); }
     showToast(window.currentSIName+' cancelled','success');
@@ -2032,6 +2133,46 @@ async function makeReturnSI(){
   }catch(e){ showToast('Error: ' + e.message, 'error'); }
 }
 
+// ── FOOTER ACTIONS DROPDOWN ──
+function toggleActionsPop(e){
+  if(e) e.stopPropagation();
+  const pop = document.getElementById('cdActionsPop');
+  if(!pop) return;
+  const isOpen = pop.style.display !== 'none';
+  pop.style.display = isOpen ? 'none' : 'block';
+}
+function closeActionsPop(){
+  const pop = document.getElementById('cdActionsPop');
+  if(pop) pop.style.display = 'none';
+}
+document.addEventListener('click', closeActionsPop);
+
+// ── PAYMENT REQUEST ──
+async function createPaymentRequest(){
+  if(!window.currentSIName) return;
+  try{
+    showToast('Checking outstanding amount…', 'info');
+    const json = await dev1Get(`/api/resource/Sales%20Invoice/${encodeURIComponent(window.currentSIName)}`);
+    const doc = json.data || json.message;
+    if(!doc) throw new Error('Could not load invoice');
+    const outstanding = doc.outstanding_amount || 0;
+    if(outstanding<=0){ showToast('Nothing outstanding on this invoice','info'); return; }
+    if(!confirm(`Create a Payment Request for ${fmt(outstanding)} against ${window.currentSIName}?`)) return;
+
+    showToast('Creating payment request…', 'info');
+    const res = await dev1Post('/api/method/erpnext.accounts.doctype.payment_request.payment_request.make_payment_request', {
+      dt: 'Sales Invoice',
+      dn: window.currentSIName,
+      party_type: 'Customer',
+      party: doc.customer,
+      submit_doc: 1,
+      return_doc: 1,
+    });
+    const pr = res.message || res.data;
+    showToast('Payment Request ' + (pr?.name || '') + ' created', 'success');
+  }catch(e){ showToast('Error creating payment request: ' + String(e.message).slice(0,100), 'error'); }
+}
+
 // ── BUILD PAYLOAD ──
 function buildPayload(docstatus){
   const customerInput=document.getElementById('customer').value.trim();
@@ -2144,7 +2285,7 @@ async function saveDraft(){
     document.getElementById('bcCur').textContent=name;
     document.getElementById('docId').textContent=name;
     document.getElementById('docId').style.display='';
-    updateDocStatus('Draft', name);
+    updateDocStatus(res?.data?.status||'Draft', name);
     switchToSubmitButton();
     setCancelBtnState('delete');
     startChangeTracking();
@@ -2162,15 +2303,19 @@ async function submitSI(skipConfirm=false){
     showToast('Saving and submitting...','info');
     await dev1Put('/api/resource/Sales%20Invoice/'+encodeURIComponent(window.currentSIName), buildPayload(0));
     // Submit
-    await dev1Put('/api/resource/Sales%20Invoice/'+encodeURIComponent(window.currentSIName), {docstatus:1});
+    const subRes = await dev1Put('/api/resource/Sales%20Invoice/'+encodeURIComponent(window.currentSIName), {docstatus:1});
     submitted=true;
-    updateDocStatus('Submitted', window.currentSIName);
+    updateDocStatus(subRes?.data?.status||'Submitted', window.currentSIName);
     setDocReadOnly(true);
     setCancelBtnState('cancel');
     showOpenInErpBtn();
-    document.getElementById('cdReturnBtn').style.display='';
+    document.getElementById('cdActionsWrap').style.display='';
     try{ await postSIPurityLedgerEntries(window.currentSIName, getCurrentCustomerName(), isReturnSI); }
     catch(e){ console.error('postSIPurityLedgerEntries failed:', e.message); }
+    if(!isReturnSI){
+      try{ await siBreakSetsForSoldPieces(window.currentSIName); }
+      catch(e){ console.error('siBreakSetsForSoldPieces failed:', e.message); }
+    }
     showToast('Submitted: '+window.currentSIName,'success');
     setTimeout(()=>window.location.href='/caratdesk-sales-invoice?saved='+encodeURIComponent(window.currentSIName), 1200);
   } catch(e){ showToast('Error: '+String(e.message).slice(0,100),'error'); }

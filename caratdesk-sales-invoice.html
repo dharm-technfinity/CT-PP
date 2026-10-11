@@ -8,8 +8,8 @@
   .navbar,.page-header,footer.web-footer,.container>.row>.col-sm-10,.frappe-footer{display:none!important}
   .web-page-container,.container{padding:0!important;max-width:100%!important}
   body{overflow-x:hidden}
-  :root{--bg:#F7F6F3;--surface:#FFF;--border:rgba(0,0,0,.07);--border-strong:rgba(0,0,0,.12);--text-primary:#1A1A18;--text-secondary:#6B6B65;--text-muted:#A8A8A2;--accent:#1A1A18;--accent-light:#F0EFE9;--nav-hover:#F7F6F3;--nav-active-bg:#EBEBE5;--pill-green-bg:#EAF3DE;--pill-green-txt:#3B6D11;--pill-red-bg:#FCEBEB;--pill-red-txt:#A32D2D;--pill-amber-bg:#FAEEDA;--pill-amber-txt:#854F0B;--pill-blue-bg:#E8F0FD;--pill-blue-txt:#1A4A8A;--shadow-sm:0 2px 12px rgba(0,0,0,.04),0 0 0 .5px rgba(0,0,0,.03);--shadow-md:0 4px 24px rgba(0,0,0,.08)}
-  .dark{--bg:#121212;--surface:#1E1E1E;--border:rgba(255,255,255,.08);--border-strong:rgba(255,255,255,.15);--text-primary:#EDEDED;--text-secondary:#A0A0A0;--text-muted:#6E6E6E;--accent:#D4D4D4;--accent-light:#2C2C2C;--nav-hover:#252525;--nav-active-bg:#2D2D2D;--pill-green-bg:#1E3A2E;--pill-green-txt:#9CD45E;--pill-red-bg:#3E1E1E;--pill-red-txt:#F28B82;--pill-amber-bg:#3E2E1E;--pill-amber-txt:#FDBF6B;--pill-blue-bg:#1A2A3E;--pill-blue-txt:#7AABF0;--shadow-sm:0 2px 12px rgba(0,0,0,.3),0 0 0 .5px rgba(255,255,255,.05);--shadow-md:0 4px 24px rgba(0,0,0,.3)}
+  :root{--bg:#F7F6F3;--surface:#FFF;--border:rgba(0,0,0,.07);--border-strong:rgba(0,0,0,.12);--text-primary:#1A1A18;--text-secondary:#6B6B65;--text-muted:#A8A8A2;--accent:#1A1A18;--accent-light:#F0EFE9;--nav-hover:#F7F6F3;--nav-active-bg:#EBEBE5;--pill-green-bg:#EAF3DE;--pill-green-txt:#3B6D11;--pill-red-bg:#FCEBEB;--pill-red-txt:#A32D2D;--pill-amber-bg:#FAEEDA;--pill-amber-txt:#854F0B;--pill-blue-bg:#E8F0FD;--pill-blue-txt:#1A4A8A;--pill-purple-bg:#F3E8FD;--pill-purple-txt:#7C3AED;--shadow-sm:0 2px 12px rgba(0,0,0,.04),0 0 0 .5px rgba(0,0,0,.03);--shadow-md:0 4px 24px rgba(0,0,0,.08)}
+  .dark{--bg:#121212;--surface:#1E1E1E;--border:rgba(255,255,255,.08);--border-strong:rgba(255,255,255,.15);--text-primary:#EDEDED;--text-secondary:#A0A0A0;--text-muted:#6E6E6E;--accent:#D4D4D4;--accent-light:#2C2C2C;--nav-hover:#252525;--nav-active-bg:#2D2D2D;--pill-green-bg:#1E3A2E;--pill-green-txt:#9CD45E;--pill-red-bg:#3E1E1E;--pill-red-txt:#F28B82;--pill-amber-bg:#3E2E1E;--pill-amber-txt:#FDBF6B;--pill-blue-bg:#1A2A3E;--pill-blue-txt:#7AABF0;--pill-purple-bg:#2E1B47;--pill-purple-txt:#C4A6F5;--shadow-sm:0 2px 12px rgba(0,0,0,.3),0 0 0 .5px rgba(255,255,255,.05);--shadow-md:0 4px 24px rgba(0,0,0,.3)}
   html,body{color:var(--text-primary)}
   *{transition:background-color .2s ease,border-color .2s ease,color .2s ease,box-shadow .2s ease}
   .cd-app{font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);min-height:100vh;display:flex;-webkit-font-smoothing:antialiased;color:var(--text-primary)}
@@ -51,8 +51,7 @@
   .cd-breadcrumb a:hover{color:var(--text-primary)}
   .cd-breadcrumb-sep{color:var(--text-muted);font-size:12px}
   .cd-breadcrumb-cur{color:var(--text-primary);font-weight:500}
-  .cd-topbar-right{display:flex;align-items:center;gap:10px}
-  .cd-topbar-date{font-size:12.5px;color:var(--text-muted);font-weight:300}
+  .cd-topbar-right{display:flex;align-items:center;gap:8px}
   .cd-icon-btn{width:34px;height:34px;border-radius:9px;border:.5px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-secondary);transition:background .14s,color .14s}
   .cd-icon-btn:hover{background:var(--nav-hover);color:var(--text-primary)}
   .cd-icon-btn svg{width:15px;height:15px;stroke:currentColor;stroke-width:1.75;fill:none;stroke-linecap:round;stroke-linejoin:round}
@@ -61,7 +60,7 @@
   .cd-page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px}
   .cd-page-title{font-size:20px;font-weight:500;letter-spacing:-.3px}
   .cd-page-sub{font-size:12.5px;color:var(--text-muted);margin-top:2px;font-weight:300}
-  .cd-btn{font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;padding:8px 16px;border-radius:9px;border:none;cursor:pointer;transition:background .14s,transform .1s;display:inline-flex;align-items:center;gap:7px}
+  .cd-btn{font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;padding:8px 16px;border-radius:9px;border:none;cursor:pointer;transition:background .14s,transform .1s;display:inline-flex;align-items:center;gap:7px;text-decoration:none}
   .cd-btn:active{transform:scale(.98)}
   .cd-btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
   .cd-btn-primary{background:var(--text-primary);color:var(--surface)}
@@ -87,7 +86,7 @@
   .cd-table-wrap{background:var(--surface);border:.5px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:var(--shadow-sm)}
   .cd-table{width:100%;border-collapse:collapse}
   .cd-table thead{background:var(--bg)}
-  .cd-table th{font-size:11px;font-weight:500;color:var(--text-muted);text-align:left;padding:11px 16px;letter-spacing:.05em;text-transform:uppercase;border-bottom:.5px solid var(--border);white-space:nowrap;cursor:pointer;user-select:none}
+  .cd-table th{font-size:11px;font-weight:500;color:var(--text-muted);text-align:left;padding:11px 16px;letter-spacing:.05em;text-transform:uppercase;border-bottom:.5px solid var(--border);white-space:nowrap;user-select:none}
   .cd-table th .thi{display:flex;align-items:center;gap:5px}
   .cd-table th svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;opacity:.5}
   .cd-table td{font-size:13px;padding:13px 16px;border-bottom:.5px solid var(--border);vertical-align:middle}
@@ -107,6 +106,7 @@
   .cd-pill.amber{background:var(--pill-amber-bg);color:var(--pill-amber-txt)}.cd-pill.amber .cd-pill-dot{background:var(--pill-amber-txt)}
   .cd-pill.blue{background:var(--pill-blue-bg);color:var(--pill-blue-txt)}.cd-pill.blue .cd-pill-dot{background:var(--pill-blue-txt)}
   .cd-pill.grey{background:var(--accent-light);color:var(--text-secondary)}.cd-pill.grey .cd-pill-dot{background:var(--text-muted)}
+  .cd-pill.purple{background:var(--pill-purple-bg);color:var(--pill-purple-txt)}.cd-pill.purple .cd-pill-dot{background:var(--pill-purple-txt)}
   .cd-row-actions{display:flex;align-items:center;gap:6px;opacity:0;transition:opacity .14s}
   .cd-table tbody tr:hover .cd-row-actions{opacity:1}
   .cd-act-btn{width:28px;height:28px;border-radius:7px;border:.5px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-secondary);transition:background .12s,color .12s}
@@ -241,7 +241,6 @@
         </div>
       </div>
       <div class="cd-topbar-right">
-        <div class="cd-topbar-date" id="cdTopDate"></div>
         <div class="cd-icon-btn" id="cdThemeToggle"><svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div>
       </div>
     </div>
@@ -253,6 +252,7 @@
           <div class="cd-page-sub" id="siSub">Loading...</div>
         </div>
         <div style="display:flex;gap:8px">
+          <button class="cd-btn cd-btn-secondary" onclick="exportCSV()"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export</button>
           <div style="position:relative;display:inline-block">
             <button class="cd-btn cd-btn-primary" id="newSIBtn" onclick="toggleNewSIPicker(event)">
               <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>New Invoice
@@ -272,8 +272,8 @@
         <div class="cd-pill-filter" onclick="filterSt('paid',this)"><span class="pf-dot" style="background:var(--pill-green-txt)"></span>Paid<span class="pf-count" id="pc-paid">0</span><span class="pf-amt" id="pa-paid"></span></div>
         <div class="cd-pill-filter" onclick="filterSt('unpaid',this)"><span class="pf-dot" style="background:var(--pill-amber-txt)"></span>Unpaid<span class="pf-count" id="pc-unpaid">0</span><span class="pf-amt" id="pa-unpaid"></span></div>
         <div class="cd-pill-filter" onclick="filterSt('overdue',this)"><span class="pf-dot" style="background:var(--pill-red-txt)"></span>Overdue<span class="pf-count" id="pc-overdue">0</span><span class="pf-amt" id="pa-overdue"></span></div>
-        <div class="cd-pill-filter" onclick="filterSt('partly_paid',this)"><span class="pf-dot" style="background:#1A4A8A"></span>Partly Paid<span class="pf-count" id="pc-partly_paid">0</span></div>
-        <div class="cd-pill-filter" onclick="filterSt('return',this)"><span class="pf-dot" style="background:#7C3AED"></span>Return<span class="pf-count" id="pc-return">0</span></div>
+        <div class="cd-pill-filter" onclick="filterSt('partly_paid',this)"><span class="pf-dot" style="background:var(--pill-blue-txt)"></span>Partly Paid<span class="pf-count" id="pc-partly_paid">0</span></div>
+        <div class="cd-pill-filter" onclick="filterSt('return',this)"><span class="pf-dot" style="background:var(--pill-purple-txt)"></span>Return<span class="pf-count" id="pc-return">0</span></div>
         <div class="cd-pill-filter" onclick="filterSt('draft',this)"><span class="pf-dot" style="background:var(--text-muted)"></span>Draft<span class="pf-count" id="pc-draft">0</span></div>
         <div class="cd-pill-filter" onclick="filterSt('cancelled',this)"><span class="pf-dot" style="background:var(--pill-red-txt)"></span>Cancelled<span class="pf-count" id="pc-cancelled">0</span></div>
       </div>
@@ -297,6 +297,22 @@
             </div>
           </div>
         </div>
+        <div class="cd-fchip-wrap">
+          <button class="cd-fchip" id="lastUpdatedChip" onclick="toggleFPop('lastUpdated',event)">
+            <svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+            <span id="lastUpdatedLabel">Last Updated</span>
+            <svg class="caret" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="cd-fpop" id="lastUpdatedPop">
+            <div class="cd-fpop-title">Last Updated On</div>
+            <label>From</label><input type="date" id="updatedFrom"/>
+            <label>To</label><input type="date" id="updatedTo"/>
+            <div class="cd-fpop-acts">
+              <button class="cd-fpop-clear" onclick="clearFPop('lastUpdated')">Clear</button>
+              <button class="cd-fpop-apply" onclick="applyFPop('lastUpdated')">Apply</button>
+            </div>
+          </div>
+        </div>
         <div class="cd-sc-wrap" id="scWrap">
           <div class="cd-sc">
             <button class="cd-sc-dir" id="scDirBtn" onclick="toggleSortDir(event)">
@@ -309,7 +325,7 @@
           </div>
           <div class="cd-sc-pop" id="scPop">
             <div class="cd-sc-opt active" data-field="created" onclick="setSortField('created',event)">Created On</div>
-            <div class="cd-sc-opt" data-field="updated" onclick="setSortField('updated',event)">Last Updated</div>
+            <div class="cd-sc-opt" data-field="updated" onclick="setSortField('updated',event)">Last Updated On</div>
             <div class="cd-sc-opt" data-field="id" onclick="setSortField('id',event)">ID</div>
           </div>
         </div>
@@ -327,7 +343,7 @@
             <th><div class="thi">Due Date</div></th>
             <th><div class="thi" style="justify-content:flex-end">Amount</div></th>
             <th>Status</th>
-            <th style="width:90px"></th>
+            <th style="width:120px"></th>
           </tr></thead>
           <tbody id="siTbody"><tr><td colspan="8"><div class="cd-empty"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><div class="cd-empty-title">Loading...</div></div></td></tr></tbody>
         </table>
@@ -358,7 +374,8 @@
   <div class="cd-drawer-body" id="drawerBody"></div>
   <div class="cd-drawer-actions">
     <button class="cd-btn cd-btn-primary" style="flex:1" id="drawerEditBtn" onclick="openSIDoc(drawerSIName, drawerSIInst)"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit / View</button>
-    <button class="cd-btn cd-btn-secondary" onclick="openInFrappe()"><svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Frappe</button>
+    <button class="cd-btn cd-btn-secondary" id="drawerPosBtn" style="display:none" onclick="openInPOS(drawerSIName)"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Open in POS</button>
+    <button class="cd-btn cd-btn-secondary" onclick="openInFrappe()"><svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Open in Frappe</button>
   </div>
 </div>
 
@@ -406,7 +423,7 @@ function cdInitInstanceToggle(){
 let SI_DATA = [];
 let filtered = [], activeStatus = 'all', selected = new Set(), currentPage = 1;
 let sortDir = 'desc', sortField = 'created';
-let createdOnFrom = '', createdOnTo = '';
+let createdOnFrom = '', createdOnTo = '', lastUpdatedFrom = '', lastUpdatedTo = '';
 const PAGE_SIZE = 20;
 let drawerSIName = '', drawerSIInst = 'PP';
 
@@ -418,8 +435,8 @@ const ST_MAP = {
   'Unpaid and Discounted':      {key:'unpaid',      cls:'amber', lbl:'Unpaid'},
   'Overdue and Discounted':     {key:'overdue',     cls:'red',   lbl:'Overdue'},
   'Partly Paid and Discounted': {key:'partly_paid', cls:'blue',  lbl:'Partly Paid'},
-  'Return':              {key:'return',        cls:'grey',  lbl:'Return'},
-  'Credit Note Issued':  {key:'return',        cls:'grey',  lbl:'Credit Note'},
+  'Return':              {key:'return',        cls:'purple', lbl:'Return'},
+  'Credit Note Issued':  {key:'return',        cls:'purple', lbl:'Credit Note'},
   'Draft':               {key:'draft',         cls:'grey',  lbl:'Draft'},
   'Submitted':           {key:'unpaid',        cls:'amber', lbl:'Unpaid'},
   'Cancelled':           {key:'cancelled',     cls:'red',   lbl:'Cancelled'},
@@ -513,7 +530,13 @@ function applyFilters(){
       if(createdOnFrom && cd < new Date(createdOnFrom)) mc=false;
       if(createdOnTo   && cd > new Date(createdOnTo))   mc=false;
     }
-    return ms && mq && mc;
+    let mu = true;
+    if(lastUpdatedFrom||lastUpdatedTo){
+      const ud = new Date((d.modified||d.creation||d.date||'').slice(0,10));
+      if(lastUpdatedFrom && ud < new Date(lastUpdatedFrom)) mu=false;
+      if(lastUpdatedTo   && ud > new Date(lastUpdatedTo))   mu=false;
+    }
+    return ms && mq && mc && mu;
   });
   if(sortField==='id') filtered.sort((a,b)=>sortDir==='asc'?a.name.localeCompare(b.name):b.name.localeCompare(a.name));
   else if(sortField==='updated') filtered.sort((a,b)=>sortDir==='asc'?new Date(a.modified||a.creation)-new Date(b.modified||b.creation):new Date(b.modified||b.creation)-new Date(a.modified||a.creation));
@@ -532,10 +555,12 @@ function toggleFPop(id,e){
 }
 function applyFPop(id){
   if(id==='createdOn'){ createdOnFrom=document.getElementById('createdFrom').value; createdOnTo=document.getElementById('createdTo').value; }
+  else { lastUpdatedFrom=document.getElementById('updatedFrom').value; lastUpdatedTo=document.getElementById('updatedTo').value; }
   updateChipLabel(id); closeAllPops(); applyFilters();
 }
 function clearFPop(id){
   if(id==='createdOn'){ createdOnFrom=''; createdOnTo=''; document.getElementById('createdFrom').value=''; document.getElementById('createdTo').value=''; }
+  else { lastUpdatedFrom=''; lastUpdatedTo=''; document.getElementById('updatedFrom').value=''; document.getElementById('updatedTo').value=''; }
   updateChipLabel(id); closeAllPops(); applyFilters();
 }
 function closeAllPops(){
@@ -550,6 +575,13 @@ function updateChipLabel(id){
     else if(createdOnFrom){ lbl.textContent=`Created from ${fmtDate(createdOnFrom)}`; chip?.classList.add('active'); }
     else if(createdOnTo)  { lbl.textContent=`Created to ${fmtDate(createdOnTo)}`; chip?.classList.add('active'); }
     else { lbl.textContent='Created On'; chip?.classList.remove('active'); }
+  } else {
+    const lbl=document.getElementById('lastUpdatedLabel');
+    const chip=document.getElementById('lastUpdatedChip');
+    if(lastUpdatedFrom&&lastUpdatedTo){ lbl.textContent=`Updated: ${fmtDate(lastUpdatedFrom)} - ${fmtDate(lastUpdatedTo)}`; chip?.classList.add('active'); }
+    else if(lastUpdatedFrom){ lbl.textContent=`Updated from ${fmtDate(lastUpdatedFrom)}`; chip?.classList.add('active'); }
+    else if(lastUpdatedTo)  { lbl.textContent=`Updated to ${fmtDate(lastUpdatedTo)}`; chip?.classList.add('active'); }
+    else { lbl.textContent='Last Updated'; chip?.classList.remove('active'); }
   }
 }
 
@@ -557,7 +589,7 @@ const SC_ICONS = {
   desc:'<line x1="1" y1="4" x2="9" y2="4"/><line x1="1" y1="8" x2="7" y2="8"/><line x1="1" y1="12" x2="5" y2="12"/><line x1="13" y1="2" x2="13" y2="14"/><polyline points="10 11 13 14 16 11"/>',
   asc: '<line x1="1" y1="4" x2="5" y2="4"/><line x1="1" y1="8" x2="7" y2="8"/><line x1="1" y1="12" x2="9" y2="12"/><line x1="13" y1="14" x2="13" y2="2"/><polyline points="10 5 13 2 16 5"/>',
 };
-const SC_LABELS = {created:'Created On', updated:'Last Updated', id:'ID'};
+const SC_LABELS = {created:'Created On', updated:'Last Updated On', id:'ID'};
 function updateScChip(){
   document.getElementById('scDirIcon').innerHTML=SC_ICONS[sortDir];
   document.getElementById('scLbl').textContent=SC_LABELS[sortField];
@@ -612,6 +644,9 @@ function renderTable(){
           <div class="cd-act-btn view-btn" data-name="${safeName}" data-inst="${d.instance||'PP'}" title="View details">
             <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
           </div>
+          ${canOpenInPOS(d)?`<div class="cd-act-btn pos-btn" data-name="${safeName}" title="Open in POS Billing">
+            <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          </div>`:''}
           <div class="cd-act-btn edit-btn" data-name="${safeName}" data-inst="${d.instance||'PP'}" title="Edit">
             <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
           </div>
@@ -629,6 +664,16 @@ function openSIDoc(name,inst){
   const sec=inst==='PC'?localStorage.getItem('cd_pc_secret'):localStorage.getItem('cd_pp_secret');
   if(key&&sec){ localStorage.setItem('cd_active_instance',inst); localStorage.setItem('cd_api_key',key); localStorage.setItem('cd_api_secret',sec); }
   window.location.href='/caratdesk-new-sales-invoice?name='+encodeURIComponent(name);
+}
+// POS Billing always talks to the PP instance. Drafts open for editing; submitted invoices open
+// read-only there, with Cancel & Amend for users ERPNext allows to cancel + amend them.
+// Returns and cancelled invoices aren't offered.
+function canOpenInPOS(d){ return !!d && (d.instance||'PP')==='PP' && d.status!=='Cancelled' && !d.is_return; }
+function openInPOS(name){
+  const key=localStorage.getItem('cd_pp_key'), sec=localStorage.getItem('cd_pp_secret');
+  if(!key||!sec){ showToast('PP instance session not found','error'); return; }
+  localStorage.setItem('cd_active_instance','PP'); localStorage.setItem('cd_api_key',key); localStorage.setItem('cd_api_secret',sec);
+  window.location.href='/caratdesk-pos?invoice='+encodeURIComponent(name);
 }
 function toggleNewSIPicker(e){
   e.stopPropagation();
@@ -651,6 +696,8 @@ document.getElementById('siTbody').addEventListener('click', function(e){
   if(cb){ const name=decodeURIComponent(cb.dataset.name); if(cb.checked) selected.add(name); else selected.delete(name); cb.closest('tr')?.classList.toggle('sel',cb.checked); updateBulk(); return; }
   const viewBtn=e.target.closest('.view-btn');
   if(viewBtn){ openDrawer(decodeURIComponent(viewBtn.dataset.name), viewBtn.dataset.inst||'PP'); return; }
+  const posBtn=e.target.closest('.pos-btn');
+  if(posBtn){ openInPOS(decodeURIComponent(posBtn.dataset.name)); return; }
   const editBtn=e.target.closest('.edit-btn');
   if(editBtn){ openSIDoc(decodeURIComponent(editBtn.dataset.name), editBtn.dataset.inst||'PP'); return; }
   const extBtn=e.target.closest('.ext-btn');
@@ -679,12 +726,28 @@ function toggleAll(cb){
 function clearSel(){ selected.clear(); renderTable(); updateBulk(); document.getElementById('selAll').checked=false; }
 function updateBulk(){ const n=selected.size; document.getElementById('bulkLabel').textContent=n+' invoice'+(n!==1?'s':'')+' selected'; document.getElementById('bulkBar').classList.toggle('visible',n>0); }
 
+// ── EXPORT ──
+function exportCSV(){
+  if(!filtered.length){ showToast('Nothing to export','error'); return; }
+  const headers=['Invoice No.','Customer','Date','Due Date','Amount','Outstanding','Status','Instance'];
+  const rows=filtered.map(d=>[d.name, d.customer, fmtDate(d.date), d.due_date?fmtDate(d.due_date):'', d.amount, d.outstanding, d.status, d.instance||'PP']);
+  const esc=v=>{ const s=String(v==null?'':v); return /[",\n]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s; };
+  const csv=[headers,...rows].map(r=>r.map(esc).join(',')).join('\r\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download=`sales-invoices-${new Date().toISOString().slice(0,10)}.csv`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
 // ── DRAWER ──
 async function openDrawer(name, inst){
   drawerSIName=name; drawerSIInst=inst||'PP';
   const d=SI_DATA.find(x=>x.name===name);
   document.getElementById('drawerTitle').textContent=name;
   document.getElementById('drawerStatus').innerHTML=pill(d?.status||'Draft');
+  document.getElementById('drawerPosBtn').style.display=canOpenInPOS(d)?'':'none';
   document.getElementById('drawerBody').innerHTML=`
     <div class="cd-dmeta">
       <div><div class="cd-dmeta-lbl">Customer</div><div class="cd-dmeta-val">${d?.customer||'—'}</div></div>
@@ -776,7 +839,6 @@ document.getElementById('cdThemeToggle').addEventListener('click',toggleTheme); 
 const sidebar=document.getElementById('cdSidebar');
 document.getElementById('cdMenuToggle').addEventListener('click',()=>sidebar.classList.toggle('mobile-open'));
 document.querySelectorAll('.cd-nav-item').forEach(l=>l.addEventListener('click',()=>{ if(window.innerWidth<=768) sidebar.classList.remove('mobile-open'); }));
-document.getElementById('cdTopDate').textContent=new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
 
 (function(){
   const hasSession=localStorage.getItem('cd_pp_key')||localStorage.getItem('cd_pc_key');

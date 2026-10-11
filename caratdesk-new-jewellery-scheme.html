@@ -219,7 +219,7 @@
             <div class="cd-field">
               <label class="cd-label">Customer <span class="req">*</span></label>
               <div class="cd-ac">
-                <input class="cd-input" id="assignCustomer" placeholder="Type customer name..." autocomplete="off"
+                <input class="cd-input" id="assignCustomer" placeholder="Type customer name or mobile number..." autocomplete="off"
                   oninput="acAssignCustomer(this.value)" onfocus="acAssignCustomer(this.value)"/>
                 <div class="cd-ac-list" id="ac-assign-customer"></div>
               </div>
@@ -310,14 +310,10 @@
     </div>
 
     <div class="cd-footer">
-      <div style="position:relative;display:inline-block;margin-right:auto">
-        <button class="cd-btn cd-btn-secondary" id="printAssignBtn" style="display:none" onclick="togglePrintAssignMenu(event)">
-          <svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Print<svg viewBox="0 0 24 24" style="width:11px;height:11px;margin-left:2px"><polyline points="6 9 12 15 18 9"/></svg>
+      <div style="display:inline-block;margin-right:auto">
+        <button class="cd-btn cd-btn-secondary" id="printAssignBtn" style="display:none" onclick="openPrintDialog()">
+          <svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Print
         </button>
-        <div id="printAssignMenu" style="display:none;position:absolute;left:0;bottom:calc(100% + 6px);background:var(--surface);border:.5px solid var(--border-strong);border-radius:10px;box-shadow:var(--shadow-md);min-width:170px;z-index:500;overflow:hidden;padding:4px">
-          <button onclick="printAssignmentDoc('voucher')" style="width:100%;padding:9px 12px;border:none;background:none;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text-primary);cursor:pointer;border-radius:7px;text-align:left" onmouseover="this.style.background='var(--nav-hover)'" onmouseout="this.style.background='none'">Voucher Print</button>
-          <button onclick="printAssignmentDoc('passbook')" style="width:100%;padding:9px 12px;border:none;background:none;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text-primary);cursor:pointer;border-radius:7px;text-align:left" onmouseover="this.style.background='var(--nav-hover)'" onmouseout="this.style.background='none'">Passbook Print</button>
-        </div>
       </div>
       <button class="cd-btn cd-btn-secondary" id="openErpnextBtn" style="display:none" onclick="openAssignmentInErpnext()">
         <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Open in ERPNext
@@ -437,6 +433,34 @@
   </div>
 </div>
 
+<!-- Print Dialog (matches Frappe's Print dialog: Letter Head / Print Format / Page Size) -->
+<div class="cd-idialog-overlay" id="printOverlay" onclick="closePrintDialog()"></div>
+<div class="cd-idialog" id="printDialog" role="dialog" aria-modal="true">
+  <div class="cd-idialog-header">
+    <span class="cd-idialog-title">Print</span>
+    <div class="cd-idialog-close" onclick="closePrintDialog()">&times;</div>
+  </div>
+  <div class="cd-idialog-body">
+    <div class="cd-field">
+      <label class="cd-label">Letter Head</label>
+      <select class="cd-select" id="printLetterHead"></select>
+    </div>
+    <div class="cd-field">
+      <label class="cd-label">Print Format</label>
+      <select class="cd-select" id="printFormat"></select>
+    </div>
+    <div class="cd-field" style="margin-bottom:0">
+      <label class="cd-label">Page Size</label>
+      <select class="cd-select" id="printPageSize"></select>
+    </div>
+  </div>
+  <div class="cd-idialog-footer">
+    <button type="button" class="cd-btn cd-btn-secondary" onclick="closePrintDialog()">Cancel</button>
+    <button type="button" class="cd-btn cd-btn-primary" id="printDoBtn" onclick="printAssignmentDoc()">Print</button>
+  </div>
+</div>
+
+<script src="/caratdesk-metal-rates.js"></script>
 <script>
 // ══ INSTANCE HELPERS ══
 const DEV1 = 'https://ppj-dev1.m.frappe.cloud';
@@ -1115,17 +1139,9 @@ async function submitPaySettle(){
     updatePaySettleButtonStates();
   }
 }
+// Gold rate for one touch — shared rule in /caratdesk-metal-rates.js (exact touch, latest date).
 async function fetchGoldRateForTouch(touch){
-  if(!touch) return 0;
-  try{
-    const filters=encodeURIComponent(JSON.stringify([['Metal Price List','metal_type','=','Gold']]));
-    const fields=encodeURIComponent(JSON.stringify(['metal_touch','rate']));
-    const res=await dev1Get(`/api/resource/Metal%20Price%20List?fields=${fields}&filters=${filters}&order_by=date%20desc&limit_page_length=100`);
-    const rows=res.data||res.message||[];
-    const wanted=String(touch).trim().toLowerCase();
-    const match=rows.find(r=>String(r.metal_touch||'').trim().toLowerCase()===wanted);
-    return match ? (parseFloat(match.rate)||0) : 0;
-  }catch(e){ console.warn('Gold rate lookup failed for touch '+touch+':', e.message); return 0; }
+  return cdGetTouchRate('Gold', touch);
 }
 async function markInstallmentsPaidInline(assignmentName, rowNames, paymentEntryName, paymentDate){
   const res=await dev1Get('/api/resource/Jewellery%20Scheme%20Assignment/'+encodeURIComponent(assignmentName));
@@ -1178,7 +1194,7 @@ function acAssignCustomer(val){
   if(assignmentLocked) return;
   const list=document.getElementById('ac-assign-customer');
   const q=(val||'').toLowerCase();
-  const results=CUSTOMERS.filter(c=>c.display.toLowerCase().includes(q)||c.name.toLowerCase().includes(q)).slice(0,20);
+  const results=CUSTOMERS.filter(c=>c.display.toLowerCase().includes(q)||c.name.toLowerCase().includes(q)||(c.phone||'').includes(q)).slice(0,20);
   list.innerHTML = results.length? results.map(c=>`<div class="cd-ac-item" onclick="selAssignCustomer('${esc(c.name)}','${esc(c.display)}')"><div class="main">${esc(c.display)}</div>${c.phone?`<div class="sub">${esc(c.phone)}</div>`:''}</div>`).join('') : `<div class="cd-ac-empty">No customer found</div>`;
   list.classList.add('open');
 }
@@ -1408,8 +1424,7 @@ async function loadAssignmentForm(name){
   document.getElementById('pageTitleCur').textContent = name? 'Edit Assignment' : 'New Assignment';
   document.getElementById('assignDrawerStatus').innerHTML = '';
   document.getElementById('assignDeleteBtn').style.display = name? '' : 'none';
-  document.getElementById('printAssignBtn').style.display = name? '' : 'none';
-  document.getElementById('printAssignMenu').style.display = 'none';
+  document.getElementById('printAssignBtn').style.display = 'none';
   document.getElementById('openErpnextBtn').style.display = name? '' : 'none';
   document.getElementById('forceCloseBtn').style.display = 'none';
   document.getElementById('submitAssignBtn').style.display = 'none';
@@ -1436,6 +1451,7 @@ async function loadAssignmentForm(name){
       document.getElementById('assignDrawerStatus').innerHTML = assignStatusPill(assignDisplayStatus(currentAssignStatus, currentAssignDocstatus));
       document.getElementById('forceCloseBtn').style.display = canTransact() ? '' : 'none';
       document.getElementById('submitAssignBtn').style.display = currentAssignDocstatus===0 ? '' : 'none';
+      document.getElementById('printAssignBtn').style.display = currentAssignDocstatus===1 ? '' : 'none';
       const cust=CUSTOMERS.find(c=>c.name===doc.customer);
       document.getElementById('assignCustomer').value= cust?cust.display:(doc.customer||'');
       const sch=SCHEMES.find(s=>s.name===doc.scheme);
@@ -1513,30 +1529,89 @@ function validateInstallRows(){
   }
   return 0;
 }
-// ── PRINT (Voucher / Passbook) ──
-function togglePrintAssignMenu(e){
-  if(e) e.stopPropagation();
-  const menu=document.getElementById('printAssignMenu');
-  menu.style.display = menu.style.display==='none'?'block':'none';
+// ── PRINT DIALOG (Letter Head / Print Format / Page Size, like Frappe) ──
+const ASSIGN_DOCTYPE = 'Jewellery Scheme Assignment';
+const PRINT_PAGE_SIZES = ['A3','A4','A5','A6','B5','Executive','Legal','Letter','Tabloid'];
+let printOptions = null; // loaded once: {letterHeads, defaultLetterHead, formats, defaultFormat, pageSize}
+// Each lookup falls back silently so a missing read permission degrades to Frappe's defaults instead of erroring.
+async function loadPrintOptions(){
+  if(printOptions) return printOptions;
+  const enc=encodeURIComponent;
+  const [meta, lhRes, settings] = await Promise.all([
+    dev1Get('/api/method/frappe.desk.form.load.getdoctype?doctype='+enc(ASSIGN_DOCTYPE))
+      .then(r=>(r.docs||[]).find(d=>d.name===ASSIGN_DOCTYPE)||{}).catch(()=>({})),
+    dev1Get('/api/resource/Letter%20Head?fields='+enc('["name","is_default"]')+'&filters='+enc('[["disabled","=",0]]')+'&limit_page_length=0')
+      .then(r=>r.data||[]).catch(()=>[]),
+    dev1Get('/api/resource/Print%20Settings/Print%20Settings').then(r=>r.data||{}).catch(()=>({}))
+  ]);
+  let formats=(meta.__print_formats||[]).filter(f=>!f.disabled).map(f=>f.name);
+  if(!formats.length){
+    formats=await dev1Get('/api/resource/Print%20Format?fields='+enc('["name"]')+'&filters='+enc(JSON.stringify([["doc_type","=",ASSIGN_DOCTYPE],["disabled","=",0]]))+'&limit_page_length=0')
+      .then(r=>(r.data||[]).map(f=>f.name)).catch(()=>[]);
+  }
+  const defaultFormat = meta.default_print_format || '';
+  if(defaultFormat && !formats.includes(defaultFormat)) formats.unshift(defaultFormat);
+  // Frappe lists the DocType's default format first, then the rest, then Standard.
+  formats = [...(defaultFormat?[defaultFormat]:[]), ...formats.filter(f=>f!==defaultFormat).sort(), 'Standard'];
+  const def = lhRes.find(l=>l.is_default);
+  printOptions = {
+    letterHeads: lhRes.map(l=>l.name),
+    defaultLetterHead: def? def.name : '',
+    formats,
+    pageSize: settings.pdf_page_size || 'A4'
+  };
+  return printOptions;
 }
-document.addEventListener('click', e=>{
-  const menu=document.getElementById('printAssignMenu');
-  if(menu && !e.target.closest('#printAssignBtn') && !e.target.closest('#printAssignMenu')) menu.style.display='none';
-});
-const ASSIGN_PRINT_FORMATS = { voucher:'Voucher Print', passbook:'Passbook Print' };
-async function printAssignmentDoc(kind){
-  document.getElementById('printAssignMenu').style.display='none';
+function fillSelect(id, values, selected){
+  const sel=document.getElementById(id);
+  sel.innerHTML = values.map(v=>`<option value="${esc(v.value)}">${esc(v.label)}</option>`).join('');
+  sel.value = selected;
+}
+async function openPrintDialog(){
+  if(!window.currentAssignName || currentAssignDocstatus!==1) return;
+  const btn=document.getElementById('printDoBtn');
+  btn.disabled=true;
+  document.getElementById('printOverlay').classList.add('open');
+  document.getElementById('printDialog').classList.add('open');
+  try{
+    const o=await loadPrintOptions();
+    fillSelect('printLetterHead', [{value:'',label:'No Letterhead'}, ...o.letterHeads.map(n=>({value:n,label:n}))], o.defaultLetterHead);
+    fillSelect('printFormat', o.formats.map(n=>({value:n,label:n})), o.formats[0]);
+    const sizes = PRINT_PAGE_SIZES.includes(o.pageSize)? PRINT_PAGE_SIZES : [o.pageSize, ...PRINT_PAGE_SIZES];
+    fillSelect('printPageSize', sizes.map(n=>({value:n,label:n})), o.pageSize);
+  }catch(e){ showToast('Could not load print options: '+String(e.message).slice(0,100),'error'); }
+  finally{ btn.disabled=false; }
+}
+function closePrintDialog(){
+  document.getElementById('printOverlay').classList.remove('open');
+  document.getElementById('printDialog').classList.remove('open');
+}
+async function printAssignmentDoc(){
   if(!window.currentAssignName){ showToast('Please save the assignment first','error'); return; }
-  const format=ASSIGN_PRINT_FORMATS[kind];
+  const letterhead=document.getElementById('printLetterHead').value;
+  const format=document.getElementById('printFormat').value || 'Standard';
+  const pageSize=document.getElementById('printPageSize').value || 'A4';
+  const btn=document.getElementById('printDoBtn');
+  btn.disabled=true;
   try{
     const h=cdGetInstanceHeaders();
     if(!h) throw new Error('No auth');
-    const params=new URLSearchParams({doctype:'Jewellery Scheme Assignment', name:window.currentAssignName, format, no_letterhead:'0'});
-    const res=await fetch(cdGetInstanceUrl()+'/api/method/frappe.utils.print_format.download_pdf?'+params.toString(),{headers:h});
+    // download_pdf has no page-size option; download_multi_pdf does (same call Frappe's print dialog makes).
+    const params=new URLSearchParams({
+      doctype:ASSIGN_DOCTYPE,
+      name:JSON.stringify([window.currentAssignName]),
+      format,
+      no_letterhead: letterhead? '0':'1',
+      letterhead,
+      options: JSON.stringify({'page-size':pageSize})
+    });
+    const res=await fetch(cdGetInstanceUrl()+'/api/method/frappe.utils.print_format.download_multi_pdf?'+params.toString(),{headers:h});
     if(!res.ok) throw new Error('HTTP '+res.status);
     const blob=await res.blob();
-    window.open(URL.createObjectURL(blob),'_blank');
+    window.open(URL.createObjectURL(new Blob([blob],{type:'application/pdf'})),'_blank');
+    closePrintDialog();
   }catch(e){ showToast('Print failed: '+String(e.message).slice(0,120),'error'); }
+  finally{ btn.disabled=false; }
 }
 async function saveAssignment(){
   const cust=document.getElementById('assignCustomer').value.trim();

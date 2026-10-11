@@ -31,7 +31,8 @@ export function usePosCart(goldRateProp, gstSplit = [], schemeBonusAmount = 0, s
           tagKey,
       );
       if (existing) return prev;
-      return [...prev, newCartLine({ ...partial, qty: 1 })];
+      // A batch line keeps the qty it was scanned with; everything else is one piece.
+      return [...prev, newCartLine({ ...partial, qty: partial.is_batch ? partial.qty : 1 })];
     });
   }, []);
 

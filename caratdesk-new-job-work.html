@@ -302,7 +302,35 @@
         </div>
       </div>
 
-      <!-- SECTION 2: Items -->
+      <!-- SECTION 2: Reference Item — lightweight tracking table for the finished goods
+           item this raw material was issued against. Not part of stock accounting;
+           purely reference data, so no qty/warehouse/valuation fields. Its Item Picker
+           excludes the 'Raw Material' group (see BOM_RM_ROOT_GROUP) — raw material never
+           belongs here. -->
+      <div class="cd-section">
+        <div class="cd-section-header" onclick="toggleSec(this)">
+          <div class="cd-sec-title"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>Reference Item</div>
+          <div class="cd-sec-toggle"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+        </div>
+        <div class="cd-section-body">
+          <div style="font-size:11.5px;color:var(--text-muted);margin-bottom:10px">Track the finished goods item this raw material was issued against — for reference only, not stock accounting.</div>
+          <div class="cd-items-wrap">
+            <table class="cd-items-tbl" id="refItemsTable" style="min-width:560px">
+              <thead><tr>
+                <th style="width:34px">#</th>
+                <th style="width:180px">Item Code</th>
+                <th style="width:200px">Item Name</th>
+                <th style="width:180px">Item Category</th>
+                <th style="width:34px"></th>
+              </tr></thead>
+              <tbody id="refItemsTbody"></tbody>
+            </table>
+          </div>
+          <button class="cd-add-row" onclick="addRefRow()"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Reference Item Row</button>
+        </div>
+      </div>
+
+      <!-- SECTION 3: Items -->
       <div class="cd-section">
         <div class="cd-section-header" onclick="toggleSec(this)">
           <div class="cd-sec-title"><svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>Items</div>
@@ -326,7 +354,7 @@
                 <th class="se-finished-col" style="width:70px">Finished</th>
                 <th class="se-subbom-col" style="width:90px">Gross Wt</th>
                 <th class="se-subbom-col" style="width:90px">Net Wt</th>
-                <th class="se-subbom-col" style="width:75px">Tounch</th>
+                <th class="se-subbom-col" style="width:75px">Tunch</th>
                 <th class="se-subbom-col" style="width:80px">Wastage</th>
                 <th class="se-subbom-col" style="width:80px">BOM</th>
                 <th style="width:34px"></th>
@@ -411,7 +439,7 @@
 <div class="cd-idialog-overlay" id="itemDialogOverlay" onclick="closeItemDialog()"></div>
 <div class="cd-idialog" id="itemDialog" style="width:1100px;max-width:96vw">
   <div class="cd-idialog-header">
-    <div class="cd-idialog-title"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>Select Item</div>
+    <div class="cd-idialog-title"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg><span id="itemDialogTitleText">Select Item</span></div>
     <div class="cd-idialog-close" onclick="closeItemDialog()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
   </div>
   <div class="cd-idialog-body" id="rmDialogRoot"></div>
@@ -465,7 +493,9 @@ let WAREHOUSE_RECORDS = []; // [{name, custom_supplier}] — used to derive Targ
 let SUPPLIERS         = [];
 let SE_ITEMS           = [];
 let STOCK_ENTRY_TYPES  = []; // [{name, purpose}]
+let ATTRIBUTE_VALUES  = []; // Item Category options for the Reference Item table
 let rowCount            = 0;
+let refRowCount          = 0;
 let submitted           = false;
 let currentSEName       = null;
 let _changeTrackingActive = false;
@@ -518,15 +548,6 @@ function _handle401(){
     showToast('Session expired - please log in again','error');
     setTimeout(()=>window.location.href='/caratdesk-login',1500);
   }
-}
-
-// Returns fieldnames flagged "In Global Search" on a doctype, so item search can match them too.
-async function getGlobalSearchFields(doctype){
-  try{
-    const filters=encodeURIComponent(JSON.stringify([["parent","=",doctype],["in_global_search","=",1]]));
-    const res=await dev1Get(`/api/resource/DocField?filters=${filters}&fields=${encodeURIComponent('["fieldname"]')}&limit_page_length=0`);
-    return (res.data||res.message||[]).map(d=>d.fieldname).filter(Boolean);
-  }catch(e){ console.warn('getGlobalSearchFields error ('+doctype+'):', e.message); return []; }
 }
 
 // ══════════════════════════════════════════
@@ -669,15 +690,22 @@ async function loadMasterData(){
   }catch(e){ console.warn('Stock Entry Type load failed:', e.message); }
 
   try{
-    const ITEM_BASE_FIELDS = ["item_code","item_name","stock_uom","standard_rate","item_group"];
-    const gsFields  = await getGlobalSearchFields('Item');
-    const itemFields = [...new Set([...ITEM_BASE_FIELDS, ...gsFields])];
+    // Not pulling in DocField-marked "Global Search" fields here — this site's API role
+    // has no read permission on DocField (a core meta doctype), so that lookup always
+    // 403s. Base fields alone are enough to drive the Item Code autocomplete.
+    const itemFields = ["item_code","item_name","stock_uom","standard_rate","item_group","custom_item_category"];
     const itemRes = await dev1Get(`/api/resource/Item?fields=${encodeURIComponent(JSON.stringify(itemFields))}&limit_page_length=1000`);
     SE_ITEMS = (itemRes.data||itemRes.message||[]).map(i=>({
       code: i.item_code, name: i.item_name||i.item_code, uom: i.stock_uom||'Nos', rate: parseFloat(i.standard_rate||0),
+      category: i.custom_item_category||'',
       _search: itemFields.map(f=>String(i[f]||'')).join(' ').toLowerCase()
     }));
   }catch(e){ console.warn('Item load failed:', e.message); }
+
+  try{
+    const avRes = await dev1Get('/api/resource/Attribute Value?fields=["name","attribute_value"]&limit_page_length=1000');
+    ATTRIBUTE_VALUES = (avRes.data||avRes.message||[]).map(a=>a.attribute_value||a.name);
+  }catch(e){ console.warn('Attribute Value load failed:', e.message); }
 }
 
 function warehouseOptionsHtml(){
@@ -1417,7 +1445,118 @@ function delRow(id){
   // Item/Batch/Serial ac-lists get detached to <body> when opened (see openAcList) — the row
   // delete above won't reach them, so clean them up explicitly to avoid orphaned elements.
   ['seac-','bac-','sac-'].forEach(prefix=>document.getElementById(prefix+id)?.remove());
-  delete ROW_BOM_STAGING[id]; recalc();
+  delete ROW_BOM_STAGING[id]; delete _batchAcSeq[id]; recalc();
+}
+
+// ══════════════════════════════════════════
+//  REFERENCE ITEM TABLE — plain tracking table (Stock Entry.custom_reference_item, a
+//  "Reference Item" child doctype). Item Code has its own picker button that opens the
+//  same Item Picker dialog as the main Items table (see openItemDialog/addItemToRow),
+//  distinguished by the 'ref' target so results land here instead.
+// ══════════════════════════════════════════
+function addRefRow(d={}){
+  refRowCount++;
+  const id = 'rf'+refRowCount;
+  const tr = document.createElement('tr'); tr.id = id;
+  tr.innerHTML = `
+    <td>${refRowCount}</td>
+    <td>
+      <div style="display:flex;align-items:center;gap:4px">
+        <button class="cd-pick-btn" id="pickbtn-${id}" onclick="openItemDialog('${id}','ref')" style="flex-shrink:0">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </button>
+        <div class="cd-ac" style="min-width:110px;flex:1">
+          <input placeholder="Item Code…" data-f="ref_code" value="${esc(d.item_code||'')}" autocomplete="off"
+            oninput="refItemAc(this,'${id}')" onfocus="refItemAc(this,'${id}')" onblur="refItemBlur(this,'${id}')"/>
+          <div class="cd-ac-list" id="rfac-${id}" style="min-width:260px"></div>
+        </div>
+      </div>
+    </td>
+    <td><input data-f="ref_item_name" value="${esc(d.item_name||'')}" readonly style="opacity:.65;font-size:11px"/></td>
+    <td>
+      <div class="cd-ac" style="min-width:120px">
+        <input placeholder="Item Category" data-f="ref_item_category" value="${esc(d.item_category||'')}" autocomplete="off"
+          oninput="refCategoryAc(this,'${id}')" onfocus="refCategoryAc(this,'${id}')" onblur="refCategoryBlur('${id}')"/>
+        <div class="cd-ac-list" id="rcac-${id}" style="min-width:200px"></div>
+      </div>
+    </td>
+    <td><button class="cd-del-btn" onclick="delRefRow('${id}')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></td>
+  `;
+  document.getElementById('refItemsTbody').appendChild(tr);
+  return tr;
+}
+function delRefRow(id){
+  document.getElementById(id)?.remove();
+  ['rfac-','rcac-'].forEach(prefix=>document.getElementById(prefix+id)?.remove());
+}
+function renderRefAcResults(rowId, r){
+  const list = document.getElementById('rfac-'+rowId); if(!list) return;
+  list.innerHTML = r.length ? r.map(it=>`<div class="cd-ac-item" onmousedown="refSelectItem('${rowId}','${esc(it.code)}')"><div class="main">${esc(it.code)}</div><div class="sub">${esc(it.name)}</div></div>`).join('') : `<div class="cd-ac-empty">No item found</div>`;
+  const anchor = document.getElementById(rowId)?.querySelector('[data-f="ref_code"]');
+  openAcList(list, anchor);
+}
+function refItemAc(inp, rowId){
+  const q = inp.value.trim().toLowerCase();
+  const list = document.getElementById('rfac-'+rowId);
+  if(!list) return;
+  if(!q){ list.classList.remove('open'); return; }
+  renderRefAcResults(rowId, SE_ITEMS.filter(i=>i.code.toLowerCase().includes(q)||i.name.toLowerCase().includes(q)).slice(0,10));
+}
+function refItemBlur(inp, rowId){
+  const code = inp.value.trim();
+  if(!code){ setTimeout(()=>{ document.getElementById('rfac-'+rowId)?.classList.remove('open'); }, 150); return; }
+  const it = SE_ITEMS.find(i=>i.code.toLowerCase()===code.toLowerCase()||i.name.toLowerCase()===code.toLowerCase());
+  if(it){ refFillItem(rowId, it); setTimeout(()=>{ document.getElementById('rfac-'+rowId)?.classList.remove('open'); }, 150); return; }
+  // No local match (typed/pasted code, no dropdown click) — try a live exact-code lookup,
+  // same fallback pattern as seItemBlur uses for the main Items table.
+  setTimeout(async ()=>{
+    document.getElementById('rfac-'+rowId)?.classList.remove('open');
+    const liveInp = document.getElementById(rowId)?.querySelector('[data-f="ref_code"]');
+    if(!liveInp || liveInp.value.trim().toLowerCase() !== code.toLowerCase()) return;
+    try{
+      const res = await dev1Get(`/api/resource/Item/${encodeURIComponent(code)}`);
+      const doc = res.data || res.message;
+      if(!doc || doc.disabled) throw new Error('not found');
+      const found = { code: doc.item_code, name: doc.item_name||doc.item_code, uom: doc.stock_uom||'Nos', rate: parseFloat(doc.standard_rate||0), category: doc.custom_item_category||'' };
+      SE_ITEMS.push({ ...found, _search: [found.code, found.name].join(' ').toLowerCase() });
+      refFillItem(rowId, found);
+    }catch(e){
+      showToast(`Item "${code}" not found`, 'error');
+    }
+  }, 200);
+}
+function refSelectItem(rowId, code){
+  const it = SE_ITEMS.find(i=>i.code===code);
+  if(it) refFillItem(rowId, it);
+}
+// Fills Item Code, Item Name and — sourced from Item.custom_item_category, cached on
+// SE_ITEMS as `.category` — Item Category, so the field is auto-derived from the item
+// rather than picked separately.
+function refFillItem(rowId, it){
+  const tr = document.getElementById(rowId); if(!tr) return;
+  tr.querySelector('[data-f="ref_code"]').value = it.code;
+  tr.querySelector('[data-f="ref_item_name"]').value = it.name;
+  const catEl = tr.querySelector('[data-f="ref_item_category"]'); if(catEl) catEl.value = it.category || '';
+  document.getElementById('rfac-'+rowId)?.classList.remove('open');
+}
+function renderRefCategoryAcResults(rowId, values){
+  const list = document.getElementById('rcac-'+rowId); if(!list) return;
+  list.innerHTML = values.length ? values.map(v=>`<div class="cd-ac-item" onmousedown="refSelectCategory('${rowId}','${esc(v)}')">${esc(v)}</div>`).join('') : `<div class="cd-ac-empty">No match</div>`;
+  const anchor = document.getElementById(rowId)?.querySelector('[data-f="ref_item_category"]');
+  openAcList(list, anchor);
+}
+function refCategoryAc(inp, rowId){
+  const q = inp.value.trim().toLowerCase();
+  const list = document.getElementById('rcac-'+rowId);
+  if(!list) return;
+  if(!q){ list.classList.remove('open'); return; }
+  renderRefCategoryAcResults(rowId, ATTRIBUTE_VALUES.filter(v=>v.toLowerCase().includes(q)).slice(0,10));
+}
+function refCategoryBlur(rowId){ setTimeout(()=>{ document.getElementById('rcac-'+rowId)?.classList.remove('open'); }, 150); }
+function refSelectCategory(rowId, val){
+  const tr = document.getElementById(rowId); if(!tr) return;
+  tr.querySelector('[data-f="ref_item_category"]').value = val;
+  document.getElementById('rcac-'+rowId)?.classList.remove('open');
 }
 
 function recalcRow(id){
@@ -1563,6 +1702,7 @@ function seFillItem(rowId, it){
 //    No records (Batch has no warehouse field of its own, so availability is derived from
 //    Stock Ledger Entry; Serial No carries its current warehouse directly). ──
 const _batchQtyCache = new Map(); // "item|warehouse" -> [{batch_no,qty}]
+const _batchMasterCache = new Map(); // batch_no -> {disabled, expiry_date} — Batch master doesn't vary by warehouse
 const _serialCache   = new Map(); // "item|warehouse" -> [{serial_no,batch_no}]
 
 function rowLookupCtx(tr){
@@ -1575,16 +1715,66 @@ async function fetchBatchesInWarehouse(itemCode, warehouse){
   if(!itemCode || !warehouse) return [];
   const key = itemCode+'|'+warehouse;
   if(_batchQtyCache.has(key)) return _batchQtyCache.get(key);
+  const totals = {}; // batch_no -> { qty, rate } — rate keeps the most recent positive incoming_rate seen for that batch
+  const bump = (batchNo, qty, rate) => {
+    if(!batchNo) return;
+    const t = totals[batchNo] || (totals[batchNo] = { qty:0, rate:0 });
+    t.qty += qty;
+    if(rate>0) t.rate = rate;
+  };
+  // Legacy path: entries created before Serial and Batch Bundle still carry batch_no
+  // directly on the Stock Ledger Entry. Ordered oldest→newest so the last bump() wins
+  // as the most recent known rate.
   try{
-    const filters = encodeURIComponent(JSON.stringify([['item_code','=',itemCode],['warehouse','=',warehouse],['is_cancelled','=',0]]));
-    const fields  = encodeURIComponent(JSON.stringify(['batch_no','actual_qty']));
-    const res = await dev1Get(`/api/resource/Stock Ledger Entry?filters=${filters}&fields=${fields}&limit_page_length=0`);
-    const totals = {};
-    (res.data||res.message||[]).forEach(r=>{ if(!r.batch_no) return; totals[r.batch_no]=(totals[r.batch_no]||0)+parseFloat(r.actual_qty||0); });
-    const out = Object.entries(totals).filter(([,qty])=>qty>0.0001).map(([batch_no,qty])=>({batch_no,qty:Math.round(qty*1000)/1000}));
-    _batchQtyCache.set(key, out);
-    return out;
-  }catch(e){ console.warn('Batch lookup failed:', e.message); return []; }
+    const filters = encodeURIComponent(JSON.stringify([['item_code','=',itemCode],['warehouse','=',warehouse],['is_cancelled','=',0],['batch_no','!=','']]));
+    const fields  = encodeURIComponent(JSON.stringify(['batch_no','actual_qty','incoming_rate']));
+    const res = await dev1Get(`/api/resource/Stock Ledger Entry?filters=${filters}&fields=${fields}&order_by=posting_date asc,posting_time asc&limit_page_length=0`);
+    (res.data||res.message||[]).forEach(r=>bump(r.batch_no, parseFloat(r.actual_qty||0), parseFloat(r.incoming_rate||0)));
+  }catch(e){ console.warn('Batch (legacy SLE) lookup failed:', e.message); }
+  // Serial and Batch Bundle path — this site tracks batches this way, so the per-batch
+  // breakdown lives in the bundle's "entries" child table. Child doctypes carry no
+  // standalone read permission in Frappe, so /api/resource/Serial and Batch Entry gets a
+  // 403 even though the parent query below succeeds — fetch each bundle's full document
+  // instead (entries come embedded, gated by the parent's permission, not the child's).
+  // Sorted oldest→newest before fetching so Promise.all's order (which it preserves,
+  // regardless of completion order) lets bump() pick up the most recent rate correctly.
+  try{
+    const bundleFilters = encodeURIComponent(JSON.stringify([['item_code','=',itemCode],['warehouse','=',warehouse],['is_cancelled','=',0],['docstatus','=',1]]));
+    const bundleFields  = encodeURIComponent(JSON.stringify(['name']));
+    // Ordered by "creation" (not posting_date/posting_time — those live on the linked
+    // voucher, not on the bundle itself) so bump() still picks up a reasonably recent rate.
+    const bundleRes = await dev1Get(`/api/resource/Serial and Batch Bundle?filters=${bundleFilters}&fields=${bundleFields}&order_by=creation asc&limit_page_length=0`);
+    const bundleNames = (bundleRes.data||bundleRes.message||[]).map(b=>b.name);
+    if(bundleNames.length){
+      const bundleDocs = await Promise.all(bundleNames.map(name =>
+        dev1Get(`/api/resource/Serial and Batch Bundle/${encodeURIComponent(name)}`).catch(e => { console.warn('Bundle fetch failed:', name, e.message); return null; })
+      ));
+      bundleDocs.forEach(res => {
+        const doc = res?.data || res?.message;
+        (doc?.entries || []).forEach(e => bump(e.batch_no, parseFloat(e.qty||0), parseFloat(e.incoming_rate||0)));
+      });
+    }
+  }catch(e){ console.warn('Batch (Serial and Batch Bundle) lookup failed:', e.message); }
+  const out = Object.entries(totals).filter(([,t])=>t.qty>0.0001).map(([batch_no,t])=>({batch_no, qty:Math.round(t.qty*1000)/1000, rate:Math.round((t.rate||0)*100)/100}));
+  _batchQtyCache.set(key, out);
+  return out;
+}
+// Batch master info (disabled / expiry_date) — same "active batch" rule ERPNext's own
+// Batch link field applies when scoped to a Stock Entry row (see get_batch_qty query):
+// exclude disabled batches and batches whose expiry_date has already passed.
+async function fetchBatchMasterInfo(batchNos){
+  const missing = batchNos.filter(b=>!_batchMasterCache.has(b));
+  if(missing.length){
+    try{
+      const filters = encodeURIComponent(JSON.stringify([['name','in',missing]]));
+      const fields  = encodeURIComponent(JSON.stringify(['name','disabled','expiry_date']));
+      const res = await dev1Get(`/api/resource/Batch?filters=${filters}&fields=${fields}&limit_page_length=0`);
+      (res.data||res.message||[]).forEach(b=>_batchMasterCache.set(b.name, {disabled:b.disabled||0, expiry_date:b.expiry_date||''}));
+    }catch(e){ console.warn('Batch master lookup failed:', e.message); }
+    // Fail-open for anything the lookup didn't return, so a lookup error never hides all batches.
+    missing.forEach(b=>{ if(!_batchMasterCache.has(b)) _batchMasterCache.set(b, {disabled:0, expiry_date:''}); });
+  }
+  return batchNos.map(b=>_batchMasterCache.get(b) || {disabled:0, expiry_date:''});
 }
 async function fetchSerialsInWarehouse(itemCode, warehouse){
   if(!itemCode || !warehouse) return [];
@@ -1599,24 +1789,49 @@ async function fetchSerialsInWarehouse(itemCode, warehouse){
     return out;
   }catch(e){ console.warn('Serial lookup failed:', e.message); return []; }
 }
+const _batchAcSeq = {}; // rowId -> latest request number, so a slower/older call can't clobber a newer one's result
 async function seBatchAc(inp, rowId){
   const tr = document.getElementById(rowId);
   const list = document.getElementById('bac-'+rowId); if(!list||!tr) return;
   const { code, wh } = rowLookupCtx(tr);
+  const qty = parseFloat(tr.querySelector('[data-f="qty"]')?.value||0) || 0;
   if(!code || !wh){ list.innerHTML = '<div class="cd-ac-empty">Select Item and Source Warehouse first</div>'; openAcList(list, inp); return; }
+  if(qty<=0){ list.innerHTML = '<div class="cd-ac-empty">Enter Qty first</div>'; openAcList(list, inp); return; }
+  const seq = (_batchAcSeq[rowId] = (_batchAcSeq[rowId]||0) + 1);
   list.innerHTML = '<div class="cd-ac-empty">Loading…</div>'; openAcList(list, inp);
   const q = inp.value.trim().toLowerCase();
   const batches = await fetchBatchesInWarehouse(code, wh);
-  const filtered = q ? batches.filter(b=>b.batch_no.toLowerCase().includes(q)) : batches;
+  const masterInfo = await fetchBatchMasterInfo(batches.map(b=>b.batch_no));
+  // Bundle fetches can take a couple seconds; if the user refocused/typed again in the
+  // meantime, a newer call is already in flight (or has already rendered) — bail instead
+  // of overwriting it with this now-stale result.
+  if(_batchAcSeq[rowId] !== seq) return;
+  const refDate = document.getElementById('postingDate')?.value || new Date().toISOString().slice(0,10);
+  const active = batches.filter((b,i)=>{
+    const m = masterInfo[i];
+    if(m.disabled) return false;
+    if(m.expiry_date && m.expiry_date < refDate) return false;
+    return true;
+  });
+  const filtered = q ? active.filter(b=>b.batch_no.toLowerCase().includes(q)) : active;
+  if(_batchAcSeq[rowId] !== seq) return;
   list.innerHTML = filtered.length
-    ? filtered.map(b=>`<div class="cd-ac-item" onmousedown="seSelectBatch('${rowId}','${esc(b.batch_no)}')"><div class="main">${esc(b.batch_no)}</div><div class="sub">Qty in stock: ${b.qty}</div></div>`).join('')
-    : `<div class="cd-ac-empty">No batch with stock in "${esc(wh)}"</div>`;
+    ? filtered.map(b=>`<div class="cd-ac-item" onmousedown="seSelectBatch('${rowId}','${esc(b.batch_no)}')"><div class="main">${esc(b.batch_no)}</div><div class="sub">Qty in stock: ${b.qty}${b.rate>0?' · Rate: ₹'+b.rate.toLocaleString('en-IN'):''}</div></div>`).join('')
+    : `<div class="cd-ac-empty">No active batch with stock in "${esc(wh)}"</div>`;
 }
 function seBatchBlur(rowId){ setTimeout(()=>{ document.getElementById('bac-'+rowId)?.classList.remove('open'); }, 150); }
-function seSelectBatch(rowId, batchNo){
+// Picking a batch also fills Basic Rate from that batch's most recent incoming_rate —
+// same "don't clobber a manual entry" rule seFillItem uses for the item-level rate.
+async function seSelectBatch(rowId, batchNo){
   const tr = document.getElementById(rowId); if(!tr) return;
   tr.querySelector('[data-f="batch_no"]').value = batchNo;
   document.getElementById('bac-'+rowId)?.classList.remove('open');
+  const { code, wh } = rowLookupCtx(tr);
+  const batches = await fetchBatchesInWarehouse(code, wh); // already cached from the dropdown fetch — resolves instantly
+  const match = batches.find(b=>b.batch_no===batchNo);
+  const rateEl = tr.querySelector('[data-f="rate"]');
+  if(match && match.rate>0 && rateEl && !parseFloat(rateEl.value)) rateEl.value = match.rate;
+  recalcRow(rowId);
 }
 async function seSerialAc(ta, rowId){
   const tr = document.getElementById(rowId);
@@ -1651,11 +1866,14 @@ function seSelectSerial(rowId, serialNo){
 // ══════════════════════════════════════════
 function getCsrf(){ if(typeof frappe!=='undefined'&&frappe.csrf_token)return frappe.csrf_token; const m=document.cookie.match(/csrf_token=([^;]+)/);return m?m[1]:''; }
 
-let _dialogRowId=null, _dlgSelected={type:null,template:null}, _dlgAttrVals={}, _dlgAttrs=[], _matchedItem=null;
+let _dialogRowId=null, _dialogTarget='items', _dlgSelected={type:null,template:null}, _dlgAttrVals={}, _dlgAttrs=[], _matchedItem=null;
 
-function openItemDialog(rowId){
-  _dialogRowId=rowId; _dlgSelected={type:null,template:null}; _dlgAttrVals={}; _dlgAttrs=[]; _matchedItem=null;
+// target: 'items' fills the main Items table row (via seFillItem, with uom/rate lookup);
+// 'ref' fills a Reference Item table row (via refFillItem, code+name only).
+function openItemDialog(rowId, target='items'){
+  _dialogRowId=rowId; _dialogTarget=target; _dlgSelected={type:null,template:null}; _dlgAttrVals={}; _dlgAttrs=[]; _matchedItem=null;
   clearDialogError(); hideDialogResult();
+  const titleEl=document.getElementById('itemDialogTitleText'); if(titleEl) titleEl.textContent = target==='ref' ? 'Select Finished Goods Item' : 'Select Item';
   document.getElementById('itemDialog').classList.add('open');
   document.getElementById('itemDialogOverlay').classList.add('open');
   initDialog();
@@ -1712,7 +1930,12 @@ async function initDialog(){
   try{
     const form=new FormData(); form.append('parent_group','All Item Groups');
     const res=await fetch('/api/method/caratdesk_get_item_group_children',{method:'POST',credentials:'same-origin',headers:{'X-Frappe-CSRF-Token':getCsrf()},body:form});
-    const d=await res.json(); const groups=d.message||[];
+    const d=await res.json(); let groups=d.message||[];
+    // Reference Item picker excludes Raw Material entirely (see BOM_RM_ROOT_GROUP —
+    // confirmed the real group name for this site) so raw material can never be picked
+    // as the finished goods item this table tracks. User still picks the Type themselves
+    // from whatever remains (e.g. "Finished Goods"), then Template loads as usual.
+    if(_dialogTarget === 'ref') groups = groups.filter(g => g !== BOM_RM_ROOT_GROUP);
     if(!groups.length){ tc.replaceWith(Object.assign(document.createElement('div'),{className:'cd-ac-empty',textContent:'No item groups found'})); return; }
     const pills=makePills(groups,_dlgSelected.type,val=>{ _dlgSelected.type=val; _dlgSelected.template=null; _dlgAttrVals={}; _dlgAttrs=[]; _matchedItem=null; hideDialogResult(); clearDialogError(); root.querySelectorAll('.rm-row:not(#rm-row-type)').forEach(r=>r.remove()); loadTemplateRow(root,val); });
     tc.replaceWith(pills);
@@ -1770,6 +1993,19 @@ async function autoSearch(){
 async function addItemToRow(){
   if(!_matchedItem){ showDialogError('Select all attributes - item will be found automatically.'); return; }
   if(!_dialogRowId) return;
+  if(_dialogTarget==='ref'){
+    let category = SE_ITEMS.find(i=>i.code===_matchedItem.item_code)?.category || '';
+    if(!category){
+      try{
+        const r=await dev1Get(`/api/resource/Item/${encodeURIComponent(_matchedItem.item_code)}`);
+        category = (r.data||r.message)?.custom_item_category || '';
+      }catch(e){ /* leave blank — template match may be a freshly-created variant */ }
+    }
+    refFillItem(_dialogRowId, { code:_matchedItem.item_code, name:_matchedItem.item_name, category });
+    closeItemDialog();
+    showToast(_matchedItem.item_code+' added','success');
+    return;
+  }
   const cached=SE_ITEMS.find(i=>i.code===_matchedItem.item_code);
   let uom=_matchedItem.stock_uom||_matchedItem.uom||cached?.uom||'';
   let rate=cached?.rate||0;
@@ -2048,6 +2284,18 @@ function buildPayload(docstatus){
     });
   });
 
+  const referenceItems = [];
+  document.querySelectorAll('#refItemsTbody tr').forEach((tr, idx) => {
+    const code = tr.querySelector('[data-f="ref_code"]')?.value?.trim();
+    if(!code) return;
+    referenceItems.push({
+      doctype: 'Reference Item', idx: idx+1,
+      item_code: code,
+      item_name: tr.querySelector('[data-f="ref_item_name"]')?.value?.trim() || code,
+      item_category: tr.querySelector('[data-f="ref_item_category"]')?.value?.trim() || '',
+    });
+  });
+
   return {
     doctype: 'Stock Entry',
     docstatus,
@@ -2063,6 +2311,7 @@ function buildPayload(docstatus){
     ...(purpose==='Manufacture' ? { fg_completed_qty: parseFloat(document.getElementById('fgQty')?.value||0)||0 } : {}),
     remarks: document.getElementById('remarks')?.value || '',
     items,
+    custom_reference_item: referenceItems,
   };
 }
 
@@ -2127,6 +2376,213 @@ function onFormChange(){
 }
 
 // ══════════════════════════════════════════
+//  JOB WORK LEDGER ENTRY (raw material Dr/Cr per Supplier)
+//  Debit posts when a "Send to Subcontractor" entry submits (raw material leaves our
+//  warehouse for the karigar's). Credit posts when a "Subcontracting Return" entry submits
+//  (raw material physically comes back untouched) — the other Credit path, via a Job Work
+//  Purchase Receipt's BOM breakup, lives in caratdesk-new-purchase-receipt.html. Metal rows
+//  convert to pure qty via the item's own "Gold Purity" variant attribute (there's no
+//  per-row purity picker on these two entry types, unlike Receive From Subcontractor);
+//  Diamond rows use qty as-is.
+// ══════════════════════════════════════════
+const JOB_WORK_LEDGER_PURPOSES = ['Send to Subcontractor', 'Subcontracting Return'];
+
+function jobWorkLedgerDatetimeNow(){ return new Date().toISOString().slice(0,19).replace('T',' '); }
+
+function classifyRawMaterialType(itemGroup){
+  if(itemGroup==='Gold' || itemGroup==='Silver') return 'Metal';
+  if(itemGroup==='Diamond') return 'Diamond';
+  return '';
+}
+
+// A "Gold Purity" attribute value is stored as a KT label ("22KT"), not a percentage — the
+// actual percentage lives in that Item Attribute Value's own "abbr" field ("916", meaning
+// 91.6%). Cached per attribute name: {attribute_value -> abbr}.
+const _attrAbbrMapCache = {};
+async function getAttrAbbrMap(attributeName){
+  if(_attrAbbrMapCache[attributeName]) return _attrAbbrMapCache[attributeName];
+  const map = {};
+  try{
+    const res = await dev1Get(`/api/resource/Item Attribute/${encodeURIComponent(attributeName)}`);
+    const doc = res.data || res.message || {};
+    (doc.item_attribute_values||[]).forEach(v=>{ map[v.attribute_value] = v.abbr; });
+  }catch(e){ console.warn('Failed to load attribute values for', attributeName, e.message); }
+  _attrAbbrMapCache[attributeName] = map;
+  return map;
+}
+
+const _itemGoldPurityCache = {};
+async function getItemGoldPurity(itemCode){
+  if(_itemGoldPurityCache[itemCode] !== undefined) return _itemGoldPurityCache[itemCode];
+  try{
+    const filters = encodeURIComponent(JSON.stringify([['parent','=',itemCode],['attribute','in',['Gold Purity','Purity']]]));
+    const fields  = encodeURIComponent(JSON.stringify(['attribute','attribute_value']));
+    const res = await dev1Get(`/api/resource/Item Variant Attribute?filters=${filters}&fields=${fields}&limit_page_length=1`);
+    const rows = res.data || res.message || [];
+    const row = rows[0];
+    if(!row){ _itemGoldPurityCache[itemCode] = 0; return 0; }
+    const abbrMap = await getAttrAbbrMap(row.attribute);
+    const abbr = abbrMap[row.attribute_value] || '';
+    const val = parseFloat(abbr) ? parseFloat(abbr)/10 : 0;
+    _itemGoldPurityCache[itemCode] = val;
+    return val;
+  }catch(e){
+    console.warn('getItemGoldPurity failed for', itemCode, e.message);
+    _itemGoldPurityCache[itemCode] = 0;
+    return 0;
+  }
+}
+
+// Fetched directly per item_code (cached) rather than trusting SE_ITEMS — that cache is
+// loaded once with limit_page_length=1000, so an item past that cap would silently come back
+// with no group and get skipped from the ledger with no error shown anywhere.
+const _itemGroupCache = {};
+async function getItemGroup(itemCode){
+  if(!itemCode) return '';
+  if(_itemGroupCache[itemCode] !== undefined) return _itemGroupCache[itemCode];
+  try{
+    const res = await dev1Get(`/api/resource/Item/${encodeURIComponent(itemCode)}`);
+    const doc = res.data || res.message || {};
+    const grp = doc.item_group || '';
+    _itemGroupCache[itemCode] = grp;
+    return grp;
+  }catch(e){
+    console.warn('getItemGroup failed for', itemCode, e.message);
+    _itemGroupCache[itemCode] = '';
+    return '';
+  }
+}
+
+async function getLastJobWorkLedgerBalance(supplier, rmType){
+  try{
+    const headers = getDevHeaders(); if(!headers) return 0;
+    const fields  = encodeURIComponent(JSON.stringify(['balance']));
+    const filters = encodeURIComponent(JSON.stringify([['supplier','=',supplier],['raw_material_type','=',rmType]]));
+    const res = await fetch(
+      `${cdGetInstanceUrl()}/api/resource/Job%20Work%20Ledger%20Entry?fields=${fields}&filters=${filters}&order_by=creation%20desc&limit_page_length=1`,
+      { headers }
+    );
+    if(!res.ok) return 0;
+    const d = await res.json();
+    const rows = d?.data || d?.message || [];
+    return parseFloat(rows[0]?.balance) || 0;
+  }catch(e){ return 0; }
+}
+
+// purpose: 'Send to Subcontractor' posts a Debit (balance goes up — more raw material now
+// out with the supplier); 'Subcontracting Return' posts a Credit (balance goes down).
+// Best-effort — a failure here is logged but never blocks the already-submitted entry.
+async function postJobWorkLedgerRows(seName, purpose){
+  const isDebit = purpose === 'Send to Subcontractor';
+  const supplier = getCurrentJobWorkSupplierName();
+  if(!supplier) return;
+
+  const byItem = {}; // item_code -> { qty, uom }
+  document.querySelectorAll('#itemsTbody tr').forEach(tr=>{
+    const code = tr.querySelector('[data-f="code"]')?.value?.trim();
+    const qty  = parseFloat(tr.querySelector('[data-f="qty"]')?.value||0) || 0;
+    if(!code || qty<=0) return;
+    const uom = tr.querySelector('[data-f="uom"]')?.value?.trim() || 'Nos';
+    if(!byItem[code]) byItem[code] = { qty:0, uom };
+    byItem[code].qty += qty;
+  });
+  const itemCodes = Object.keys(byItem);
+  if(!itemCodes.length) return;
+
+  const company = COMPANY;
+  const postingDate = document.getElementById('postingDate')?.value || '';
+
+  for(const itemCode of itemCodes){
+    const { qty, uom } = byItem[itemCode];
+    const itemGroup = await getItemGroup(itemCode);
+    const rmType = classifyRawMaterialType(itemGroup);
+    if(!rmType) continue;
+
+    let pureQty = 0;
+    if(rmType === 'Metal'){
+      const purity = await getItemGoldPurity(itemCode);
+      pureQty = purity>0 ? qty*(purity/100) : 0;
+    }
+    const delta = rmType==='Metal' ? pureQty : qty;
+
+    try{
+      const lastBalance = await getLastJobWorkLedgerBalance(supplier, rmType);
+      await dev1Post('/api/resource/Job Work Ledger Entry', {
+        datetime: jobWorkLedgerDatetimeNow(),
+        posting_date: postingDate,
+        company,
+        supplier,
+        raw_material_type: rmType,
+        item_code: itemCode,
+        uom,
+        qty_dr: isDebit ? qty : 0,
+        qty_cr: isDebit ? 0 : qty,
+        pure_qty_dr: isDebit ? pureQty : 0,
+        pure_qty_cr: isDebit ? 0 : pureQty,
+        voucher_type: 'Stock Entry',
+        voucher_name: seName,
+        balance: isDebit ? (lastBalance + delta) : (lastBalance - delta),
+        is_cancel: 0,
+      });
+    }catch(e){
+      console.error('Job Work Ledger post failed for', itemCode, ':', e.message);
+      showToast(`Job Work Ledger (${itemCode}) failed — check console`, 'error', 6000);
+    }
+  }
+}
+
+// Reverses every Job Work Ledger Entry this Stock Entry posted, on cancellation — never
+// edits/deletes the original rows, same append-only convention as Purity Ledger Entry.
+async function reverseJobWorkLedgerEntries(seName){
+  const headers = getDevHeaders(); if(!headers) return;
+  const fields  = encodeURIComponent(JSON.stringify(['supplier','raw_material_type','item_code','uom','qty_dr','qty_cr','pure_qty_dr','pure_qty_cr']));
+  const filters = encodeURIComponent(JSON.stringify([
+    ['voucher_type','=','Stock Entry'], ['voucher_name','=',seName], ['is_cancel','=',0]
+  ]));
+  const res = await fetch(
+    `${cdGetInstanceUrl()}/api/resource/Job%20Work%20Ledger%20Entry?fields=${fields}&filters=${filters}&limit_page_length=200`,
+    { headers }
+  );
+  if(!res.ok) return;
+  const d = await res.json();
+  const rows = d?.data || d?.message || [];
+  if(!rows.length) return;
+
+  const company = COMPANY;
+  const todayDate = new Date().toISOString().slice(0,10);
+  for(const r of rows){
+    const wasDebit = (parseFloat(r.qty_dr)||0) > 0 || (parseFloat(r.pure_qty_dr)||0) > 0;
+    const qty = wasDebit ? (parseFloat(r.qty_dr)||0) : (parseFloat(r.qty_cr)||0);
+    const pureQty = wasDebit ? (parseFloat(r.pure_qty_dr)||0) : (parseFloat(r.pure_qty_cr)||0);
+    const delta = r.raw_material_type==='Metal' ? pureQty : qty;
+    if(delta===0) continue;
+    try{
+      const lastBalance = await getLastJobWorkLedgerBalance(r.supplier, r.raw_material_type);
+      await dev1Post('/api/resource/Job Work Ledger Entry', {
+        datetime: jobWorkLedgerDatetimeNow(),
+        posting_date: todayDate,
+        company,
+        supplier: r.supplier,
+        raw_material_type: r.raw_material_type,
+        item_code: r.item_code,
+        uom: r.uom,
+        qty_dr: wasDebit ? 0 : qty,
+        qty_cr: wasDebit ? qty : 0,
+        pure_qty_dr: wasDebit ? 0 : pureQty,
+        pure_qty_cr: wasDebit ? pureQty : 0,
+        voucher_type: 'Stock Entry',
+        voucher_name: seName,
+        balance: wasDebit ? (lastBalance - delta) : (lastBalance + delta),
+        is_cancel: 1,
+      });
+    }catch(e){
+      console.error('Job Work Ledger reversal failed for', r.item_code, ':', e.message);
+      showToast(`Job Work Ledger reversal (${r.item_code}) failed — check console`, 'error', 6000);
+    }
+  }
+}
+
+// ══════════════════════════════════════════
 //  SUBMIT / CANCEL
 // ══════════════════════════════════════════
 async function submitSE(){
@@ -2137,6 +2593,11 @@ async function submitSE(){
     showToast('Submitting…','info');
     await dev1Put(`/api/resource/Stock Entry/${encodeURIComponent(currentSEName)}`, {docstatus:1});
     submitted = true;
+    const purpose = document.getElementById('purposeDisplay')?.value || '';
+    if(JOB_WORK_LEDGER_PURPOSES.includes(purpose)){
+      try{ await postJobWorkLedgerRows(currentSEName, purpose); }
+      catch(e){ console.error('postJobWorkLedgerRows failed:', e.message); }
+    }
     updateDocStatus('Submitted', currentSEName);
     setDocReadOnly(true);
     showAmendBtn();
@@ -2151,6 +2612,11 @@ async function cancelDoc(){
     showToast('Cancelling…','info');
     await dev1Put(`/api/resource/Stock Entry/${encodeURIComponent(currentSEName)}`, {docstatus:2});
     submitted = false;
+    const purpose = document.getElementById('purposeDisplay')?.value || '';
+    if(JOB_WORK_LEDGER_PURPOSES.includes(purpose)){
+      try{ await reverseJobWorkLedgerEntries(currentSEName); }
+      catch(e){ console.error('reverseJobWorkLedgerEntries failed:', e.message); }
+    }
     updateDocStatus('Cancelled', currentSEName);
     setDocReadOnly(true);
     hideMainActionBtn();
@@ -2254,6 +2720,11 @@ async function loadExistingSE(name){
       });
     });
     recalc();
+
+    document.getElementById('refItemsTbody').innerHTML=''; refRowCount=0;
+    (doc.custom_reference_item||[]).forEach(it=>{
+      addRefRow({ item_code: it.item_code, item_name: it.item_name||it.item_code, item_category: it.item_category||'' });
+    });
 
     const createReceiveBtn = document.getElementById('cdCreateReceiveBtn');
     if(createReceiveBtn) createReceiveBtn.style.display = (submitted && doc.stock_entry_type==='Send to Subcontractor') ? '' : 'none';

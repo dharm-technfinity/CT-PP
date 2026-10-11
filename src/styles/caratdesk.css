@@ -197,6 +197,15 @@ body {
   font-weight: 600;
 }
 
+.cd-chip svg {
+  width: 13px;
+  height: 13px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  flex-shrink: 0;
+}
+
 .cd-pos-body {
   flex: 1;
   display: grid;
@@ -822,8 +831,9 @@ body {
 .cd-dlg-result-top { display: flex; align-items: center; gap: 12px; }
 .cd-dlg-result-row { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr auto; gap: 10px; align-items: end; }
 .cd-dlg-result-row .cd-label { color: var(--pill-green-txt); opacity: 0.85; }
+.cd-dlg-result-row.five { grid-template-columns: repeat(5, 1fr) auto; }
 @media (max-width: 640px) {
-  .cd-dlg-result-row { grid-template-columns: 1fr 1fr; }
+  .cd-dlg-result-row, .cd-dlg-result-row.five { grid-template-columns: 1fr 1fr; }
   .cd-dlg-result-row button { grid-column: span 2; justify-content: center; }
 }
 
@@ -925,6 +935,77 @@ body {
 
 .cd-settled-scheme-remove:hover {
   background: rgba(0, 0, 0, 0.22);
+}
+
+.cd-settled-scheme-type {
+  font-weight: 600;
+  opacity: 0.8;
+}
+
+/* Gold Purchase chips open the Purchase Invoice details dialog */
+.cd-settled-scheme-open {
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: underline dotted;
+  text-underline-offset: 2px;
+}
+
+.cd-gold-details-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.cd-gold-details-grid div {
+  background: var(--bg);
+  border: 0.5px solid var(--border);
+  border-radius: 9px;
+  padding: 8px 12px;
+  min-width: 0;
+}
+
+.cd-gold-details-grid span {
+  display: block;
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+
+.cd-gold-details-grid strong {
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.cd-gold-pending-list {
+  border: 0.5px solid var(--border);
+  border-radius: 9px;
+  overflow: hidden;
+}
+
+.cd-gold-pending-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-bottom: 0.5px solid var(--border);
+}
+
+.cd-gold-pending-row:last-child {
+  border-bottom: none;
+}
+
+.cd-gold-pending-row .cd-scheme-text {
+  flex: 1;
+  min-width: 0;
 }
 
 .cd-summary-bar {
@@ -1101,6 +1182,11 @@ body {
   width: 780px;
 }
 
+/* Gold Purchase Voucher + its Purchase Invoice details — wider for the weight/diamond columns */
+.cd-idialog.operations-dialog.gold-dialog {
+  width: 1100px;
+}
+
 .cd-idialog.shift-dialog {
   width: 800px;
 }
@@ -1208,14 +1294,14 @@ body {
 
 .cd-sales-team-row {
   display: grid;
-  grid-template-columns: 24px 500px 200px 150px 28px;
+  grid-template-columns: 24px minmax(0, 1fr) 200px 140px 28px;
   gap: 12px;
   align-items: center;
   margin-bottom: 8px;
 }
 
 .cd-sales-team-row.no-amount {
-  grid-template-columns: 24px 500px 200px 28px;
+  grid-template-columns: 24px minmax(0, 1fr) 200px 28px;
 }
 
 .cd-sales-team-head span {
@@ -1337,7 +1423,7 @@ body {
   color: var(--pill-red-txt);
 }
 
-/* Jewellery Scheme multi-select checklist (OperationsModal) — a matured scheme per row, tick
+/* Jewellery Scheme multi-select checklist (SettlementForm) — a matured scheme per row, tick
    to redeem several onto one bill in a single dialog visit instead of reopening it per scheme. */
 .cd-scheme-list {
   border: 0.5px solid var(--border-strong);
@@ -1394,7 +1480,7 @@ body {
   white-space: nowrap;
 }
 
-/* Gold Purchase dialog (OperationsModal) — a single "+ Add Item" button opens the item picker
+/* Gold Purchase settlement form (SettlementForm) — a single "+ Add Item" button opens the item picker
    (ItemVariantPicker), which collects Qty/Rate/Amount/UOM itself; this just holds the staged
    items table underneath, same shape as Purchase Receipt's own Make BOM dialog. */
 .cd-gold-split {
@@ -1412,6 +1498,9 @@ body {
 
 .cd-gold-right {
   min-width: 0;
+  /* Cells never wrap — on a screen too narrow for every column, the table scrolls sideways
+     instead of squeezing values into each other. */
+  overflow-x: auto;
 }
 
 .cd-gold-table {
@@ -1430,27 +1519,26 @@ body {
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  padding: 8px 10px;
+  padding: 8px 12px;
   background: var(--nav-hover);
   border-bottom: 0.5px solid var(--border);
+  white-space: nowrap;
 }
 
 .cd-gold-table td {
-  padding: 8px 10px;
+  padding: 8px 12px;
   border-bottom: 0.5px solid var(--border);
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 .cd-gold-table tbody tr:last-child td {
   border-bottom: none;
 }
 
-.cd-gold-table th:nth-child(3),
-.cd-gold-table th:nth-child(4),
-.cd-gold-table th:nth-child(5),
-.cd-gold-table td:nth-child(3),
-.cd-gold-table td:nth-child(4),
-.cd-gold-table td:nth-child(5) {
+/* Gross Wt, Net Wt, Diamond Value, Rate, Amount — numbers line up on the right */
+.cd-gold-table th:nth-child(n+2):nth-child(-n+6),
+.cd-gold-table td:nth-child(n+2):nth-child(-n+6) {
   text-align: right;
 }
 
@@ -1678,3 +1766,57 @@ body {
 .cd-payment-launch * { font-size: clamp(14px, 1.85vh, 18px) !important; }
 .cd-day-summary, .cd-day-summary * { font-size: clamp(12.5px, 1.5vh, 15.5px) !important; }
 .cd-pos-footer .cd-btn, .cd-pos-footer .cd-btn * { font-size: clamp(14.5px, 1.9vh, 18px) !important; padding: clamp(7px, 1.1vh, 11px) 16px !important; }
+
+/* POS bill of only batch (raw material) lines — short Item/Qty/Pcs/Rate/Weight/Amount layout */
+.cd-pos-table.cd-pos-table-batch {
+  min-width: 1010px;
+}
+
+.cd-pos-table-batch td {
+  vertical-align: top;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+/* Batch Qty / Pcs / Rate inputs read like the plain Weight figure — no box; a faint underline
+   shows only on hover/focus so they're still findable as editable */
+.cd-pos-table .cd-input.cd-pos-batch-input {
+  width: 100%;
+  max-width: 110px;
+  border: 0;
+  border-bottom: 1px dashed transparent;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  padding: 0 !important;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.cd-pos-table .cd-input.cd-pos-batch-input:hover:not(:disabled),
+.cd-pos-table .cd-input.cd-pos-batch-input:focus {
+  border-bottom-color: var(--text-secondary);
+  background: transparent;
+  box-shadow: none;
+}
+
+.cd-pos-table .cd-input.cd-pos-batch-input::-webkit-outer-spin-button,
+.cd-pos-table .cd-input.cd-pos-batch-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Settlement dialog (SettlementDialog.jsx) — one row per settlement, like the Pay dialog's payment modes */
+.cd-idialog.settlement-dialog { width:1100px; }
+.cd-settlement-amount { display:inline-flex; align-items:center; gap:6px; }
+.cd-settlement-row-head { display:grid; grid-template-columns:1fr auto; gap:8px; align-items:center; margin-bottom:12px; }
+.cd-settlement-form-actions { display:flex; align-items:center; justify-content:flex-end; gap:10px; margin-top:12px; }
+.cd-settlement-form-actions .cd-remaining { margin:0 auto 0 0; }
+.settlement-dialog .cd-payment-status-grid { grid-template-columns:repeat(2,1fr); }
+.cd-created-record { font-size:18px; font-weight:600; font-variant-numeric:tabular-nums; margin:6px 0; user-select:all; }
+.cd-settlement-amount-input { width:130px; flex-shrink:0; text-align:right; }
+.cd-settlement-of { font-size:11px; color:var(--text-muted); }

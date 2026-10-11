@@ -252,10 +252,6 @@
                 </div>
             </div>
             <div class="cd-topbar-right">
-                <div class="cd-chip" style="margin-bottom:0">
-                  <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                  Current Gold Rate: <strong style="margin-left:4px">₹7,240 / g (22K)</strong>&nbsp;·&nbsp;Silver: <strong>₹85 / g</strong>&nbsp;·&nbsp;Updated today 9:00 AM
-                </div>
                 <div class="cd-icon-btn" id="cdThemeToggle"><svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div>
             </div>
         </div>
@@ -848,6 +844,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<script src="/caratdesk-metal-rates.js"></script>
 
 <script>
 // ══════════════════════════════════════════
@@ -1073,7 +1070,7 @@ async function pubGet(script, params = {}) {
 
 // ERPNext rejects the invoice if Due Date is before either Posting Date or Supplier Invoice
 // Date (bill_date) — this commonly happens when backdating Supplier Invoice Date to match an
-// old-gold vendor bill without also pushing Due Date back. Keep Due Date pinned to the later of
+// older vendor bill without also pushing Due Date back. Keep Due Date pinned to the later of
 // the two whenever either changes, mirroring how Frappe desk itself keeps due_date in sync.
 function syncDueDate(){
     const postingVal = document.getElementById('postingDate').value;
@@ -2348,27 +2345,15 @@ function showToast(msg, type='info'){
 
 // ── Metal Rates ──
 let METAL_RATES = {};
+let METAL_RATE_INFO = {}; // { Gold: { touch, rate, label, date } } — row shown in the topbar chip
+// Rates panel + generic metal rate — shared rule in /caratdesk-metal-rates.js (highest touch per
+// metal, latest date within it).
 async function loadMetalRates(){
+    cdMountRatePanel(); // right-edge "Metal Rate" tab + panel
     try{
-        const h = {'Authorization': getDevHeaders().Authorization, 'Accept':'application/json'};
-        const fields  = encodeURIComponent(JSON.stringify(['metal_type','rate','date']));
-        const filters = encodeURIComponent(JSON.stringify([['Metal Price List','metal_type','in',['Gold','Silver','Platinum']]]));
-        const res = await fetch(`${cdGetInstanceUrl()}/api/resource/Metal%20Price%20List?fields=${fields}&filters=${filters}&order_by=date%20desc&limit_page_length=50`,{headers:h});
-        if(!res.ok) return;
-        const d = await res.json();
-        (d?.data||d?.message||[]).forEach(row=>{
-            if(row.metal_type && row.rate && !METAL_RATES[row.metal_type])
-                METAL_RATES[row.metal_type] = parseFloat(row.rate)||0;
-        });
-        updateGoldRateChip();
+        METAL_RATE_INFO = await cdLoadMetalRates();
+        Object.entries(METAL_RATE_INFO).forEach(([metal, b]) => { METAL_RATES[metal] = b.rate; });
     }catch(e){ console.warn('loadMetalRates error:', e.message); }
-}
-function updateGoldRateChip(){
-    const strongs = document.querySelectorAll('.cd-chip strong');
-    const goldRate   = METAL_RATES['Gold']   || 0;
-    const silverRate = METAL_RATES['Silver'] || 0;
-    if(strongs[0] && goldRate)   strongs[0].textContent = '₹'+goldRate.toLocaleString('en-IN')+' / g (24K)';
-    if(strongs[1] && silverRate) strongs[1].textContent = '₹'+silverRate.toLocaleString('en-IN')+' / g';
 }
 
 function numberToWords(n) {

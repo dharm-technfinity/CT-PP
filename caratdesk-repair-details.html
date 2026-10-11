@@ -266,6 +266,7 @@
   </div>
 </div>
 
+<script src="/caratdesk-metal-rates.js"></script>
 <script>
 // ══ INSTANCE HELPERS ══
 const DEV1 = 'https://ppj-dev1.m.frappe.cloud';
@@ -1629,7 +1630,7 @@ function renderRepDetailBody(doc, status){
             <th style="width:110px">HUID</th>
             <th style="width:110px">Template Type</th>
             <th style="width:90px">Gold Colour</th>
-            <th style="width:90px">Tounch</th>
+            <th style="width:90px">Tunch</th>
             <th style="width:90px">Diamond Type</th>
             <th style="width:90px">Diamond Shape</th>
             <th style="width:90px">Diamond Grade</th>
@@ -1787,7 +1788,7 @@ function renderRepDetailBody(doc, status){
             <th style="width:110px">HUID</th>
             <th style="width:110px">Template Type</th>
             <th style="width:90px">Gold Colour</th>
-            <th style="width:90px">Tounch</th>
+            <th style="width:90px">Tunch</th>
             <th style="width:90px">Diamond Type</th>
             <th style="width:90px">Diamond Shape</th>
             <th style="width:90px">Diamond Grade</th>
@@ -1847,7 +1848,7 @@ function renderRepDetailBody(doc, status){
             <th style="width:110px">HUID</th>
             <th style="width:110px">Template Type</th>
             <th style="width:90px">Gold Colour</th>
-            <th style="width:90px">Tounch</th>
+            <th style="width:90px">Tunch</th>
             <th style="width:90px">Diamond Type</th>
             <th style="width:90px">Diamond Shape</th>
             <th style="width:90px">Diamond Grade</th>
@@ -2121,14 +2122,10 @@ function detectRepairMetalType(itemCode){
   if(s.includes('platinum')) return 'Platinum';
   return 'Gold';
 }
+// General rate for a metal type — shared rule in /caratdesk-metal-rates.js (highest touch,
+// latest date within it).
 async function getTodayMetalRateRepair(metalType){
-  try{
-    const fields=encodeURIComponent(JSON.stringify(['rate']));
-    const filters=encodeURIComponent(JSON.stringify([['metal_type','=',metalType]]));
-    const res=await dev1Get('/api/resource/Metal%20Price%20List?fields='+fields+'&filters='+filters+'&order_by=date%20desc&limit_page_length=1');
-    const rows=res.data||res.message||[];
-    return parseFloat(rows[0]?.rate)||0;
-  }catch(e){ return 0; }
+  return cdGetMetalRate(metalType);
 }
 async function getLastPurityLedgerBalanceRepair(metalType){
   try{

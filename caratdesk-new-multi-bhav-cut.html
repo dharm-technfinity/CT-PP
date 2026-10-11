@@ -234,10 +234,6 @@
         </div>
       </div>
       <div class="cd-topbar-right">
-        <div class="cd-chip" style="margin-bottom:0">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-          Current Gold Rate: <strong>-</strong> / g &nbsp;Silver: <strong>-</strong> / g
-        </div>
         <div class="cd-icon-btn" id="cdThemeToggle"><svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div>
       </div>
     </div>
@@ -526,6 +522,7 @@
   </div>
 </div>
 
+<script src="/caratdesk-metal-rates.js"></script>
 <script>
 // ══════════════════════════════════════════
 //  CONFIG
@@ -657,29 +654,14 @@ async function loadBhavMetalItems(){
   }catch(e){ console.warn('loadBhavMetalItems error:', e.message); }
 }
 
+// Rates panel + generic metal rate — shared rule in /caratdesk-metal-rates.js (highest touch per
+// metal, latest date within it).
 async function loadMetalRates(){
+  cdMountRatePanel(); // right-edge "Metal Rate" tab + panel
   try{
-    const headers = getDevHeaders();
-    if(!headers) return;
-    const fields = encodeURIComponent(JSON.stringify(['metal_type','rate','date']));
-    const filters = encodeURIComponent(JSON.stringify([['Metal Price List','metal_type','in',['Gold','Silver','Platinum']]]));
-    const res = await fetch(`${cdGetInstanceUrl()}/api/resource/Metal%20Price%20List?fields=${fields}&filters=${filters}&order_by=date%20desc&limit_page_length=50`, { headers });
-    if(!res.ok) return;
-    const d = await res.json();
-    const rows = d?.data || d?.message || [];
-    rows.forEach(row => {
-      if(row.metal_type && row.rate && !METAL_RATES[row.metal_type]) METAL_RATES[row.metal_type] = parseFloat(row.rate) || 0;
-    });
-    updateGoldRateChip();
+    const rates = await cdLoadMetalRates();
+    Object.entries(rates).forEach(([metal, b]) => { METAL_RATES[metal] = b.rate; });
   }catch(e){ console.warn('loadMetalRates error:', e.message); }
-}
-
-function updateGoldRateChip(){
-  const strongs = document.querySelectorAll('.cd-chip strong');
-  const goldRate = METAL_RATES['Gold'] || 0;
-  const silverRate = METAL_RATES['Silver'] || 0;
-  if(strongs[0] && goldRate) strongs[0].textContent = goldRate.toLocaleString('en-IN');
-  if(strongs[1] && silverRate) strongs[1].textContent = silverRate.toLocaleString('en-IN');
 }
 
 // ══════════════════════════════════════════

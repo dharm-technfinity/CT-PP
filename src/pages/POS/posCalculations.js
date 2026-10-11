@@ -1,4 +1,4 @@
-import { round2 } from '../../lib/format.js';
+import { fmtWeight, round2 } from '../../lib/format.js';
 
 // Splits 100% evenly across however many Sales Team rows exist, last row absorbing the
 // rounding remainder so the total always reads exactly 100 rather than e.g. 33.3×3 = 99.9.
@@ -42,18 +42,37 @@ export function applyComponentDiscounts(raw, discounts = []) {
   return { raw, discount: clamped, net: round2(raw - clamped) };
 }
 
+// Why a batch line can't be billed as it stands, or '' when it can.
+export function batchLineError(line) {
+  if (!line.is_batch) return '';
+  const qty = parseFloat(line.qty || 0) || 0;
+  const available = parseFloat(line.batch_available_qty || 0) || 0;
+  const unit = line.batch_uom_label || line.uom || '';
+  if (!(qty > 0)) return 'Enter the Qty sold';
+  if (qty > available + 1e-9) return `Only ${fmtWeight(available)} ${unit} left in batch`;
+  const pcs = parseInt(line.pcs || 0, 10) || 0;
+  const availablePcs = parseInt(line.batch_available_pcs || 0, 10) || 0;
+  if (pcs < 0) return 'Pcs can\'t be negative';
+  if (pcs > availablePcs) return `Only ${availablePcs} pcs left in batch`;
+  return '';
+}
+
 export function calcLineBreakup(line, goldRate) {
   const netWt = parseFloat(line.net_wt || 0);
-  const currentMetalRate = parseFloat(line.current_metal_rate || 0) || goldRate;
+  // A batch line's metal rate comes only from its own Metal Price List lookup (or what the
+  // cashier types) — never the Gold ticker, which would misprice a Silver/Platinum batch.
+  const currentMetalRate = parseFloat(line.current_metal_rate || 0) || (line.is_batch ? 0 : goldRate);
   const purity = purityFraction(line.tounch);
   const pureWt = parseFloat(line.pure_wt || 0) || round2(netWt * (purity || 1));
   // Every metal rate now comes from Metal Price List keyed by the item's own touch (e.g. the
   // 22KT row) — it's already purity-specific, so Metal Value is a plain Net Wt × Rate with no
   // separate purity scaling on top.
   const metalValueRaw = parseFloat(line.metal_value || 0) || round2(netWt * currentMetalRate);
-  // Margin (Serial No's sell-rate markup) is folded into Making Charges — treated as the
-  // same component rather than shown/discounted as its own line item.
-  const makingRaw = parseFloat(line.making_charges || 0) + parseFloat(line.margin || 0);
+  // Margin (Serial No's sell-rate markup) = today's Metal Value x sell rate %, folded into
+  // Making Charges — treated as the same component rather than shown/discounted on its own.
+  const sellRatePercent = parseFloat(line.sell_rate_percent || 0) || 0;
+  const margin = round2((metalValueRaw * sellRatePercent) / 100);
+  const makingRaw = parseFloat(line.making_charges || 0) + margin;
   const diamondRaw = parseFloat(line.diamond_value || 0);
   const stoneRaw = parseFloat(line.stone_value || 0);
   const diamondWt = parseFloat(line.diamond_wt || 0);
@@ -89,12 +108,14 @@ export function calcLineBreakup(line, goldRate) {
     line.prefer_backend_rate === false
       ? false
       : line.prefer_backend_rate || line.rate_source === 'purchase_receipt';
+  // backendRate is the plain receipt/Item rate with no sell-rate margin in it, so the margin
+  // is added on top whenever that fixed rate is what gets billed.
   const baseRate =
     preferBackendRate && backendRate > 0
-      ? round2(backendRate)
+      ? round2(backendRate + margin)
       : computedRate > 0
         ? computedRate
-        : round2(backendRate);
+        : round2(backendRate + margin);
   const qty = parseFloat(line.qty || 1) || 1;
   const subtotal = round2(baseRate * qty);
   // Item wise Discount is computed against Making + Diamond + Stone + Other only — Metal Value
@@ -265,7 +286,7 @@ export function newCartLine(partial = {}) {
     pure_wt: 0,
     metal_value: 0,
     making_charges: 0,
-    margin: 0,
+    sell_rate_percent: 0,
     diamond_value: 0,
     diamond_wt: 0,
     diamond_uom: '',

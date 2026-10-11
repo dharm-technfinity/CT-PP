@@ -189,6 +189,14 @@
     .cd-serial-section.collapsed .cd-serial-chevron { transform: rotate(-90deg); }
     .cd-serial-section-body { padding: 0 18px 18px; }
     .cd-serial-section.collapsed .cd-serial-section-body { display: none; }
+    .cd-serial-nested { margin-bottom: 10px; border-left: 3px solid var(--border-strong); box-shadow: none; }
+    .cd-serial-nested .cd-serial-section-header { padding: 12px 14px; }
+    .cd-serial-nested .cd-serial-section-body { padding: 0 14px 14px; }
+    .cd-set-piece-row { cursor: pointer; }
+    .cd-set-piece-row:hover td { background: var(--accent-light); }
+    .cd-set-link { color: inherit; font-weight: 500; text-decoration: underline; }
+    @keyframes cdSerialFlash { from { box-shadow: 0 0 0 3px var(--pill-amber-txt); } to { box-shadow: 0 0 0 3px transparent; } }
+    .cd-serial-flash { animation: cdSerialFlash 1.6s ease-out; }
     .cd-serial-images { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
     .cd-serial-image-slot { width: 72px; text-align: center; }
     .cd-serial-image-slot img { width: 72px; height: 72px; object-fit: cover; border-radius: 8px; border: 0.5px solid var(--border); cursor: zoom-in; display: block; background: var(--accent-light); }
@@ -587,9 +595,26 @@ document.getElementById('cdLogoutBtn').addEventListener('click',async()=>{
         const h=cdGetInstanceHeaders();
         if(!h) throw new Error('No auth');
         const res=await fetch(cdGetInstanceUrl()+path,{headers:h});
-        if(!res.ok) throw new Error('HTTP '+res.status);
+        if(!res.ok){
+          const err=new Error('HTTP '+res.status);
+          err.status=res.status;
+          try{
+            const d=await res.json();
+            err.excType=d?.exc_type||'';
+            // Frappe puts the user-facing text ("No permission for Purchase Receipt") in
+            // _server_messages — a JSON array of JSON-encoded {message} objects.
+            if(d?._server_messages){
+              err.serverMsg=JSON.parse(d._server_messages).map(m=>{ try{ return JSON.parse(m).message; }catch(e){ return m; } })
+                .join(' ').replace(/<[^>]*>/g,'').trim();
+            }
+          }catch(e){ /* non-JSON body */ }
+          throw err;
+        }
         return res.json();
       }
+      function isPermissionError(e){ return e?.status===403 || e?.excType==='PermissionError'; }
+      // Same wording ERPNext uses when a list/read is denied.
+      function permissionMsg(e, doctype){ return e?.serverMsg || `You do not have permission to access ${doctype}. Please contact your manager to get access.`; }
       async function dev1Put(path, body){
         const h=cdGetInstanceHeaders();
         if(!h) throw new Error('No auth');
@@ -794,14 +819,27 @@ document.getElementById('cdLogoutBtn').addEventListener('click',async()=>{
         if(!name){ showToast('Enter a serial number', 'error'); return; }
         document.getElementById('tagNotFoundAlert').style.display='none';
 
-        if(TAG_ROWS.some(r=>r.serial.toLowerCase()===name.toLowerCase())){
+        const same=s=>s.toLowerCase()===name.toLowerCase();
+        if(TAG_ROWS.some(r=>same(r.serial))){
           showToast('Already scanned: '+name, 'info');
           input.value=''; input.focus();
+          focusSerialSection(TAG_ROWS.find(r=>same(r.serial)).serial);
+          return;
+        }
+        const owner=TAG_ROWS.find(r=>r.children.some(c=>same(c.serial)));
+        if(owner){
+          const piece=owner.children.find(c=>same(c.serial));
+          showToast(`${piece.serial} is already shown under set ${owner.serial}`, 'info');
+          input.value=''; input.focus();
+          focusSerialSection(piece.serial, owner.serial);
           return;
         }
 
         try{
           const entry=await fetchTagEntry(name);
+          // A set absorbs any of its pieces that were scanned on their own earlier.
+          const pieceSerials=new Set(entry.children.map(c=>c.serial));
+          TAG_ROWS=TAG_ROWS.filter(r=>!pieceSerials.has(r.serial));
           TAG_ROWS.push(entry);
           input.value=''; input.focus();
           renderTagAll();
@@ -822,7 +860,9 @@ document.getElementById('cdLogoutBtn').addEventListener('click',async()=>{
         renderTagAll();
       }
 
-      async function fetchTagEntry(name){
+      // nested=true when loading a set's piece — pieces never have pieces of their own, so the
+      // child lookup is skipped.
+      async function fetchTagEntry(name, nested=false){
         const res=await dev1Get('/api/resource/Serial No/'+encodeURIComponent(name));
         const doc=res.data||res.message||res;
         let itemName=doc.item_code||'—';
@@ -845,9 +885,104 @@ document.getElementById('cdLogoutBtn').addEventListener('click',async()=>{
           materialRows: [],
           totals: { metal_wt:0, metal_amount:0, diamond_wt:0, diamond_amount:0, stone_wt:0, stone_amount:0,
                      other_wt:0, other_amount:0, gross_wt:0, net_wt:0, making_charges:0, total:0 },
+          purchase: { pr:'', pi:'', supplier:'', supplierName:'', permErrors:[] },
+          parentSerial: doc.custom_parent_serial_no||'',
+          children: [], childErrors: [],
         };
-        if(entry.hasBom) await loadBomIntoEntry(entry);
+        await Promise.all([
+          entry.hasBom ? loadBomIntoEntry(entry) : null,
+          loadPurchaseIntoEntry(entry, entry.parentSerial),
+          nested ? null : loadSetChildrenIntoEntry(entry),
+        ]);
+        if(entry.children.length) sumSetTotals(entry);
         return entry;
+      }
+
+      // Set items: the set's Serial No is a ₹0 grouping tag and each piece's Serial No points back
+      // to it via custom_parent_serial_no (written on PR submit — see caratdesk-new-purchase-receipt.html).
+      // Scanning the set pulls every piece in with it. The pieces carry the value, so the set's
+      // totals are the sum of its pieces — excluding any already sold on their own (Delivered),
+      // which is what "broken set" means.
+      async function loadSetChildrenIntoEntry(entry){
+        let names=[];
+        try{
+          const res=await dev1Get('/api/resource/Serial No?fields='+encodeURIComponent(JSON.stringify(['name']))
+            +'&filters='+encodeURIComponent(JSON.stringify([['custom_parent_serial_no','=',entry.serial]]))
+            +'&order_by=name%20asc&limit_page_length=0');
+          names=(res.data||[]).map(r=>r.name);
+        }catch(e){
+          // Not known to be a set yet, so report it with the serial's other permission errors.
+          if(isPermissionError(e)) entry.purchase.permErrors.push(permissionMsg(e, 'Serial No'));
+          else console.warn('Set pieces lookup failed:', e.message);
+          return;
+        }
+        if(!names.length) return;
+
+        const results=await Promise.allSettled(names.map(n=>fetchTagEntry(n, true)));
+        results.forEach((r,i)=>{
+          if(r.status==='fulfilled') entry.children.push(r.value);
+          else entry.childErrors.push(isPermissionError(r.reason) ? permissionMsg(r.reason, 'Serial No')+` (${names[i]})` : `Could not load piece ${names[i]}.`);
+        });
+        entry.childErrors=[...new Set(entry.childErrors)];
+      }
+      // Runs after the set's own BOM load, which it overrides — the set tag itself is ₹0.
+      function sumSetTotals(entry){
+        const t=entry.totals;
+        Object.keys(t).forEach(k=>{ t[k]=0; });
+        entry.children.filter(c=>c.status!=='Delivered').forEach(c=>{
+          Object.keys(t).forEach(k=>{ t[k]+=c.totals[k]||0; });
+        });
+      }
+      function isSetEntry(r){ return r.children.length>0 || r.childErrors.length>0; }
+
+      // PR / PI / Supplier for a serial. ERPNext v15 doesn't keep the purchase document on the
+      // Serial No itself — the link is the inward Serial and Batch Bundle whose entries hold the
+      // serial (same bundle caratdesk-new-purchase-receipt.html reads). A PR's invoice is found via
+      // Purchase Invoice Item.purchase_receipt; a PI with Update Stock is its own inward voucher.
+      // Permission denials are collected (not swallowed) so the section can show them.
+      async function loadPurchaseIntoEntry(entry, parentSerial){
+        const p=entry.purchase;
+        const q=(doctype, fields, filters)=>dev1Get(`/api/resource/${encodeURIComponent(doctype)}?fields=${encodeURIComponent(JSON.stringify(fields))}&filters=${encodeURIComponent(JSON.stringify(filters))}&limit_page_length=1`);
+        const guard=async(doctype, fn)=>{
+          try{ return await fn(); }
+          catch(e){
+            if(isPermissionError(e)) p.permErrors.push(permissionMsg(e, doctype));
+            else console.warn(doctype+' lookup failed:', e.message);
+            return null;
+          }
+        };
+        const findVoucher=serial=>guard('Serial and Batch Bundle', async()=>{
+          const res=await q('Serial and Batch Bundle', ['voucher_type','voucher_no'], [
+            ['Serial and Batch Entry','serial_no','=',serial],
+            ['type_of_transaction','=','Inward'],
+            ['voucher_type','in',['Purchase Receipt','Purchase Invoice']],
+            ['docstatus','=',1],
+          ]);
+          return (res.data||[])[0]||null;
+        });
+
+        let v=await findVoucher(entry.serial);
+        // Set pieces are normally received on their own PR row; fall back to the set's serial just in case.
+        if(!v && parentSerial && !p.permErrors.length) v=await findVoucher(parentSerial);
+        if(!v) return;
+
+        if(v.voucher_type==='Purchase Receipt') p.pr=v.voucher_no; else p.pi=v.voucher_no;
+        await Promise.all([
+          guard(v.voucher_type, async()=>{
+            const res=await dev1Get(`/api/resource/${encodeURIComponent(v.voucher_type)}/${encodeURIComponent(v.voucher_no)}`);
+            const d=res.data||{};
+            p.supplier=d.supplier||''; p.supplierName=d.supplier_name||d.supplier||'';
+          }),
+          p.pr ? guard('Purchase Invoice', async()=>{
+            const res=await q('Purchase Invoice', ['name'], [
+              ['Purchase Invoice Item','purchase_receipt','=',p.pr],
+              ['docstatus','!=',2],
+            ]);
+            p.pi=((res.data||[])[0]||{}).name||'';
+          }) : null,
+        ]);
+        p.permErrors=[...new Set(p.permErrors)];
+        if(p.permErrors.length) showToast(p.permErrors[0], 'error');
       }
 
       async function loadBomIntoEntry(entry){
@@ -911,38 +1046,134 @@ document.getElementById('cdLogoutBtn').addEventListener('click',async()=>{
         listHeader.style.display='';
         document.getElementById('tagChipCount').textContent=TAG_ROWS.length+(TAG_ROWS.length===1?' tag scanned':' tags scanned');
 
-        sectionsEl.innerHTML=TAG_ROWS.map((r,idx)=>renderSerialSection(r,idx)).join('');
+        sectionsEl.innerHTML=TAG_ROWS.map(r=>renderSerialSection(r)).join('');
       }
 
-      function renderSerialSection(r, idx){
-        const dot=r.status==='Active'?'green':r.status==='Delivered'?'blue':r.status==='Expired'?'red':'grey';
-        const secId='tagSec'+idx;
+      function serialSecId(serial){ return 'tagSec_'+String(serial).replace(/[^A-Za-z0-9_-]/g,'_'); }
+      function statusDot(status){ return status==='Active'?'green':status==='Delivered'?'blue':status==='Expired'?'red':'grey'; }
+
+      // Expand (and briefly highlight) a section — and its set's section when it's a nested piece.
+      function focusSerialSection(serial, parentSerial){
+        if(parentSerial) document.getElementById(serialSecId(parentSerial))?.classList.remove('collapsed');
+        const el=document.getElementById(serialSecId(serial));
+        if(!el) return;
+        el.classList.remove('collapsed');
+        el.scrollIntoView({ behavior:'smooth', block:'center' });
+        el.classList.remove('cd-serial-flash'); void el.offsetWidth; el.classList.add('cd-serial-flash');
+      }
+
+      function renderTotalsMetrics(t){
+        return `<div class="cd-metrics-section">
+              <div class="cd-metrics-section-label">Weight Breakdown</div>
+              <div class="cd-metrics-grid">
+                <div class="cd-metric-card"><div class="cd-metric-label">Metal Wt</div><div class="cd-metric-value">${fmtWt(t.metal_wt)}</div><div class="cd-metric-unit">grams</div></div>
+                <div class="cd-metric-card"><div class="cd-metric-label">Diamond Wt</div><div class="cd-metric-value">${fmtWt(t.diamond_wt)}</div><div class="cd-metric-unit">carats</div></div>
+                <div class="cd-metric-card"><div class="cd-metric-label">Stone Wt</div><div class="cd-metric-value">${fmtWt(t.stone_wt)}</div><div class="cd-metric-unit">carats</div></div>
+                <div class="cd-metric-card"><div class="cd-metric-label">Other</div><div class="cd-metric-value">${fmtWt(t.other_wt)}</div><div class="cd-metric-unit">mixed uom</div></div>
+                <div class="cd-metric-card"><div class="cd-metric-label">Gross Wt</div><div class="cd-metric-value">${fmtWt(t.gross_wt)}</div><div class="cd-metric-unit">grams</div></div>
+                <div class="cd-metric-card"><div class="cd-metric-label">Net Wt</div><div class="cd-metric-value">${fmtWt(t.net_wt)}</div><div class="cd-metric-unit">grams</div></div>
+              </div>
+            </div>
+            <div class="cd-metrics-section">
+              <div class="cd-metrics-section-label">Value Breakdown</div>
+              <div class="cd-metrics-grid" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr))">
+                <div class="cd-metric-card"><div class="cd-metric-label">Making Charges</div><div class="cd-metric-value">${fmtCurrency(t.making_charges)}</div><div class="cd-metric-unit">included in total</div></div>
+                <div class="cd-metric-card"><div class="cd-metric-label">Total Value</div><div class="cd-metric-value">${fmtCurrency(t.total)}</div><div class="cd-metric-unit">&nbsp;</div></div>
+              </div>
+            </div>`;
+      }
+
+      function renderAlert(color, lines){
+        const icon=color==='red'
+          ? '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>'
+          : '<path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>';
+        return `<div class="cd-alert ${color}"><svg viewBox="0 0 24 24">${icon}</svg><div class="cd-alert-text">${lines.join('<br>')}</div></div>`;
+      }
+
+      // Set section: set totals (sum of unsold pieces), broken-set note, a one-line-per-piece
+      // summary, then each piece as its own collapsible report nested underneath.
+      function renderSetBody(r){
+        const sold=r.children.filter(c=>c.status==='Delivered');
+        const notes=[];
+        if(sold.length) notes.push(renderAlert('amber', [`Set broken: ${sold.map(c=>esc(c.serial)).join(', ')} sold separately. Totals below cover only the pieces still in the set.`]));
+        if(r.childErrors.length) notes.push(renderAlert('red', r.childErrors.map(esc)));
+
+        const summaryRows=r.children.map((c,i)=>`<tr class="cd-set-piece-row" onclick="focusSerialSection('${esc(c.serial)}','${esc(r.serial)}')">
+          <td>${i+1}</td>
+          <td><div style="font-weight:500">${esc(c.serial)}</div><div class="cd-tx-id">${esc(c.itemName)}</div></td>
+          <td><span class="cd-pill ${statusDot(c.status)}">${esc(c.status)}</span></td>
+          <td>${esc(c.warehouse||'—')}</td>
+          <td style="text-align:right">${fmtWt(c.totals.gross_wt)}</td>
+          <td style="text-align:right">${fmtWt(c.totals.net_wt)}</td>
+          <td style="text-align:right;font-weight:500">${fmtCurrency(c.totals.total)}</td>
+        </tr>`).join('');
+
+        return `${notes.join('')}
+          ${renderTotalsMetrics(r.totals)}
+          <div class="cd-metrics-section-label">Pieces (${r.children.length})</div>
+          <div style="overflow-x:auto;margin-bottom:14px">
+            <table class="cd-tx-table">
+              <thead><tr><th>#</th><th>Piece</th><th>Status</th><th>Warehouse</th>
+                <th style="text-align:right">Gross Wt</th><th style="text-align:right">Net Wt</th><th style="text-align:right">Value</th></tr></thead>
+              <tbody>${summaryRows}</tbody>
+            </table>
+          </div>
+          <div class="cd-set-pieces">${r.children.map(c=>renderSerialSection(c, r)).join('')}</div>`;
+      }
+
+      // parent = the set entry when r is rendered nested inside it.
+      function renderSerialSection(r, parent=null){
+        const dot=statusDot(r.status);
+        const secId=serialSecId(r.serial);
+        const isSet=!parent && isSetEntry(r);
+        const partOfSet=!parent && r.parentSerial
+          ? `<div class="cd-item-header-meta"><span>Part of set <a href="#" class="cd-set-link" onclick="event.preventDefault();event.stopPropagation();doTagSearch('${esc(r.parentSerial)}')">${esc(r.parentSerial)}</a></span></div>`
+          : '';
         const header=`
           <div class="cd-serial-section-header" onclick="toggleSerialSection('${secId}')">
             <div>
-              <div class="cd-item-header-name">${esc(r.itemName)}</div>
+              <div class="cd-item-header-name">${esc(r.itemName)} <span style="color:var(--text-muted);font-weight:400">|</span> <b>${esc(r.serial)}</b></div>
               <div class="cd-item-header-meta">
-                <span>${esc(r.serial)}</span>
                 <span>${esc(r.itemCode)}</span>
                 <span>${esc(r.warehouse||'No warehouse')}</span>
                 <span>BOM: ${esc(r.bomName||'—')}</span>
               </div>
+              <div class="cd-item-header-meta">
+                <span>PR: ${esc(r.purchase.pr||'—')}</span>
+                <span>PI: ${esc(r.purchase.pi||'—')}</span>
+                <span>Supplier: ${esc(r.purchase.supplierName||'—')}</span>
+              </div>
+              ${partOfSet}
             </div>
             <div style="display:flex;align-items:center;gap:10px">
+              ${isSet?`<span class="cd-pill amber">Set · ${r.children.length} pcs</span>`:''}
               <span class="cd-pill ${dot}">${esc(r.status)}</span>
               <button class="cd-add-row" onclick="event.stopPropagation();openSerialImgDialog('${esc(r.serial)}')" title="Upload images for this serial">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                 Images
               </button>
-              <button class="cd-tag-chip-x" onclick="event.stopPropagation();removeTagRow('${esc(r.serial)}')" title="Remove">&times;</button>
+              ${parent?'':`<button class="cd-tag-chip-x" onclick="event.stopPropagation();removeTagRow('${esc(r.serial)}')" title="Remove">&times;</button>`}
               <svg class="cd-serial-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="6 9 12 15 18 9"/></svg>
             </div>
           </div>`;
 
-        const imagesStrip=renderSerialImagesStrip(r);
+        const permAlert=r.purchase.permErrors.length ? renderAlert('red', r.purchase.permErrors.map(esc)) : '';
+        const imagesStrip=permAlert+renderSerialImagesStrip(r);
+        // Pieces start collapsed inside their set so the set summary reads first.
+        const secClass='cd-panel cd-serial-section'+(parent?' cd-serial-nested collapsed':'');
+
+        if(isSet){
+          return `<div class="${secClass}" id="${secId}">
+            ${header}
+            <div class="cd-serial-section-body">
+              ${imagesStrip}
+              ${renderSetBody(r)}
+            </div>
+          </div>`;
+        }
 
         if(!r.hasBom || !r.materialRows.length){
-          return `<div class="cd-panel cd-serial-section" id="${secId}">
+          return `<div class="${secClass}" id="${secId}">
             ${header}
             <div class="cd-serial-section-body">
               ${imagesStrip}
@@ -976,28 +1207,11 @@ document.getElementById('cdLogoutBtn').addEventListener('click',async()=>{
           <td style="text-align:right;font-weight:500">${fmtCurrency(mr.custom_bom_amt||mr.amount)}</td>
         </tr>`).join('');
 
-        return `<div class="cd-panel cd-serial-section" id="${secId}">
+        return `<div class="${secClass}" id="${secId}">
           ${header}
           <div class="cd-serial-section-body">
             ${imagesStrip}
-            <div class="cd-metrics-section">
-              <div class="cd-metrics-section-label">Weight Breakdown</div>
-              <div class="cd-metrics-grid">
-                <div class="cd-metric-card"><div class="cd-metric-label">Metal Wt</div><div class="cd-metric-value">${fmtWt(t.metal_wt)}</div><div class="cd-metric-unit">grams</div></div>
-                <div class="cd-metric-card"><div class="cd-metric-label">Diamond Wt</div><div class="cd-metric-value">${fmtWt(t.diamond_wt)}</div><div class="cd-metric-unit">carats</div></div>
-                <div class="cd-metric-card"><div class="cd-metric-label">Stone Wt</div><div class="cd-metric-value">${fmtWt(t.stone_wt)}</div><div class="cd-metric-unit">carats</div></div>
-                <div class="cd-metric-card"><div class="cd-metric-label">Other</div><div class="cd-metric-value">${fmtWt(t.other_wt)}</div><div class="cd-metric-unit">mixed uom</div></div>
-                <div class="cd-metric-card"><div class="cd-metric-label">Gross Wt</div><div class="cd-metric-value">${fmtWt(t.gross_wt)}</div><div class="cd-metric-unit">grams</div></div>
-                <div class="cd-metric-card"><div class="cd-metric-label">Net Wt</div><div class="cd-metric-value">${fmtWt(t.net_wt)}</div><div class="cd-metric-unit">grams</div></div>
-              </div>
-            </div>
-            <div class="cd-metrics-section">
-              <div class="cd-metrics-section-label">Value Breakdown</div>
-              <div class="cd-metrics-grid" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr))">
-                <div class="cd-metric-card"><div class="cd-metric-label">Making Charges</div><div class="cd-metric-value">${fmtCurrency(t.making_charges)}</div><div class="cd-metric-unit">included in total</div></div>
-                <div class="cd-metric-card"><div class="cd-metric-label">Total Value</div><div class="cd-metric-value">${fmtCurrency(t.total)}</div><div class="cd-metric-unit">&nbsp;</div></div>
-              </div>
-            </div>
+            ${renderTotalsMetrics(t)}
             <div style="overflow-x:auto">
               <table class="cd-tx-table">
                 <thead>

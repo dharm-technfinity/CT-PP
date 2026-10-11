@@ -1,6 +1,6 @@
 import { getGoldRate, getMetalRates } from './metalRates.js';
 
-function getAuthHeaders(contentType = 'application/json') {
+export function getAuthHeaders(contentType = 'application/json') {
   const key = localStorage.getItem('cd_api_key');
   const secret = localStorage.getItem('cd_api_secret');
   if (!key || !secret) return null;
@@ -586,7 +586,9 @@ function posValidationError(message) {
   return err;
 }
 
-export async function lookupByTag(tag) {
+// allowDelivered is for viewing an already-sold piece (a submitted invoice reopened read-only in
+// POS) — it still needs the same receipt/BOM breakup, but must never be used to bill it again.
+export async function lookupByTag(tag, { allowDelivered = false } = {}) {
   const trimmed = (tag || '').trim();
   if (!trimmed) return null;
 
@@ -604,12 +606,13 @@ export async function lookupByTag(tag) {
       'status',
       'batch_no',
       'custom_sell_rate',
+      'custom_parent_serial_no',
     ]);
     const serialRes = await apiGet(
       `/api/resource/Serial%20No/${encodeURIComponent(trimmed)}?fields=${encodeURIComponent(primarySerialFields)}`,
     );
     const serial = getData(serialRes);
-    if (serial?.name) return await enrichItemFromSerial(serial);
+    if (serial?.name) return await enrichItemFromSerial(serial, { allowDelivered });
   } catch (e) {
     if (e.isPosValidation) throw e;
     console.warn('Serial doc lookup:', e.message);
@@ -624,6 +627,7 @@ export async function lookupByTag(tag) {
       'status',
       'batch_no',
       'custom_sell_rate',
+      'custom_parent_serial_no',
     ]);
     const serialFilters = JSON.stringify([['Serial No', 'name', '=', trimmed]]);
     const serialRes = await apiGet(
@@ -631,11 +635,20 @@ export async function lookupByTag(tag) {
     );
     const serials = getData(serialRes) || [];
     if (serials.length) {
-      return await enrichItemFromSerial(serials[0]);
+      return await enrichItemFromSerial(serials[0], { allowDelivered });
     }
   } catch (e) {
     if (e.isPosValidation) throw e;
     console.warn('Serial lookup:', e.message);
+  }
+
+  // Batch ID (printed on the batch's barcode label) — loose raw-material stock sold by qty.
+  try {
+    const batch = await fetchBatchDoc(trimmed);
+    if (batch?.name) return await batchToCartLine(batch, { allowDelivered });
+  } catch (e) {
+    if (e.isPosValidation) throw e;
+    console.warn('Batch lookup:', e.message);
   }
 
   // Fallback: ERPNext Item Barcode child table.
@@ -666,10 +679,10 @@ export async function lookupByTag(tag) {
   return null;
 }
 
-async function enrichItemFromSerial(serial) {
+async function enrichItemFromSerial(serial, { allowDelivered = false } = {}) {
   const itemCode = serial.item_code;
   if (!itemCode) return null;
-  if (String(serial.status || '').trim().toLowerCase() === 'delivered') {
+  if (!allowDelivered && String(serial.status || '').trim().toLowerCase() === 'delivered') {
     throw posValidationError(`Serial No ${serial.name} is already Delivered and cannot be billed again.`);
   }
   let item;
@@ -677,6 +690,17 @@ async function enrichItemFromSerial(serial) {
     item = await fetchItemForPos(itemCode);
   } catch {
     item = { item_code: itemCode, item_name: serial.item_name || itemCode };
+  }
+
+  // Set item (Item "Is Set"): its value and weight live on its pieces, so the set's own serial
+  // is billed as a ₹0 tag line. A set whose pieces were unlinked was broken by an earlier sale
+  // of one piece; a set received before pieces existed has none and sells as a normal line.
+  if (Number(item.custom_is_set)) {
+    const pieces = await fetchSetPieceSerials(serial.name);
+    if (pieces.length) return setTagLine(item, serial);
+    if (!allowDelivered && String(serial.status || '').trim().toLowerCase() !== 'active') {
+      throw posValidationError(`Set ${serial.name} was already broken — scan its pieces individually.`);
+    }
   }
 
   const cartLine = {
@@ -699,26 +723,289 @@ async function enrichItemFromSerial(serial) {
       : null;
     line = applyReceiptItemToCartLine(cartLine, receiptItem, bomBreakup);
   }
+  const parentSet = serial.custom_parent_serial_no || '';
+  if (parentSet) line = { ...line, set_serial: parentSet, set_note: `Part of set ${parentSet}` };
   return applySellRateMargin(line, serial.custom_sell_rate);
 }
 
-// Serial No's own sell-rate markup (%), applied on top of whatever base rate was resolved
-// (Purchase Receipt rate, or the Item master fallback) — e.g. a receipt rate of 2,32,500
-// with a 15% sell rate bills at 2,32,500 + (2,32,500 x 15%) = 2,67,375. Stored as `margin`
-// so the Pricing Breakup popup shows it as its own line rather than hiding it inside Rate.
+const BATCH_FIELDS = ['name', 'item', 'item_name', 'disabled', 'expiry_date', 'batch_qty', 'stock_uom', 'custom_pcs'];
+
+async function fetchBatchDoc(batchId) {
+  const fields = encodeURIComponent(JSON.stringify(BATCH_FIELDS));
+  const res = await apiGet(`/api/resource/Batch/${encodeURIComponent(batchId)}?fields=${fields}`);
+  return getData(res) || {};
+}
+
+// Stock left in a batch, per warehouse — ERPNext's get_batch_qty returns [{warehouse, qty}]
+// when called with only a batch_no. Falls back to the Batch's own batch_qty (warehouse unknown,
+// so ERPNext uses the item/POS default) if the method isn't reachable for this user.
+async function fetchBatchWarehouseQty(batch) {
+  try {
+    const rows = getData(await apiMethod('erpnext.stock.doctype.batch.batch.get_batch_qty', { batch_no: batch.name }));
+    if (Array.isArray(rows)) {
+      return rows
+        .map((r) => ({ warehouse: r.warehouse || '', qty: Math.round((parseFloat(r.qty) || 0) * 1000) / 1000 }))
+        .filter((r) => r.qty > 0);
+    }
+  } catch (e) {
+    console.warn('get_batch_qty failed:', e.message);
+  }
+  const qty = parseFloat(batch.batch_qty) || 0;
+  return qty > 0 ? [{ warehouse: '', qty }] : [];
+}
+
+// Per-unit selling rate for a batch item (per gram for metal, per carat for diamond, ...) from
+// the price list its Item Group points to — Gold/Silver/Platinum → Metal Price List by the
+// item's purity attribute, Diamond → Diamond Price List, Stone → Gemstone Price List. Anything
+// else (or no price-list match) is 0, for the cashier to type in.
+async function fetchBatchItemRate(item, kind, metalType) {
+  if (kind === 'other') return { rate: 0, purityLabel: '' };
+  const ppSettings = await loadPPSettings();
+  const getAttr = (label) => getItemAttrValue(item.attributes, label);
+  if (kind === 'metal') {
+    const purityLabel = getAttr(ppSettings.metalMap[metalType] || `${metalType} Purity`);
+    return { rate: await fetchMetalPriceListRate(metalType, purityLabel), purityLabel };
+  }
+  if (kind === 'stone') {
+    return { rate: await fetchAttrMappedRate(getAttr, ppSettings.gemstoneAttrs, 'Gemstone Price List', item.stock_uom || ''), purityLabel: '' };
+  }
+  return { rate: await fetchAttrMappedRate(getAttr, ppSettings.diamondAttrs, 'Diamond Price List'), purityLabel: '' };
+}
+
+/**
+ * Batch → one cart line sold by qty. The per-unit rate sits in the component its Item Group
+ * belongs to, so qty × rate flows through calcLineBreakup like any other line: metal as
+ * Net Wt 1 g × Metal Rate (so weight totals read qty grams), diamond/stone/other as their own
+ * per-unit value. When the batch has stock in several warehouses the line carries
+ * batch_warehouse_options for the cashier to pick one.
+ */
+async function batchToCartLine(batch, { allowDelivered = false } = {}) {
+  const itemCode = batch.item;
+  if (!itemCode) return null;
+  const item = await fetchItemDoc(itemCode, [
+    'name', 'item_code', 'item_name', 'description', 'stock_uom', 'gst_hsn_code', 'image',
+    'item_group', 'has_batch_no', 'attributes',
+  ]);
+  if (!Number(item.has_batch_no)) {
+    throw posValidationError(`${itemCode} is not a batch item (Has Batch No is off) — batch ${batch.name} can't be billed.`);
+  }
+  if (!allowDelivered) {
+    if (Number(batch.disabled)) throw posValidationError(`Batch ${batch.name} is disabled and can't be billed.`);
+    if (batch.expiry_date && batch.expiry_date < new Date().toLocaleDateString('en-CA')) {
+      throw posValidationError(`Batch ${batch.name} expired on ${batch.expiry_date} and can't be billed.`);
+    }
+  }
+  const stock = allowDelivered ? [] : await fetchBatchWarehouseQty(batch);
+  if (!allowDelivered && !stock.length) throw posValidationError(`Batch ${batch.name} has no stock left.`);
+
+  const { kind, metalType } = classifyBomItemGroup(item.item_group);
+  const [{ rate, purityLabel }, uomSymbol] = await Promise.all([
+    fetchBatchItemRate(item, kind, metalType),
+    fetchUomSymbol(item.stock_uom || batch.stock_uom),
+  ]);
+  const availablePcs = parseInt(batch.custom_pcs || 0, 10) || 0;
+  const first = stock[0] || { warehouse: '', qty: 0 };
+  const kindLabel = { metal: metalType, diamond: 'Diamond', stone: 'Stone' }[kind] || 'this item';
+
+  return {
+    item_code: item.item_code || item.name || itemCode,
+    item_name: item.item_name || batch.item_name || itemCode,
+    description: item.description || item.item_name || itemCode,
+    tag: batch.name,
+    batch_no: batch.name,
+    is_batch: true,
+    batch_kind: kind,
+    batch_uom_label: uomSymbol || item.stock_uom || '',
+    batch_available_qty: first.qty,
+    batch_available_pcs: availablePcs,
+    batch_warehouse_options: stock.length > 1 ? stock : null,
+    warehouse: first.warehouse,
+    qty: Math.min(1, first.qty) || 1,
+    pcs: 0,
+    uom: item.stock_uom || batch.stock_uom || 'Nos',
+    rate: 0,
+    backend_rate: 0,
+    prefer_backend_rate: false,
+    rate_source: 'batch',
+    gross_wt: kind === 'metal' ? 1 : 0,
+    net_wt: kind === 'metal' ? 1 : 0,
+    tounch: purityLabel,
+    current_metal_rate: kind === 'metal' ? rate : '',
+    metal_rate_is_touch: kind === 'metal' && rate > 0,
+    metal_touch_label: kind === 'metal' ? purityLabel : '',
+    diamond_value: kind === 'diamond' ? rate : 0,
+    diamond_wt: kind === 'diamond' ? 1 : 0,
+    diamond_uom: kind === 'diamond' ? uomSymbol : '',
+    stone_value: kind === 'stone' ? rate : 0,
+    stone_wt: kind === 'stone' ? 1 : 0,
+    stone_uom: kind === 'stone' ? uomSymbol : '',
+    other_charges: kind === 'other' ? rate : 0,
+    gst_hsn_code: item.gst_hsn_code || '',
+    image: item.image || '',
+    pricing_warning: rate > 0 ? '' : `No price-list rate for ${kindLabel} — enter the rate.`,
+  };
+}
+
+/**
+ * After a batch sale (sign -1) or its return/cancel (sign +1): moves each batch's custom_pcs by
+ * the Pcs on those lines. Best-effort and non-throwing — the invoice is already submitted —
+ * each batch is retried once; returns the batches that still failed.
+ */
+export async function adjustBatchPcs(lines, sign) {
+  const byBatch = {};
+  (lines || []).forEach((l) => {
+    const pcs = Math.abs(parseInt(l.pcs ?? l.custom_pcs ?? 0, 10) || 0);
+    if (l.batch_no && pcs > 0) byBatch[l.batch_no] = (byBatch[l.batch_no] || 0) + pcs;
+  });
+  const failed = [];
+  for (const [batchNo, pcs] of Object.entries(byBatch)) {
+    let done = false;
+    for (let attempt = 0; attempt < 2 && !done; attempt++) {
+      try {
+        const fields = encodeURIComponent(JSON.stringify(['custom_pcs']));
+        const doc = getData(await apiGet(`/api/resource/Batch/${encodeURIComponent(batchNo)}?fields=${fields}`)) || {};
+        const current = parseInt(doc.custom_pcs || 0, 10) || 0;
+        await apiPut(`/api/resource/Batch/${encodeURIComponent(batchNo)}`, { custom_pcs: Math.max(0, current + sign * pcs) });
+        done = true;
+      } catch (e) {
+        console.error(`Batch ${batchNo} Pcs update failed (attempt ${attempt + 1}):`, e.message);
+      }
+    }
+    if (!done) failed.push(batchNo);
+  }
+  return { failed };
+}
+
+// Pieces of a set — Serial Nos whose custom_parent_serial_no is the set's Serial No (written by
+// Purchase Receipt on submit, cleared when the set is broken).
+async function fetchSetPieceSerials(setSerial) {
+  try {
+    return await fetchDocList(
+      'Serial No',
+      ['name', 'item_code', 'status'],
+      [['Serial No', 'custom_parent_serial_no', '=', setSerial]],
+      { limit: 50, orderBy: 'name asc' },
+    );
+  } catch (e) {
+    console.warn('Set pieces lookup:', e.message);
+    return [];
+  }
+}
+
+// The set's own serial as a ₹0 line — no weights or components, so it adds nothing to totals,
+// but it's on the invoice so it leaves stock together with its pieces.
+function setTagLine(item, serial) {
+  return {
+    item_code: item.item_code || item.name || serial.item_code,
+    item_name: `${item.item_name || item.item_code || serial.item_code} (set tag)`,
+    description: item.description || item.item_name || serial.item_code,
+    tag: serial.name,
+    serial_no: serial.name,
+    qty: 1,
+    uom: item.stock_uom || 'Nos',
+    rate: 0,
+    backend_rate: 0,
+    prefer_backend_rate: true,
+    rate_source: 'set_tag',
+    is_set_tag: true,
+    set_note: 'Set tag · value is on its pieces',
+    gst_hsn_code: item.gst_hsn_code || '',
+    image: item.image || '',
+    warehouse: serial.warehouse || '',
+    batch_no: serial.batch_no || '',
+  };
+}
+
+/**
+ * Scan → cart lines. A set's serial returns its ₹0 set tag line followed by each of its pieces
+ * still in stock (so the whole set is billed as its pieces); anything else returns the one
+ * line lookupByTag gives (a piece scanned on its own carries set_serial — see
+ * breakSetsForSoldLines). Empty array when nothing matches.
+ */
+export async function lookupLinesByTag(tag, options = {}) {
+  const line = await lookupByTag(tag, options);
+  if (!line) return [];
+  if (!line.is_set_tag) return [line];
+  const pieces = (await fetchSetPieceSerials(line.serial_no))
+    .filter((p) => String(p.status || '').trim().toLowerCase() === 'active');
+  if (!pieces.length) throw posValidationError(`Set ${line.serial_no} has no pieces left in stock.`);
+  const pieceLines = [];
+  for (const piece of pieces) {
+    const pieceLine = await lookupByTag(piece.name, options);
+    if (pieceLine) pieceLines.push({ ...pieceLine, set_note: `Set ${line.serial_no}` });
+  }
+  return [line, ...pieceLines];
+}
+
+/**
+ * After an invoice is submitted: every set that had a piece sold WITHOUT its set tag is broken —
+ * the set's ₹0 Serial No is taken out of stock (Material Issue, no accounting impact since it
+ * carries no value) and its remaining pieces are unlinked so they sell as individual items.
+ * The sold piece keeps its link for history. Best-effort and non-throwing, like the other
+ * post-submit steps; returns which sets were broken and which failed.
+ */
+export async function breakSetsForSoldLines(lines, invoiceName) {
+  const sold = new Set((lines || []).map((l) => l.serial_no).filter(Boolean));
+  const setSerials = [...new Set((lines || [])
+    .filter((l) => l.set_serial && !sold.has(l.set_serial))
+    .map((l) => l.set_serial))];
+  const broken = [];
+  const failed = [];
+  const branch = localStorage.getItem('cd_branch') || '';
+  for (const setSerial of setSerials) {
+    try {
+      const fields = encodeURIComponent(JSON.stringify(['name', 'item_code', 'warehouse', 'status']));
+      const setDoc = getData(await apiGet(`/api/resource/Serial%20No/${encodeURIComponent(setSerial)}?fields=${fields}`)) || {};
+      if (String(setDoc.status || '').trim().toLowerCase() === 'active' && setDoc.warehouse) {
+        const res = await apiPost('/api/resource/Stock Entry', {
+          doctype: 'Stock Entry',
+          stock_entry_type: 'Material Issue',
+          purpose: 'Material Issue',
+          company: COMPANY,
+          posting_date: new Date().toLocaleDateString('en-CA'),
+          ...(branch ? { branch } : {}),
+          remarks: `Set ${setSerial} broken — piece sold individually on ${invoiceName}`,
+          items: [{
+            doctype: 'Stock Entry Detail',
+            item_code: setDoc.item_code,
+            qty: 1,
+            transfer_qty: 1,
+            uom: 'Nos',
+            stock_uom: 'Nos',
+            conversion_factor: 1,
+            s_warehouse: setDoc.warehouse,
+            use_serial_batch_fields: 1,
+            serial_no: setSerial,
+            allow_zero_valuation_rate: 1,
+            basic_rate: 0,
+          }],
+        });
+        const entryName = getData(res)?.name;
+        if (!entryName) throw new Error('Stock Entry was not created');
+        await apiPut(`/api/resource/Stock%20Entry/${encodeURIComponent(entryName)}`, { docstatus: 1 });
+      }
+      const pieces = await fetchSetPieceSerials(setSerial);
+      for (const piece of pieces) {
+        if (sold.has(piece.name)) continue;
+        await apiPut(`/api/resource/Serial%20No/${encodeURIComponent(piece.name)}`, { custom_parent_serial_no: '' });
+      }
+      broken.push(setSerial);
+    } catch (e) {
+      console.error('Breaking set', setSerial, 'failed:', e.message);
+      failed.push(setSerial);
+    }
+  }
+  return { broken, failed };
+}
+
+// Serial No's own sell-rate markup (%). Only the percentage is stored here — the margin
+// itself is worked out live in calcLineBreakup as today's Metal Value x sell rate % (e.g.
+// Metal Value 90,000 at 10% = 9,000 added to Making), so it follows the current Metal Price
+// List rate and any Net Wt / metal rate edited in the Pricing Breakup popup.
 function applySellRateMargin(line, sellRatePercentRaw) {
   const sellRatePercent = parseFloat(sellRatePercentRaw || 0) || 0;
-  const baseRate = parseFloat(line.backend_rate || line.rate || 0) || 0;
-  if (!(sellRatePercent > 0) || !(baseRate > 0)) return line;
-  const marginAmount = Math.round(((baseRate * sellRatePercent) / 100) * 100) / 100;
-  const finalRate = Math.round((baseRate + marginAmount) * 100) / 100;
-  return {
-    ...line,
-    rate: finalRate,
-    backend_rate: finalRate,
-    margin: marginAmount,
-    sell_rate_percent: sellRatePercent,
-  };
+  if (!(sellRatePercent > 0)) return line;
+  return { ...line, sell_rate_percent: sellRatePercent };
 }
 
 async function fetchItemForPos(itemCode) {
@@ -1102,14 +1389,20 @@ function getItemAttrValue(itemAttributes, label) {
 // Generic attribute-mapped Price List lookup (Diamond/Gemstone) — builds an exact-match
 // filter from whichever attributes PP Settings configures, matched against the raw
 // material's own attribute values. Prefers a generic (blank supplier) entry, same as the
-// Purchase Receipt page's fetchAttrMappedRate.
-async function fetchAttrMappedRate(getAttrValue, priceAttrs, doctype) {
+// Purchase Receipt page's fetchAttrMappedRate. `uom` (Gemstone Price List only) additionally
+// requires an exact match on the list's `uom` field — Gemstone rates are kept per UOM.
+async function fetchAttrMappedRate(getAttrValue, priceAttrs, doctype, uom) {
   if (!priceAttrs?.length) return 0;
   const values = priceAttrs.map((attr) => ({ field: ppAttrToFieldName(attr), value: getAttrValue(attr) }));
   if (values.every((v) => !v.value)) return 0;
+  if (uom !== undefined && !uom) return 0;
   try {
     const fields = JSON.stringify([...values.map((v) => v.field), 'supplier', 'outright_rate']);
-    const filters = JSON.stringify([['docstatus', '=', 1], ...values.map((v) => [v.field, '=', v.value])]);
+    const filters = JSON.stringify([
+      ['docstatus', '=', 1],
+      ...values.map((v) => [v.field, '=', v.value]),
+      ...(uom ? [['uom', '=', uom]] : []),
+    ]);
     const res = await apiGet(
       `/api/resource/${encodeURIComponent(doctype)}?fields=${encodeURIComponent(fields)}&filters=${encodeURIComponent(filters)}&limit_page_length=100`,
     );
@@ -1123,17 +1416,21 @@ async function fetchAttrMappedRate(getAttrValue, priceAttrs, doctype) {
   }
 }
 
+// Latest rate for one Metal Type + Metal Touch (e.g. Gold / 22KT) — both filtered server
+// side, newest date first (creation breaks ties between same-day entries), so only the single
+// current row comes back instead of scanning a capped page of every touch for that metal.
 async function fetchMetalPriceListRate(metalType, purityLabel) {
   if (!metalType || !purityLabel) return 0;
   try {
-    const fields = JSON.stringify(['metal_type', 'metal_touch', 'rate']);
-    const filters = JSON.stringify([['metal_type', '=', metalType]]);
+    const fields = JSON.stringify(['metal_type', 'metal_touch', 'rate', 'date']);
+    const filters = JSON.stringify([
+      ['metal_type', '=', metalType],
+      ['metal_touch', '=', purityLabel.trim()],
+    ]);
     const res = await apiGet(
-      `/api/resource/Metal%20Price%20List?fields=${encodeURIComponent(fields)}&filters=${encodeURIComponent(filters)}&order_by=date desc&limit_page_length=100`,
+      `/api/resource/Metal%20Price%20List?fields=${encodeURIComponent(fields)}&filters=${encodeURIComponent(filters)}&order_by=${encodeURIComponent('date desc, creation desc')}&limit_page_length=1`,
     );
-    const rows = getData(res) || [];
-    const wanted = purityLabel.trim().toLowerCase();
-    const match = rows.find((r) => String(r.metal_touch || '').trim().toLowerCase() === wanted);
+    const match = (getData(res) || [])[0];
     return match ? parseFloat(match.rate) || 0 : 0;
   } catch (e) {
     console.warn('Metal Price List lookup failed:', e.message);
@@ -1183,7 +1480,7 @@ async function fetchLiveRawMaterialRate(row, ppSettings) {
   const getAttr = (label) => getItemAttrValue(item.attributes, label);
 
   if (kind === 'stone') {
-    const rate = await fetchAttrMappedRate(getAttr, ppSettings.gemstoneAttrs, 'Gemstone Price List');
+    const rate = await fetchAttrMappedRate(getAttr, ppSettings.gemstoneAttrs, 'Gemstone Price List', row.uom || row.stock_uom || '');
     return { kind, rate: rate || fallback, isLive: rate > 0 };
   }
   // diamond
@@ -1224,11 +1521,14 @@ async function fetchBomBreakup(bomName) {
         const handling = parseFloat(row.custom_handling_rate || 0) || 0;
         const wastage = parseFloat(row.custom_wastage || 0) || 0;
         const labourVal = parseFloat(row.custom_labour_val || 0) || 0;
-        const labourMode = row.custom_labour_mode || '%';
+        const labourMode = row.custom_labour_mode || 'Percentage';
         const uom = String(row.uom || row.stock_uom || '').toLowerCase();
         const purity = getPurityFraction(row.custom_gold_purity);
         const base = qty * rate + qty * making + qty * handling;
-        const labour = labourMode === 'g' ? qty * labourVal : (base * labourVal) / 100;
+        // Same rule as Purchase Receipt's recalcBomRow: Percentage is % of the row value; Fixed
+        // Rate / Range (legacy 'g') are ₹ per unit of qty.
+        const isPercentLabour = labourMode === 'Percentage' || labourMode === '%';
+        const labour = isPercentLabour ? (base * labourVal) / 100 : qty * labourVal;
         const wastageAmount = (base * wastage) / 100;
         if (kind === 'diamond') { acc.diamondValue += qty * rate; acc.diamondWeight += qty; acc.diamondUom = row.uom || acc.diamondUom; }
         else if (kind === 'stone') { acc.stoneValue += qty * rate; acc.stoneWeight += qty; acc.stoneUom = row.uom || acc.stoneUom; }
@@ -1481,14 +1781,14 @@ export async function fetchGoldPurchaseItemGroups() {
 // the resolved item's own item_group (-> metal type, via the same classifyBomItemGroup rule
 // the BOM raw-material rate lookup uses) and its "<Metal> Purity" variant attribute (e.g.
 // "Gold Purity"), instead of a possibly stale standard_rate/valuation_rate on the Item itself.
-export async function fetchOldGoldValuationRate(item) {
+export async function fetchGoldPurchaseValuationRate(item) {
   if (!item?.item_code) return 0;
   let full = item;
   if (full.item_group === undefined || full.attributes === undefined) {
     try {
       full = { ...item, ...(await fetchItemDoc(item.item_code, ['item_group', 'attributes'])) };
     } catch (e) {
-      console.warn('fetchOldGoldValuationRate item lookup failed:', e.message);
+      console.warn('fetchGoldPurchaseValuationRate item lookup failed:', e.message);
       return 0;
     }
   }
@@ -1636,12 +1936,13 @@ export async function fetchSalesPersons() {
 // never one of PP's own serialized/batched pieces, a fresh Serial No or Batch is auto-created
 // here whenever the selected item requires one, so update_stock:1 always has something valid to
 // receive against regardless of which item gets chosen.
-// Next OG-YYYYMMDD-##### for today, based on the highest existing bill_no with that day's
+// Next GP-YYYYMMDD-##### for today, based on the highest existing bill_no with that day's
 // prefix. Zero-padded to 5 digits, restarting at 00001 each day. Two Gold Purchases created
 // in the same instant (rare at a single POS counter) could in principle race onto the same
 // number since this isn't a DB-enforced series — acceptable here given real-world POS volume.
-async function generateOldGoldBillNo(dateStr) {
-  const prefix = `OG-${dateStr}-`;
+// (Gold Purchases created before the GP- prefix keep their old OG- bill numbers.)
+async function generateGoldPurchaseBillNo(dateStr) {
+  const prefix = `GP-${dateStr}-`;
   const fields = JSON.stringify(['bill_no']);
   const filters = JSON.stringify([['bill_no', 'like', `${prefix}%`]]);
   const res = await apiGet(
@@ -1652,17 +1953,17 @@ async function generateOldGoldBillNo(dateStr) {
   return `${prefix}${String(lastSeq + 1).padStart(5, '0')}`;
 }
 
-// items: [{item_code, item_name, description?, qty, rate, has_serial_no?, has_batch_no?,
-// stock_uom?, gst_hsn_code?}, …] — one row per item staged in the Gold Purchase dialog's
-// table, same shape addGoldRow() in OperationsModal.jsx builds. Every row that needs a
+// items: [{item_code, item_name, description?, qty, rate, amount?, has_serial_no?, has_batch_no?,
+// stock_uom?, gst_hsn_code?, gross_wt?, net_wt?, diamond_value?}, …] — one row per item staged in the Gold Purchase dialog's
+// table, same shape addGoldRowFromPicker() in SettlementForm.jsx builds. Every row that needs a
 // Serial No or Batch gets its own, in sequence, same as the single-item version did.
-export async function createOldGoldPurchaseInvoice({ customer, items, warehouse }) {
+export async function createGoldPurchaseInvoice({ customer, items, warehouse }) {
   const supplier = await fetchLinkedSupplierForCustomer(customer);
   if (!supplier) {
-    throw new Error(`Common Party Supplier is not linked for this customer. Create a Party Link (Customer ↔ Supplier) for "${customer}" before recording an old gold purchase.`);
+    throw new Error(`Common Party Supplier is not linked for this customer. Create a Party Link (Customer ↔ Supplier) for "${customer}" before recording a Gold Purchase.`);
   }
   if (!warehouse) {
-    throw new Error('Select a warehouse to receive the old gold into.');
+    throw new Error('Select a warehouse to receive the Gold Purchase into.');
   }
   if (!items?.length) {
     throw new Error('Add at least one item before creating the Purchase Invoice.');
@@ -1674,22 +1975,28 @@ export async function createOldGoldPurchaseInvoice({ customer, items, warehouse 
   // trip "Due Date cannot be before Supplier Invoice Date". en-CA locale formats as YYYY-MM-DD
   // in the browser's own local timezone, so this always matches what the user actually sees.
   const today = new Date().toLocaleDateString('en-CA');
-  const billNo = await generateOldGoldBillNo(today.replace(/-/g, ''));
+  const billNo = await generateGoldPurchaseBillNo(today.replace(/-/g, ''));
 
   const rows = [];
   for (const item of items) {
+    const qty = Math.abs(item.qty);
     const row = {
       doctype: 'Purchase Invoice Item',
       item_code: item.item_code,
       item_name: item.item_name,
       description: item.description || item.item_name,
-      qty: Math.abs(item.qty),
+      qty,
       uom: item.stock_uom || 'Nos',
       stock_uom: item.stock_uom || 'Nos',
       conversion_factor: 1,
-      rate: item.rate,
+      // Amount carries the Diamond Value on top of Net Wt x metal rate, so the invoice rate is
+      // the effective per-gram rate that reproduces it.
+      rate: item.amount && qty ? item.amount / qty : item.rate,
       warehouse,
       gst_hsn_code: item.gst_hsn_code || '',
+      ...(item.gross_wt ? { custom_gross_weight: item.gross_wt } : {}),
+      ...(item.net_wt ? { custom_net_weight: item.net_wt } : {}),
+      ...(item.diamond_value ? { custom_diamond_value: item.diamond_value } : {}),
     };
 
     if (item.has_serial_no) {
@@ -1714,10 +2021,10 @@ export async function createOldGoldPurchaseInvoice({ customer, items, warehouse 
     posting_date: today,
     due_date: today,
     bill_date: today,
-    // India Compliance's GST Settings makes Bill No mandatory on every Purchase Invoice, but an
-    // old-gold walk-in customer never has a real vendor invoice number to give us. OG-YYYYMMDD-#####
-    // (see generateOldGoldBillNo) stands in for it — traceable to "old gold, bought this day,
-    // Nth of the day" instead of a fake vendor invoice number.
+    // India Compliance's GST Settings makes Bill No mandatory on every Purchase Invoice, but a
+    // walk-in Gold Purchase customer never has a real vendor invoice number to give us.
+    // GP-YYYYMMDD-##### (see generateGoldPurchaseBillNo) stands in for it — traceable to "Gold
+    // Purchase, this day, Nth of the day" instead of a fake vendor invoice number.
     bill_no: billNo,
     custom_type: 'Gold Purchase',
     currency: 'INR',
@@ -1730,6 +2037,308 @@ export async function createOldGoldPurchaseInvoice({ customer, items, warehouse 
   if (!name) throw new Error('Purchase Invoice creation failed — no name returned');
   await apiPut(`/api/resource/Purchase%20Invoice/${encodeURIComponent(name)}`, { docstatus: 1 });
   return name;
+}
+
+export async function fetchGoldPurchaseInvoice(name) {
+  const res = await apiGet(`/api/resource/Purchase%20Invoice/${encodeURIComponent(name)}`);
+  return getData(res) || null;
+}
+
+// ERPNext's own cancel reverses the stock receipt, the GL entries and the Common Party Journal
+// Entry that netted this invoice against the customer, so a cancelled Gold Purchase has no
+// remaining effect anywhere.
+export async function cancelGoldPurchaseInvoice(name) {
+  return apiMethod('frappe.client.cancel', { doctype: 'Purchase Invoice', name });
+}
+
+// Common Party Accounting posts a Journal Entry when the Gold Purchase is submitted: Dr the
+// supplier against this Purchase Invoice, Cr the linked customer as an unallocated advance.
+// That customer credit is what the Sales Invoice allocates in its Advances table, so the gold
+// value actually settles the bill instead of leaving it outstanding. Empty when Common Party
+// Accounting didn't post one — the bill then just collects less, as before.
+export async function fetchGoldPurchaseCreditRows(purchaseInvoice, customerName) {
+  return fetchJournalCreditRows('Purchase Invoice', purchaseInvoice, customerName);
+}
+
+// The customer's unallocated credit rows on submitted Journal Entries that also reference
+// referenceType/referenceName — each shaped for one Sales Invoice Advances row ({referenceType,
+// referenceName, referenceRow, amount}). When a Sales Invoice uses (part of) a row, ERPNext
+// stamps the used part with the invoice and keeps any rest as a new unreferenced row, so a credit
+// that's been partly used — or freed again by a cancelled bill — can sit on several rows.
+async function fetchJournalCreditRows(referenceType, referenceName, customerName) {
+  if (!referenceName || !customerName) return [];
+  try {
+    const res = await apiMethod('frappe.client.get_list', {
+      doctype: 'Journal Entry Account',
+      parent: 'Journal Entry',
+      fields: ['parent'],
+      filters: [
+        ['reference_type', '=', referenceType],
+        ['reference_name', '=', referenceName],
+        ['docstatus', '=', 1],
+      ],
+      limit_page_length: 5,
+    });
+    const jeNames = [...new Set((getData(res) || []).map((r) => r.parent))];
+    const rows = [];
+    for (const jeName of jeNames) {
+      const je = getData(await apiGet(`/api/resource/Journal%20Entry/${encodeURIComponent(jeName)}`)) || {};
+      (je.accounts || [])
+        .filter((r) => r.party_type === 'Customer' && r.party === customerName && !r.reference_name &&
+          (parseFloat(r.credit_in_account_currency) || 0) > 0)
+        .forEach((r) => rows.push({
+          referenceType: 'Journal Entry',
+          referenceName: je.name,
+          referenceRow: r.name,
+          amount: round2(r.credit_in_account_currency),
+        }));
+    }
+    return rows;
+  } catch (e) {
+    console.warn(`fetchJournalCreditRows failed for ${referenceType} ${referenceName}:`, e.message);
+  }
+  return [];
+}
+
+// Purchase Invoice name -> the Sales Invoice (draft or submitted) it's already on, read from the
+// Sales Invoice's Settlement References table. excludeInvoice is the bill being edited right
+// now, whose own saved references don't count against it. Empty if that table doesn't exist yet.
+export async function fetchGoldPurchasesUsedOnSalesInvoices(purchaseInvoiceNames, excludeInvoice = null) {
+  return fetchSettlementReferencesUsed('Purchase Invoice', purchaseInvoiceNames, excludeInvoice);
+}
+
+async function fetchSettlementReferencesUsed(referenceDoctype, names, excludeInvoice) {
+  const used = new Map();
+  if (!names.length) return used;
+  try {
+    const res = await apiMethod('frappe.client.get_list', {
+      doctype: 'Sales Invoice Settlement Reference',
+      parent: 'Sales Invoice',
+      fields: ['reference_name', 'parent'],
+      filters: [
+        ['reference_doctype', '=', referenceDoctype],
+        ['reference_name', 'in', names],
+        ['docstatus', 'in', [0, 1]],
+        ...(excludeInvoice ? [['parent', '!=', excludeInvoice]] : []),
+      ],
+      limit_page_length: 0,
+    });
+    (getData(res) || []).forEach((r) => used.set(r.reference_name, r.parent));
+  } catch (e) {
+    console.warn(`fetchSettlementReferencesUsed failed for ${referenceDoctype}:`, e.message);
+  }
+  return used;
+}
+
+// A Credit Note leaves its credit as a negative outstanding on the return itself, which a new
+// Sales Invoice can't allocate — its Advances table only takes Payment / Journal Entries. This
+// Journal Entry moves that credit onto an unallocated customer row (Dr the customer against the
+// Credit Note, Cr the same customer with no reference) — the same shape as a Gold Purchase's
+// Common Party Journal Entry — so the POS bill allocates it in Advances the same way.
+async function createReturnCreditJournalEntry(creditNote) {
+  const amount = round2(Math.abs(parseFloat(creditNote.outstanding_amount) || 0));
+  const party = { account: creditNote.debit_to, party_type: 'Customer', party: creditNote.customer };
+  const res = await apiPost('/api/resource/Journal Entry', {
+    doctype: 'Journal Entry',
+    voucher_type: 'Journal Entry',
+    company: creditNote.company,
+    posting_date: new Date().toLocaleDateString('en-CA'),
+    user_remark: `Sales Return ${creditNote.name} credit carried to a POS bill`,
+    accounts: [
+      { doctype: 'Journal Entry Account', ...party, debit_in_account_currency: amount, reference_type: 'Sales Invoice', reference_name: creditNote.name },
+      { doctype: 'Journal Entry Account', ...party, credit_in_account_currency: amount, is_advance: 'Yes' },
+    ],
+  });
+  const name = res?.data?.name || res?.name;
+  if (!name) throw new Error('Journal Entry creation failed — no name returned');
+  await apiPut(`/api/resource/Journal%20Entry/${encodeURIComponent(name)}`, { docstatus: 1 });
+}
+
+// The Credit Note's credit rows for the POS bill's Advances (see fetchJournalCreditRows) — moving
+// it onto its Journal Entry first if that hasn't happened yet. Throws when the return has no
+// credit left (e.g. it was refunded in cash, or already used up on other bills).
+export async function fetchSalesReturnCreditRows(creditNoteName, customerName) {
+  let rows = await fetchJournalCreditRows('Sales Invoice', creditNoteName, customerName);
+  if (rows.length) return rows;
+  const creditNote = getData(await apiGet(`/api/resource/Sales%20Invoice/${encodeURIComponent(creditNoteName)}`)) || {};
+  if (!(parseFloat(creditNote.outstanding_amount) < 0)) {
+    throw new Error(`Sales Return ${creditNoteName} has no credit left to settle on this bill`);
+  }
+  await createReturnCreditJournalEntry(creditNote);
+  rows = await fetchJournalCreditRows('Sales Invoice', creditNoteName, customerName);
+  if (!rows.length) throw new Error(`Could not find the credit for Sales Return ${creditNoteName}`);
+  return rows;
+}
+
+// referenceName -> the customer's credit still unallocated on the submitted Journal Entries that
+// reference it (Gold Purchase's Common Party Journal Entry / a Sales Return's credit Journal
+// Entry). When a Sales Invoice uses part of that credit, ERPNext splits the row and stamps the used
+// part with the invoice, so only what's left counts here. Names with no such Journal Entry at all
+// are left out (unlike a fully used one, which maps to 0).
+async function fetchJournalCreditByReference(referenceType, names, customerName) {
+  const credit = new Map();
+  if (!names.length || !customerName) return credit;
+  const refRows = getData(await apiMethod('frappe.client.get_list', {
+    doctype: 'Journal Entry Account',
+    parent: 'Journal Entry',
+    fields: ['parent', 'reference_name'],
+    filters: [
+      ['reference_type', '=', referenceType],
+      ['reference_name', 'in', names],
+      ['docstatus', '=', 1],
+    ],
+    limit_page_length: 0,
+  })) || [];
+  const nameByJe = new Map(refRows.map((r) => [r.parent, r.reference_name]));
+  nameByJe.forEach((name) => credit.set(name, 0));
+  if (!nameByJe.size) return credit;
+  const creditRows = getData(await apiMethod('frappe.client.get_list', {
+    doctype: 'Journal Entry Account',
+    parent: 'Journal Entry',
+    fields: ['parent', 'credit_in_account_currency'],
+    filters: [
+      ['parent', 'in', [...nameByJe.keys()]],
+      ['party_type', '=', 'Customer'],
+      ['party', '=', customerName],
+      ['reference_name', 'is', 'not set'],
+      ['credit_in_account_currency', '>', 0],
+    ],
+    limit_page_length: 0,
+  })) || [];
+  creditRows.forEach((r) => {
+    const name = nameByJe.get(r.parent);
+    credit.set(name, round2((credit.get(name) || 0) + (parseFloat(r.credit_in_account_currency) || 0)));
+  });
+  return credit;
+}
+
+// referenceName -> total amount other *draft* Sales Invoices have put on it (their Settlement
+// References). A draft isn't reconciled yet, so its share still shows as unallocated Journal Entry
+// credit and has to be taken off by hand. excludeInvoice is the bill being edited right now.
+async function fetchSettlementAmountsOnDrafts(referenceDoctype, names, excludeInvoice) {
+  const held = new Map();
+  if (!names.length) return held;
+  try {
+    const rows = getData(await apiMethod('frappe.client.get_list', {
+      doctype: 'Sales Invoice Settlement Reference',
+      parent: 'Sales Invoice',
+      fields: ['reference_name', 'amount'],
+      filters: [
+        ['reference_doctype', '=', referenceDoctype],
+        ['reference_name', 'in', names],
+        ['docstatus', '=', 0],
+        ...(excludeInvoice ? [['parent', '!=', excludeInvoice]] : []),
+      ],
+      limit_page_length: 0,
+    })) || [];
+    rows.forEach((r) => held.set(r.reference_name, round2((held.get(r.reference_name) || 0) + (parseFloat(r.amount) || 0))));
+  } catch (e) {
+    console.warn(`fetchSettlementAmountsOnDrafts failed for ${referenceDoctype}:`, e.message);
+  }
+  return held;
+}
+
+const SETTLEMENT_REFERENCE_DOCTYPE = { gold: 'Purchase Invoice', return: 'Sales Invoice' };
+
+// What's left of a Gold Purchase's / Sales Return's credit for the bill being edited, with the
+// Journal Entry rows it sits on: { rows, available }. Each row's amount is its full unallocated
+// credit — a Sales Invoice Advance's advance_amount must match it exactly, or ERPNext refuses the
+// invoice ("modified after you pulled it") — while available also takes off what other draft
+// bills already hold. A Gold Purchase that never got a Common Party Journal Entry returns
+// { rows: [], available: null }. Throws for a Sales Return with no credit left.
+export async function fetchSettlementAvailableCredit(type, number, customerName, excludeInvoice = null) {
+  const rows = type === 'return'
+    ? await fetchSalesReturnCreditRows(number, customerName)
+    : await fetchGoldPurchaseCreditRows(number, customerName);
+  if (!rows.length) return { rows, available: null };
+  const held = (await fetchSettlementAmountsOnDrafts(SETTLEMENT_REFERENCE_DOCTYPE[type], [number], excludeInvoice)).get(number) || 0;
+  const total = rows.reduce((s, r) => s + r.amount, 0);
+  return { rows, available: round2(Math.max(0, total - held)) };
+}
+
+// The customer's submitted Credit Notes with credit still left to settle (availableAmount) — a
+// return can be used across several bills until its credit runs out.
+export async function fetchPendingSalesReturns(customerName, { excludeInvoice = null } = {}) {
+  if (!customerName) return [];
+  const fields = JSON.stringify(['name', 'return_against', 'posting_date', 'grand_total', 'outstanding_amount']);
+  const filters = JSON.stringify([
+    ['customer', '=', customerName],
+    ['docstatus', '=', 1],
+    ['is_return', '=', 1],
+  ]);
+  const res = await apiGet(
+    `/api/resource/Sales%20Invoice?fields=${encodeURIComponent(fields)}&filters=${encodeURIComponent(filters)}&order_by=creation desc&limit_page_length=50`,
+  );
+  const rows = getData(res) || [];
+  if (!rows.length) return [];
+  // Credit still on the Credit Note itself hasn't been moved to a Journal Entry yet, so no bill
+  // can be holding any of it; the rest is on its Journal Entry.
+  const moved = rows.filter((r) => !(parseFloat(r.outstanding_amount) < 0)).map((r) => r.name);
+  const [jeCredit, held] = await Promise.all([
+    fetchJournalCreditByReference('Sales Invoice', moved, customerName),
+    fetchSettlementAmountsOnDrafts('Sales Invoice', moved, excludeInvoice),
+  ]);
+  return rows
+    .map((r) => {
+      const total = parseFloat(r.outstanding_amount) < 0
+        ? round2(Math.abs(parseFloat(r.outstanding_amount)))
+        : round2((jeCredit.get(r.name) || 0) - (held.get(r.name) || 0));
+      return { ...r, availableAmount: Math.max(0, total) };
+    })
+    .filter((r) => r.availableAmount > 0);
+}
+
+// The customer's submitted Gold Purchases with credit still left to settle (availableAmount) — so
+// one can be used across several bills, and one removed from a bill (or left over from a
+// cancelled bill) can be added back instead of being bought in a second time. One with no Common
+// Party Journal Entry has no credit to split, so it's offered whole until any bill uses it.
+export async function fetchPendingGoldPurchases(customerName, { excludeInvoice = null } = {}) {
+  const supplier = await fetchLinkedSupplierForCustomer(customerName);
+  if (!supplier) return [];
+  const fields = JSON.stringify(['name', 'bill_no', 'posting_date', 'grand_total', 'rounded_total']);
+  const filters = JSON.stringify([
+    ['supplier', '=', supplier],
+    ['custom_type', '=', 'Gold Purchase'],
+    ['docstatus', '=', 1],
+    ['is_return', '=', 0],
+  ]);
+  const res = await apiGet(
+    `/api/resource/Purchase%20Invoice?fields=${encodeURIComponent(fields)}&filters=${encodeURIComponent(filters)}&order_by=creation desc&limit_page_length=50`,
+  );
+  const rows = getData(res) || [];
+  if (!rows.length) return [];
+  const names = rows.map((r) => r.name);
+  const [jeCredit, held, used] = await Promise.all([
+    fetchJournalCreditByReference('Purchase Invoice', names, customerName),
+    fetchSettlementAmountsOnDrafts('Purchase Invoice', names, excludeInvoice),
+    fetchGoldPurchasesUsedOnSalesInvoices(names, excludeInvoice),
+  ]);
+  return rows
+    .map((r) => {
+      const total = jeCredit.has(r.name)
+        ? round2(jeCredit.get(r.name) - (held.get(r.name) || 0))
+        : (used.has(r.name) ? 0 : round2(parseFloat(r.rounded_total || r.grand_total) || 0));
+      return { ...r, availableAmount: Math.max(0, total) };
+    })
+    .filter((r) => r.availableAmount > 0);
+}
+
+// Settlement References is a custom child table on Sales Invoice — only sent once it exists,
+// since ERPNext rejects a child-table key it doesn't know. Checked once per page load.
+let settlementReferencesFieldPromise = null;
+export function salesInvoiceHasSettlementReferences() {
+  if (!settlementReferencesFieldPromise) {
+    settlementReferencesFieldPromise = apiGet('/api/method/frappe.desk.form.load.getdoctype?doctype=Sales%20Invoice')
+      .then((res) => (res?.docs || []).some((d) =>
+        d.name === 'Sales Invoice' && (d.fields || []).some((f) => f.fieldname === 'custom_settlement_references'),
+      ))
+      .catch((e) => {
+        console.warn('salesInvoiceHasSettlementReferences failed:', e.message);
+        settlementReferencesFieldPromise = null;
+        return false;
+      });
+  }
+  return settlementReferencesFieldPromise;
 }
 
 // Same Address-lookup pattern already used on the Purchase Invoice page (fetchAddrByLink) —
@@ -1797,11 +2406,61 @@ async function fetchGstTemplateRows(templateName) {
   }
 }
 
-// Picks CGST+SGST vs IGST dynamically per invoice, based on whether the Company's state
-// matches the selected Customer's state — same convention already used on the Purchase
-// Invoice page (In-State/Intra template vs Out-of-State/Inter template, matched by name)
-// instead of always merging one static "default" template regardless of who's buying.
+// Address / GST fields from ERPNext's party lookup that are sent on the invoice too, so India
+// Compliance validates against the same addresses the POS's taxes were picked for.
+const SALES_PARTY_ADDRESS_FIELDS = [
+  'customer_address',
+  'company_address',
+  'company_gstin',
+  'billing_address_gstin',
+  'gst_category',
+  'place_of_supply',
+  'taxes_and_charges',
+];
+
+// Taxes for the selected customer's bill, plus the address fields they were worked out from:
+// { taxes: [{account, rate, description, charge_type}], addressFields: {...} }.
+// ERPNext's own party lookup comes first — it's what the Sales Invoice form calls when a
+// customer is picked, and India Compliance hooks into it to choose the place of supply and the
+// intra-state (CGST+SGST) / inter-state (IGST) template from the very customer billing address
+// and company address it later validates the invoice against. Guessing the two states
+// separately here could pick different addresses and fail submit with "Cannot charge IGST for
+// intra-state supplies". The state-name comparison below is only the fallback when that lookup
+// gives no taxes (e.g. no customer yet, or Tax Categories not set up).
 export async function fetchGstSplitForCustomer(company, customerName) {
+  if (customerName) {
+    try {
+      const details = getData(await apiMethod('erpnext.accounts.party.get_party_details', {
+        party: customerName,
+        party_type: 'Customer',
+        company,
+        doctype: 'Sales Invoice',
+        posting_date: new Date().toLocaleDateString('en-CA'),
+      })) || {};
+      let taxes = (details.taxes || []).map((row) => ({
+        account: row.account_head,
+        rate: parseFloat(row.rate) || 0,
+        description: row.description || row.account_head,
+        charge_type: row.charge_type || 'On Net Total',
+      }));
+      if (!taxes.length && details.taxes_and_charges) taxes = await fetchGstTemplateRows(details.taxes_and_charges);
+      if (taxes.length) {
+        const addressFields = Object.fromEntries(
+          SALES_PARTY_ADDRESS_FIELDS.filter((f) => details[f]).map((f) => [f, details[f]]),
+        );
+        return { taxes, addressFields };
+      }
+    } catch (e) {
+      console.warn('get_party_details failed — falling back to the address-state check:', e.message);
+    }
+  }
+  return { taxes: await fetchGstSplitByAddressState(company, customerName), addressFields: {} };
+}
+
+// Fallback: CGST+SGST vs IGST by whether the Company's state matches the Customer's — same
+// convention as the Purchase Invoice page (In-State/Intra template vs Out-of-State/Inter
+// template, matched by name).
+async function fetchGstSplitByAddressState(company, customerName) {
   try {
     const [companyState, customerState, fields] = await Promise.all([
       fetchCompanyState(company),
@@ -1828,7 +2487,7 @@ export async function fetchGstSplitForCustomer(company, customerName) {
     }
     return fetchGstTemplateRows(matched);
   } catch (e) {
-    console.warn('fetchGstSplitForCustomer failed:', e.message);
+    console.warn('fetchGstSplitByAddressState failed:', e.message);
     return [];
   }
 }
@@ -1938,6 +2597,118 @@ export async function saveSalesInvoice(payload, existingName) {
   return apiPost('/api/resource/Sales Invoice', payload);
 }
 
+export async function fetchSalesInvoice(name) {
+  const res = await apiGet(`/api/resource/Sales%20Invoice/${encodeURIComponent(name)}`);
+  return getData(res) || null;
+}
+
+// Asks ERPNext itself whether the logged-in user may cancel / amend this specific invoice, so
+// POS's Cancel & Amend button follows Role Permissions Manager (and any User Permission
+// restrictions) exactly, with no separate POS role to keep in sync.
+export async function fetchSalesInvoicePermissions(name) {
+  const check = async (permType) => {
+    try {
+      const res = await apiMethod('frappe.client.has_permission', {
+        doctype: 'Sales Invoice',
+        docname: name,
+        perm_type: permType,
+      });
+      return Boolean(getData(res)?.has_permission);
+    } catch {
+      return false;
+    }
+  };
+  const [canCancel, canAmend] = await Promise.all([check('cancel'), check('amend')]);
+  return { canCancel, canAmend };
+}
+
+export async function cancelSalesInvoice(name) {
+  return apiMethod('frappe.client.cancel', { doctype: 'Sales Invoice', name });
+}
+
+const CHILD_META_FIELDS = ['name', 'parent', 'parentfield', 'parenttype', 'docstatus', 'owner', 'creation', 'modified', 'modified_by'];
+
+function copyChildRows(rows = [], drop = []) {
+  return rows.map((row) => {
+    const copy = { ...row };
+    [...CHILD_META_FIELDS, ...drop].forEach((f) => delete copy[f]);
+    return copy;
+  });
+}
+
+// Same idea as ERPNext's own "Amend" button: a new draft linked back via amended_from, which
+// ERPNext names <original>-1, -2, ... Only the fields POS itself writes are carried over (not a
+// blind copy of the whole doc), since POS rebuilds the full payload on Save Draft / Pay anyway
+// and a blind copy would also drag along no-copy fields like e-invoice IRN data. Payments and
+// scheme advances are left off — the amended bill is paid again from scratch.
+export async function createAmendedSalesInvoice(original) {
+  const parentFields = [
+    'company', 'customer', 'customer_name', 'posting_date', 'due_date', 'is_pos', 'update_stock',
+    'currency', 'branch', 'custom_pos_shift', 'apply_discount_on', 'discount_amount',
+    'base_discount_amount', 'custom_making_discount', 'custom_making_discount_type',
+    'custom_diamond_discount', 'custom_diamond_discount_type', 'custom_stone_discount',
+    'custom_stone_discount_type', 'custom_other_discount', 'custom_other_discount_type',
+  ];
+  const payload = { doctype: 'Sales Invoice', docstatus: 0, amended_from: original.name };
+  parentFields.forEach((f) => {
+    if (original[f] !== undefined && original[f] !== null) payload[f] = original[f];
+  });
+  // The cancelled invoice's Serial and Batch Bundle is cancelled with it — the amended rows
+  // go back to plain serial_no so ERPNext builds a fresh bundle on submit.
+  payload.items = copyChildRows(original.items, ['serial_and_batch_bundle']).map((row) =>
+    row.serial_no || row.batch_no ? { ...row, use_serial_batch_fields: 1 } : row,
+  );
+  payload.taxes = copyChildRows(original.taxes);
+  if (original.sales_team?.length) payload.sales_team = copyChildRows(original.sales_team);
+
+  const res = await apiPost('/api/resource/Sales Invoice', payload);
+  const name = getData(res)?.name;
+  if (!name) throw new Error('Amended invoice was not created');
+  return name;
+}
+
+// Undoes markSchemeAssignmentUsed for a cancelled invoice. Invoices with Settlement References
+// name their Jewellery Scheme Assignments directly; older ones only record which Payment
+// Entries they drew advances from, so those are matched to the customer's used assignments by
+// the Payment Entries on their own installment rows. Returns the names it could not release.
+export async function releaseSchemeAssignmentsForInvoice(customerName, advances = [], settlementReferences = []) {
+  const referenced = [...new Set(settlementReferences
+    .filter((r) => r.reference_doctype === 'Jewellery Scheme Assignment')
+    .map((r) => r.reference_name)
+    .filter(Boolean))];
+  if (referenced.length) {
+    const results = await Promise.allSettled(referenced.map((name) =>
+      apiPut(`/api/resource/Jewellery%20Scheme%20Assignment/${encodeURIComponent(name)}`, { used: 0 }),
+    ));
+    return {
+      released: referenced.filter((_, i) => results[i].status === 'fulfilled'),
+      failed: referenced.filter((_, i) => results[i].status === 'rejected'),
+    };
+  }
+  const peNames = new Set(advances.map((a) => a.reference_name).filter(Boolean));
+  if (!customerName || !peNames.size) return { released: [], failed: [] };
+  const fields = JSON.stringify(['name']);
+  const filters = JSON.stringify([['customer', '=', customerName], ['used', '=', 1]]);
+  const res = await apiGet(
+    `/api/resource/Jewellery%20Scheme%20Assignment?fields=${encodeURIComponent(fields)}&filters=${encodeURIComponent(filters)}&limit_page_length=100`,
+  );
+  const released = [];
+  const failed = [];
+  for (const { name } of getData(res) || []) {
+    try {
+      const doc = getData(await apiGet(`/api/resource/Jewellery%20Scheme%20Assignment/${encodeURIComponent(name)}`)) || {};
+      const linked = (doc.jewellery_scheme_assignment_details || []).some((r) => peNames.has(r.payment_entry));
+      if (!linked) continue;
+      await apiPut(`/api/resource/Jewellery%20Scheme%20Assignment/${encodeURIComponent(name)}`, { used: 0 });
+      released.push(name);
+    } catch (e) {
+      console.warn(`releaseSchemeAssignment failed for ${name}:`, e.message);
+      failed.push(name);
+    }
+  }
+  return { released, failed };
+}
+
 export async function submitSalesInvoice(name) {
   return apiPut(
     `/api/resource/Sales%20Invoice/${encodeURIComponent(name)}`,
@@ -1993,6 +2764,9 @@ async function collectPOSWeightDebits(lines) {
       const netWt = parseFloat(doc.custom_net_weight) || 0;
       const pureWt = parseFloat(doc.custom_pure_wt) || 0;
       if (netWt <= 0 && pureWt <= 0) continue;
+      // A set's own serial holds the combined weight of its pieces, which are on the same
+      // invoice and counted themselves — skip it so the weight isn't posted twice.
+      if (line.is_set_tag || (await fetchSetPieceSerials(sn)).length) continue;
       const metalType = doc.custom_metal_type || 'Gold';
       if (!debits[metalType]) debits[metalType] = { netWt: 0, pureWt: 0 };
       debits[metalType].netWt += netWt;
@@ -2008,9 +2782,11 @@ async function collectPOSWeightDebits(lines) {
  * Posts one Purity Ledger Entry per metal type for a Sales Invoice sold/returned through POS —
  * Dr for a normal sale (weight leaving stock), Cr for a return (weight coming back in).
  * Best-effort and non-throwing: a ledger posting failure must never undo an already-submitted
- * sale, so every failure here is caught and logged, never re-thrown to the caller.
+ * sale, so every failure here is caught and logged, never re-thrown to the caller. Returns the
+ * metal types that failed to post so a caller can surface them if it needs to.
  */
 export async function postPurityLedgerForInvoice(invoiceName, customerName, lines, { isCredit = false, branch } = {}) {
+  const failed = [];
   try {
     const debits = await collectPOSWeightDebits(lines || []);
     const rates = getMetalRates();
@@ -2042,15 +2818,39 @@ export async function postPurityLedgerForInvoice(invoiceName, customerName, line
         });
       } catch (e) {
         console.error('Purity Ledger Entry failed for', metalType, ':', e.message);
+        failed.push(metalType);
       }
     }
   } catch (e) {
     console.error('postPurityLedgerForInvoice failed:', e.message);
+    failed.push('all');
   }
+  return { failed };
 }
 
 // Submitted, non-return invoices for a customer — used to populate the "Previous invoice"
 // picker in the Sales Return flow so it references a real invoice instead of a placeholder.
+// Original Sales Invoice name -> the return (credit note, draft or submitted) already made
+// against it. A cancelled return doesn't count, so that invoice can be returned again.
+export async function fetchReturnsAgainstInvoices(invoiceNames) {
+  const found = new Map();
+  if (!invoiceNames.length) return found;
+  const fields = JSON.stringify(['name', 'return_against']);
+  const filters = JSON.stringify([
+    ['is_return', '=', 1],
+    ['return_against', 'in', invoiceNames],
+    ['docstatus', 'in', [0, 1]],
+  ]);
+  const res = await apiGet(
+    `/api/resource/Sales%20Invoice?fields=${encodeURIComponent(fields)}&filters=${encodeURIComponent(filters)}&limit_page_length=0`,
+  );
+  (getData(res) || []).forEach((r) => found.set(r.return_against, r.name));
+  return found;
+}
+
+// The customer's submitted invoices that can still be returned — status alone isn't enough,
+// since ERPNext doesn't always move a paid POS invoice to "Credit Note Issued", and a draft
+// return (e.g. one whose submit failed) never changes the original's status at all.
 export async function fetchCustomerInvoices(customerName) {
   if (!customerName) return [];
   try {
@@ -2062,9 +2862,11 @@ export async function fetchCustomerInvoices(customerName) {
       ['status', '!=', 'Credit Note Issued'],
     ]);
     const res = await apiGet(
-      `/api/resource/Sales%20Invoice?fields=${encodeURIComponent(fields)}&filters=${encodeURIComponent(filters)}&order_by=posting_date desc&limit_page_length=20`,
+      `/api/resource/Sales%20Invoice?fields=${encodeURIComponent(fields)}&filters=${encodeURIComponent(filters)}&order_by=posting_date desc&limit_page_length=50`,
     );
-    return getData(res) || [];
+    const rows = getData(res) || [];
+    const returned = await fetchReturnsAgainstInvoices(rows.map((r) => r.name));
+    return rows.filter((r) => !returned.has(r.name));
   } catch (e) {
     console.warn('fetchCustomerInvoices failed:', e.message);
     return [];
@@ -2220,6 +3022,13 @@ export async function deactivateBom(bomName) {
   }
 }
 
+// Reverse of deactivateBom, used when a sold invoice is cancelled and its pieces are back in
+// stock. Throws (unlike deactivateBom) so the Cancel & Amend flow can report what it couldn't undo.
+export async function activateBom(bomName) {
+  if (!bomName) return;
+  await apiPut(`/api/resource/BOM/${encodeURIComponent(bomName)}`, { is_active: 1 });
+}
+
 // Creates a real, linked Credit Note against an existing submitted Sales Invoice — mirrors the
 // original's items/taxes with quantities and amounts negated, and sets is_return/return_against
 // the way ERPNext expects, instead of faking a "Sales Return Credit Note" payment-mode row on
@@ -2228,6 +3037,9 @@ export async function createSalesReturn(originalInvoiceName) {
   const res = await apiGet(`/api/resource/Sales%20Invoice/${encodeURIComponent(originalInvoiceName)}`);
   const original = getData(res);
   if (!original?.name) throw new Error('Original invoice not found');
+  // Re-checked here, not just in the picker — another counter may have returned it since.
+  const existing = (await fetchReturnsAgainstInvoices([original.name])).get(original.name);
+  if (existing) throw new Error(`Sales Return ${existing} is already created against ${original.name}`);
 
   const items = (original.items || []).map((item) => ({
     doctype: 'Sales Invoice Item',
@@ -2243,6 +3055,10 @@ export async function createSalesReturn(originalInvoiceName) {
     warehouse: item.warehouse || undefined,
     serial_no: item.serial_no || undefined,
     batch_no: item.batch_no || undefined,
+    // Batch rows have no serial of their own — without this ERPNext wants a Serial and Batch
+    // Bundle on the return row instead of the plain batch_no.
+    ...(item.batch_no && !item.serial_no ? { use_serial_batch_fields: 1 } : {}),
+    ...(item.custom_pcs ? { custom_pcs: item.custom_pcs } : {}),
     gst_hsn_code: item.gst_hsn_code || '',
   }));
 
@@ -2288,6 +3104,10 @@ export async function createSalesReturn(originalInvoiceName) {
     branch: original.branch || undefined,
   });
 
+  // Pcs sold out of a batch go back onto it, the same way ERPNext puts the qty back.
+  const pcs = await adjustBatchPcs(items, +1);
+  if (pcs.failed.length) console.error(`Return ${name}: could not add Pcs back to batch ${pcs.failed.join(', ')}`);
+
   return name;
 }
 
@@ -2299,6 +3119,32 @@ export function getPrintUrl(invoiceName) {
     no_letterhead: '0',
   });
   return `/api/method/frappe.utils.print_format.download_pdf?${params.toString()}`;
+}
+
+// Auth is a token header, so the PDF can't just be opened by URL — fetch it, load it into a
+// hidden iframe and raise the browser's print dialog. If the browser won't print the frame,
+// fall back to showing the PDF in a new tab.
+export async function printSalesInvoice(invoiceName) {
+  const headers = getAuthHeaders(null);
+  if (!headers) throw new Error('Not authenticated');
+  const res = await fetch(getPrintUrl(invoiceName), { headers });
+  if (res.status === 401) handle401();
+  if (!res.ok) throw new Error(`Could not load invoice PDF (HTTP ${res.status})`);
+  const url = URL.createObjectURL(new Blob([await res.blob()], { type: 'application/pdf' }));
+  const frame = document.createElement('iframe');
+  frame.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0';
+  frame.src = url;
+  frame.onload = () => {
+    try {
+      frame.contentWindow.focus();
+      frame.contentWindow.print();
+    } catch {
+      window.open(url, '_blank');
+    }
+  };
+  document.body.appendChild(frame);
+  // The print dialog keeps reading the frame while open, so clean up only well after.
+  setTimeout(() => { frame.remove(); URL.revokeObjectURL(url); }, 120000);
 }
 
 /** Stub for future supplier-margin auto-fetch */

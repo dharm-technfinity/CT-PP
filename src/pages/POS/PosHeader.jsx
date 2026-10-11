@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { formatDateTime } from '../../lib/format.js';
-import { loadMetalRates, formatGoldRateChip, getMetalTouches } from '../../lib/metalRates.js';
-import { fetchBranches } from '../../lib/api.js';
+import { loadMetalRates } from '../../lib/metalRates.js';
+import { fetchBranches, getAuthHeaders } from '../../lib/api.js';
 import { POS_SHIFT_KEY } from '../../lib/constants.js';
 
 function MoonIcon() {
@@ -30,9 +30,6 @@ function SunIcon() {
 
 export default function PosHeader({ user }) {
   const [now, setNow] = useState(new Date());
-  const [rates, setRates] = useState({});
-  const [touches, setTouches] = useState({});
-  const [loadingRates, setLoadingRates] = useState(true);
   const [theme, setTheme] = useState(
     () => localStorage.getItem('cdTheme') || 'light',
   );
@@ -85,10 +82,25 @@ export default function PosHeader({ user }) {
     localStorage.setItem('cdTheme', isDark ? 'dark' : 'light');
   }, [theme]);
 
+  // Fills the metal-rate cache the POS calculations read (getMetalRates/getGoldRate).
+  useEffect(() => { loadMetalRates(); }, []);
+
+  // Right-edge "Metal Rate" tab + panel — same widget as the HTML pages, from the shared
+  // /caratdesk-metal-rates.js (loaded once; cdMountRatePanel ignores repeat mounts).
   useEffect(() => {
-    loadMetalRates()
-      .then((r) => { setRates(r); setTouches(getMetalTouches()); })
-      .finally(() => setLoadingRates(false));
+    const mount = () => window.cdMountRatePanel?.({
+      baseUrl: '',
+      headers: getAuthHeaders(null),
+    });
+    if (window.cdMountRatePanel) { mount(); return; }
+    let script = document.querySelector('script[src="/caratdesk-metal-rates.js"]');
+    if (!script) {
+      script = document.createElement('script');
+      script.src = '/caratdesk-metal-rates.js';
+      document.head.appendChild(script);
+    }
+    script.addEventListener('load', mount);
+    return () => script.removeEventListener('load', mount);
   }, []);
 
   useEffect(() => {
@@ -96,7 +108,6 @@ export default function PosHeader({ user }) {
     return () => clearInterval(t);
   }, []);
 
-  const chip = formatGoldRateChip(rates, touches);
   const isDark = theme === 'dark';
 
   return (
@@ -136,16 +147,6 @@ export default function PosHeader({ user }) {
         </div>
       </div>
       <div className="cd-pos-header-right">
-        <span className="cd-chip">
-          {loadingRates ? (
-            'Loading rates…'
-          ) : (
-            <>
-              Gold: <strong>{chip.gold}</strong>
-              &nbsp;·&nbsp; Silver: <strong>{chip.silver}</strong>
-            </>
-          )}
-        </span>
         <span>{formatDateTime(now)}</span>
         <span style={{ fontWeight: 500, color: 'var(--text-primary)' }}>
           {user?.fullName || 'User'}
