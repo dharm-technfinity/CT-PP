@@ -26,7 +26,10 @@ export default function CartGrid({
   billDiscount,
   settlements = [],
   onScan,
+  onBulkAdd,
   scanning,
+  // Scans still being looked up — the box stays open for the next one meanwhile.
+  pendingScans = 0,
   onUpdateLine,
   onRemoveLine,
   onBillDiscountChange,
@@ -92,8 +95,14 @@ export default function CartGrid({
             onKeyDown={handleScanKey}
           />
         </form>
-        {scanning && (
+        {(scanning || pendingScans > 0) && (
           <span className="cd-spinner" aria-label="Scanning" />
+        )}
+        {pendingScans > 1 && <span className="cd-hint" style={{ margin: 0, whiteSpace: 'nowrap' }}>{pendingScans} adding…</span>}
+        {!readOnly && onBulkAdd && (
+          <button type="button" className="cd-btn cd-btn-secondary" style={{ whiteSpace: 'nowrap' }} onClick={onBulkAdd} title="Paste or upload many serial numbers at once">
+            Bulk Add
+          </button>
         )}
       </div>
 

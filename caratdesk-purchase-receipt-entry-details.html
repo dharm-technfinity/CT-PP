@@ -1,6 +1,6 @@
 <!-- CaratDesk – Purchase Receipt List -->
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8"><script src="/caratdesk-sidebar.js"></script>
 </head>
 <style>    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap');
 
@@ -691,8 +691,9 @@ async function pubGet(script, params = {}) {
     const params    = new URLSearchParams(window.location.search);
     const prName    = params.get('name');
      
+    let DOC_CUR = 'INR'; // set from the loaded document — a USD supplier's amounts show in $
     function fmt(v){
-      return new Intl.NumberFormat('en-IN',{style:'currency',currency:'INR',maximumFractionDigits:2}).format(v||0);
+      return new Intl.NumberFormat(DOC_CUR==='INR'?'en-IN':'en-US',{style:'currency',currency:DOC_CUR,maximumFractionDigits:2}).format(v||0);
     }
     function fmtNum(n){
       return ''+Math.round(n||0).toLocaleString('en-IN');
@@ -749,6 +750,7 @@ async function pubGet(script, params = {}) {
         if(!res.ok) throw new Error('HTTP '+res.status);
         const json = await res.json();
         const doc  = json.data||json.message||{};
+        DOC_CUR = doc.currency || 'INR';
         const items= doc.items||[];
         console.log(doc)
      

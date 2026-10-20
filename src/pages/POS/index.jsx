@@ -10,9 +10,12 @@ import SettlementDialog from './SettlementDialog.jsx';
 import CreateSettlementRecordModal from './CreateSettlementRecordModal.jsx';
 import SalesTeamDialog from './SalesTeamDialog.jsx';
 import GoldPurchaseDetailsModal from './GoldPurchaseDetailsModal.jsx';
+import InvoicePickerModal from './InvoicePickerModal.jsx';
+import BulkSerialModal from './BulkSerialModal.jsx';
 import { usePosCart } from './usePosCart.js';
 import { useToast } from '../../hooks/useToast.jsx';
 import { loadMetalRates } from '../../lib/metalRates.js';
+import { createLimiter } from '../../lib/limit.js';
 import {
   lookupByTag,
   lookupLinesByTag,
@@ -22,6 +25,7 @@ import {
   submitSalesInvoice,
   fetchSalesInvoice,
   fetchSalesInvoicePermissions,
+  printSalesInvoiceDefault,
   cancelSalesInvoice,
   createAmendedSalesInvoice,
   releaseSchemeAssignmentsForInvoice,
@@ -43,6 +47,8 @@ import {
   canShowPosButton,
   fetchGoldPurchaseInvoice,
   fetchGoldPurchaseCreditRows,
+  fetchJewellerySchemeNames,
+  fetchPostingDates,
   fetchGoldPurchasesUsedOnSalesInvoices,
   fetchSalesReturnCreditRows,
   fetchSettlementAvailableCredit,
@@ -204,7 +210,8 @@ export default function PosPage() {
   const [saving, setSaving] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const [paymentOpen, setPaymentOpen] = useState(false);
-  const [managerModeOpen, setManagerModeOpen] = useState(false);
+  // Manager Mode hidden per request — see the footer
+  // const [managerModeOpen, setManagerModeOpen] = useState(false);
   const [customerOpen, setCustomerOpen] = useState(false);
   const [customerPromptForPayment, setCustomerPromptForPayment] = useState(false);
   const [lastInvoice, setLastInvoice] = useState(
@@ -224,6 +231,12 @@ export default function PosPage() {
   // Gold Purchase chip clicked — { name, readOnly } of the Purchase Invoice being shown.
   const [goldDetails, setGoldDetails] = useState(null);
   const [batchWarehousePick, setBatchWarehousePick] = useState(null);
+  const [bulkAddOpen, setBulkAddOpen] = useState(false);
+  // Scans still being looked up (faster scanning — see handleScan).
+  const [pendingScans, setPendingScans] = useState(0);
+  const pendingScanKeysRef = useRef(new Set());
+  const scanChainRef = useRef(Promise.resolve());
+  const scanLimiterRef = useRef(createLimiter(4));
   const [transactionNo, setTransactionNo] = useState(() => localStorage.getItem("cd_pos_current_txn") || "Not reserved");
   const menuRef = useRef(null);
 
@@ -241,6 +254,14 @@ export default function PosPage() {
     .filter((s) => s.type === 'kitty')
     .map((s) => s.componentDiscounts || {});
   const cart = usePosCart(goldRate, gstSplit, schemeBonusAmount, schemeComponentDiscounts);
+  const { billEpochRef } = cart;
+  // Latest lines / settlements for queued scans, which finish after later renders.
+  const linesRef = useRef(cart.lines);
+  const settlementsRef = useRef(settlements);
+  useEffect(() => {
+    linesRef.current = cart.lines;
+    settlementsRef.current = settlements;
+  }, [cart.lines, settlements]);
   // Same "Balance Payable" figure CartGrid shows below the cart — grand total minus each
   // redeemed scheme's real advance (settlements' own .amount, separate from the bonus discount
   // already folded into cart.totals.grandTotal above) — so the Pay button never quotes the full
@@ -337,6 +358,10 @@ export default function PosPage() {
   const [invoiceToOpen] = useState(() => new URLSearchParams(window.location.search).get('invoice'));
   const [viewingInvoice, setViewingInvoice] = useState(null);
   const [amending, setAmending] = useState(false);
+  const [recallOpen, setRecallOpen] = useState(false);
+  // Print prints the invoice open in POS — a submitted one being viewed, or a recalled draft
+  // with items — so the button is disabled until one is.
+  const [printing, setPrinting] = useState(false);
   const { loadCart } = cart;
 
   // Throws on failure — callers decide how to report it. Returns the loaded cart state.
@@ -352,10 +377,12 @@ export default function PosPage() {
       submitted ? fetchSalesInvoicePermissions(doc.name) : null,
       // A submitted invoice's settlements are display-only — no need to re-check its Gold
       // Purchases or look up their (already reconciled) credit.
-      settlementsFromInvoice(doc, submitted ? {} : {
+      settlementsFromInvoice(doc, submitted ? { getSchemeNames: fetchJewellerySchemeNames, getPostingDates: fetchPostingDates } : {
         getGoldPurchase: fetchGoldPurchaseInvoice,
         getGoldCredit: fetchGoldPurchaseCreditRows,
         getReturnCredit: fetchSalesReturnCreditRows,
+        getSchemeNames: fetchJewellerySchemeNames,
+        getPostingDates: fetchPostingDates,
       }),
     ]);
     state.warnings.push(...restored.warnings);
@@ -368,6 +395,16 @@ export default function PosPage() {
     setViewingInvoice(submitted ? { doc, canCancelAmend: perms.canCancel && perms.canAmend } : null);
     return { doc, state };
   }, [loadCart]);
+
+  const showInvoiceOpenedToast = useCallback((doc, state) => {
+    if (Number(doc.docstatus) === 1) {
+      showToast(`Viewing submitted invoice ${doc.name} (read only)`, 'info');
+    } else if (state.warnings.length) {
+      showToast(`Opened ${doc.name} — some items used saved rates: ${state.warnings[0]}`, 'info');
+    } else {
+      showToast(`Opened draft ${doc.name}`, 'success');
+    }
+  }, [showToast]);
 
   useEffect(() => {
     const invoiceName = invoiceToOpen;
@@ -383,13 +420,7 @@ export default function PosPage() {
       try {
         const { doc, state } = await loadInvoice(invoiceName);
         if (cancelled) return;
-        if (Number(doc.docstatus) === 1) {
-          showToast(`Viewing submitted invoice ${doc.name} (read only)`, 'info');
-        } else if (state.warnings.length) {
-          showToast(`Opened ${doc.name} — some items used saved rates: ${state.warnings[0]}`, 'info');
-        } else {
-          showToast(`Opened draft ${doc.name}`, 'success');
-        }
+        showInvoiceOpenedToast(doc, state);
       } catch (e) {
         if (!cancelled) showToast(parseApiError(e), 'error');
       } finally {
@@ -399,7 +430,37 @@ export default function PosPage() {
     return () => {
       cancelled = true;
     };
-  }, [invoiceToOpen, loadInvoice, showToast]);
+  }, [invoiceToOpen, loadInvoice, showInvoiceOpenedToast, showToast]);
+
+  const printInvoiceName = viewingInvoice?.doc?.name || (cart.lines.length ? cart.draftInvoiceName : null);
+
+  async function handlePrint() {
+    setMenuOpen(false);
+    setPrinting(true);
+    showToast(`Preparing print for ${printInvoiceName}…`, 'info');
+    try {
+      await printSalesInvoiceDefault(printInvoiceName);
+    } catch (e) {
+      showToast(parseApiError(e), 'error');
+    } finally {
+      setPrinting(false);
+    }
+  }
+
+  // Recall Invoice: same path as "Open in POS" — draft into the cart, submitted read-only.
+  async function handleRecallInvoice(invoiceName) {
+    if (!viewingInvoice && cart.lines.length && !window.confirm('Replace the current bill with the recalled invoice?')) return;
+    setRecallOpen(false);
+    setScanning(true);
+    try {
+      const { doc, state } = await loadInvoice(invoiceName);
+      showInvoiceOpenedToast(doc, state);
+    } catch (e) {
+      showToast(parseApiError(e), 'error');
+    } finally {
+      setScanning(false);
+    }
+  }
 
   function closeViewedInvoice() {
     setViewingInvoice(null);
@@ -461,7 +522,7 @@ export default function PosPage() {
       // straight over to the amended bill instead of having to be recalled one by one.
       const carried = await settlementsFromInvoice(
         { ...doc, custom_settlement_references: (doc.custom_settlement_references || []).filter((r) => ['Gold Purchase', 'Sales Return'].includes(r.settlement_type)) },
-        { getGoldPurchase: fetchGoldPurchaseInvoice, getGoldCredit: fetchGoldPurchaseCreditRows, getReturnCredit: fetchSalesReturnCreditRows },
+        { getGoldPurchase: fetchGoldPurchaseInvoice, getGoldCredit: fetchGoldPurchaseCreditRows, getReturnCredit: fetchSalesReturnCreditRows, getPostingDates: fetchPostingDates },
       );
       if (carried.settlements.length) setSettlements(carried.settlements);
       const bomNames = [...new Set(state.snapshot.lines.map((l) => l.bom_name).filter(Boolean))];
@@ -614,15 +675,23 @@ export default function PosPage() {
     setGoldDetails({ name: settlement.number, readOnly: Boolean(viewingInvoice) });
   }
 
+  // Lowercased tag / serial / item code of every line in the bill (for duplicate checks).
+  function cartKeys(lines) {
+    return new Set(lines.flatMap((line) => [line.tag, line.serial_no, line.item_code])
+      .filter(Boolean).map((value) => String(value).toLowerCase()));
+  }
+
+  // Faster scanning: the scan box stays open while lookups run. Each scan starts its lookup at
+  // once (a few at a time) and lands in the bill in the order it was scanned. A scan still being
+  // looked up counts as already in the bill, so scanning it twice is caught too.
   async function handleScan(tag) {
     const trimmed = (tag || '').trim();
     if (!trimmed || viewingInvoice) return;
     if (!shift) { showToast('Start a shift before scanning', 'error'); setShiftMode('start'); return; }
     if (!customer?.name) { showToast('Select a customer before scanning', 'error'); openCustomerPicker(); return; }
-    const duplicate = cart.lines.find((line) =>
-      [line.tag, line.serial_no, line.item_code].some((value) =>
-        String(value || "").toLowerCase() === trimmed.toLowerCase(),
-      ),
+    const key = trimmed.toLowerCase();
+    const duplicate = linesRef.current.find((line) =>
+      [line.tag, line.serial_no, line.item_code].some((value) => String(value || "").toLowerCase() === key),
     );
     if (duplicate?.is_batch) {
       // Same batch again — sell more of it by changing the Qty on the line already there.
@@ -630,41 +699,69 @@ export default function PosPage() {
       setTimeout(() => document.getElementById(`qty-${duplicate.id}`)?.focus(), 0);
       return;
     }
-    if (duplicate) {
+    if (duplicate || pendingScanKeysRef.current.has(key)) {
       showToast(`Serial number "${trimmed}" is already in this bill`, "error");
       return;
     }
-    setScanning(true);
-    try {
-      // A set's serial comes back as its ₹0 set tag + each piece; anything else is one line
-      const items = await lookupLinesByTag(trimmed);
-      if (!items.length) {
-        showToast(`No item found for tag "${trimmed}"`, 'error');
-        return;
+    pendingScanKeysRef.current.add(key);
+    setPendingScans((n) => n + 1);
+    // A set's serial comes back as its ₹0 set tag + each piece; anything else is one line
+    const lookup = scanLimiterRef.current(() => lookupLinesByTag(trimmed));
+    lookup.catch(() => {}); // handled in order below
+    const bill = billEpochRef.current;
+    scanChainRef.current = scanChainRef.current.then(async () => {
+      try {
+        const items = await lookup;
+        // The bill was finished / cancelled / swapped while this was being looked up.
+        if (bill !== billEpochRef.current) return;
+        if (!items.length) {
+          showToast(`No item found for tag "${trimmed}"`, 'error');
+          return;
+        }
+        // Batch (raw material) bills don't take Gold Purchase / Jewellery Scheme settlements.
+        if (items[0].is_batch && settlementsRef.current.some((st) => st.type === 'gold' || st.type === 'kitty')) {
+          showToast('Remove the Gold Purchase / Jewellery Scheme from this bill before adding batch items.', 'error');
+          return;
+        }
+        if (items[0].batch_warehouse_options) {
+          setBatchWarehousePick(items[0]);
+          return;
+        }
+        items.forEach((item) => cart.addUniqueLine(item));
+        const [first] = items;
+        const warning = items.find((item) => item.pricing_warning)?.pricing_warning;
+        let message = warning || `Added ${first.item_name || first.item_code}`;
+        if (first.is_set_tag) message = warning || `Added set ${first.serial_no} with ${items.length - 1} piece(s)`;
+        else if (first.set_serial && !linesRef.current.some((l) => l.serial_no === first.set_serial)) {
+          message = `${first.item_name || first.item_code} is part of set ${first.set_serial} — selling it alone will break the set`;
+        }
+        showToast(message, warning || first.set_serial ? 'info' : 'success');
+      } catch (e) {
+        if (bill === billEpochRef.current) showToast(`${trimmed}: ${parseApiError(e)}`, 'error');
+      } finally {
+        pendingScanKeysRef.current.delete(key);
+        setPendingScans((n) => n - 1);
       }
-      // Batch (raw material) bills don't take Gold Purchase / Jewellery Scheme settlements.
-      if (items[0].is_batch && settlements.some((st) => st.type === 'gold' || st.type === 'kitty')) {
-        showToast('Remove the Gold Purchase / Jewellery Scheme from this bill before adding batch items.', 'error');
-        return;
-      }
-      if (items[0].batch_warehouse_options) {
-        setBatchWarehousePick(items[0]);
-        return;
-      }
-      items.forEach((item) => cart.addUniqueLine(item));
-      const [first] = items;
-      const warning = items.find((item) => item.pricing_warning)?.pricing_warning;
-      let message = warning || `Added ${first.item_name || first.item_code}`;
-      if (first.is_set_tag) message = warning || `Added set ${first.serial_no} with ${items.length - 1} piece(s)`;
-      else if (first.set_serial && !cart.lines.some((l) => l.serial_no === first.set_serial)) {
-        message = `${first.item_name || first.item_code} is part of set ${first.set_serial} — selling it alone will break the set`;
-      }
-      showToast(message, warning || first.set_serial ? 'info' : 'success');
-    } catch (e) {
-      showToast(parseApiError(e), 'error');
-    } finally {
-      setScanning(false);
-    }
+    });
+  }
+
+  function openBulkAdd() {
+    if (viewingInvoice) return;
+    if (!shift) { showToast('Start a shift before adding items', 'error'); setShiftMode('start'); return; }
+    if (!customer?.name) { showToast('Select a customer before adding items', 'error'); openCustomerPicker(); return; }
+    setBulkAddOpen(true);
+  }
+
+  function handleBulkAdd(items) {
+    setBulkAddOpen(false);
+    const before = cartKeys(linesRef.current);
+    const added = items.filter((item) => !before.has(String(item.tag || item.serial_no || '').toLowerCase()));
+    added.forEach((item) => cart.addUniqueLine(item));
+    const warnings = added.filter((item) => item.pricing_warning).length;
+    showToast(
+      `Added ${added.length} item(s) to the bill${warnings ? ` · ${warnings} using Item master rate — check pricing` : ''}`,
+      warnings ? 'info' : 'success',
+    );
   }
 
   // A batch with stock in more than one warehouse — the cashier picks which one it sells from.
@@ -707,6 +804,10 @@ export default function PosPage() {
     if (!customer?.name) {
       showToast('Select a customer first', 'error');
       openCustomerPicker();
+      return false;
+    }
+    if (pendingScans) {
+      showToast(`Wait — ${pendingScans} scan(s) still being added`, 'info');
       return false;
     }
     if (!cart.lines.length) {
@@ -835,6 +936,10 @@ export default function PosPage() {
 
   function openPayment() {
     if (!shift) { showToast('Start a shift before billing', 'error'); setShiftMode('start'); return; }
+    if (pendingScans) {
+      showToast(`Wait — ${pendingScans} scan(s) still being added`, 'info');
+      return;
+    }
     if (!cart.lines.length) {
       showToast("Scan at least one item", "error");
       return;
@@ -881,7 +986,7 @@ export default function PosPage() {
         if (s.amount > available + 0.009) {
           throw new Error(`Only ${fmtINR(available)} is left on ${s.number} — remove it from this bill and add it again`);
         }
-        return creditSettlementEntry(s.type, s.number, s.customer, rows, s.amount, s.creditTotal);
+        return creditSettlementEntry(s.type, s.number, s.customer, rows, s.amount, s.creditTotal, s.posting_date);
       }));
 
       const paidAmount = payments.reduce(
@@ -1005,7 +1110,9 @@ export default function PosPage() {
           billDiscount={cart.billDiscount}
           settlements={settlements}
           onScan={handleScan}
+          onBulkAdd={openBulkAdd}
           scanning={scanning}
+          pendingScans={pendingScans}
           onUpdateLine={cart.updateLine}
           onRemoveLine={handleRemoveLine}
           onBillDiscountChange={(patch) =>
@@ -1021,7 +1128,9 @@ export default function PosPage() {
 
         <div className="cd-pos-footer-right">
           {!shift ? <button type="button" className="cd-btn cd-btn-primary" onClick={() => setShiftMode("start")}>Shift Start</button> : <>
+            {/* Manager Mode hidden per request
             <button type="button" className="cd-btn cd-btn-blue" onClick={() => setManagerModeOpen(true)}>Manager Mode</button>
+            */}
             <button type="button" className="cd-btn cd-btn-secondary" onClick={() => setShiftMode("end")}>Shift End</button>
           </>}
           {!viewingInvoice && canShowButton('Discount') && (
@@ -1034,8 +1143,14 @@ export default function PosPage() {
             <button type="button" className="cd-btn cd-btn-secondary" onClick={() => setCreateRecordType('return')}>Sales Return</button>
           )}
           {!viewingInvoice && allowedSettlementTypes.length > 0 && (
-            <button type="button" className="cd-btn cd-btn-secondary" onClick={openSettlement}>
-              Settlement{settlements.length ? ` (${settlements.length})` : ''}
+            <button
+              type="button"
+              className="cd-btn cd-btn-secondary cd-btn-has-badge"
+              onClick={openSettlement}
+              aria-label={settlements.length ? `Settlement, ${settlements.length} applied` : 'Settlement'}
+            >
+              Settlement
+              {settlements.length > 0 && <span className="cd-btn-badge" aria-hidden="true">{settlements.length}</span>}
             </button>
           )}
           <button
@@ -1055,6 +1170,7 @@ export default function PosPage() {
           >
             {saving ? 'Saving…' : 'Save Draft'}
           </button>
+          </>}
 
           <div className="cd-dropdown-wrap" ref={menuRef}>
             <button
@@ -1066,6 +1182,22 @@ export default function PosPage() {
             </button>
             {menuOpen && (
               <div className="cd-dropdown-menu">
+                <button
+                  type="button"
+                  className="cd-dropdown-item"
+                  onClick={() => { setMenuOpen(false); setRecallOpen(true); }}
+                >
+                  Recall Invoice
+                </button>
+                <button
+                  type="button"
+                  className="cd-dropdown-item"
+                  disabled={!printInvoiceName || printing}
+                  onClick={handlePrint}
+                >
+                  Print
+                </button>
+                {!viewingInvoice && <>
                 <button
                   type="button"
                   className="cd-dropdown-item"
@@ -1114,6 +1246,7 @@ export default function PosPage() {
                 >
                   Cancel Bill
                 </button>
+                </>}
                 {/* Reprint Last Invoice disabled per request
                 <button
                   type="button"
@@ -1127,6 +1260,7 @@ export default function PosPage() {
             )}
           </div>
 
+          {!viewingInvoice && (
           <button
             type="button"
             className="cd-btn cd-btn-green"
@@ -1135,9 +1269,18 @@ export default function PosPage() {
           >
             Pay {cart.lines.length ? `· ${fmtINR(balancePayable)}` : ''}
           </button>
-          </>}
+          )}
         </div>
       </footer>
+
+      {recallOpen && (
+        <InvoicePickerModal
+          customer={customer}
+          onClose={() => setRecallOpen(false)}
+          onRecall={handleRecallInvoice}
+        />
+      )}
+
 
       {customerOpen && (
         <>
@@ -1209,6 +1352,14 @@ export default function PosPage() {
         onRemoveSettlement={handleRemoveSettlement}
         onOpenSettlement={handleOpenSettlement}
       />
+
+      {bulkAddOpen && (
+        <BulkSerialModal
+          existingKeys={cartKeys(cart.lines)}
+          onClose={() => setBulkAddOpen(false)}
+          onAdd={handleBulkAdd}
+        />
+      )}
 
       {batchWarehousePick && (
         <>

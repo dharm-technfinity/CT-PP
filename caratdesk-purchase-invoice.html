@@ -1,6 +1,6 @@
 <!-- CaratDesk – Purchase Invoice List -->
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8"><script src="/caratdesk-sidebar.js"></script>
 </head>
 <style>    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap');
 
@@ -384,6 +384,7 @@
       </div>
     </div>
     
+    <script src="/caratdesk-currency.js"></script>
     <script>
 
 // Override pubGet to use direct API for known proxies
@@ -453,7 +454,7 @@ async function pubGet(script, params = {}) {
       const sec = instName==='PC' ? localStorage.getItem('cd_pc_secret') : localStorage.getItem('cd_pp_secret');
       if(!key||!sec) return [];
       const baseUrl = instName==='PC' ? 'https://ppj-dev2.m.frappe.cloud' : 'https://ppj-dev1.m.frappe.cloud';
-      const invFields = ['name','supplier','supplier_name','posting_date','creation','modified','due_date','grand_total','status','docstatus','currency'];
+      const invFields = ['name','supplier','supplier_name','posting_date','creation','modified','due_date','grand_total','base_grand_total','status','docstatus','currency'];
       const res = await fetch(`${baseUrl}/api/resource/Purchase%20Invoice?fields=${encodeURIComponent(JSON.stringify(invFields))}&limit=500&order_by=creation%20desc`, {headers:{'Authorization':`token ${key}:${sec}`,'Accept':'application/json'}});
       if(!res.ok) throw new Error(`HTTP ${res.status} (${instName})`);
       const json = await res.json();
@@ -462,6 +463,7 @@ async function pubGet(script, params = {}) {
         supplier:r.supplier_name||r.supplier, suppId:r.supplier,
         date:r.posting_date, creation:r.creation, modified:r.modified, dueDate:r.due_date||'—',
         amount:r.grand_total||0, status:r.status||'Draft', docstatus:r.docstatus||0, currency:r.currency||'INR',
+        baseAmount:r.base_grand_total??r.grand_total??0, // INR — totals across currencies
       }));
     }
 
@@ -493,7 +495,7 @@ async function pubGet(script, params = {}) {
       const c = {all:0,draft:0,unpaid:0,paid:0,overdue:0,cancelled:0};
       INV_DATA.forEach(d=>{ c.all++; const k=statusKey(d.status); if(c[k]!==undefined) c[k]++; });
       Object.keys(c).forEach(k=>{ const el=document.getElementById('pc-'+k); if(el) el.textContent=c[k]; });
-      const total = INV_DATA.reduce((s,d)=>s+d.amount,0);
+      const total = INV_DATA.reduce((s,d)=>s+d.baseAmount,0);
       document.getElementById('invSub').textContent = INV_DATA.length+' invoices · '+fmt(total)+' total value';
     }
     
@@ -549,7 +551,7 @@ async function pubGet(script, params = {}) {
           <td><div style="font-weight:500">${d.supplier}</div></td>
           <td><span style="font-size:12.5px;color:var(--text-secondary)">${fmtDate(d.dueDate)}</span></td>
           <td style="font-size:13px;color:var(--text-secondary)">${fmtDate(d.date)}</td>
-          <td style="text-align:right"><div style="font-variant-numeric:tabular-nums;font-weight:500">${fmt(d.amount)}</div></td>
+          <td style="text-align:right"><div style="font-variant-numeric:tabular-nums;font-weight:500">${cdFmtIn(d.amount,d.currency)}${d.currency&&d.currency!=='INR'?`<div class="doc-sub">${fmt(d.baseAmount)}</div>`:''}</div></td>
           <td>${pill(d.status)}</td>
           <td class="no-open"><div class="cd-row-actions">
             <div class="cd-act-btn view-btn" data-name="${safe}" data-inst="${d.instance||'PP'}"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div>
@@ -669,6 +671,8 @@ async function pubGet(script, params = {}) {
     function updateBulk(){const n=selected.size;document.getElementById('bulkLabel').textContent=n+' invoice'+(n!==1?'s':'')+' selected';document.getElementById('bulkBar').classList.toggle('visible',n>0);}
     
     async function openDrawer(name){
+      // Amounts in the document's own currency (USD supplier → $)
+      const fmtDoc=n=>cdFmtIn(n, openInv.currency);
       openInv=INV_DATA.find(d=>d.name===name);
       if(!openInv)return;
       document.getElementById('drawerTitle').textContent=openInv.name;
@@ -677,7 +681,7 @@ async function pubGet(script, params = {}) {
         <div><div class="cd-dmeta-lbl">Supplier</div><div class="cd-dmeta-val">${openInv.supplier}</div></div>
         <div><div class="cd-dmeta-lbl">Date</div><div class="cd-dmeta-val">${fmtDate(openInv.date)}</div></div>
         <div><div class="cd-dmeta-lbl">Due Date</div><div class="cd-dmeta-val">${fmtDate(openInv.dueDate)}</div></div>
-        <div><div class="cd-dmeta-lbl">Grand Total</div><div class="cd-dmeta-val">${fmt(openInv.amount)}</div></div>
+        <div><div class="cd-dmeta-lbl">Grand Total</div><div class="cd-dmeta-val">${fmtDoc(openInv.amount)}</div></div>
       </div><div style="text-align:center;padding:20px;color:var(--text-muted);font-size:12.5px">Loading full details…</div>`;
       document.getElementById('drawer').classList.add('open');
       document.getElementById('drawerOverlay').classList.add('open');
@@ -701,7 +705,7 @@ async function pubGet(script, params = {}) {
         const tl=[
           {lbl:'Invoice Created',sub:fmtDate(doc.posting_date),done:true},
           {lbl:'Submitted',sub:doc.docstatus===1?fmtDate(doc.posting_date):'Not submitted',done:doc.docstatus===1},
-          {lbl:'Payment',sub:doc.status==='Paid'?'Fully Paid':(paidAmt>0?fmt(paidAmt)+' paid':'Pending'),done:doc.status==='Paid'},
+          {lbl:'Payment',sub:doc.status==='Paid'?'Fully Paid':(paidAmt>0?fmtDoc(paidAmt)+' paid':'Pending'),done:doc.status==='Paid'},
         ];
         document.getElementById('drawerBody').innerHTML=`
           <div class="cd-dmeta">
@@ -709,24 +713,24 @@ async function pubGet(script, params = {}) {
             <div><div class="cd-dmeta-lbl">Posting Date</div><div class="cd-dmeta-val">${fmtDate(doc.posting_date)}</div></div>
             <div><div class="cd-dmeta-lbl">Due Date</div><div class="cd-dmeta-val">${fmtDate(doc.due_date)}</div></div>
             <div><div class="cd-dmeta-lbl">Company</div><div class="cd-dmeta-val">${doc.company||'—'}</div></div>
-            <div><div class="cd-dmeta-lbl">Grand Total</div><div class="cd-dmeta-val">${fmt(grandTotal)}</div></div>
-            <div><div class="cd-dmeta-lbl">Outstanding</div><div class="cd-dmeta-val">${fmt(outstandingAmt)}</div></div>
+            <div><div class="cd-dmeta-lbl">Grand Total</div><div class="cd-dmeta-val">${fmtDoc(grandTotal)}</div></div>
+            <div><div class="cd-dmeta-lbl">Outstanding</div><div class="cd-dmeta-val">${fmtDoc(outstandingAmt)}</div></div>
           </div>
           <div class="cd-dsec">Items (${items.length})</div>
           ${items.map(it=>`<div class="cd-drow">
             <div class="cd-drow-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg></div>
             <div style="flex:1;min-width:0"><div class="cd-drow-name">${it.item_name||it.item_code}</div><div class="cd-drow-sub">${it.item_code}${it.gst_hsn_code?' · HSN '+it.gst_hsn_code:''} · ${it.uom||'—'}</div></div>
-            <div class="cd-drow-right"><div class="cd-drow-amt">${fmt(it.amount)}</div><div class="cd-drow-qty">Qty ${it.qty} × ${fmt(it.rate)}</div></div>
+            <div class="cd-drow-right"><div class="cd-drow-amt">${fmtDoc(it.amount)}</div><div class="cd-drow-qty">Qty ${it.qty} × ${fmtDoc(it.rate)}</div></div>
           </div>`).join('')}
           <div style="background:var(--bg);border-radius:10px;padding:12px 14px;margin-top:10px;font-size:13px">
-            <div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="color:var(--text-secondary)">Net Total</span><span>${fmt(parseFloat(doc.net_total||0))}</span></div>
-            ${taxAmt?`<div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="color:var(--text-secondary)">Tax</span><span>${fmt(taxAmt)}</span></div>`:''}
-            <div style="display:flex;justify-content:space-between;font-size:15px;font-weight:600;border-top:.5px solid var(--border);padding-top:8px;margin-top:4px"><span>Grand Total</span><span>${fmt(grandTotal)}</span></div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="color:var(--text-secondary)">Net Total</span><span>${fmtDoc(parseFloat(doc.net_total||0))}</span></div>
+            ${taxAmt?`<div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="color:var(--text-secondary)">Tax</span><span>${fmtDoc(taxAmt)}</span></div>`:''}
+            <div style="display:flex;justify-content:space-between;font-size:15px;font-weight:600;border-top:.5px solid var(--border);padding-top:8px;margin-top:4px"><span>Grand Total</span><span>${fmtDoc(grandTotal)}</span></div>
           </div>
           <div class="cd-dsec">Payment Progress</div>
           <div style="background:var(--bg);border-radius:10px;padding:14px;border:.5px solid var(--border);margin-bottom:16px">
             <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em">Paid Amount</div>
-            <div style="font-size:22px;font-weight:600;margin-bottom:8px">${fmt(paidAmt)} / ${fmt(grandTotal)}</div>
+            <div style="font-size:22px;font-weight:600;margin-bottom:8px">${fmtDoc(paidAmt)} / ${fmtDoc(grandTotal)}</div>
             <div style="height:6px;background:var(--border);border-radius:3px;overflow:hidden"><div style="height:100%;width:${(paidAmt/grandTotal*100)||0}%;background:var(--pill-green-txt);border-radius:3px;transition:width .5s"></div></div>
           </div>
           <div class="cd-dsec">Timeline</div>

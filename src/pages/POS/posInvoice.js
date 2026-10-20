@@ -248,11 +248,13 @@ export function allocateCredit(rows, amount) {
 // A Gold Purchase / Sales Return on the bill: `amount` is what this bill uses, `creditTotal` what
 // was available when it was added (shown as "of ₹…" when only part of it is used). Without credit
 // rows (a Gold Purchase with no Common Party Journal Entry) it just lowers what's collected.
-export function creditSettlementEntry(type, number, customer, rows, amount, creditTotal) {
+// postingDate: the Purchase Invoice's / Credit Note's own date, shown next to its number.
+export function creditSettlementEntry(type, number, customer, rows, amount, creditTotal, postingDate) {
   return {
     type,
     number,
     customer,
+    ...(postingDate ? { posting_date: postingDate } : {}),
     amount: round2(amount),
     creditTotal: round2(creditTotal ?? amount),
     bonusAmount: 0,
@@ -274,7 +276,9 @@ export function creditSettlementEntry(type, number, customer, rows, amount, cred
 //    stays free of network calls. A cancelled Gold Purchase, or a Sales Return whose credit is
 //    gone (throws), is dropped; one with less credit left than saved is cut down — both reported
 //    in `warnings`.
-export async function settlementsFromInvoice(doc, { getGoldPurchase, getGoldCredit, getReturnCredit } = {}) {
+//  - getSchemeNames(codes) turns each scheme's saved code back into its name for display, and
+//    getPostingDates(doctype, names) gives Gold Purchases / Sales Returns their dates back.
+export async function settlementsFromInvoice(doc, { getGoldPurchase, getGoldCredit, getReturnCredit, getSchemeNames, getPostingDates } = {}) {
   const customer = { name: doc.customer, customer_name: doc.customer_name };
   const settlements = [];
   const warnings = [];
@@ -327,6 +331,19 @@ export async function settlementsFromInvoice(doc, { getGoldPurchase, getGoldCred
     }
     settlements.push(entry);
   }
+  if (getPostingDates) {
+    for (const [type, doctype] of [['gold', 'Purchase Invoice'], ['return', 'Sales Invoice']]) {
+      const entries = settlements.filter((s) => s.type === type);
+      if (!entries.length) continue;
+      const dates = await getPostingDates(doctype, entries.map((s) => s.number));
+      entries.forEach((s) => { if (dates.get(s.number)) s.posting_date = dates.get(s.number); });
+    }
+  }
+  if (getSchemeNames) {
+    const kitty = settlements.filter((s) => s.type === 'kitty');
+    const names = kitty.length ? await getSchemeNames(kitty.map((s) => s.scheme)) : new Map();
+    kitty.forEach((s) => { s.scheme_name = names.get(s.scheme) || s.scheme_name; });
+  }
   return { settlements, warnings };
 }
 
@@ -377,10 +394,10 @@ export function matchLineToBilledRate(line, billedRate) {
  *    actually billed (matchLineToBilledRate).
  */
 export async function invoiceToCartState(doc, lookupByTag, { submitted = false } = {}) {
-  const lines = [];
   const warnings = [];
 
-  for (const it of doc.items || []) {
+  // Every row's lookups run at once (each is several API calls); rows keep the invoice's order.
+  const rowLines = await Promise.all((doc.items || []).map(async (it) => {
     const componentDiscounts = {};
     Object.entries(DISCOUNT_FIELD_MAP).forEach(([key, fieldName]) => {
       const d = discountFromFields(it, fieldName);
@@ -389,7 +406,7 @@ export async function invoiceToCartState(doc, lookupByTag, { submitted = false }
     const serials = String(it.serial_no || '').split('\n').map((s) => s.trim()).filter(Boolean);
 
     if (serials.length) {
-      for (const serial of serials) {
+      return Promise.all(serials.map(async (serial) => {
         let scanned = null;
         if (lookupByTag) {
           try {
@@ -400,17 +417,15 @@ export async function invoiceToCartState(doc, lookupByTag, { submitted = false }
         }
         if (scanned) {
           const line = newCartLine({ ...scanned, qty: 1, component_discounts: componentDiscounts });
-          lines.push(submitted ? { ...matchLineToBilledRate(line, it.rate), pricing_warning: '' } : line);
-          continue;
+          return submitted ? { ...matchLineToBilledRate(line, it.rate), pricing_warning: '' } : line;
         }
-        lines.push(savedRowToLine(it, { qty: 1, serial_no: serial, tag: serial }));
-      }
-    } else if (it.batch_no) {
-      lines.push(await batchRowToLine(it, lookupByTag, { submitted, componentDiscounts, warnings }));
-    } else {
-      lines.push(savedRowToLine(it));
+        return savedRowToLine(it, { qty: 1, serial_no: serial, tag: serial });
+      }));
     }
-  }
+    if (it.batch_no) return [await batchRowToLine(it, lookupByTag, { submitted, componentDiscounts, warnings })];
+    return [savedRowToLine(it)];
+  }));
+  const lines = rowLines.flat();
 
   // Parent-level custom_*_discount fields hold the bill-level component discounts (always as a
   // flat Rate); discount_amount is those plus the overall bill discount folded together, so the

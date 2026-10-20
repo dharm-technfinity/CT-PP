@@ -1,6 +1,6 @@
 <!-- CaratDesk – New Payment Entry -->
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8"><script src="/caratdesk-sidebar.js"></script>
 </head>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap');
@@ -224,8 +224,8 @@
               <input class="cd-input cd-readonly" id="peCurrency" placeholder="Auto-filled from Party" readonly/>
             </div>
             <div class="cd-field">
-              <label class="cd-label">Amount <span class="req">*</span></label>
-              <input class="cd-input" type="number" min="0" step="0.01" id="peAmount" placeholder="0"/>
+              <label class="cd-label"><span id="peAmountLbl">Amount</span> <span class="req">*</span></label>
+              <input class="cd-input" type="number" min="0" step="0.01" id="peAmount" placeholder="0" oninput="recalcFxInr()"/>
             </div>
             <div class="cd-field">
               <label class="cd-label">Cash / Bank Account <span class="req">*</span></label>
@@ -234,6 +234,23 @@
                   oninput="acAccount(this.value)" onfocus="acAccount(this.value)"/>
                 <div class="cd-ac-list" id="ac-account"></div>
               </div>
+            </div>
+          </div>
+          <!-- Foreign-currency party (e.g. USD supplier on "Creditors USD"): Amount is in the party's
+               currency, the bank side is INR at this exchange rate. ERPNext books any difference
+               against the invoice's rate as Exchange Gain/Loss when the payment is allocated. -->
+          <div id="peFxRow" style="display:none;grid-template-columns:1fr 1fr 1fr;gap:16px">
+            <div class="cd-field">
+              <label class="cd-label">Party Account</label>
+              <input class="cd-input cd-readonly" id="pePartyAccount" readonly/>
+            </div>
+            <div class="cd-field">
+              <label class="cd-label">Exchange Rate <span id="peFxLbl" style="font-weight:400;color:var(--text-muted)"></span> <span class="req">*</span></label>
+              <input class="cd-input" type="number" min="0" step="0.0001" id="peExRate" placeholder="0" oninput="onFxRateInput()"/>
+            </div>
+            <div class="cd-field">
+              <label class="cd-label">Bank Amount (INR)</label>
+              <input class="cd-input cd-readonly" id="peInrAmount" readonly placeholder="0"/>
             </div>
           </div>
         </div>
@@ -366,6 +383,12 @@ let locked = false;
 let submitted = false;
 window.currentPEName = null;
 let currentPEPartyCode = ''; // set when an existing entry is loaded, so a re-save doesn't need to re-resolve Party from the (now locked) display text
+// The party's own receivable/payable account (Supplier/Customer Accounts table, else the company
+// default) and its currency — a USD supplier pays into "Creditors USD", so the entry is multi-currency.
+let PARTY_ACCOUNT = '';
+let PARTY_ACCOUNT_CURRENCY = 'INR';
+let _fxRateManual = false;
+let _partyAccountPromise = Promise.resolve(); // Save waits for the lookup kicked off by picking a party
 const params = new URLSearchParams(window.location.search);
 const returnUrl = params.get('return_url') || '/caratdesk-accounts';
 const ctxAssignment = params.get('assignment') || '';
@@ -386,6 +409,7 @@ function onPartyTypeChange(){
   const pType=partyType();
   document.getElementById('peParty').placeholder = 'Type '+pType.toLowerCase()+' name...';
   document.getElementById('peParty').value='';
+  PARTY_ACCOUNT=''; PARTY_ACCOUNT_CURRENCY=companyCurrency(); updateFxUI();
 }
 
 function setPaymentType(type){
@@ -416,7 +440,70 @@ function selParty(name,display){
   // in CUSTOMERS/SUPPLIERS depending on the selected Party Type.
   const partyObj=partyList().find(p=>p.name===name);
   document.getElementById('peCurrency').value = partyObj?.currency || COMPANY_DOC.default_currency || '';
+  _partyAccountPromise = resolvePartyAccount(partyType(), name);
 }
+
+// ── PARTY ACCOUNT / EXCHANGE RATE ──
+function companyCurrency(){ return COMPANY_DOC.default_currency || 'INR'; }
+function isFxEntry(){ return !!PARTY_ACCOUNT && PARTY_ACCOUNT_CURRENCY !== companyCurrency(); }
+function defaultPartyAccount(pType){ return pType==='Supplier' ? COMPANY_DOC.default_payable_account : COMPANY_DOC.default_receivable_account; }
+
+// ERPNext's own lookup: the party's Accounts-table account for this company, else the company default.
+async function resolvePartyAccount(pType, party, opts={}){
+  PARTY_ACCOUNT = defaultPartyAccount(pType) || '';
+  PARTY_ACCOUNT_CURRENCY = companyCurrency();
+  if(party){
+    try{
+      const qs = new URLSearchParams({ party_type:pType, party, company:COMPANY });
+      const r = await dev1Get('/api/method/erpnext.accounts.party.get_party_account?'+qs);
+      if(r?.message) PARTY_ACCOUNT = r.message;
+    }catch(e){ console.warn('Party account lookup failed:', e.message); }
+  }
+  if(PARTY_ACCOUNT){
+    try{
+      const r = await dev1Get('/api/resource/Account/'+encodeURIComponent(PARTY_ACCOUNT));
+      PARTY_ACCOUNT_CURRENCY = (r.data||r.message||{}).account_currency || companyCurrency();
+    }catch(e){ console.warn('Party account currency lookup failed:', e.message); }
+  }
+  if(opts.rate !== undefined){ document.getElementById('peExRate').value = opts.rate || ''; _fxRateManual = true; }
+  else if(isFxEntry()){ _fxRateManual = false; await refreshFxRate(); }
+  updateFxUI();
+}
+
+async function refreshFxRate(){
+  if(!isFxEntry() || _fxRateManual) return;
+  try{
+    const qs = new URLSearchParams({ from_currency:PARTY_ACCOUNT_CURRENCY, to_currency:companyCurrency(),
+      transaction_date:document.getElementById('pePostingDate').value || today(), args: paymentType==='Pay' ? 'for_buying' : 'for_selling' });
+    const r = await dev1Get('/api/method/erpnext.setup.utils.get_exchange_rate?'+qs);
+    const rate = parseFloat(r?.message)||0;
+    document.getElementById('peExRate').value = rate || '';
+    if(!rate) showToast(`No ${PARTY_ACCOUNT_CURRENCY} rate in Currency Exchange — enter the Exchange Rate`,'error');
+  }catch(e){ console.warn('Exchange rate fetch failed:', e.message); }
+  recalcFxInr();
+}
+
+function updateFxUI(){
+  const fx = isFxEntry();
+  document.getElementById('peFxRow').style.display = fx ? 'grid' : 'none';
+  document.getElementById('pePartyAccount').value = PARTY_ACCOUNT || '';
+  document.getElementById('peFxLbl').textContent = fx ? `(₹ per 1 ${PARTY_ACCOUNT_CURRENCY})` : '';
+  document.getElementById('peAmountLbl').textContent = fx ? `Amount (${PARTY_ACCOUNT_CURRENCY})` : 'Amount';
+  if(fx) document.getElementById('peCurrency').value = PARTY_ACCOUNT_CURRENCY;
+  recalcFxInr();
+}
+
+function fxRate(){ return parseFloat(document.getElementById('peExRate').value)||0; }
+// INR value of the entered amount — what leaves/enters the INR bank account
+function inrAmount(){
+  const amount = parseFloat(document.getElementById('peAmount').value||0)||0;
+  return isFxEntry() ? Math.round(amount*fxRate()*100)/100 : amount;
+}
+function recalcFxInr(){
+  const el = document.getElementById('peInrAmount'); if(!el) return;
+  el.value = isFxEntry() && fxRate() ? inrAmount().toFixed(2) : '';
+}
+function onFxRateInput(){ _fxRateManual = true; recalcFxInr(); }
 
 // ── ACCOUNT AUTOCOMPLETE ──
 function acAccount(val){
@@ -601,6 +688,7 @@ function validate(){
   if(amount<=0){ showToast('Please enter an amount greater than 0','error'); document.getElementById('peAmount').focus(); return false; }
   const account=document.getElementById('peAccount').value.trim();
   if(!account){ showToast('Please select a cash/bank account','error'); document.getElementById('peAccount').focus(); return false; }
+  if(isFxEntry() && !fxRate()){ showToast('Please enter the Exchange Rate','error'); document.getElementById('peExRate').focus(); return false; }
   const postingDate=document.getElementById('pePostingDate').value;
   if(!postingDate){ showToast('Please set a posting date','error'); return false; }
   if(postingDate < today()){ showToast('Posting date cannot be backdated','error'); return false; }
@@ -614,11 +702,12 @@ function validate(){
   // limit of 0 means it isn't configured, so that particular check is skipped rather than
   // silently enforcing some hardcoded number.
   const isRefund = sellingContext && paymentType==='Pay';
-  if(mode==='Cash' && isRefund && REFUND_LIMIT>0 && amount>REFUND_LIMIT){
+  const amountInr = inrAmount(); // caps are in rupees
+  if(mode==='Cash' && isRefund && REFUND_LIMIT>0 && amountInr>REFUND_LIMIT){
     showToast(`Cash refunds cannot exceed ₹${REFUND_LIMIT.toLocaleString('en-IN')} — please use Bank/UPI for the remaining amount`,'error');
     document.getElementById('peAmount').focus(); return false;
   }
-  if(mode==='Cash' && !isRefund && ADVANCE_LIMIT>0 && amount>ADVANCE_LIMIT){
+  if(mode==='Cash' && !isRefund && ADVANCE_LIMIT>0 && amountInr>ADVANCE_LIMIT){
     showToast(`Cash payments cannot exceed ₹${ADVANCE_LIMIT.toLocaleString('en-IN')} — please split across multiple modes/entries or use Bank/UPI`,'error');
     document.getElementById('peAmount').focus(); return false;
   }
@@ -637,9 +726,17 @@ function buildPayload(){
   const account=acctObj?.name||accountInput;
   const amount=parseFloat(document.getElementById('peAmount').value||0)||0;
   const pType=partyType();
-  const partyAccount = pType==='Supplier' ? COMPANY_DOC.default_payable_account : COMPANY_DOC.default_receivable_account;
+  const partyAccount = PARTY_ACCOUNT || defaultPartyAccount(pType);
   const paid_from = paymentType==='Pay' ? account : partyAccount;
   const paid_to   = paymentType==='Pay' ? partyAccount : account;
+  // Foreign party account: Amount is in the party's currency, the bank side is INR at the rate.
+  // Pay: bank (INR) → party (USD) · Receive: party (USD) → bank (INR).
+  const fx = isFxEntry(), rate = fx ? fxRate() : 1, bankAmt = inrAmount();
+  const amounts = !fx
+    ? { paid_amount: amount, received_amount: amount, source_exchange_rate: 1, target_exchange_rate: 1 }
+    : paymentType==='Pay'
+      ? { paid_amount: bankAmt, received_amount: amount, source_exchange_rate: 1, target_exchange_rate: rate }
+      : { paid_amount: amount, received_amount: bankAmt, source_exchange_rate: rate, target_exchange_rate: 1 };
   return {
     doctype:'Payment Entry',
     payment_type: paymentType,
@@ -651,10 +748,7 @@ function buildPayload(){
     custom_currency: document.getElementById('peCurrency').value || undefined,
     posting_date: document.getElementById('pePostingDate').value || today(),
     paid_from, paid_to,
-    paid_amount: amount,
-    received_amount: amount,
-    source_exchange_rate: 1,
-    target_exchange_rate: 1,
+    ...amounts,
     mode_of_payment: document.getElementById('peMode').value || undefined,
     reference_no: document.getElementById('peRefNo').value.trim() || undefined,
     reference_date: document.getElementById('peRefDate').value || undefined,
@@ -675,6 +769,7 @@ async function markInstallmentsPaid(assignmentName, rowNames, paymentEntryName){
 //  SAVE DRAFT — creates as Draft (or updates one already saved), stays on this page
 // ══════════════════════════════════════════
 async function saveDraft(){
+  await _partyAccountPromise; // validate() needs the party account's currency
   if(!validate()) return;
   const btn=document.getElementById('cdMainActionBtn');
   btn.disabled=true;
@@ -760,6 +855,17 @@ async function loadExistingPaymentEntry(name){
 
     document.getElementById('pePostingDate').value = doc.posting_date || '';
     document.getElementById('peAmount').value = doc.paid_amount || doc.received_amount || 0;
+    // Restore the party account + rate used; for a foreign party Amount is the party-side figure
+    const partyAcc = doc.payment_type==='Pay' ? doc.paid_to : doc.paid_from;
+    const partyAccCur = doc.payment_type==='Pay' ? doc.paid_to_account_currency : doc.paid_from_account_currency;
+    PARTY_ACCOUNT = partyAcc || '';
+    PARTY_ACCOUNT_CURRENCY = partyAccCur || companyCurrency();
+    if(isFxEntry()){
+      document.getElementById('peAmount').value = (doc.payment_type==='Pay' ? doc.received_amount : doc.paid_amount) || 0;
+      document.getElementById('peExRate').value = (doc.payment_type==='Pay' ? doc.target_exchange_rate : doc.source_exchange_rate) || '';
+      _fxRateManual = true;
+    }
+    updateFxUI();
     document.getElementById('peRefDate').value = doc.reference_date || '';
     document.getElementById('peRefNo').value = doc.reference_no || '';
     document.getElementById('peRemarks').value = doc.remarks || '';
@@ -807,6 +913,7 @@ async function init(){
 
   document.getElementById('pePostingDate').value = today();
   document.getElementById('pePostingDate').min = today();
+  document.getElementById('pePostingDate').addEventListener('change', ()=>refreshFxRate());
   document.getElementById('peRefDate').value = today();
 
   if(sellingContext){
@@ -879,6 +986,7 @@ async function init(){
     if(ctxAmount) document.getElementById('peAmount').value = ctxAmount;
     const ctxPartyObj=partyList().find(p=>p.name===ctxParty);
     document.getElementById('peCurrency').value = ctxPartyObj?.currency || COMPANY_DOC.default_currency || '';
+    await resolvePartyAccount(document.getElementById('pePartyType').value, ctxParty);
   }
   const ctxMode = params.get('mode_of_payment');
   const modeSel = document.getElementById('peMode');

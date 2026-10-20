@@ -51,6 +51,13 @@ export function fmtDateTime(isoString) {
   });
 }
 
+// "2026-10-10" (ERPNext posting_date) -> "10-10-2026". Split as text, not parsed as a Date, so the
+// browser's timezone can never shift it to the day before.
+export function fmtDate(isoDate) {
+  const [y, m, d] = String(isoDate || '').slice(0, 10).split('-');
+  return y && m && d ? `${d}-${m}-${y}` : '';
+}
+
 export function round2(n) {
   return Math.round(parseFloat(n || 0) * 100) / 100;
 }

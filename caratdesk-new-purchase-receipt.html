@@ -1,6 +1,6 @@
 <!-- CaratDesk – New Purchase Receipt (Final – Token Auth) -->
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8"><script src="/caratdesk-sidebar.js"></script>
 </head>
 <style>
     @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap');
@@ -314,8 +314,18 @@
             <div class="cd-field">
               <label class="cd-label">Posting Date <span class="req">*</span></label>
               <input class="cd-input" type="date" id="postingDate" style="padding-bottom:7px"/>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                <div>
+                  <label class="cd-label">Currency</label>
+                  <input class="cd-input cd-readonly" id="docCurrency" value="INR" readonly data-always-readonly title="From the Supplier's default currency"/>
+                </div>
+                <div>
+                  <label class="cd-label">Exchange Rate <span id="convRateLbl" style="font-weight:400;color:var(--text-muted)"></span></label>
+                  <input class="cd-input" type="number" id="convRate" value="1" min="0" step="0.0001"/>
+                </div>
+              </div>
               <label class="cd-label">Supplier Address</label>
-              <textarea class="cd-textarea cd-readonly" id="suppAddr" rows="5" placeholder="Fetched automatically on supplier select" readonly style="resize:none;line-height:1.6"></textarea>
+              <textarea class="cd-textarea cd-readonly" id="suppAddr" rows="3" placeholder="Fetched automatically on supplier select" readonly style="resize:none;line-height:1.6"></textarea>
             </div>
             <div class="cd-field">
               <label class="cd-label">Against Purchase Order</label>
@@ -338,7 +348,7 @@
               <div id="repairOrderField" style="display:none">
                 <label class="cd-label">Repair Order <span class="req">*</span></label>
                 <div class="cd-ac">
-                  <input class="cd-input" id="repairOrder" placeholder="Type to search submitted repair orders" autocomplete="off"
+                  <input class="cd-input" id="repairOrder" placeholder="Type to search issued repair orders" autocomplete="off"
                     oninput="acRepair(this.value)" onfocus="acRepair(this.value,true)" onclick="acRepair(this.value,true)"/>
                   <div class="cd-ac-list" id="ac-repair"></div>
                 </div>
@@ -397,9 +407,9 @@
                   <th style="width:105px">Received Qty <span style="color:var(--pill-red-txt)">*</span></th>
                   <th style="width:95px">Gross Wt (g)</th>
                   <th style="width:95px">Net Wt (g)</th>
-                  <th style="width:120px">Rate<span style="color:var(--pill-red-txt)">*</span></th>
+                  <th style="width:120px">Rate<span class="cd-cur-tag"></span><span style="color:var(--pill-red-txt)">*</span></th>
                   <th style="width:90px">Disc %</th>
-                  <th style="width:110px">Amount</th>
+                  <th style="width:110px">Amount<span class="cd-cur-tag"></span></th>
                   <th style="width:110px">Warehouse <span style="color:var(--pill-red-txt)">*</span></th>
                   <th style="width:80px">Tunch</th>
                   <th style="width:80px">Wastage %</th>
@@ -472,13 +482,13 @@
                 <th style="width:65px">UOM</th>
                 <th style="width:70px">Qty <span style="color:var(--pill-red-txt)">*</span></th>
                 <th style="width:55px">Pcs</th>
-                <th style="width:90px">Rate <span style="color:var(--pill-red-txt)">*</span></th>
+                <th style="width:90px">Rate<span class="cd-cur-tag"></span> <span style="color:var(--pill-red-txt)">*</span></th>
                 <th style="width:110px">Labour On</th>
                 <th style="width:90px">Labour Charges</th>
                 <th style="display:none">Making Charges</th>
                 <th style="display:none">Wastage %</th>
-                <th style="width:90px">Handling Rate</th>
-                <th style="width:90px">Amount</th>
+                <th style="width:90px">Handling Rate<span class="cd-cur-tag"></span></th>
+                <th style="width:90px">Amount<span class="cd-cur-tag"></span></th>
                 <th style="width:34px"></th>
               </tr></thead>
               <tbody id="bomTbody"></tbody>
@@ -528,7 +538,7 @@
               <input class="cd-input" type="number" id="totalNetWt" readonly placeholder="0.000"/>
             </div>
             <div class="cd-field">
-              <label class="cd-label" style="margin-top:0">Total Labour Amount (₹)</label>
+              <label class="cd-label" style="margin-top:0">Total Labour Amount (<span class="cd-cur-sym">₹</span>)</label>
               <input class="cd-input" type="number" id="totalLabourAmt" readonly placeholder="0.00"/>
             </div>
             <div class="cd-field">
@@ -582,7 +592,7 @@
               <tbody id="taxTbody"></tbody>
             </table>
           </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr;margin-top:14px;border-top:.5px solid var(--border)">
+          <div id="totalsGrid" data-cols="5" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr;margin-top:14px;border-top:.5px solid var(--border)">
             <div style="padding:10px 14px;border-right:.5px solid var(--border)">
               <div style="font-size:10px;font-weight:500;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Net Total</div>
               <div style="font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--text-primary)" id="tot-net">0</div>
@@ -600,8 +610,12 @@
               <div style="font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--pill-red-txt)" id="tot-disc">0</div>
             </div>
             <div style="padding:10px 14px;background:var(--accent-light)">
-              <div style="font-size:10px;font-weight:500;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Grand Total</div>
+              <div style="font-size:10px;font-weight:500;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Grand Total<span class="cd-cur-tag"></span></div>
               <div style="font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--text-primary)" id="tot-grand">0</div>
+            </div>
+            <div id="tot-grand-inr-cell" style="display:none;padding:10px 14px;border-left:.5px solid var(--border);background:var(--accent-light)">
+              <div style="font-size:10px;font-weight:500;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Grand Total (INR)</div>
+              <div style="font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--text-primary)" id="tot-grand-inr">0</div>
             </div>
           </div>
           <div class="cd-words" style="margin:0;border-radius:0;border-top:.5px solid var(--border)" id="tot-words">Zero Rupees Only</div>
@@ -952,7 +966,7 @@
     </div>
     <!-- Partial Bhav Cut — optional: settle by a target ₹ amount instead of by weight -->
     <div class="cd-field" style="margin-bottom:14px">
-      <label class="cd-label" style="margin-top:0">Settlement Amount (₹) — optional, settle by amount instead of weight</label>
+      <label class="cd-label" style="margin-top:0">Settlement Amount (<span class="cd-cur-sym">₹</span>) — optional, settle by amount instead of weight</label>
       <input class="cd-input" type="number" id="bdlg-settlement-amt" step="0.01" placeholder="e.g. 80000 — leave blank to settle by weight above" oninput="calcBhavDlg()" style="margin-top:4px"/>
     </div>
     <!-- Row 5: Results -->
@@ -1271,6 +1285,7 @@
 <div class="cd-toast" id="cdToast"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg><span id="cdToastMsg"></span></div>
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 <script src="/caratdesk-metal-rates.js"></script>
+<script src="/caratdesk-currency.js"></script>
 <script>
 // ══════════════════════════════════════════
 //  CONFIG
@@ -1300,11 +1315,17 @@ let DIAMOND_PRICE_ATTRS  = []; // ["Diamond Type", "Diamond Colour", ...] — fr
 let GEMSTONE_PRICE_ATTRS = []; // ["Stone Type", ...] — from PP Settings1's gemstone_price_list_mapping table
 let DIAMOND_CATEGORY_MARGIN = []; // [{ item_category: "Trading", margin: 230 }, ...] — from PP Settings1's item_catefory_wise_diamond_margin table
 let rowCount=0, submitted=false;
+// Repair Order currently loaded into the tables, and whether the Supplier is locked to it
+let _loadedRepairOrder='', _repairSupplierLocked=false;
 let bomViewOnly=false; // true once the PR is submitted/cancelled — Make BOM dialog opens read-only
 let isReturnPR=false, returnAgainstPR='';
 
+// Document currency (USD supplier etc.) — shared helpers in /caratdesk-currency.js: grid rates and
+// amounts are in the receipt's currency; price lists, saved BOMs, tags and the Purity Ledger stay INR.
+// Supplier master values (making charges, handling rate) are in the supplier's currency.
+
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function fmt(n){ return ''+Math.round(n||0).toLocaleString('en-IN'); }
+function fmt(n){ return cdFmtMoney(n); }
 function getCsrf(){ if(typeof frappe!=='undefined'&&frappe.csrf_token)return frappe.csrf_token; const m=document.cookie.match(/csrf_token=([^;]+)/);return m?m[1]:''; }
 
 // ══════════════════════════════════════════
@@ -1459,7 +1480,7 @@ async function pubGet(script, params={}){
     'caratdesk_get_warehouses':'/api/resource/Warehouse?fields=["name"]&limit=500',
     'caratdesk_get_tax_templates':'/api/resource/Purchase%20Taxes%20and%20Charges%20Template?fields=["name"]&limit=100',
     'caratdesk_get_purchase_orders':'/api/resource/Purchase%20Order?fields=["name","supplier","supplier_name","transaction_date","grand_total","status","docstatus"]&limit=500&order_by=transaction_date%20desc',
-    'caratdesk_get_repair_orders':'/api/resource/Repair%20Order?fields=["name","customer","customer_name","docstatus"]&filters=[["docstatus","=",1]]&limit=500&order_by=modified%20desc',
+    'caratdesk_get_repair_orders':'/api/resource/Repair%20Order?fields=["name","customer","customer_name","supplier","order_type","docstatus"]&filters=[["docstatus","=",0],["issue_date","is","set"]]&limit=500&order_by=modified%20desc',
     'caratdesk_get_job_work_stock_entries':'/api/resource/Stock%20Entry?fields=["name","posting_date","stock_entry_type","docstatus"]&filters=[["stock_entry_type","=","Receive From Subcontractor"],["docstatus","=",1]]&limit=500&order_by=posting_date%20desc',
   };
   if(proxyMap[script]) return dev1Get(proxyMap[script]);
@@ -1540,6 +1561,7 @@ async function loadMasterData(){
   }
 }catch(e){ errors.push('branches'); }
   
+  try{ await cdInitCurrency({ dateInputId:'postingDate', onChange:()=>recalc() }); }catch(e){ console.warn('Currency load failed:', e.message); }
   try{ await loadMetalRates(); }catch(e){ console.warn('Metal rates load failed:', e.message); }
   try{ await loadPPSettings(); }catch(e){ console.warn('PP settings load failed:', e.message); }
   try{ await loadBhavMetalItems(); }catch(e){ console.warn('Bhav metal items load failed:', e.message); }
@@ -1607,6 +1629,8 @@ async function loadExistingPR(name){
     document.getElementById('repairOrder').value         = doc.custom_repair_order||'';
     document.getElementById('jobWorkOrder').value        = doc.custom_job_work_order||'';
     onPrTypeChange();
+    _loadedRepairOrder = doc.custom_type==='Repair' ? (doc.custom_repair_order||'') : '';
+    setSupplierLocked(!!_loadedRepairOrder && !!doc.supplier);
     document.getElementById('remarks').value             = doc.remarks||'';
     if(doc.branch || doc.custom_branch) document.getElementById('branch').value = doc.branch || doc.custom_branch || '';
     document.getElementById('warehouse').value           = doc.set_warehouse||'';
@@ -1615,6 +1639,10 @@ async function loadExistingPR(name){
     document.getElementById('addDisc').value             = doc.additional_discount_percentage||0;
     document.getElementById('lessWeight').value          = doc.custom_less_weight||0;
     if(doc.supplier) await selSupplier(doc.supplier, true);
+    // The saved currency/rate win over the supplier's default and today's rate
+    cdSetDocCurrency(doc.currency || COMPANY_CURRENCY, doc.conversion_rate || 1, { manual:true });
+    // A foreign-currency receipt keeps the template it was saved with (selSupplier cleared it)
+    if(cdIsForeign()) document.getElementById('taxTemplate').value = doc.taxes_and_charges || '';
 
     // ── Items ──
     document.getElementById('itemsTbody').innerHTML=''; rowCount=0;
@@ -1648,6 +1676,10 @@ async function loadExistingPR(name){
       const tr=document.getElementById(rowId); if(!tr) return;
       tr.dataset.loadedFromDoc = '1';
       tr.dataset.fromSavedPr = '1'; // set rows: re-link saved sub-item rows, never add new ones
+      if(doc.custom_type==='Repair'){
+        tr.dataset.repairPiece = item.custom_old_serial_no || REPAIR_PIECE_KEY;
+        if(item.custom_old_serial_no) tr.dataset.oldSerial = item.custom_old_serial_no;
+      }
       fillRow(rowId, item.item_code||'', item.item_name||item.item_code||'', item.gst_hsn_code||'', item.uom||'Nos', item.rate||0);
       const f=(sel,val)=>{ const el=tr.querySelector(sel); if(el) el.value=val; };
       f('[data-f="qty"]',                 item.qty||0);
@@ -1691,6 +1723,15 @@ async function loadExistingPR(name){
       if(item.custom_bom) bomLoadQueue.push({ rowId, bomName: item.custom_bom, grossWt: item.custom_gross_weight||item.gross_weight||0, netWt: item.custom_net_weight||item.net_weight||0 });
     });
 
+    // Repair receipt: the Repair Order's BOMs must be known before the BOM rows load below, since
+    // loading them re-derives each Modification row's rate from its old BOM.
+    if(doc.custom_type==='Repair' && doc.custom_repair_order){
+      try{
+        const roRes = await dev1Get(`/api/resource/Repair%20Order/${encodeURIComponent(doc.custom_repair_order)}`);
+        setRepairEstimate(roRes.data || roRes.message || {});
+      }catch(e){ console.warn('[PR] Repair Order load failed:', e.message); }
+    }
+
     // ── Order Qty from PO ──
     if(doc.purchase_order){
       try{
@@ -1722,6 +1763,8 @@ async function loadExistingPR(name){
           const fgCode=bom.item||'';
           const fgName=bom.item_name||fgCode;
           (bom.items||[]).forEach(bi=>{
+            // BOMs are saved in INR — bring money fields back into the receipt's currency
+            const labourMode = ({'%':'Percentage','g':'Fixed Rate'})[bi.custom_labour_mode] || bi.custom_labour_mode || 'Percentage';
             addBomRow(
               fgCode, fgName,
               bi.item_code||'',
@@ -1733,15 +1776,15 @@ async function loadExistingPR(name){
               bi.custom_diamond_sieve_size||'',
               bi.uom||'',
               bi.qty||0,
-              bi.custom_costing_rate||bi.rate||0,
+              cdToDoc(bi.custom_costing_rate||bi.rate||0),
               bi.custom_huid||'',
               rowId,
-              bi.custom_making||0,
-              ({'%':'Percentage','g':'Fixed Rate'})[bi.custom_labour_mode] || bi.custom_labour_mode || 'Percentage',
-              bi.custom_labour_val||0,
+              cdToDoc(bi.custom_making||0),
+              labourMode,
+              labourMode==='Percentage' ? (bi.custom_labour_val||0) : cdToDoc(bi.custom_labour_val||0),
               bi.custom_wastage||0,
-              bi.custom_handling_rate||0,
-              bi.custom_bom_amt||0,
+              cdToDoc(bi.custom_handling_rate||0),
+              cdToDoc(bi.custom_bom_amt||0),
               0, 0, bi.custom_add_in_net_wt||0, 0, bi.custom_item_group||'', bi.custom_pcs||0
             );
           });
@@ -1835,7 +1878,7 @@ async function loadExistingPR(name){
 function setDocReadOnly(readonly){
   const form = document.querySelector('.cd-form-content');
   if(!form) return;
-  form.querySelectorAll('input:not([type="hidden"]), select, textarea').forEach(el=>{
+  form.querySelectorAll('input:not([type="hidden"]):not([data-always-readonly]), select, textarea').forEach(el=>{
     el.readOnly = readonly;
     el.disabled = readonly;
     if(readonly) el.style.cursor='not-allowed';
@@ -1861,6 +1904,8 @@ function setDocReadOnly(readonly){
   // the Make BOM dialog opens in view-only mode (see bomViewOnly). Only rows that actually
   // have BOM rows get enabled; the rest keep whatever state checkIsFinishedItem gave them.
   bomViewOnly = readonly;
+  // A Repair Order's supplier stays locked in an editable draft
+  if(!readonly && _repairSupplierLocked) setSupplierLocked(true);
   // Set rows keep their pieces hidden/locked and their derived Rate locked in an editable draft
   if(!readonly){
     // Weight / Touch fields stay locked on non-FG rows (setFgWeightFieldsEnabled)
@@ -2115,6 +2160,9 @@ async function makeReturnPR(){
       supplier_name: doc.supplier_name || doc.supplier,
       posting_date: today,
       company: doc.company,
+      // Same currency and rate as the original receipt, so the return reverses the same INR value
+      currency: doc.currency || COMPANY_CURRENCY,
+      conversion_rate: doc.conversion_rate || 1,
       set_warehouse: doc.set_warehouse || '',
       items: returnItems,
       taxes: returnTaxes,
@@ -2148,7 +2196,7 @@ function scanItem(code){
     const ci=tr.querySelector('[data-f="code"]');
     if(ci&&ci.value===it.code){ const qi=tr.querySelector('[data-f="qty"]'); if(qi){ qi.value=(parseFloat(qi.value)||0)+1; recalcRow(tr.id); } found=true; }
   });
-  if(!found){ addRow(); const lastRow=document.querySelector('#itemsTbody tr:last-child'); if(lastRow) fillRow(lastRow.id,it.code,it.name,it.hsn||'',it.uom||'Nos',it.rate||0); }
+  if(!found){ addRow(); const lastRow=document.querySelector('#itemsTbody tr:last-child'); if(lastRow) fillRow(lastRow.id,it.code,it.name,it.hsn||'',it.uom||'Nos',cdToDoc(it.rate||0)); }
   showToast(it.code+' scanned ✓','success');
 }
 
@@ -2273,6 +2321,7 @@ function supplierAcHint(query,count,total){
   return count?(count+' match'+(count>1?'es':'')+' found · type to narrow'):'No matches · type to narrow';
 }
 function acSupplier(q, forceShow){
+  if(_repairSupplierLocked){ setSupplierAcOpen(false); return; }
   const list=document.getElementById('ac-supplier');
   const query=(q||'').trim();
   if(!forceShow && !query){ setSupplierAcOpen(false); return; }
@@ -2340,7 +2389,22 @@ async function selSupplierInner(name, skipClearPO=false){
       }
     }
   }catch(e){ console.warn('Address fetch failed:',e.message); SUPPLIERSTATE=''; SUPPLIER_GSTIN=''; document.getElementById('suppAddr').value=''; }
+  // Currency first — the tax step skips GST templates for a foreign-currency supplier
+  let currencyChanged=false;
+  try{ currencyChanged=await applySupplierCurrency(s.name); }catch(e){ console.warn('Supplier currency apply failed:',e.message); }
   try{ await autoSetTaxTemplateFromAddresses(); }catch(e){ console.warn('Auto tax template apply failed:',e.message); }
+  // Shown last so the tax message doesn't replace it
+  if(currencyChanged && hasItemRates()) cdWarnRatesNotConverted();
+}
+
+// ══ DOCUMENT CURRENCY ══
+function hasItemRates(){
+  return [...document.querySelectorAll('#itemsTbody tr')].some(tr=>(parseFloat(tr.querySelector('[data-f="rate"]')?.value)||0)!==0);
+}
+
+async function applySupplierCurrency(supplierName){
+  await loadSupplierMakingCharges(supplierName); // also caches the supplier's default currency
+  return cdApplySupplierCurrency(supplierName, _supplierDefaultCurrency);
 }
 
 // ══ PO AUTOCOMPLETE ══
@@ -2401,6 +2465,12 @@ async function selPO(name){
       const typeSel=document.getElementById('prType');
       if(typeSel && !typeSel.value) typeSel.value=doc.custom_type;
     }
+    // PO rates are in the PO's currency — use it here too (rate is the receipt date's, not the PO's).
+    // Wait for the supplier pick above first so its default currency doesn't land after this.
+    if(doc.currency){
+      try{ await supplierResolvePromise; }catch(e){}
+      if(doc.currency!==cdDocCurrency() && await cdApplyDocCurrency(doc.currency) && hasItemRates()) cdWarnRatesNotConverted();
+    }
     const poItems=doc.items||[];
     if(!poItems.length){ showToast('No items found in this PO','info'); return; }
 
@@ -2441,20 +2511,57 @@ function onPrTypeChange(){
   const isRepair = type==='Repair';
   const isJobWork = type==='Job Work';
   document.getElementById('repairOrderField').style.display = isRepair ? '' : 'none';
-  if(!isRepair) document.getElementById('repairOrder').value='';
+  if(!isRepair){ document.getElementById('repairOrder').value=''; clearRepairOrderLoad(); }
   document.getElementById('jobWorkOrderField').style.display = isJobWork ? '' : 'none';
   if(!isJobWork) document.getElementById('jobWorkOrder').value='';
 }
 
-// ══ REPAIR ORDER AUTOCOMPLETE (submitted Repair Orders only — REPAIR_LIST is pre-filtered to docstatus=1) ══
+function setSupplierLocked(locked){
+  _repairSupplierLocked=locked;
+  const el=document.getElementById('supplier');
+  el.readOnly=locked;
+  el.classList.toggle('cd-readonly',locked);
+  el.title=locked?'Fetched from the Repair Order — clear the Repair Order to change':'';
+  if(locked) setSupplierAcOpen(false);
+}
+function clearItemTables(){
+  document.getElementById('itemsTbody').innerHTML='';
+  document.getElementById('bomTbody').innerHTML='';
+  rowCount=0; bomRowCount=0;
+  addRow();
+  recalcBom();
+  recalc();
+}
+// Undo a loaded Repair Order: empty the tables it filled and unlock the Supplier
+function clearRepairOrderLoad(){
+  if(!_loadedRepairOrder) return;
+  _loadedRepairOrder='';
+  setSupplierLocked(false);
+  clearItemTables();
+}
+
+// ══ REPAIR ORDER AUTOCOMPLETE (issued, not yet submitted Repair Orders — REPAIR_LIST is pre-filtered) ══
+// Pieces come back through this receipt: its Submit receives them on the Repair Order and
+// submits the order once every piece is back (see finishRepairReceipt()).
 function acRepair(q, forceShow){
   const list=document.getElementById('ac-repair');
   const query=(q||'').trim().toLowerCase();
+  if(!query) clearRepairOrderLoad(); // Repair Order erased
   if(!forceShow && !query){ list.classList.remove('open'); return; }
-  const r=query?REPAIR_LIST.filter(p=>p.name.toLowerCase().includes(query)||(p.customer_name||p.customer||'').toLowerCase().includes(query)).slice(0,10):REPAIR_LIST.slice(0,10);
-  const hintText='Submitted repair orders'+(query?' · '+r.length+' match'+(r.length!==1?'es':''):' · showing '+r.length+' of '+REPAIR_LIST.length);
+  // Supplier picked first → only that supplier's Repair Orders
+  const currentSupplier=document.getElementById('supplier').value.trim();
+  let filtered=REPAIR_LIST;
+  const bySupplier=currentSupplier && !_repairSupplierLocked; // a locked supplier came from the order itself
+  if(bySupplier){
+    const supplierMatch=SUPPLIERS.find(s=>s.display===currentSupplier||s.name===currentSupplier);
+    const sName=supplierMatch?supplierMatch.name:currentSupplier;
+    filtered=REPAIR_LIST.filter(p=>p.supplier===sName);
+  }
+  const r=query?filtered.filter(p=>p.name.toLowerCase().includes(query)||(p.customer_name||p.customer||'').toLowerCase().includes(query)).slice(0,10):filtered.slice(0,10);
+  const hintText=(bySupplier?'Issued repair orders for this supplier':'Issued repair orders')+(query?' · '+r.length+' match'+(r.length!==1?'es':''):' · showing '+r.length+' of '+filtered.length);
   const hint='<div class="cd-ac-hint">'+hintText+'</div>';
-  list.innerHTML=r.length?hint+r.map(p=>`<div class="cd-ac-item" data-name="${encodeURIComponent(p.name)}"><div class="main">${esc(p.name)}</div><div class="sub">${esc(p.customer_name||p.customer||'')}</div></div>`).join(''):hint+`<div class="cd-ac-empty">No submitted repair orders found</div>`;
+  const supplierDisp=p=>{ const s=SUPPLIERS.find(x=>x.name===p.supplier); return s?s.display:(p.supplier||''); };
+  list.innerHTML=r.length?hint+r.map(p=>`<div class="cd-ac-item" data-name="${encodeURIComponent(p.name)}"><div class="main">${esc(p.name)}</div><div class="sub">${esc([p.customer_name||p.customer,supplierDisp(p)].filter(Boolean).join(' · '))}</div></div>`).join(''):hint+`<div class="cd-ac-empty">${bySupplier?'No issued repair orders for this supplier':'No issued repair orders found'}</div>`;
   list.classList.add('open');
 }
 document.getElementById('ac-repair').addEventListener('click',function(e){
@@ -2481,57 +2588,145 @@ function selJobWork(name){
   document.getElementById('jobWorkOrder').value=name;
   document.getElementById('ac-jobwork').classList.remove('open');
 }
+// ══════════════════════════════════════════
+//  REPAIR ORDER → RECEIPT. One item row per piece still out with the karigar, each carrying
+//  that piece's Repair Order BOM rows. Modification pieces come back as a new Serial No
+//  (M-<original>-<n>) on the same item; the old serial is taken out and its value moved onto
+//  the new one when this receipt is submitted (see finishRepairReceipt()).
+// ══════════════════════════════════════════
+// Each piece's BOM as issued on the Repair Order (INR) — base of a Modification row's rate (only
+// the extra over it is billed) and of the "no change in BOM" check on Submit. Keyed by old
+// Serial No, or REPAIR_PIECE_KEY for a Repair-type order's single "Repair Item".
+const REPAIR_PIECE_KEY='__repair__';
+let REPAIR_ESTIMATE={};
+function setRepairEstimate(doc){
+  REPAIR_ESTIMATE={};
+  const rows=doc.repair_serial_no||[];
+  if(doc.order_type==='Modification' && rows.length){
+    rows.forEach(r=>{ REPAIR_ESTIMATE[r.serial_no]=(doc.bom_item||[]).filter(b=>b.custom_repair_serial_no===r.serial_no); });
+  } else if(doc.order_type==='Modification' && doc.serial_no){
+    REPAIR_ESTIMATE[doc.serial_no]=doc.bom_item||[];
+  } else {
+    REPAIR_ESTIMATE[REPAIR_PIECE_KEY]=doc.bom_item||[];
+  }
+}
+function repairEstimateTotal(key){
+  return (REPAIR_ESTIMATE[key]||[]).reduce((s,r)=>s+(parseFloat(r.custom_bom_amt||r.amount||0)),0);
+}
+// Pieces still out: multi-serial Modification rows that are Issued; an old single-serial
+// Modification order or a Repair-type order is one piece.
+function repairPiecesOf(doc){
+  const rows=doc.repair_serial_no||[];
+  if(doc.order_type==='Modification' && rows.length){
+    return rows.filter(r=>r.row_status==='Issued').map(r=>({ key:r.serial_no, oldSerial:r.serial_no, itemCode:r.item_code, bomRows:REPAIR_ESTIMATE[r.serial_no]||[] }));
+  }
+  if(doc.order_type==='Modification' && doc.serial_no){
+    return [{ key:doc.serial_no, oldSerial:doc.serial_no, itemCode:doc.item, bomRows:REPAIR_ESTIMATE[doc.serial_no]||[] }];
+  }
+  return [{ key:REPAIR_PIECE_KEY, oldSerial:'', itemCode:doc.item||'Repair Item', bomRows:REPAIR_ESTIMATE[REPAIR_PIECE_KEY]||[] }];
+}
+// Pieces of this Repair Order already sitting on another draft receipt → { pieceKey: prName }
+async function repairPiecesOnOtherDrafts(roName){
+  const filters=[['custom_repair_order','=',roName],['docstatus','=',0]];
+  if(window.currentPRName) filters.push(['name','!=',window.currentPRName]);
+  const res=await dev1Get(`/api/resource/Purchase%20Receipt?fields=${encodeURIComponent(JSON.stringify(['name']))}&filters=${encodeURIComponent(JSON.stringify(filters))}&limit_page_length=0`);
+  const taken={};
+  for(const pr of (res.data||res.message||[])){
+    const d=await dev1Get(`/api/resource/Purchase%20Receipt/${encodeURIComponent(pr.name)}`);
+    ((d.data||d.message||{}).items||[]).forEach(it=>{ taken[it.custom_old_serial_no||REPAIR_PIECE_KEY]=pr.name; });
+  }
+  return taken;
+}
+// M-EA0001-1 for EA0001; M-EA0001-2 when M-EA0001-1 itself comes back. Skips any name that
+// already exists as a Serial No.
+async function nextModifiedSerialNames(oldSerials){
+  const plan={};
+  await Promise.all(oldSerials.map(async old=>{
+    const m=/^M-(.+)-(\d+)$/.exec(old);
+    const base=m?m[1]:old;
+    let existing=new Set();
+    try{
+      const r=await dev1Get(`/api/resource/Serial%20No?fields=${encodeURIComponent(JSON.stringify(['name']))}&filters=${encodeURIComponent(JSON.stringify([['name','like','M-'+base+'-%']]))}&limit_page_length=0`);
+      existing=new Set((r.data||r.message||[]).map(x=>x.name));
+    }catch(e){ console.warn('Serial No lookup failed for', base, ':', e.message); }
+    plan[old]={ base, n:m?parseInt(m[2],10)+1:1, existing };
+  }));
+  const used=new Set(), names={};
+  oldSerials.forEach(old=>{
+    let { base, n, existing }=plan[old], name;
+    do{ name=`M-${base}-${n++}`; }while(existing.has(name)||used.has(name));
+    used.add(name); names[old]=name;
+  });
+  return names;
+}
+
 async function selRepair(name){
   document.getElementById('repairOrder').value=name;
   document.getElementById('ac-repair').classList.remove('open');
   if(!name) return;
+  if(name===_loadedRepairOrder) return; // same order again — already loaded, don't duplicate rows
 
-  // Pull the Repair Order's own fixed Item + its "Make BOM" rows straight into this Purchase
-  // Receipt — same manual-fetch pattern selPO() uses for "Against Purchase Order", just
-  // sourced from Repair Order.bom_item instead of a PO's items. Nothing is auto-created on
-  // the backend here — this only pre-fills the form for the user to review and submit.
+  // Pre-fills the form only — nothing is created on the backend until this receipt is submitted.
   try{
-    showToast('Fetching item & BOM from Repair Order…','info');
+    showToast('Fetching pieces & BOM from Repair Order…','info');
     const res = await dev1Get(`/api/resource/Repair%20Order/${encodeURIComponent(name)}`);
     const doc = res.data || res.message;
     if(!doc) throw new Error('Repair Order not found');
 
-    const itemCode = doc.item || 'Repair Item';
-    const bomRows = doc.bom_item || [];
-    const totalAmt = bomRows.reduce((s,r)=>s+(parseFloat(r.custom_bom_amt||r.amount||0)),0);
-
-    // Reuse an already-blank row (e.g. the default starter row on a fresh Purchase Receipt)
-    // instead of always adding a new one — avoids leaving an empty row sitting above the
-    // fetched Repair Item, which looked like a duplicate line.
-    const blankRow = [...document.querySelectorAll('#itemsTbody tr')].find(tr => !tr.querySelector('[data-f="code"]')?.value?.trim());
-    let newRowId;
-    if(blankRow){
-      newRowId = blankRow.id;
-    } else {
-      addRow();
-      newRowId = document.getElementById('itemsTbody').lastElementChild.id;
+    setRepairEstimate(doc);
+    const taken = await repairPiecesOnOtherDrafts(name);
+    const allPieces = repairPiecesOf(doc);
+    const pieces = allPieces.filter(p=>!taken[p.key]);
+    const skipped = allPieces.length - pieces.length;
+    if(!pieces.length){
+      showToast(skipped ? `Every issued piece of ${name} is already on draft ${Object.values(taken)[0]}` : `No issued pieces left on ${name}`,'error',6000);
+      document.getElementById('repairOrder').value=_loadedRepairOrder;
+      return;
     }
-    fillRow(newRowId, itemCode, itemCode, '', 'Nos', totalAmt);
 
-    // Carry the Repair Order's Serial No (set on Modification orders) onto the item row
-    const snEl = document.getElementById(newRowId)?.querySelector('[data-f="serial_no"]');
-    if(snEl){ snEl.value = doc.serial_no || ''; autoResize(snEl); updateSerialImgBtnVisual(newRowId); }
+    // A new Repair Order replaces whatever the tables held
+    clearItemTables();
+    _loadedRepairOrder = name;
 
-    bomRows.forEach(r=>{
-      addBomRow(
-        itemCode, itemCode, r.item_code||'',
-        r.custom_gold_colour||'', r.custom_gold_purity||'',
-        r.custom_diamond_type||'', r.custom_diamond_shape||'', r.custom_diamond_grade||'', r.custom_diamond_sieve_size||'',
-        r.uom||'Gram', parseFloat(r.qty)||0, parseFloat(r.rate||r.custom_costing_rate)||0,
-        r.custom_huid||'', newRowId,
-        0, r.custom_labour_mode||'Percentage', parseFloat(r.custom_labour_val)||0,
-        0, parseFloat(r.custom_handling_rate)||0, parseFloat(r.custom_bom_amt||r.amount)||0,
-        0, 0, 0, 0, r.custom_item_group||'', parseFloat(r.custom_pcs)||0
-      );
+    // Supplier comes from the Repair Order and is locked to it
+    if(doc.supplier){
+      setSupplierLocked(false);
+      await selSupplier(doc.supplier, true);
+      setSupplierLocked(true);
+    } else {
+      setSupplierLocked(false);
+    }
+
+    const newNames = await nextModifiedSerialNames(pieces.filter(p=>p.oldSerial).map(p=>p.oldSerial));
+    pieces.forEach((p, i)=>{
+      // The first piece reuses the blank starter row clearItemTables() leaves behind
+      const blankRow = i===0 ? [...document.querySelectorAll('#itemsTbody tr')].find(tr => !tr.querySelector('[data-f="code"]')?.value?.trim()) : null;
+      if(!blankRow) addRow();
+      const rowId = blankRow ? blankRow.id : document.getElementById('itemsTbody').lastElementChild.id;
+      fillRow(rowId, p.itemCode, p.itemCode, '', 'Nos', 0); // Rate follows the BOM (syncBomWeightToItem)
+      const tr = document.getElementById(rowId);
+      tr.dataset.repairPiece = p.key;
+      if(p.oldSerial){
+        tr.dataset.oldSerial = p.oldSerial;
+        const snEl = tr.querySelector('[data-f="serial_no"]');
+        if(snEl){ snEl.value = newNames[p.oldSerial]; autoResize(snEl); updateSerialImgBtnVisual(rowId); }
+      }
+      p.bomRows.forEach(r=>{
+        addBomRow(
+          p.itemCode, p.itemCode, r.item_code||'',
+          r.custom_gold_colour||'', r.custom_gold_purity||'',
+          r.custom_diamond_type||'', r.custom_diamond_shape||'', r.custom_diamond_grade||'', r.custom_diamond_sieve_size||'',
+          r.uom||'Gram', parseFloat(r.qty)||0, cdToDoc(r.rate||r.custom_costing_rate), // Repair Order values are INR
+          r.custom_huid||'', rowId,
+          0, r.custom_labour_mode||'Percentage', (r.custom_labour_mode||'Percentage')==='Percentage' ? (parseFloat(r.custom_labour_val)||0) : cdToDoc(r.custom_labour_val),
+          0, cdToDoc(r.custom_handling_rate), cdToDoc(r.custom_bom_amt||r.amount),
+          0, 0, r.custom_add_in_net_wt||0, 0, r.custom_item_group||'', parseFloat(r.custom_pcs)||0
+        );
+      });
     });
     recalcBom();
 
-    showToast(`${itemCode} + ${bomRows.length} BOM row(s) loaded from ${name}`,'success');
+    showToast(`${pieces.length} piece${pieces.length===1?'':'s'} loaded from ${name}`+(skipped?` — ${skipped} already on another draft receipt`:''),'success',5000);
   }catch(e){
     showToast('Could not fetch Repair Order details: '+e.message,'error');
   }
@@ -3219,7 +3414,7 @@ function itemCodeBlur(inp, rowId){
   if(!code) return;
   const it = ITEMS.find(i => i.code.toLowerCase() === code.toLowerCase());
   if(it){
-    fillRow(rowId, it.code, it.name, it.hsn||'', it.uom||'Nos', it.rate||0);
+    fillRow(rowId, it.code, it.name, it.hsn||'', it.uom||'Nos', cdToDoc(it.rate||0));
     document.getElementById('iac-'+rowId)?.classList.remove('open');
     return;
   }
@@ -3238,7 +3433,7 @@ function itemCodeBlur(inp, rowId){
       if(!doc || doc.disabled) throw new Error('not found');
       const found = { code: doc.item_code||doc.name, name: doc.item_name||doc.item_code||doc.name, hsn: doc.gst_hsn_code||'', uom: doc.stock_uom||'Nos', rate: parseFloat(doc.standard_rate)||0 };
       ITEMS.push({ ...found, _search: [found.code, found.name].join(' ').toLowerCase() });
-      fillRow(rowId, found.code, found.name, found.hsn||'', found.uom||'Nos', found.rate||0);
+      fillRow(rowId, found.code, found.name, found.hsn||'', found.uom||'Nos', cdToDoc(found.rate||0));
       document.getElementById('iac-'+rowId)?.classList.remove('open');
     }catch(e){
       showToast(`Item "${code}" not found`, 'error');
@@ -3262,7 +3457,7 @@ document.addEventListener('click',function(e){
   if(ai){
     const rowId=ai.dataset.rowid, code=ai.dataset.code;
     const it=ITEMS.find(x=>x.code===code);
-    if(it&&rowId){ fillRow(rowId,it.code,it.name,it.hsn||'',it.uom||'Nos',it.rate||0); }
+    if(it&&rowId){ fillRow(rowId,it.code,it.name,it.hsn||'',it.uom||'Nos',cdToDoc(it.rate||0)); }
     document.getElementById('iac-'+rowId)?.classList.remove('open');
     return;
   }
@@ -3467,6 +3662,7 @@ async function autoFillMetalRate(itemCode, rowId){
     if(!rate) rate = METAL_RATES[metalType] || 0;
     if(!rate) return;
 
+    rate = cdToDoc(rate); // Metal Price List is in INR
     rateEl.value = rate;
 
     // Touch is intentionally NOT auto-filled here, even though we know the item's real purity —
@@ -3543,7 +3739,7 @@ async function autoFillDiamondRate(itemCode, rowId){
       return (a?.attribute_value || '').trim();
     };
 
-    const rate = await fetchAttrMappedRate(getAttr, DIAMOND_PRICE_ATTRS, 'Diamond%20Price%20List');
+    const rate = cdToDoc(await fetchAttrMappedRate(getAttr, DIAMOND_PRICE_ATTRS, 'Diamond%20Price%20List'));
     if(!rate) return;
 
     rateEl.value = rate;
@@ -3581,8 +3777,9 @@ async function autoFillStoneRate(itemCode, rowId, force){
     };
 
     const uom  = tr.querySelector('[data-f="uom"]')?.value || '';
-    const rate = await fetchAttrMappedRate(getAttr, GEMSTONE_PRICE_ATTRS, 'Gemstone%20Price%20List', uom);
-    if(rate === null) return;     // not a gemstone
+    const listRate = await fetchAttrMappedRate(getAttr, GEMSTONE_PRICE_ATTRS, 'Gemstone%20Price%20List', uom);
+    if(listRate === null) return; // not a gemstone
+    const rate = cdToDoc(listRate);
     if(!rate && !force) return;   // Rate is already 0 — user enters it manually
 
     rateEl.value = rate;
@@ -3984,7 +4181,13 @@ function recalc(){
   if(lwEl){ lwEl.textContent=(lessWtAmt<0?'-':'')+fmt(Math.abs(lessWtAmt)); lwEl.style.color=lessWtAmt<0?'var(--pill-red-txt)':'var(--text-primary)'; }
   document.getElementById('tot-disc').textContent='-'+fmt(disc);
   document.getElementById('tot-grand').textContent=fmt(grand);
-  const w=document.getElementById('tot-words'); if(w) w.textContent=numWords(Math.round(grand))+' Only';
+  // Foreign-currency receipt: show the INR value ERPNext will book (grand × exchange rate)
+  const grandInr=Math.round(cdToInr(grand));
+  const inrEl=document.getElementById('tot-grand-inr'); if(inrEl) inrEl.textContent=grandInr.toLocaleString('en-IN');
+  const w=document.getElementById('tot-words');
+  if(w) w.textContent = cdIsForeign()
+    ? `${cdDocCurrency()} ${fmt(grand)} × ${cdConvRate()||0} = ${numWords(grandInr)} Only`
+    : numWords(Math.round(grand))+' Only';
   // Max Touch may have changed — re-value the Add/Less Weight charge (no-op when nothing changed).
   scheduleLessWeightSync();
 }
@@ -4088,9 +4291,13 @@ async function syncLessWeightCharge(){
   // Field may have changed while awaiting — always price the current value.
   const curWt=parseFloat(document.getElementById('lessWeight')?.value)||0;
   if(!curWt){ setHint(''); removeRow(); return; }
-  const amount=Math.round(curWt*rate*100)/100;
-  const desc=`${LESS_WT_DESC}: ${curWt.toFixed(3)} g × ${rate} (${src.metal} ${src.touch})`;
-  setHint(`${curWt.toFixed(3)} g × ₹${rate.toLocaleString('en-IN')} (${src.metal} ${src.touch}) = ${amount<0?'-':''}₹${Math.abs(amount).toLocaleString('en-IN',{minimumFractionDigits:2})}`);
+  // rate is the INR Metal Price List rate; a foreign-currency receipt carries the charge in its own currency
+  const foreign=cdIsForeign();
+  if(foreign && !cdConvRate()){ setHint('Enter the Exchange Rate to value this weight', true); removeRow(); return; }
+  const amount=Math.round(curWt*rate/(foreign?cdConvRate():1)*100)/100;
+  const desc=`${LESS_WT_DESC}: ${curWt.toFixed(3)} g × ${rate} (${src.metal} ${src.touch})${foreign?` ÷ ${cdConvRate()} ${cdDocCurrency()}`:''}`;
+  const amtTxt=`${amount<0?'-':''}${cdCurSym()}${Math.abs(amount).toLocaleString(foreign?'en-US':'en-IN',{minimumFractionDigits:2})}`;
+  setHint(`${curWt.toFixed(3)} g × ₹${rate.toLocaleString('en-IN')} (${src.metal} ${src.touch})${foreign?` ÷ ${cdConvRate()}`:''} = ${amtTxt}`);
 
   let row=document.querySelector('#taxTbody tr[data-less-wt="1"]');
   if(!row){ addTaxRow({ type:'Actual', account, amount, lessWt:true, desc }); return; }
@@ -4230,7 +4437,7 @@ function validate(){
     const min = parseFloat(el?.dataset.minRate||0), max = parseFloat(el?.dataset.maxRate||0);
     if(!min && !max) return; // no known range for this row
     const val = parseFloat(el?.value||0);
-    if(val < min || val > max) outOfRangeRows.push(`${rmCode} (₹${min}–₹${max})`);
+    if(val < min || val > max) outOfRangeRows.push(`${rmCode} (${cdCurSym()}${min}–${cdCurSym()}${max})`);
   });
   if(outOfRangeRows.length){
     showToast('Labour Charges out of allowed Range for: ' + outOfRangeRows.join(', '), 'error');
@@ -4371,7 +4578,7 @@ function addBhavRow(data){
   bhavRowCount++;
   const n = bhavRowCount;
   const d = data || {};
-  const goldRate = METAL_RATES['Gold'] || 0;
+  const goldRate = cdToDoc(METAL_RATES['Gold'] || 0); // receipt currency
   const tr = document.createElement('tr');
   tr.id = 'bhav-r' + n;
   tr.innerHTML = `
@@ -4515,7 +4722,8 @@ async function updateBhavRemainingPayable(){
     const totalPayable = parseFloat((res.data||res.message||{}).grand_total || 0) || 0;
     const settled = sumSelectedBhavAmount();
     const remaining = Math.max(0, totalPayable - settled);
-    el.innerHTML = `Total Payable: <strong>₹${fmt(totalPayable)}</strong> &nbsp;·&nbsp; Settled via Bhav Cut: <strong>₹${fmt(settled)}</strong> &nbsp;·&nbsp; Remaining Payable: <strong>₹${fmt(remaining)}</strong>`;
+    const sym = cdCurSym();
+    el.innerHTML = `Total Payable: <strong>${sym}${fmt(totalPayable)}</strong> &nbsp;·&nbsp; Settled via Bhav Cut: <strong>${sym}${fmt(settled)}</strong> &nbsp;·&nbsp; Remaining Payable: <strong>${sym}${fmt(remaining)}</strong>`;
   }catch(e){ console.warn('updateBhavRemainingPayable failed:', e.message); }
 }
 
@@ -4671,7 +4879,7 @@ async function openBhavEntryDialog(){
   document.getElementById('bdlg-pure-gold').value='';
   document.getElementById('bdlg-pg-pur').value='99.5';
   document.getElementById('bdlg-pg-wt').value='';
-  document.getElementById('bdlg-gold-rate').value=METAL_RATES['Gold']||'';
+  document.getElementById('bdlg-gold-rate').value=cdToDoc(METAL_RATES['Gold'])||'';
   document.getElementById('bdlg-labour-type').value='';
   document.getElementById('bdlg-labour-val').value='';
   document.getElementById('bdlg-labour-gold').value='';
@@ -4827,7 +5035,7 @@ function autoFillBhavFromItems(){
     return;
   }
 
-  const goldRate = METAL_RATES['Gold'] || 0;
+  const goldRate = cdToDoc(METAL_RATES['Gold'] || 0); // receipt currency
 
   // Clear existing rows and load fresh from FG items
   document.getElementById('bhavTbody').innerHTML = '';
@@ -4905,8 +5113,9 @@ async function createBhavCutSalesOrder(){
       item_name: r.item,
       description: r.item,
       qty:       r.finalQty,
-      rate:      r.rate,
-      amount:    r.amount,
+      // Bhav rows are in the receipt's currency; the linked customer's Sales Order stays INR
+      rate:      cdToInr(r.rate),
+      amount:    cdToInr(r.amount),
       uom:       'Gram',
       stock_uom: 'Gram',
       conversion_factor: 1,
@@ -4968,7 +5177,7 @@ function buildPayload(docstatus){
     const remarks     = tr.querySelector('[data-f="custom_remarks"]')?.value?.trim() || '';
     const pcs         = parseInt(tr.querySelector('[data-f="pcs"]')?.value||0) || 0;
     if(!itemCode||qty===0||(isReturnPR?qty>0:qty<0)) return;
-    items.push({ doctype:'Purchase Receipt Item', idx:idx+1, item_code:itemCode, item_name:itemCode, description:itemCode, qty, received_qty:qty, rate, discount_percentage:disc, amount, base_amount:amount, uom, stock_uom:uom, conversion_factor:1, gst_hsn_code:hsn, warehouse:rowWh, rejected_warehouse:rejectedWarehouse, use_serial_batch_fields:1, custom_bom:bomId, custom_gross_weight:grossWt||undefined, custom_net_weight:netWt||undefined, custom_tounch:tounch||undefined, custom_wastage:wastage||undefined, custom_pure_wt:pureWt||undefined, batch_no:batchNo||undefined, custom_packet_no:packetNo||undefined, serial_no:serialNo||undefined, custom_image:imgUrl||undefined, custom_remarks:remarks||undefined, custom_pcs:pcs, ...(isSetRow?{allow_zero_valuation_rate:1}:{}), ...(poName?{purchase_order:poName}:{}), ...(poItemRef?{purchase_order_item:poItemRef}:{}) });
+    items.push({ doctype:'Purchase Receipt Item', idx:idx+1, item_code:itemCode, item_name:itemCode, description:itemCode, qty, received_qty:qty, rate, discount_percentage:disc, amount, base_amount:cdToInr(amount), uom, stock_uom:uom, conversion_factor:1, gst_hsn_code:hsn, warehouse:rowWh, rejected_warehouse:rejectedWarehouse, use_serial_batch_fields:1, custom_bom:bomId, custom_gross_weight:grossWt||undefined, custom_net_weight:netWt||undefined, custom_tounch:tounch||undefined, custom_wastage:wastage||undefined, custom_pure_wt:pureWt||undefined, batch_no:batchNo||undefined, custom_packet_no:packetNo||undefined, serial_no:serialNo||undefined, custom_image:imgUrl||undefined, custom_remarks:remarks||undefined, custom_pcs:pcs, custom_old_serial_no:tr.dataset.oldSerial||undefined, ...((isSetRow||(tr.dataset.oldSerial&&!rate))?{allow_zero_valuation_rate:1}:{}), ...(poName?{purchase_order:poName}:{}), ...(poItemRef?{purchase_order_item:poItemRef}:{}) });
   });
   const taxes=[];
   document.querySelectorAll('#taxTbody tr').forEach((tr,idx)=>{
@@ -4981,7 +5190,7 @@ function buildPayload(docstatus){
     }
     taxes.push({ doctype:'Purchase Taxes and Charges', idx:idx+1, charge_type:tr.dataset.type||'On Net Total', account_head:accountHead, description:accountHead, included_in_print_rate:tr.dataset.included==='1'?1:0, rate:parseFloat(tr.dataset.rate||0), tax_amount:parseFloat(tr.dataset.amount||0), total:parseFloat(tr.dataset.total||0) });
   });
-  return { doctype:'Purchase Receipt', docstatus, supplier, supplier_name:supplierDisp, posting_date:document.getElementById('postingDate').value||'', company:COMPANY, set_warehouse:warehouse, purchase_order:document.getElementById('againstPO').value||'', custom_against_purchase_order:document.getElementById('againstPO').value||'', supplier_delivery_note:document.getElementById('supplierDeliveryNote').value||'', remarks:document.getElementById('remarks').value||'', custom_type:document.getElementById('prType').value||'',custom_repair_order:document.getElementById('prType').value==='Repair'?(document.getElementById('repairOrder').value||''):'',custom_job_work_order:document.getElementById('prType').value==='Job Work'?(document.getElementById('jobWorkOrder').value||''):'',branch: document.getElementById('branch').value||'', custom_shipping_branch: document.getElementById('shippingBranch').value||'', taxes_and_charges:taxTemplate, additional_discount_percentage:parseFloat(document.getElementById('addDisc').value||0), custom_less_weight:parseFloat(document.getElementById('lessWeight').value||0), custom_total_metal_weight:parseFloat(document.getElementById('totalMetalWt').value||0), custom_total_diamond_weight:parseFloat(document.getElementById('totalDiamondWt').value||0), custom_total_stone_weight:parseFloat(document.getElementById('totalStoneWt').value||0), custom_total_other_weight:parseFloat(document.getElementById('totalOtherWt').value||0), custom_total_gross_weight:parseFloat(document.getElementById('totalGrossWt').value||0), custom_total_net_wt:parseFloat(document.getElementById('totalNetWt').value||0), custom_total_labour_amount:parseFloat(document.getElementById('totalLabourAmt').value||0), items, taxes, custom_bhav_cut_details: getBhavRows(), ...(isReturnPR ? {is_return:1, return_against:returnAgainstPR} : {}) };
+  return { doctype:'Purchase Receipt', docstatus, supplier, supplier_name:supplierDisp, posting_date:document.getElementById('postingDate').value||'', company:COMPANY, currency:cdDocCurrency(), conversion_rate:cdConvRate(), set_warehouse:warehouse, purchase_order:document.getElementById('againstPO').value||'', custom_against_purchase_order:document.getElementById('againstPO').value||'', supplier_delivery_note:document.getElementById('supplierDeliveryNote').value||'', remarks:document.getElementById('remarks').value||'', custom_type:document.getElementById('prType').value||'',custom_repair_order:document.getElementById('prType').value==='Repair'?(document.getElementById('repairOrder').value||''):'',custom_job_work_order:document.getElementById('prType').value==='Job Work'?(document.getElementById('jobWorkOrder').value||''):'',branch: document.getElementById('branch').value||'', custom_shipping_branch: document.getElementById('shippingBranch').value||'', taxes_and_charges:taxTemplate, additional_discount_percentage:parseFloat(document.getElementById('addDisc').value||0), custom_less_weight:parseFloat(document.getElementById('lessWeight').value||0), custom_total_metal_weight:parseFloat(document.getElementById('totalMetalWt').value||0), custom_total_diamond_weight:parseFloat(document.getElementById('totalDiamondWt').value||0), custom_total_stone_weight:parseFloat(document.getElementById('totalStoneWt').value||0), custom_total_other_weight:parseFloat(document.getElementById('totalOtherWt').value||0), custom_total_gross_weight:parseFloat(document.getElementById('totalGrossWt').value||0), custom_total_net_wt:parseFloat(document.getElementById('totalNetWt').value||0), custom_total_labour_amount:parseFloat(document.getElementById('totalLabourAmt').value||0), items, taxes, custom_bhav_cut_details: getBhavRows(), ...(isReturnPR ? {is_return:1, return_against:returnAgainstPR} : {}) };
 }
 
 // ── Sales margin (PP Settings1 → Tounch Wise Margin) check for Finished Goods items ──
@@ -5655,10 +5864,184 @@ async function submitLinkedBoms(){
   }
 }
 
+// ══════════════════════════════════════════
+//  REPAIR RECEIPT — SUBMIT / CANCEL SIDE EFFECTS
+// ══════════════════════════════════════════
+function isRepairReceipt(){ return document.getElementById('prType').value==='Repair' && !!document.getElementById('repairOrder').value.trim(); }
+function bomSignature(rows){
+  return rows.map(r=>[r.code||'', (parseFloat(r.qty)||0).toFixed(3), Math.round(parseFloat(r.amt)||0)].join('|')).sort().join(';');
+}
+// Pieces whose BOM still matches the Repair Order's (same items, qty and amount) — the user
+// confirms these came back unchanged before the receipt is submitted.
+function confirmRepairBomChanges(){
+  if(!isRepairReceipt()) return true;
+  const unchanged=[];
+  prItemTrs().forEach(tr=>{
+    const key=tr.dataset.repairPiece;
+    if(!key || !REPAIR_ESTIMATE[key]) return;
+    const cur=bomRowsOf(tr.id).map(b=>({
+      code:b.querySelector('[data-bf="template_type"]')?.value?.trim(),
+      qty:b.querySelector('[data-bf="qty"]')?.value,
+      amt:cdToInr(parseFloat(b.querySelector('[data-bf="bom_amt"]')?.value)||0),
+    }));
+    const est=REPAIR_ESTIMATE[key].map(r=>({ code:r.item_code, qty:r.qty, amt:r.custom_bom_amt||r.amount }));
+    if(bomSignature(cur)===bomSignature(est)) unchanged.push(tr.dataset.oldSerial||prRowCode(tr));
+  });
+  if(!unchanged.length) return true;
+  return confirm(`There is no change in BOM for ${unchanged.length} piece${unchanged.length===1?'':'s'}: ${unchanged.slice(0,10).join(', ')}${unchanged.length>10?'…':''}\n\nDo you want to continue?`);
+}
+
+// Runs after a Repair receipt is submitted: Modification pieces get their old serial taken out
+// and its value carried onto the new serial, then the Repair Order is updated (and submitted
+// once every piece is back).
+async function finishRepairReceipt(prName){
+  const roName=document.getElementById('repairOrder').value.trim();
+  const today=new Date().toISOString().slice(0,10);
+  const pieces=prItemTrs().filter(tr=>tr.dataset.repairPiece).map(tr=>({
+    key:tr.dataset.repairPiece,
+    oldSerial:tr.dataset.oldSerial||'',
+    newSerial:(tr.querySelector('[data-f="serial_no"]')?.value||'').split('\n')[0].trim(),
+    bomTotalInr:bomRowsOf(tr.id).reduce((s,b)=>s+cdToInr(parseFloat(b.querySelector('[data-bf="bom_amt"]')?.value)||0),0),
+  }));
+  const errors=[];
+  const mods=pieces.filter(p=>p.oldSerial);
+  if(mods.length){
+    try{ await moveOldSerialValues(prName, mods, today); }
+    catch(e){
+      errors.push('old serial value transfer failed ('+String(e.message).slice(0,120)+')');
+      logErrorToBackend(`CaratDesk PR ${prName}: old serial value transfer failed`, `Pieces: ${mods.map(m=>m.oldSerial).join(', ')}\nError: ${e.message}\nStack: ${e.stack||''}`);
+    }
+  }
+  try{ await receiveRepairPieces(roName, prName, pieces, today); }
+  catch(e){
+    errors.push('Repair Order '+roName+' update failed ('+String(e.message).slice(0,120)+')');
+    logErrorToBackend(`CaratDesk PR ${prName}: Repair Order ${roName} update failed`, `Error: ${e.message}\nStack: ${e.stack||''}`);
+  }
+  if(errors.length) showToast('Receipt submitted, but '+errors.join(' · ')+' — logged to Error Log','error',10000);
+}
+// 1) Material Issue takes every old serial out of wherever it sits now (karigar's warehouse, or
+//    the shop for In House) against Stock Adjustment. 2) A Landed Cost Voucher adds each old
+//    serial's value back onto its new serial against the same account, so the two cancel out:
+//    new serial = old value + extra billed on this receipt. A lighter new BOM lowers the carried
+//    value by the difference (that part stays written off).
+async function moveOldSerialValues(prName, mods, today){
+  const acct=await resolveLessWtAccount();
+  if(!acct) throw new Error('Stock Adjustment account not found');
+
+  const olds=mods.map(m=>m.oldSerial);
+  const serialInfo={};
+  for(let i=0;i<olds.length;i+=100){
+    const r=await dev1Get(`/api/resource/Serial%20No?fields=${encodeURIComponent(JSON.stringify(['name','item_code','warehouse']))}&filters=${encodeURIComponent(JSON.stringify([['name','in',olds.slice(i,i+100)]]))}&limit_page_length=0`);
+    (r.data||r.message||[]).forEach(sn=>{ serialInfo[sn.name]=sn; });
+  }
+  const notInStock=olds.filter(sn=>!serialInfo[sn]?.warehouse);
+  if(notInStock.length) throw new Error('not in any warehouse: '+notInStock.slice(0,5).join(', '));
+
+  const seRes=await dev1Post('/api/resource/Stock%20Entry',{
+    doctype:'Stock Entry', docstatus:1, stock_entry_type:'Material Issue', purpose:'Material Issue',
+    company:COMPANY, posting_date:today,
+    remarks:`Repair PR ${prName}: old serials replaced by modified pieces`,
+    items:olds.map((sn,i)=>({
+      doctype:'Stock Entry Detail', idx:i+1, item_code:serialInfo[sn].item_code, qty:1, uom:'Nos', stock_uom:'Nos', conversion_factor:1,
+      s_warehouse:serialInfo[sn].warehouse, serial_no:sn, use_serial_batch_fields:1, expense_account:acct,
+    })),
+  });
+  const seName=seRes?.data?.name||seRes?.name;
+  if(!seName) throw new Error('Material Issue creation failed');
+
+  // Each old serial's value = what the Material Issue took out for it (rows keep their order)
+  const se=(await dev1Get(`/api/resource/Stock%20Entry/${encodeURIComponent(seName)}`)).data||{};
+  const oldValue={};
+  [...(se.items||[])].sort((a,b)=>a.idx-b.idx).forEach((it,i)=>{ oldValue[olds[i]]=parseFloat(it.amount||it.basic_amount||0)||0; });
+
+  const pr=(await dev1Get(`/api/resource/Purchase%20Receipt/${encodeURIComponent(prName)}`)).data||{};
+  const lcvItems=[];
+  (pr.items||[]).forEach(it=>{
+    const m=mods.find(x=>x.oldSerial===it.custom_old_serial_no);
+    if(!m) return;
+    const diff=m.bomTotalInr-repairEstimateTotal(m.oldSerial);
+    const charge=Math.round(Math.max(0,(oldValue[m.oldSerial]||0)+Math.min(0,diff))*100)/100;
+    if(charge<=0) return;
+    lcvItems.push({
+      doctype:'Landed Cost Item', item_code:it.item_code, description:it.description||it.item_code,
+      receipt_document_type:'Purchase Receipt', receipt_document:prName, purchase_receipt_item:it.name,
+      qty:it.qty, rate:it.base_rate, amount:it.base_amount, cost_center:it.cost_center, applicable_charges:charge,
+    });
+  });
+  if(!lcvItems.length) return;
+  const total=Math.round(lcvItems.reduce((s,it)=>s+it.applicable_charges,0)*100)/100;
+  await dev1Post('/api/resource/Landed%20Cost%20Voucher',{
+    doctype:'Landed Cost Voucher', docstatus:1, company:COMPANY, posting_date:today,
+    distribute_charges_based_on:'Distribute Manually',
+    purchase_receipts:[{ doctype:'Landed Cost Purchase Receipt', receipt_document_type:'Purchase Receipt', receipt_document:prName, supplier:pr.supplier, posting_date:pr.posting_date, grand_total:pr.grand_total }],
+    items:lcvItems,
+    taxes:[{ doctype:'Landed Cost Taxes and Charges', expense_account:acct, description:`Old serial value carried to modified pieces (${seName})`, amount:total }],
+  });
+}
+// Marks this receipt's pieces Received on the Repair Order (with their new Serial No) and
+// submits the order once nothing is left with the karigar.
+async function receiveRepairPieces(roName, prName, pieces, today){
+  const res=await dev1Get(`/api/resource/Repair%20Order/${encodeURIComponent(roName)}`);
+  const ro=res.data||res.message||{};
+  if(ro.docstatus!==0) return;
+  const rows=ro.repair_serial_no||[];
+  if(ro.order_type==='Modification' && rows.length){
+    const byOld=Object.fromEntries(pieces.map(p=>[p.oldSerial,p]));
+    const updated=rows.map(r=>byOld[r.serial_no] ? {
+      ...r, row_status:'Received', receive_date:today, purchase_receipt:prName,
+      new_serial_no:byOld[r.serial_no].newSerial||r.new_serial_no,
+    } : r);
+    const allBack=updated.every(r=>r.row_status==='Received');
+    await dev1Put(`/api/resource/Repair%20Order/${encodeURIComponent(roName)}`, {
+      repair_serial_no:updated, ...(allBack?{ receive_date:today, docstatus:1 }:{}),
+    });
+  } else {
+    await dev1Put(`/api/resource/Repair%20Order/${encodeURIComponent(roName)}`, { receive_date:today, docstatus:1 });
+  }
+}
+// Cancelling a Repair receipt is only possible while its Repair Order is still open (pieces can
+// go back to Issued); the Landed Cost Voucher has to be cancelled before the receipt itself.
+async function beforeRepairPrCancel(prName){
+  const roName=document.getElementById('repairOrder').value.trim();
+  const ro=(await dev1Get(`/api/resource/Repair%20Order/${encodeURIComponent(roName)}`)).data||{};
+  if(ro.docstatus===1){
+    showToast(`Repair Order ${roName} is already submitted — this receipt can't be cancelled`,'error',7000);
+    return false;
+  }
+  const filters=[['Landed Cost Purchase Receipt','receipt_document','=',prName],['docstatus','=',1]];
+  const lcvs=(await dev1Get(`/api/resource/Landed%20Cost%20Voucher?fields=${encodeURIComponent(JSON.stringify(['name']))}&filters=${encodeURIComponent(JSON.stringify(filters))}&limit_page_length=0`)).data||[];
+  for(const l of lcvs) await dev1Put(`/api/resource/Landed%20Cost%20Voucher/${encodeURIComponent(l.name)}`,{docstatus:2});
+  return true;
+}
+// After the receipt is cancelled: put the old serials back (cancel the Material Issue) and
+// return this receipt's pieces to Issued on the Repair Order.
+async function afterRepairPrCancel(prName){
+  const roName=document.getElementById('repairOrder').value.trim();
+  const errors=[];
+  try{
+    const filters=[['stock_entry_type','=','Material Issue'],['docstatus','=',1],['remarks','like',`Repair PR ${prName}:%`]];
+    const ses=(await dev1Get(`/api/resource/Stock%20Entry?fields=${encodeURIComponent(JSON.stringify(['name']))}&filters=${encodeURIComponent(JSON.stringify(filters))}&limit_page_length=0`)).data||[];
+    for(const se of ses) await dev1Put(`/api/resource/Stock%20Entry/${encodeURIComponent(se.name)}`,{docstatus:2});
+  }catch(e){ errors.push('Material Issue cancel failed: '+e.message); }
+  try{
+    const ro=(await dev1Get(`/api/resource/Repair%20Order/${encodeURIComponent(roName)}`)).data||{};
+    const rows=ro.repair_serial_no||[];
+    if(ro.docstatus===0 && rows.some(r=>r.purchase_receipt===prName)){
+      const updated=rows.map(r=>r.purchase_receipt===prName ? { ...r, row_status:'Issued', receive_date:null, new_serial_no:null, purchase_receipt:null } : r);
+      await dev1Put(`/api/resource/Repair%20Order/${encodeURIComponent(roName)}`, { repair_serial_no:updated, receive_date:null });
+    }
+  }catch(e){ errors.push('Repair Order update failed: '+e.message); }
+  if(errors.length){
+    showToast(errors.join(' · ').slice(0,200),'error',8000);
+    logErrorToBackend(`CaratDesk PR ${prName}: Repair cancel follow-up failed`, errors.join('\n'));
+  }
+}
+
 async function submitPR(skipConfirm, extraFields){
   if(!window.currentPRName){ showToast('Please save the draft first','error'); return; }
   if(submitted){ showToast('Already submitted','info'); return; }
   if(!(await checkTaxCategoryMismatch())) return;
+  if(!confirmRepairBomChanges()) return;
   if(!skipConfirm && !confirm('Submit this Purchase Receipt? This cannot be undone.')) return;
   try{
     showToast('Submitting…','info');
@@ -5817,6 +6200,8 @@ async function submitPR(skipConfirm, extraFields){
     try{ await postJobWorkLedgerCreditFromPR(window.currentPRName, rowData, supplierName); }
     catch(e){ console.error('postJobWorkLedgerCreditFromPR failed:', e.message); }
 
+    if(isRepairReceipt()) await finishRepairReceipt(window.currentPRName);
+
     showToast('Submitted successfully!','success');
     if(document.querySelectorAll('#bhavTbody tr').length > 0){
       await createBhavCutSalesOrder();
@@ -5944,6 +6329,16 @@ async function submitPR(skipConfirm, extraFields){
 //     showBomSaveResult(results);
 //   }
 // }
+// BOMs are always saved in INR (tags, costing and POS read them as rupees) — convert a
+// receipt-currency BOM row's money fields. Selling rate is already INR; Percentage labour is a %.
+function bomRowToInr(row){
+  if(!cdIsForeign()) return row;
+  return { ...row,
+    rate: cdToInr(row.rate), amount: cdToInr(row.amount), making: cdToInr(row.making),
+    handlingRate: cdToInr(row.handlingRate),
+    labourVal: row.labourMode==='Percentage' ? row.labourVal : cdToInr(row.labourVal) };
+}
+
 async function saveBom() {
   const bomRows = [];
 
@@ -5964,8 +6359,7 @@ async function saveBom() {
     const amount       = parseFloat(tr.querySelector('[data-bf="bom_amt"]')?.value)      || 0;
     const huid         = tr.querySelector('[data-bf="huid"]')?.value             || '';
     const making       = parseFloat(tr.querySelector('[data-bf="making"]')?.value)       || 0;
-    const labourMode   = tr.querySelector('[data-bf="labour_mode"]')?.value      || 'Percentage';
-    const labourVal    = parseFloat(tr.querySelector('[data-bf="labour_val"]')?.value)   || 0;
+    const { labourMode, labourVal } = bomRowLabour(tr);
     const wastage      = parseFloat(tr.querySelector('[data-bf="wastage"]')?.value)      || 0;
     const handlingRate = parseFloat(tr.querySelector('[data-bf="handling_rate"]')?.value)|| 0;
     const addInNetWt  = tr.querySelector('[data-bf="add_in_net_wt"]')?.value === '1';
@@ -5994,7 +6388,7 @@ async function saveBom() {
   for(const [key, group] of groups){
     const { fgCode, sourceRowId, rows } = group;
     try{
-      const items = rows.map((row, i) => ({
+      const items = rows.map(bomRowToInr).map((row, i) => ({
         doctype            : 'BOM Item',
         idx                : i + 1,
         item_code          : row.rmCode,
@@ -6210,8 +6604,7 @@ async function saveBomSilent(){
     const amount       = parseFloat(tr.querySelector('[data-bf="bom_amt"]')?.value)      || 0;
     const huid         = tr.querySelector('[data-bf="huid"]')?.value             || '';
     const making       = parseFloat(tr.querySelector('[data-bf="making"]')?.value)       || 0;
-    const labourMode   = tr.querySelector('[data-bf="labour_mode"]')?.value      || 'Percentage';
-    const labourVal    = parseFloat(tr.querySelector('[data-bf="labour_val"]')?.value)   || 0;
+    const { labourMode, labourVal } = bomRowLabour(tr);
     const wastage      = parseFloat(tr.querySelector('[data-bf="wastage"]')?.value)      || 0;
     const handlingRate = parseFloat(tr.querySelector('[data-bf="handling_rate"]')?.value)|| 0;
     const addInNetWt  = tr.querySelector('[data-bf="add_in_net_wt"]')?.value === '1';
@@ -6262,7 +6655,7 @@ async function saveBomSilent(){
     }
 
     try{
-      const items = rows.map((row, i) => ({
+      const items = rows.map(bomRowToInr).map((row, i) => ({
         doctype            : 'BOM Item',
         idx                : i + 1,
         item_code          : row.rmCode,
@@ -6349,7 +6742,7 @@ async function saveBomSilent(){
       if(alreadySaved) continue;
 
       const allRows = setGroup.rows;
-      const items = allRows.map((row, i) => ({
+      const items = allRows.map(bomRowToInr).map((row, i) => ({
         doctype            : 'BOM Item',
         idx                : i + 1,
         item_code          : row.rmCode,
@@ -6547,8 +6940,11 @@ async function cancelDoc(skipConfirm){
   if(!skipConfirm && !confirm('Cancel this Purchase Receipt? This cannot be undone.')) return;
   try{
     showToast('Cancelling…','info');
+    const repair = isRepairReceipt();
+    if(repair && !(await beforeRepairPrCancel(window.currentPRName))) return;
     await dev1Put(`/api/resource/Purchase Receipt/${encodeURIComponent(window.currentPRName)}`,{docstatus:2});
     submitted = false;
+    if(repair) await afterRepairPrCancel(window.currentPRName);
     try{ await reversePurityLedgerEntries(window.currentPRName); }
     catch(e){ console.error('reversePurityLedgerEntries failed:', e.message); }
     try{ await reverseJobWorkLedgerEntries(window.currentPRName); }
@@ -7389,6 +7785,7 @@ function showToast(msg,type='info',duration=3500){
 let _supplierMakingCharges = null;   // custom_item_category_wise_making_charge rows, cached
 let _supplierMakingChargesFor = '';  // supplier name the cache above belongs to
 let _supplierHandlingRate = 0;       // custom_handling_rate on the Supplier, cached alongside making charges
+var _supplierDefaultCurrency = '';   // Supplier.default_currency, cached alongside making charges
 let _supplierTouchSettings = [];     // custom_supplier_wise_touch_setting rows, cached alongside making charges
 const _itemCategoryCache = {};       // item_code -> category attribute value ('' if none found)
 
@@ -7436,6 +7833,18 @@ function isSilverRawMaterial(templateType){
 }
 function isPlatinumRawMaterial(templateType){
   return !!templateType && /platinum/i.test(templateType);
+}
+// Labour (making charge) applies only to metal raw materials — diamond/stone/other rows carry none.
+function isMetalRawMaterial(templateType){
+  return !!detectMetalType(templateType);
+}
+// A BOM row's effective labour: its Labour On / Labour Charges for metal rows, nothing otherwise.
+function bomRowLabour(tr){
+  if(!isMetalRawMaterial(tr.querySelector('[data-bf="template_type"]')?.value || '')) return { labourMode:'Percentage', labourVal:0 };
+  return {
+    labourMode: tr.querySelector('[data-bf="labour_mode"]')?.value || 'Percentage',
+    labourVal:  parseFloat(tr.querySelector('[data-bf="labour_val"]')?.value) || 0,
+  };
 }
 // Which of Gold/Silver/Platinum a BOM raw-material row's template type belongs to —
 // '' if it's a diamond/stone row or unrecognized.
@@ -7577,7 +7986,7 @@ function applyBomTounchToFgItem(sourceRowId, stagingRows, autoLabour){
 }
 
 async function loadSupplierMakingCharges(supplierName){
-  if(!supplierName){ _supplierMakingCharges = []; _supplierMakingChargesFor = ''; _supplierHandlingRate = 0; _supplierTouchSettings = []; return; }
+  if(!supplierName){ _supplierMakingCharges = []; _supplierMakingChargesFor = ''; _supplierHandlingRate = 0; _supplierTouchSettings = []; _supplierDefaultCurrency = ''; return; }
   if(_supplierMakingChargesFor === supplierName && _supplierMakingCharges) return;
   try{
     const res = await dev1Get(`/api/resource/Supplier/${encodeURIComponent(supplierName)}`);
@@ -7585,12 +7994,14 @@ async function loadSupplierMakingCharges(supplierName){
     _supplierMakingCharges = doc.custom_item_category_wise_making_charge || [];
     _supplierHandlingRate = parseFloat(doc.custom_handling_rate) || 0;
     _supplierTouchSettings = doc.custom_supplier_wise_touch_setting || [];
+    _supplierDefaultCurrency = doc.default_currency || '';
     _supplierMakingChargesFor = supplierName;
   }catch(e){
     console.warn('Failed to load supplier making charges:', e.message);
     _supplierMakingCharges = [];
     _supplierHandlingRate = 0;
     _supplierTouchSettings = [];
+    _supplierDefaultCurrency = '';
     _supplierMakingChargesFor = supplierName;
   }
 }
@@ -7750,6 +8161,8 @@ async function getAutoLabourForFgItem(fgItemCode, supplierName){
 let bomRowCount=0;
 
 function addBomRow(fgItemCode='', fgItemName='', templateType='', goldColour='', goldPurity='', diaType='', diaShape='', diaGrade='', diaSieveSize='', uom='', qty=1, rate=0, huid='', sourceRowId='', making=0, labourMode='Percentage', labourVal=0, wastage=0, handlingRate=0, bomAmt=0, minRate=0, maxRate=0, addInNetWt=0, sellingRate=0, itemGroup='', pcs=0){
+  // The supplier's making charge is looked up per FG item and passed for every line — keep it on metal lines only.
+  if(!isMetalRawMaterial(templateType)){ labourMode = 'Percentage'; labourVal = 0; minRate = 0; maxRate = 0; }
   bomRowCount++;
   const id='bom'+bomRowCount;
   const tbody=document.getElementById('bomTbody');
@@ -7788,7 +8201,7 @@ function addBomRow(fgItemCode='', fgItemName='', templateType='', goldColour='',
     </td>
     <td style="padding:0 4px" data-metal-cell>
       <input type="number" min="0" step="0.01" value="${labourVal}" data-bf="labour_val" data-min-rate="${minRate||0}" data-max-rate="${maxRate||0}"
-        title="${maxRate>0?('Valid range: ₹'+minRate+' – ₹'+maxRate):''}"
+        title="${maxRate>0?('Valid range: '+cdCurSym()+minRate+' – '+cdCurSym()+maxRate):''}"
         style="width:100%;height:26px;border:none;outline:none;padding:0 4px;font-size:11px;background:transparent;color:var(--text-primary);text-align:right"
         oninput="recalcBomRow('${id}'); syncWastageFromLabourVal('${id}')" onblur="enforceLabourRange(this); syncWastageFromLabourVal('${id}')"/>
     </td>
@@ -7818,8 +8231,7 @@ function addBomRow(fgItemCode='', fgItemName='', templateType='', goldColour='',
 }
 
 function toggleBomMetalCells(tr){
-  const tmpl = tr.querySelector('[data-bf="template_type"]')?.value || '';
-  const isMetal = /gold|silver|platinum/i.test(tmpl);
+  const isMetal = isMetalRawMaterial(tr.querySelector('[data-bf="template_type"]')?.value || '');
   tr.querySelectorAll('[data-metal-cell]').forEach(td => {
     td.style.opacity = isMetal ? '1' : '0.25';
     td.querySelectorAll('input,select').forEach(el => { el.disabled = !isMetal; });
@@ -7830,7 +8242,13 @@ function toggleBomMetalCells(tr){
   });
 }
 
-function delBomRow(id){ document.getElementById(id)?.remove(); recalcBom(); }
+function delBomRow(id){
+  const tr = document.getElementById(id); if(!tr) return;
+  const src = tr.dataset.sourceRow;
+  tr.remove();
+  recalcBom();
+  onBomRowsChanged([src], { removed:true });
+}
 
 function bomChkAllToggle(chk){ document.querySelectorAll('#bomTbody .cd-row-chk').forEach(c=>c.checked=chk.checked); updateBomDeleteBtnVisibility(); }
 
@@ -7846,11 +8264,129 @@ document.getElementById('bomTbody')?.addEventListener('change', e => {
 function deleteSelectedBomRows(){
   const rows = [...document.querySelectorAll('#bomTbody tr')].filter(tr => tr.querySelector('.cd-row-chk')?.checked);
   if(!rows.length){ showToast('No rows selected', 'error'); return; }
+  const srcs = rows.map(tr => tr.dataset.sourceRow);
   rows.forEach(tr => tr.remove());
   const chkAll = document.getElementById('bomChkAll'); if(chkAll) chkAll.checked = false;
   updateBomDeleteBtnVisibility();
   recalcBom();
+  onBomRowsChanged(srcs, { removed:true });
 }
+
+// ══════════════════════════════════════════
+//  BOM ↔ ITEM ROW SYNC after BOM rows are removed or edited
+// ══════════════════════════════════════════
+// Visible (non-combined) BOM table rows of one items-table row.
+function bomRowsOf(rowId){
+  return [...document.querySelectorAll('#bomTbody tr')].filter(tr => tr.dataset.sourceRow === rowId && tr.dataset.combined !== '1');
+}
+
+// Staging-shaped copy of BOM table rows — what applyBomTounchToFgItem / mkbomMergeStaging expect.
+function bomTrToStaging(tr){
+  const v = k => tr.querySelector(`[data-bf="${k}"]`)?.value;
+  return {
+    itemCode: v('template_type')?.trim() || '', itemName: v('template_type')?.trim() || '',
+    goldColour: v('gold_colour') || '', goldPurity: v('gold_purity') || '',
+    diaType: v('dia_type') || '', diaShape: v('dia_shape') || '', diaGrade: v('dia_grade') || '', diaSieve: v('dia_sieve_size') || '',
+    uom: v('uom') || 'Gram', qty: parseFloat(v('qty')) || 0, rate: parseFloat(v('rate')) || 0,
+    amount: parseFloat(v('bom_amt')) || 0, pcs: parseInt(v('pcs')) || 0, margin: parseFloat(v('selling_rate')) || 0,
+    huid: v('huid') || '', addInNetWt: v('add_in_net_wt') === '1', itemGroup: v('item_group') || '',
+  };
+}
+
+// The saved ERPNext BOM no longer matches the table — clear its link so the next Save creates a
+// fresh one (saveBomSilent skips rows that already carry a BOM ID). A set piece also invalidates
+// its set row's BOM and the set-level BOM stored on every piece.
+function invalidateSavedBom(rowId){
+  const itemTr = document.getElementById(rowId); if(!itemTr) return;
+  const clear = tr => {
+    const b = tr?.querySelector('[data-f="bom_id"]'); if(b) b.value = '';
+    const btn = tr && document.getElementById('addbom-' + tr.id); if(btn && /^BOM( Saved)?:/.test(btn.title)) btn.title = 'Edit BOM';
+  };
+  clear(itemTr);
+  const setParentId = isSetSubRow(itemTr) ? itemTr.dataset.setParentRow : (itemTr.dataset.isSetParent ? itemTr.id : '');
+  if(setParentId){
+    clear(document.getElementById(setParentId));
+    getSetSubRows(setParentId).forEach(sub => { const sb = sub.querySelector('[data-f="set_bom_id"]'); if(sb) sb.value = ''; });
+  }
+  const setCode = itemTr.querySelector('[data-f="set_parent"]')?.value?.trim();
+  if(setCode) document.querySelectorAll('#itemsTbody [data-f="set_parent"]').forEach(inp => {
+    if(inp.value.trim() !== setCode) return;
+    const sb = inp.closest('tr')?.querySelector('[data-f="set_bom_id"]'); if(sb) sb.value = '';
+  });
+}
+
+// Rebuilds a set row's hidden combined BOM rows from its pieces' current BOM rows — the same merge
+// Make BOM's Save does — and re-applies the set's Touch.
+async function rebuildSetCombinedBom(parentRowId){
+  const parentTr = document.getElementById(parentRowId); if(!parentTr) return;
+  document.querySelectorAll('#bomTbody tr').forEach(tr => { if(tr.dataset.sourceRow === parentRowId) tr.remove(); });
+  const merged = mkbomMergeStaging(getSetSubRows(parentRowId).map(sub => bomRowsOf(sub.id).map(bomTrToStaging)));
+  if(!merged.length){ recalcBom(); return; }
+  const parentCode = parentTr.querySelector('[data-f="code"]')?.value?.trim() || '';
+  const parentName = parentTr.querySelector('[data-f="item_name"]')?.value?.trim() || parentCode;
+  const autoLabour = await getAutoLabourForFgItem(parentCode, getCurrentSupplierName());
+  merged.forEach(row => addBomRow(
+    parentCode, parentName, row.itemCode, row.goldColour, row.goldPurity,
+    row.diaType, row.diaShape, row.diaGrade, row.diaSieve, row.uom, row.qty, row.rate,
+    '', parentRowId,
+    0, autoLabour?.labourMode || 'Percentage', autoLabour?.labourVal || 0,
+    0, isDiamondRawMaterial(row.itemCode) ? (_supplierHandlingRate || 0) : 0, row.amount || 0,
+    autoLabour?.minRate || 0, autoLabour?.maxRate || 0, row.addInNetWt,
+    row.margin || 0, row.itemGroup || '', row.pcs || 0
+  ));
+  document.querySelectorAll('#bomTbody tr').forEach(tr => {
+    if(tr.dataset.sourceRow === parentRowId){ tr.style.display = 'none'; tr.dataset.combined = '1'; }
+  });
+  applyBomTounchToFgItem(parentRowId, merged, autoLabour);
+  recalcBom();
+}
+
+function clearFgTouch(rowId){
+  const itemTr = document.getElementById(rowId); if(!itemTr) return;
+  const t = itemTr.querySelector('[data-f="tounch"]');
+  if(t){ t.value = ''; delete t.dataset.basePurity; }
+  delete itemTr.dataset.savedTounch;
+  const w = itemTr.querySelector('[data-f="wastage"]'); if(w) w.value = 0;
+}
+
+// BOM rows of these items-table rows were removed (removed:true) or edited: re-derive the item
+// row's BOM-driven fields and drop the stale saved-BOM link. Weights/Rate follow every time;
+// Touch/Wastage are re-derived only on removal (an edit doesn't change which metal row exists).
+async function onBomRowsChanged(sourceRowIds, opts={}){
+  if(bomViewOnly) return;
+  const supplierName = getCurrentSupplierName();
+  const setParents = new Set();
+  for(const rowId of new Set(sourceRowIds.filter(Boolean))){
+    const itemTr = document.getElementById(rowId); if(!itemTr) continue;
+    invalidateSavedBom(rowId);
+    if(isSetSubRow(itemTr)) setParents.add(itemTr.dataset.setParentRow);
+    if(!opts.removed) continue;
+    const remaining = bomRowsOf(rowId);
+    if(!remaining.length){
+      // No BOM left — nothing to derive weights, rate or Touch from
+      ['gross_wt','net_wt','rate'].forEach(k => { const el = itemTr.querySelector(`[data-f="${k}"]`); if(el) el.value = ''; });
+      clearFgTouch(rowId);
+      recalcRow(rowId); recalcPureWt(rowId);
+      continue;
+    }
+    syncBomWeightToItem(rowId);
+    // A set piece's Touch/Wastage follow its set row (re-applied in rebuildSetCombinedBom)
+    if(!isSetSubRow(itemTr)){
+      const staging = remaining.map(bomTrToStaging);
+      if(!pickTounchMetalType(staging.map(r => r.itemCode))) clearFgTouch(rowId);
+      else applyBomTounchToFgItem(rowId, staging, await getAutoLabourForFgItem(itemTr.querySelector('[data-f="code"]')?.value?.trim() || '', supplierName));
+    }
+    recalcPureWt(rowId);
+  }
+  for(const parentRowId of setParents) await rebuildSetCombinedBom(parentRowId);
+}
+
+// Any edit inside a BOM row (qty, rate, labour, HUID…) makes the saved ERPNext BOM stale
+document.getElementById('bomTbody')?.addEventListener('change', e => {
+  if(e.target.classList.contains('cd-row-chk')) return;
+  const src = e.target.closest('tr')?.dataset.sourceRow;
+  if(src) onBomRowsChanged([src]);
+});
 
 function onItemWastageChange(rowId){
   const itemTr = document.getElementById(rowId); if(!itemTr) return;
@@ -7900,7 +8436,7 @@ function enforceLabourRange(el){
   if(!min && !max) return; // no known range for this row (e.g. mode set manually, no supplier match)
   const val = parseFloat(el.value||0);
   if(val < min || val > max){
-    showToast(`You can only enter a Labour Charge between ₹${min} and ₹${max} for this category`, 'error', 5000);
+    showToast(`You can only enter a Labour Charge between ${cdCurSym()}${min} and ${cdCurSym()}${max} for this category`, 'error', 5000);
     el.value = Math.min(Math.max(val, min), max);
     recalcBomRow(tr.id);
   }
@@ -7947,8 +8483,7 @@ function recalcBomRow(rowId){
   const making       = parseFloat(tr.querySelector('[data-bf="making"]')?.value)        || 0;
   const handlingRate = parseFloat(tr.querySelector('[data-bf="handling_rate"]')?.value) || 0;
   const wastage    = parseFloat(tr.querySelector('[data-bf="wastage"]')?.value)    || 0;
-  const labourMode = tr.querySelector('[data-bf="labour_mode"]')?.value            || 'Percentage';
-  const labourVal  = parseFloat(tr.querySelector('[data-bf="labour_val"]')?.value) || 0;
+  const { labourMode, labourVal } = bomRowLabour(tr);
 
   const baseAmt    = qty * rate + qty * making + qty * handlingRate;
   const wastageAdd = baseAmt * wastage / 100;
@@ -7991,8 +8526,7 @@ function recalcBomWeightTotals(){
     const rate         = parseFloat(tr.querySelector('[data-bf="rate"]')?.value)         || 0;
     const making       = parseFloat(tr.querySelector('[data-bf="making"]')?.value)       || 0;
     const handlingRate = parseFloat(tr.querySelector('[data-bf="handling_rate"]')?.value)|| 0;
-    const labourMode   = tr.querySelector('[data-bf="labour_mode"]')?.value              || 'Percentage';
-    const labourVal    = parseFloat(tr.querySelector('[data-bf="labour_val"]')?.value)   || 0;
+    const { labourMode, labourVal } = bomRowLabour(tr);
     const templateType = tr.querySelector('[data-bf="template_type"]')?.value            || '';
     const itemGroup    = tr.querySelector('[data-bf="item_group"]')?.value               || detectMetalType(templateType);
     const addInNetWt   = tr.querySelector('[data-bf="add_in_net_wt"]')?.value === '1';
@@ -8071,7 +8605,12 @@ function syncBomWeightToItem(sourceRowId){
   if(netWtEl) netWtEl.value = totalNetWt ? totalNetWt.toFixed(3) : '';
 
   const rateEl = itemTr.querySelector('[data-f="rate"]');
-  if(rateEl) rateEl.value = totalAmt ? totalAmt.toFixed(2) : '';
+  if(itemTr.dataset.oldSerial){
+    // Modification piece: the karigar is billed only the extra over the old BOM — the old
+    // serial's value moves onto the new one on Submit (finishRepairReceipt). Never below 0.
+    const extra = Math.max(0, totalAmt - cdToDoc(repairEstimateTotal(itemTr.dataset.oldSerial)));
+    if(rateEl) rateEl.value = extra.toFixed(2);
+  } else if(rateEl) rateEl.value = totalAmt ? totalAmt.toFixed(2) : '';
 
   // Recalc amount for this item row since rate changed
   recalcRow(sourceRowId);
@@ -8885,7 +9424,7 @@ async function addItemToRow(){
       uom=(r.data||r.message)?.stock_uom||'Nos';
     }catch(e){ uom='Nos'; }
   }
-  fillRow(_dialogRowId,_matchedItem.item_code,_matchedItem.item_name,cached?.hsn||_matchedItem.gst_hsn_code||'',uom,ITEM_PRICES[_matchedItem.item_code]||cached?.rate||0);
+  fillRow(_dialogRowId,_matchedItem.item_code,_matchedItem.item_name,cached?.hsn||_matchedItem.gst_hsn_code||'',uom,cdToDoc(ITEM_PRICES[_matchedItem.item_code]||cached?.rate||0));
   closeItemDialog();
   showToast(_matchedItem.item_code+' added','success');
 }
@@ -9176,6 +9715,14 @@ async function fetchAutoPurchaseTaxTemplate(company,taxCategory){
 }
 
 async function autoSetTaxTemplateFromAddresses(){
+  // Foreign-currency supplier: no In-State/Out-State GST template — import IGST and customs duty
+  // come with the Bill of Entry. A template can still be picked by hand for a bill that carries GST.
+  if(cdIsForeign()){
+    const sel=document.getElementById('taxTemplate');
+    if(sel?.value){ sel.value=''; await onTaxTemplateChange(); }
+    showToast('Foreign currency supplier — no GST template applied', 'info', 4000);
+    return;
+  }
   const companyState=(COMPANY_STATE||'').trim();
   const supplierState=(SUPPLIERSTATE||'').trim();
   const taxCategory=getAutoTaxCategory(companyState,supplierState,COMPANY_GSTIN,SUPPLIER_GSTIN,COMPANY_GST_STATE_CODES);
@@ -9333,6 +9880,10 @@ function openMakeBomDialog(explicitRows = null) {
         amount    : parseFloat(bomTr.querySelector('[data-bf="bom_amt"]')?.value) || 0,
         pcs       : parseInt(bomTr.querySelector('[data-bf="pcs"]')?.value)          || 0,
         margin    : parseFloat(bomTr.querySelector('[data-bf="selling_rate"]')?.value) || 0,
+        // Carried through so re-saving keeps them (Net Wt depends on addInNetWt)
+        addInNetWt: bomTr.querySelector('[data-bf="add_in_net_wt"]')?.value === '1',
+        itemGroup : bomTr.querySelector('[data-bf="item_group"]')?.value || '',
+        huid      : bomTr.querySelector('[data-bf="huid"]')?.value || '',
         _bomTrId  : bomTr.id, // track original BOM table row
       });
     });
@@ -9801,7 +10352,7 @@ async function applyMkbomRate(rowId, metalType, templateName){
   if(!rate) rate = METAL_RATES[metalType] || 0;
   if(!rate) return;
 
-  rEl.value = rate;
+  rEl.value = cdToDoc(rate); // Metal Price List is in INR
   mkbomDlgRecalc(rowId);
 }
 
@@ -9859,7 +10410,7 @@ async function applyMkbomDiamondRate(rowId){
   }
 
   try{
-    const rate = await fetchAttrMappedRate(getAttr, DIAMOND_PRICE_ATTRS, 'Diamond%20Price%20List');
+    const rate = cdToDoc(await fetchAttrMappedRate(getAttr, DIAMOND_PRICE_ATTRS, 'Diamond%20Price%20List'));
     if(!rate) return;
 
     rEl.value = rate;
@@ -9888,8 +10439,9 @@ async function applyMkbomStoneRate(rowId, force){
 
   try{
     const uom  = document.getElementById('mkbom-uom-' + rowId)?.value || '';
-    const rate = await fetchAttrMappedRate(getAttr, GEMSTONE_PRICE_ATTRS, 'Gemstone%20Price%20List', uom);
-    if(rate === null) return;
+    const listRate = await fetchAttrMappedRate(getAttr, GEMSTONE_PRICE_ATTRS, 'Gemstone%20Price%20List', uom);
+    if(listRate === null) return;
+    const rate = cdToDoc(listRate);
 
     rEl.value = rate || 0;
     mkbomDlgRecalc(rowId);
@@ -10252,10 +10804,16 @@ function mkbomUpdateSaveBtn() {
 async function mkbomSaveAll() {
   if (bomViewOnly) return;
   const tabs = Object.values(mkbomTabs).filter(s => s.staging.length > 0);
-  if (!tabs.length) {
+  // Tabs whose raw materials were all removed in the dialog — their BOM table rows go too
+  const emptied = Object.values(mkbomTabs).filter(s => !s.combinedOf && !s.staging.length && bomRowsOf(s.rowId).length);
+  if (!tabs.length && !emptied.length) {
     showToast('No raw materials to save', 'error');
     return;
   }
+  emptied.forEach(s => bomRowsOf(s.rowId).forEach(tr => tr.remove()));
+  if (emptied.length){ recalcBom(); await onBomRowsChanged(emptied.map(s => s.rowId), { removed:true }); }
+  // The table is rewritten below — any BOM already saved to ERPNext for these rows is now stale
+  tabs.forEach(s => invalidateSavedBom(s.rowId));
 
   const supplierName = getCurrentSupplierName();
   await loadSupplierMakingCharges(supplierName); // also loads _supplierHandlingRate
@@ -10279,7 +10837,7 @@ async function mkbomSaveAll() {
         row.goldColour, row.goldPurity,
         row.diaType, row.diaShape, row.diaGrade, row.diaSieve,
         row.uom, row.qty, row.rate,
-        '', state.rowId,
+        row.huid || '', state.rowId,
         0, autoLabour?.labourMode || 'Percentage', autoLabour?.labourVal || 0,
         0, isDiamondRawMaterial(row.itemCode) ? (_supplierHandlingRate || 0) : 0, row.amount || 0,
         autoLabour?.minRate || 0, autoLabour?.maxRate || 0, row.addInNetWt,

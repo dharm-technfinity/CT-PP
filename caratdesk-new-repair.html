@@ -1,6 +1,6 @@
 <!-- CaratDesk – New Repair Order (full page, matches Purchase Receipt/Order/Invoice UI) -->
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8"><script src="/caratdesk-sidebar.js"></script>
 </head>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap');
@@ -149,6 +149,10 @@
   .cd-bom-tbl input[type=number]::-webkit-inner-spin-button,.cd-bom-tbl input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
   .cd-bom-tbl input[type=number]{-moz-appearance:textfield;appearance:textfield}
   .cd-bom-tbl tr:last-child td{border-bottom:none}
+  .cd-ser-tbl td{padding:0 8px;font-size:12px;white-space:nowrap}
+  .cd-ser-tbl td.num{text-align:right}
+  .cd-ser-tbl tr.cd-ser-bom td{padding:6px 10px 10px;background:var(--bg);white-space:normal}
+  .cd-ser-link{background:none;border:none;color:var(--text-secondary);cursor:pointer;font-size:12px;text-decoration:underline;padding:0;font-family:inherit}
   .cd-bom-tbl tbody tr:hover{background:var(--nav-hover)}
 
   /* ── New Customer dialog (matches POS Billing / Jewellery Scheme) ── */
@@ -251,16 +255,38 @@
           <div class="cd-sec-toggle"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
         </div>
         <div class="cd-section-body">
-          <div class="cd-grid" id="serialNoField" style="display:none;margin-bottom:16px">
-            <div class="cd-field">
-              <label class="cd-label">Serial No <span class="req">*</span></label>
-              <div class="cd-ac">
-                <input class="cd-input" id="repSerialNo" placeholder="Scan or type serial no..." autocomplete="off" oninput="acRepSerial(this.value)" onfocus="acRepSerial(this.value)"/>
-                <div class="cd-ac-list" id="ac-rep-serial"></div>
+          <div id="serialNoField" style="display:none;margin-bottom:16px">
+            <div class="cd-grid" style="margin-bottom:12px">
+              <div class="cd-field">
+                <label class="cd-label">Serial No <span class="req">*</span></label>
+                <div class="cd-ac">
+                  <input class="cd-input" id="repSerialNo" placeholder="Scan serial no and press Enter..." autocomplete="off" oninput="acRepSerial(this.value)" onfocus="acRepSerial(this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();addModSerial(this.value);}"/>
+                  <div class="cd-ac-list" id="ac-rep-serial"></div>
+                </div>
               </div>
             </div>
-            <div class="cd-field"><label class="cd-label">Item Code</label><input class="cd-input" id="repFetchedItem" readonly style="opacity:.65"/></div>
-            <div class="cd-field"><label class="cd-label">BOM</label><input class="cd-input" id="repFetchedBom" readonly style="opacity:.65"/></div>
+            <div class="cd-bom-wrap">
+              <table class="cd-bom-tbl cd-ser-tbl" style="min-width:760px">
+                <thead><tr>
+                  <th style="width:34px">#</th>
+                  <th>Serial No</th>
+                  <th>Item Code</th>
+                  <th>BOM</th>
+                  <th>Warehouse</th>
+                  <th style="width:90px;text-align:right">Gross Wt</th>
+                  <th style="width:90px;text-align:right">Net Wt</th>
+                  <th style="width:110px;text-align:right">Amount</th>
+                  <th style="width:34px"></th>
+                </tr></thead>
+                <tbody id="modSerialTbody"></tbody>
+              </table>
+            </div>
+            <div style="display:flex;justify-content:flex-end;gap:18px;margin:8px 4px;font-size:12.5px;color:var(--text-secondary)">
+              <span>Pcs <strong id="modTotPcs" style="color:var(--text-primary)">0</strong></span>
+              <span>Gross Wt <strong id="modTotGross" style="color:var(--text-primary)">0.000</strong></span>
+              <span>Net Wt <strong id="modTotNet" style="color:var(--text-primary)">0.000</strong></span>
+              <span>Amount <strong id="modTotAmt" style="color:var(--text-primary)">₹0</strong></span>
+            </div>
           </div>
           <div class="cd-grid" id="repairItemField" style="display:none;margin-bottom:16px">
             <div class="cd-field"><label class="cd-label">Item Code</label><input class="cd-input" id="repRepairItem" readonly value="Repair Item" style="opacity:.65"/></div>
@@ -271,15 +297,8 @@
 
       <div class="cd-section" id="bomItemSection" style="display:none">
         <div class="cd-section-header" onclick="toggleSec(this)">
-          <div class="cd-sec-title"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>BOM Item</div>
+          <div class="cd-sec-title"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Summary (all pieces)</div>
           <div class="cd-sec-toggle"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
-        </div>
-        <div class="cd-section-body" style="padding:0">
-          <table style="width:100%;border-collapse:collapse;font-size:12.5px">
-            <thead><tr style="background:var(--bg)"><th style="text-align:left;padding:9px 12px;color:var(--text-muted);font-weight:600;font-size:10.5px;text-transform:uppercase">Item Code</th><th style="text-align:right;padding:9px 12px;color:var(--text-muted);font-weight:600;font-size:10.5px;text-transform:uppercase">Qty</th><th style="text-align:left;padding:9px 12px;color:var(--text-muted);font-weight:600;font-size:10.5px;text-transform:uppercase">UOM</th><th style="text-align:right;padding:9px 12px;color:var(--text-muted);font-weight:600;font-size:10.5px;text-transform:uppercase">Costing Rate</th><th style="text-align:right;padding:9px 12px;color:var(--text-muted);font-weight:600;font-size:10.5px;text-transform:uppercase">BOM Amount</th></tr></thead>
-            <tbody id="bomItemTbody"></tbody>
-            <tfoot><tr><td colspan="4" style="padding:9px 12px;text-align:right;font-weight:600;border-top:1px solid var(--border-strong)">Subtotal</td><td id="bomItemTotal" style="padding:9px 12px;text-align:right;font-weight:600;border-top:1px solid var(--border-strong)">₹0</td></tr></tfoot>
-          </table>
         </div>
         <div class="cd-section-body">
           <div class="cd-sec-title" style="margin-bottom:12px">Weight</div>
@@ -554,6 +573,8 @@
   </div>
 </div>
 
+<script src="/caratdesk-metal-rates.js"></script>
+<script src="/caratdesk-bom-rates.js"></script>
 <script>
 // ══ INSTANCE HELPERS ══
 const DEV1 = 'https://ppj-dev1.m.frappe.cloud';
@@ -666,12 +687,13 @@ function onOrderTypeChange(){
   const isRepair=type==='Repair';
   document.getElementById('serialNoField').style.display=isModification?'':'none';
   document.getElementById('repairItemField').style.display=isRepair?'':'none';
-  if(!isModification) document.getElementById('bomItemSection').style.display='none';
+  if(isModification) renderModSerials();
+  else document.getElementById('bomItemSection').style.display='none';
   document.getElementById('repBomSection').style.display=isRepair?'':'none';
   // Modification orders don't go through a Karigar/Subcontractor Issue/Receive workflow.
   document.getElementById('repIssueAssignSection').style.display=isModification?'none':'';
   document.getElementById('repItemHint').textContent = isModification
-    ? 'Serial No decides the item and its BOM automatically.'
+    ? 'Scan each piece — every Serial No brings its own item and BOM. All pieces go to the same karigar on Issue.'
     : isRepair
       ? 'The shared "Repair Item" will be used to track this piece through issue/receive.'
       : 'Select Order Type first.';
@@ -878,84 +900,159 @@ async function acRepSerial(val){
     if(q) filters.push(['name','like','%'+q+'%']);
     const fields=encodeURIComponent(JSON.stringify(['name','item_code','warehouse']));
     const res=await dev1Get(`/api/resource/Serial%20No?fields=${fields}&filters=${encodeURIComponent(JSON.stringify(filters))}&limit_page_length=15`);
+    // A scan (Enter) clears the box while this search is still in flight — don't reopen the list.
+    if(document.getElementById('repSerialNo').value.trim()!==q) return;
     const rows=res.data||res.message||[];
     list.innerHTML = rows.length? rows.map(r=>`<div class="cd-ac-item" onclick="selRepSerial('${esc(r.name)}')"><div class="main">${esc(r.name)}</div><div class="sub">${esc(r.item_code||'')} · ${esc(r.warehouse||'no warehouse')}</div></div>`).join('') : `<div class="cd-ac-empty">No serial no found</div>`;
     list.classList.add('open');
   }catch(e){ console.warn('Serial No search failed:', e.message); }
 }
-let FETCHED_BOM_ITEMS=[];
-async function selRepSerial(name){
-  document.getElementById('repSerialNo').value=name;
+// ══════════════════════════════════════════
+//  MODIFICATION — MULTIPLE SERIALS. One row per scanned piece; each carries its Serial No's
+//  own BOM rows (saved onto bom_item tagged with custom_repair_serial_no) and that BOM's
+//  Weight/Amount breakup. The Summary section and the order's header weight/amount fields
+//  are the sum across all pieces.
+// ══════════════════════════════════════════
+let MOD_SERIALS=[]; // [{serial_no, item_code, bom, warehouse, bomItems, breakup}]
+const MOD_BOM_OPEN=new Set();
+// Scans are queued so a fast scanner never runs two lookups at once — the duplicate check
+// then always sees every serial added before it.
+let MOD_SCAN_CHAIN=Promise.resolve();
+function selRepSerial(name){ addModSerial(name); }
+function addModSerial(raw){
+  const sn=(raw||'').trim();
+  const input=document.getElementById('repSerialNo');
+  input.value='';
   document.getElementById('ac-rep-serial').classList.remove('open');
+  if(!sn) return;
+  MOD_SCAN_CHAIN=MOD_SCAN_CHAIN.then(()=>addModSerialNow(sn)).catch(e=>console.warn('Add serial failed:', e.message));
+  input.focus();
+}
+async function addModSerialNow(sn){
+  if(MOD_SERIALS.some(s=>s.serial_no===sn)){ showToast(sn+' is already in this order','error'); return; }
+  let serialDoc;
   try{
-    const res=await dev1Get('/api/resource/Serial%20No/'+encodeURIComponent(name));
-    const serialDoc=res.data||res.message||res;
-    document.getElementById('repFetchedItem').value=serialDoc.item_code||'';
-    document.getElementById('repFetchedBom').value=serialDoc.custom_bom||'—';
-    if(serialDoc.custom_bom) await loadBomItems(serialDoc.custom_bom);
-    else { FETCHED_BOM_ITEMS=[]; document.getElementById('bomItemSection').style.display='none'; }
-  }catch(e){
-    console.warn('Serial No fetch failed:', e.message);
+    const res=await dev1Get('/api/resource/Serial%20No/'+encodeURIComponent(sn));
+    serialDoc=res.data||res.message||res;
+  }catch(e){ showToast('Serial No '+sn+' not found','error'); return; }
+  if(!serialDoc.warehouse){ showToast('Serial No '+sn+' has no current warehouse','error'); return; }
+  const openOrder=await findOpenModificationOrder(sn);
+  if(openOrder){ showToast(sn+' is already on open Repair Order '+openOrder,'error'); return; }
+  let bomItems=[], breakup=null;
+  if(serialDoc.custom_bom){
+    try{ ({bomItems, breakup}=await loadSerialBom(serialDoc.custom_bom)); }
+    catch(e){ showToast('Could not load BOM '+serialDoc.custom_bom+' for '+sn+': '+e.message,'error'); }
   }
+  MOD_SERIALS.push({ serial_no:serialDoc.name||sn, item_code:serialDoc.item_code||'', bom:serialDoc.custom_bom||'', warehouse:serialDoc.warehouse, bomItems, breakup });
+  renderModSerials();
+}
+// A Serial No can only be on one not-yet-submitted Modification order at a time — checks both
+// the multi-serial table and the old header serial_no field.
+async function findOpenModificationOrder(sn){
+  const fields=encodeURIComponent(JSON.stringify(['name']));
+  const q=filters=>dev1Get('/api/resource/Repair%20Order?fields='+fields+'&filters='+encodeURIComponent(JSON.stringify(filters))+'&limit_page_length=1')
+    .then(r=>(r.data||r.message||[])[0]?.name||null).catch(()=>null);
+  const [inTable, inHeader]=await Promise.all([
+    q([['Repair Serial No','serial_no','=',sn],['docstatus','=',0]]),
+    q([['serial_no','=',sn],['docstatus','=',0]]),
+  ]);
+  return inTable||inHeader||null;
+}
+async function loadSerialBom(bomName){
+  const res=await dev1Get('/api/resource/BOM/'+encodeURIComponent(bomName));
+  const bomDoc=res.data||res.message||res;
+  const bomItems=bomDoc.items||[];
+  const t=await classifyBomItems(bomItems);
+  const rowsTotal=bomItems.reduce((s,r)=>s+(parseFloat(r.custom_bom_amt||0)),0);
+  const makingCharges=parseFloat(bomDoc.custom_making_charges||0)||0;
+  const breakup={ ...t, gross_wt:t.metal_wt+t.diamond_wt+t.stone_wt+t.other_wt, net_wt:t.metal_wt, making_charges:makingCharges, total:rowsTotal+makingCharges };
+  return { bomItems, breakup };
+}
+function removeModSerial(sn){
+  MOD_SERIALS=MOD_SERIALS.filter(s=>s.serial_no!==sn);
+  MOD_BOM_OPEN.delete(sn);
+  renderModSerials();
+}
+function toggleModBom(sn){
+  if(MOD_BOM_OPEN.has(sn)) MOD_BOM_OPEN.delete(sn); else MOD_BOM_OPEN.add(sn);
+  renderModSerials();
+}
+const BOM_COPY_FIELDS=['custom_costing_rate','custom_bom_amt','custom_huid','custom_gold_colour','custom_gold_purity','custom_metal_touch',
+  'custom_diamond_type','custom_diamond_shape','custom_diamond_grade','custom_diamond_sieve_size','custom_labour_mode','custom_labour_val',
+  'custom_wastage','custom_handling_rate','custom_add_in_net_wt','custom_item_group','custom_pcs','custom_manual_rate'];
+const BREAKUP_KEYS=['metal_wt','metal_amount','diamond_wt','diamond_amount','stone_wt','stone_amount','other_wt','other_amount','gross_wt','net_wt','making_charges','total'];
+function modBreakupTotal(){
+  const t={}; BREAKUP_KEYS.forEach(k=>t[k]=0);
+  MOD_SERIALS.forEach(s=>{ if(s.breakup) BREAKUP_KEYS.forEach(k=>t[k]+=parseFloat(s.breakup[k]||0)||0); });
+  return t;
+}
+function renderModSerials(){
+  const tbody=document.getElementById('modSerialTbody');
+  tbody.innerHTML = MOD_SERIALS.length ? MOD_SERIALS.map((s,i)=>{
+    const b=s.breakup||{};
+    const open=MOD_BOM_OPEN.has(s.serial_no);
+    let html=`<tr>
+      <td>${i+1}</td>
+      <td><strong>${esc(s.serial_no)}</strong></td>
+      <td>${esc(s.item_code)}</td>
+      <td>${s.bom?`<button type="button" class="cd-ser-link" onclick="toggleModBom('${esc(s.serial_no)}')">${esc(s.bom)}</button>`:'<span style="color:var(--text-muted)">No BOM</span>'}</td>
+      <td>${esc(s.warehouse)}</td>
+      <td class="num">${(parseFloat(b.gross_wt)||0).toFixed(3)}</td>
+      <td class="num">${(parseFloat(b.net_wt)||0).toFixed(3)}</td>
+      <td class="num">${fmtCurrency(b.total)}</td>
+      <td style="text-align:center"><button type="button" class="cd-del-btn" title="Remove" onclick="removeModSerial('${esc(s.serial_no)}')"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></td>
+    </tr>`;
+    if(open){
+      html+=`<tr class="cd-ser-bom"><td></td><td colspan="8">
+        <table style="width:100%;border-collapse:collapse;font-size:11.5px">
+          <thead><tr><th style="text-align:left">Item Code</th><th style="text-align:right">Qty</th><th style="text-align:left">UOM</th><th style="text-align:right">Costing Rate</th><th style="text-align:right">BOM Amount</th></tr></thead>
+          <tbody>${s.bomItems.length?s.bomItems.map(r=>`<tr><td style="border:none;padding:3px 6px">${esc(r.item_code||'')}</td><td style="border:none;padding:3px 6px;text-align:right">${r.qty||0}</td><td style="border:none;padding:3px 6px">${esc(r.uom||'')}</td><td style="border:none;padding:3px 6px;text-align:right">${(parseFloat(r.custom_costing_rate||0)).toLocaleString('en-IN')}</td><td style="border:none;padding:3px 6px;text-align:right">${(parseFloat(r.custom_bom_amt||0)).toLocaleString('en-IN')}</td></tr>`).join(''):'<tr><td colspan="5" style="border:none;padding:3px 6px;color:var(--text-muted)">This BOM has no items</td></tr>'}</tbody>
+        </table>
+      </td></tr>`;
+    }
+    return html;
+  }).join('') : `<tr><td colspan="9" style="text-align:center;color:var(--text-muted);font-weight:400;padding:12px">No pieces scanned yet</td></tr>`;
+
+  const t=modBreakupTotal();
+  document.getElementById('modTotPcs').textContent=MOD_SERIALS.length;
+  document.getElementById('modTotGross').textContent=t.gross_wt.toFixed(3);
+  document.getElementById('modTotNet').textContent=t.net_wt.toFixed(3);
+  document.getElementById('modTotAmt').textContent=fmtCurrency(t.total);
+  document.getElementById('bkMetalWt').value=t.metal_wt.toFixed(3);
+  document.getElementById('bkDiamondWt').value=t.diamond_wt.toFixed(3);
+  document.getElementById('bkStoneWt').value=t.stone_wt.toFixed(3);
+  document.getElementById('bkOtherWt').value=t.other_wt.toFixed(3);
+  document.getElementById('bkMetalAmount').value=fmtCurrency(t.metal_amount);
+  document.getElementById('bkDiamondAmount').value=fmtCurrency(t.diamond_amount);
+  document.getElementById('bkStoneAmount').value=fmtCurrency(t.stone_amount);
+  document.getElementById('bkOtherAmount').value=fmtCurrency(t.other_amount);
+  document.getElementById('bkGrossWt').value=t.gross_wt.toFixed(3);
+  document.getElementById('bkNetWt').value=t.net_wt.toFixed(3);
+  document.getElementById('bkMakingCharges').value=fmtCurrency(t.making_charges);
+  document.getElementById('bkTotal').value=fmtCurrency(t.total);
+  document.getElementById('bomItemSection').style.display=MOD_SERIALS.length?'':'none';
 }
 // Metal/Diamond/Stone come from the row's Item Group ("Gold"/"Diamond"/"Stone"); anything else
 // (findings, clasps, etc.) falls into Other — same Item Group convention already used for
-// filtering items in Job Work.
+// filtering items in Job Work. Groups are cached so scanning many pieces doesn't re-query
+// the same items.
 const ITEM_GROUP_BUCKET={ 'Gold':'metal', 'Diamond':'diamond', 'Stone':'stone' };
-let FETCHED_BOM_BREAKUP=null;
+const ITEM_GROUP_CACHE={};
 async function classifyBomItems(rows){
-  const codes=[...new Set(rows.map(r=>r.item_code).filter(Boolean))];
-  const groups={};
+  const codes=[...new Set(rows.map(r=>r.item_code).filter(Boolean))].filter(c=>!(c in ITEM_GROUP_CACHE));
   if(codes.length){
     try{
       const res=await dev1Get('/api/resource/Item?fields='+encodeURIComponent(JSON.stringify(['name','item_group']))+'&filters='+encodeURIComponent(JSON.stringify([['name','in',codes]]))+'&limit_page_length=0');
-      (res.data||res.message||[]).forEach(it=>{ groups[it.name]=it.item_group; });
+      (res.data||res.message||[]).forEach(it=>{ ITEM_GROUP_CACHE[it.name]=it.item_group; });
     }catch(e){ console.warn('Item Group lookup failed:', e.message); }
   }
   const t={ metal_wt:0, metal_amount:0, diamond_wt:0, diamond_amount:0, stone_wt:0, stone_amount:0, other_wt:0, other_amount:0 };
   rows.forEach(r=>{
-    const bucket=ITEM_GROUP_BUCKET[groups[r.item_code]]||'other';
+    const bucket=ITEM_GROUP_BUCKET[ITEM_GROUP_CACHE[r.item_code]]||'other';
     t[bucket+'_wt']+=parseFloat(r.qty||0)||0;
     t[bucket+'_amount']+=parseFloat(r.custom_bom_amt||0)||0;
   });
   return t;
-}
-async function loadBomItems(bomName){
-  try{
-    const res=await dev1Get('/api/resource/BOM/'+encodeURIComponent(bomName));
-    const bomDoc=res.data||res.message||res;
-    FETCHED_BOM_ITEMS=bomDoc.items||[];
-    const tbody=document.getElementById('bomItemTbody');
-    tbody.innerHTML = FETCHED_BOM_ITEMS.length
-      ? FETCHED_BOM_ITEMS.map(r=>`<tr><td style="padding:8px 12px;border-top:.5px solid var(--border)">${esc(r.item_code||'')}</td><td style="padding:8px 12px;border-top:.5px solid var(--border);text-align:right">${r.qty||0}</td><td style="padding:8px 12px;border-top:.5px solid var(--border)">${esc(r.uom||'')}</td><td style="padding:8px 12px;border-top:.5px solid var(--border);text-align:right">${(parseFloat(r.custom_costing_rate||0)).toLocaleString('en-IN')}</td><td style="padding:8px 12px;border-top:.5px solid var(--border);text-align:right">${(parseFloat(r.custom_bom_amt||0)).toLocaleString('en-IN')}</td></tr>`).join('')
-      : `<tr><td colspan="5" style="padding:12px;text-align:center;color:var(--text-muted);border-top:.5px solid var(--border)">This BOM has no items</td></tr>`;
-    const rowsTotal=FETCHED_BOM_ITEMS.reduce((s,r)=>s+(parseFloat(r.custom_bom_amt||0)),0);
-    document.getElementById('bomItemTotal').textContent='₹'+rowsTotal.toLocaleString('en-IN');
-
-    const t=await classifyBomItems(FETCHED_BOM_ITEMS);
-    const grossWt=t.metal_wt+t.diamond_wt+t.stone_wt+t.other_wt;
-    const netWt=t.metal_wt;
-    const makingCharges=parseFloat(bomDoc.custom_making_charges||0)||0;
-    const total=rowsTotal+makingCharges;
-    FETCHED_BOM_BREAKUP={ ...t, gross_wt:grossWt, net_wt:netWt, making_charges:makingCharges, total };
-    document.getElementById('bkMetalWt').value=t.metal_wt.toFixed(3);
-    document.getElementById('bkDiamondWt').value=t.diamond_wt.toFixed(3);
-    document.getElementById('bkStoneWt').value=t.stone_wt.toFixed(3);
-    document.getElementById('bkOtherWt').value=t.other_wt.toFixed(3);
-    document.getElementById('bkMetalAmount').value=fmtCurrency(t.metal_amount);
-    document.getElementById('bkDiamondAmount').value=fmtCurrency(t.diamond_amount);
-    document.getElementById('bkStoneAmount').value=fmtCurrency(t.stone_amount);
-    document.getElementById('bkOtherAmount').value=fmtCurrency(t.other_amount);
-    document.getElementById('bkGrossWt').value=grossWt.toFixed(3);
-    document.getElementById('bkNetWt').value=netWt.toFixed(3);
-    document.getElementById('bkMakingCharges').value=fmtCurrency(makingCharges);
-    document.getElementById('bkTotal').value=fmtCurrency(total);
-
-    document.getElementById('bomItemSection').style.display='';
-  }catch(e){
-    console.warn('BOM fetch failed:', e.message);
-    showToast('Could not load BOM items: '+e.message,'error');
-  }
 }
 function fmtCurrency(n){ return '₹'+(parseFloat(n||0)).toLocaleString('en-IN'); }
 
@@ -1151,7 +1248,7 @@ function recalcBom(){
 let _repBomBreakupToken = 0;
 // Raw numbers behind the repMetalWt-etc. fields — those fields display currency-formatted
 // text (e.g. "₹1,234"), which can't be parsed back with parseFloat, so buildPayload() reads
-// this object instead of re-parsing the DOM (same reason Modification keeps FETCHED_BOM_BREAKUP).
+// this object instead of re-parsing the DOM (same reason Modification sums MOD_SERIALS' breakups).
 let REP_BOM_BREAKUP=null;
 async function refreshRepBomBreakup(){
   const myToken = ++_repBomBreakupToken;
@@ -1263,7 +1360,7 @@ function mkbomPanelHTML(rowId, fgCode, fgName){
           <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr auto;gap:8px;align-items:flex-end;margin-top:10px">
             <div style="display:flex;flex-direction:column;gap:3px">
               <label style="font-size:10px;font-weight:500;color:var(--pill-green-txt)">UOM</label>
-              <select id="mkbom-uom-${rowId}" style="font-family:'DM Sans',sans-serif;font-size:11.5px;background:var(--surface);border:.5px solid rgba(59,109,17,.3);border-radius:7px;padding:5px 8px;color:var(--text-primary);outline:none;height:30px">
+              <select id="mkbom-uom-${rowId}" onchange="cdMkbomUomChanged('${rowId}')" style="font-family:'DM Sans',sans-serif;font-size:11.5px;background:var(--surface);border:.5px solid rgba(59,109,17,.3);border-radius:7px;padding:5px 8px;color:var(--text-primary);outline:none;height:30px">
                 ${BOM_UOMS.map(u=>`<option value="${u}">${u}</option>`).join('')}
               </select>
             </div>
@@ -1410,6 +1507,12 @@ async function mkbomAutoSearch(rowId){
     else{ state.matchedItem = d.message; mkbomShowResult(rowId, d.message); }
   }catch(e){ mkbomShowError(rowId, 'Search failed: ' + e.message); }
 }
+// Supplier for supplier-specific Diamond/Gemstone rates — the form's Supplier picker.
+function mkbomSupplier(){
+  const inp=document.getElementById('repSupplier');
+  if(!inp) return '';
+  return inp.dataset.name || SUPPLIERS.find(s=>s.display===inp.value.trim()||s.name===inp.value.trim())?.name || '';
+}
 function mkbomShowResult(rowId, item){
   document.getElementById('mkbom-result-code-' + rowId).textContent = item.item_code;
   document.getElementById('mkbom-result-name-' + rowId).textContent = item.item_name;
@@ -1424,11 +1527,14 @@ function mkbomShowResult(rowId, item){
     if(!found){ const op = document.createElement('option'); op.value = uom; op.textContent = uom; op.selected = true; uomSel.appendChild(op); }
   }
   const autoUom = item.stock_uom || item.uom || '';
+  // uomReady resolves once the item's UOM is selected, so the per-UOM Gemstone rate lookup never
+  // runs against the previous item's UOM.
+  let uomReady = Promise.resolve();
   if(autoUom) applyMkbomUom(autoUom);
   else{
     try{
       const h = cdGetInstanceHeaders();
-      if(h){ fetch(`${cdGetInstanceUrl()}/api/resource/Item/${encodeURIComponent(item.item_code)}?fields=${encodeURIComponent(JSON.stringify(['stock_uom']))}`,{headers:h}).then(r=>r.json()).then(d=>applyMkbomUom((d?.data||d?.message)?.stock_uom||'')).catch(()=>{}); }
+      if(h){ uomReady = fetch(`${cdGetInstanceUrl()}/api/resource/Item/${encodeURIComponent(item.item_code)}?fields=${encodeURIComponent(JSON.stringify(['stock_uom']))}`,{headers:h}).then(r=>r.json()).then(d=>applyMkbomUom((d?.data||d?.message)?.stock_uom||'')).catch(()=>{}); }
     }catch(e){}
   }
   const qEl = document.getElementById('mkbom-qty-' + rowId);
@@ -1437,6 +1543,8 @@ function mkbomShowResult(rowId, item){
   if(qEl) qEl.value = '1';
   if(rEl) rEl.value = '0';
   if(aEl) aEl.value = '0';
+  // Metal / Diamond / Gemstone rate — shared /caratdesk-bom-rates.js
+  cdAutoFillMkbomRate(rowId, item, { attrVals: mkbomTabs[rowId]?.attrVals || {}, supplier: mkbomSupplier(), uomReady });
 }
 function mkbomHideResult(rowId){
   const el = document.getElementById('mkbom-result-' + rowId);
@@ -1649,27 +1757,38 @@ function buildPayload(){
     order_date: document.getElementById('repOrderDate').value||undefined,
     order_type: orderType,
     branch: document.getElementById('repBranch').value||undefined,
-    serial_no: isModification? (document.getElementById('repSerialNo').value.trim()||undefined) : undefined,
     item: isModification? undefined : REPAIR_ITEM_CODE,
     issue_type: document.getElementById('repIssueType').value||undefined,
     supplier: supplier||undefined,
     remarks: document.getElementById('repRemarks').value.trim()||undefined,
   };
-  if(isModification && FETCHED_BOM_ITEMS.length){
-    payload.bom_item = FETCHED_BOM_ITEMS.map(r=>({
-      doctype:'BOM Item', item_code:r.item_code, item_name:r.item_name||r.item_code,
-      qty:r.qty, uom:r.uom, stock_uom:r.stock_uom||r.uom, conversion_factor:r.conversion_factor||1,
-      rate:r.rate||r.custom_costing_rate||0, amount:r.amount||r.custom_bom_amt||0,
-      custom_costing_rate:r.custom_costing_rate, custom_bom_amt:r.custom_bom_amt,
+  if(isModification){
+    // One Repair Serial No row per scanned piece; every BOM row is tagged with the piece it
+    // belongs to (custom_repair_serial_no) so the details page can split them back out.
+    payload.repair_serial_no = MOD_SERIALS.map(sr=>({
+      doctype:'Repair Serial No', serial_no:sr.serial_no, item_code:sr.item_code||undefined,
+      bom:sr.bom||undefined, source_warehouse:sr.warehouse, row_status:'Pending',
     }));
-    if(FETCHED_BOM_BREAKUP) Object.assign(payload, FETCHED_BOM_BREAKUP);
+    payload.bom_item = MOD_SERIALS.flatMap(sr=>sr.bomItems.map(r=>{
+      const row={
+        doctype:'BOM Item', item_code:r.item_code, item_name:r.item_name||r.item_code,
+        qty:r.qty, uom:r.uom, stock_uom:r.stock_uom||r.uom, conversion_factor:r.conversion_factor||1,
+        rate:r.rate||r.custom_costing_rate||0, amount:r.amount||r.custom_bom_amt||0,
+        custom_repair_serial_no:sr.serial_no,
+      };
+      // Carry the descriptive BOM fields too, so "Same as estimate" on Receive can copy a
+      // piece's full rows instead of just code/qty/amount.
+      BOM_COPY_FIELDS.forEach(f=>{ if(r[f]!==undefined && r[f]!==null) row[f]=r[f]; });
+      return row;
+    }));
+    Object.assign(payload, modBreakupTotal());
   } else if(!isModification){
     // Order Type = Repair: BOM Details is built by hand via "Make BOM" (see repBomTbody) —
     // saved straight onto this Repair Order's own bom_item table, never as a BOM document.
     const manualRows = collectRepBomRows();
     if(manualRows.length){
       payload.bom_item = manualRows;
-      // Same Weight/Amount/Total fields Modification saves from FETCHED_BOM_BREAKUP.
+      // Same Weight/Amount/Total fields Modification saves from modBreakupTotal().
       if(REP_BOM_BREAKUP) Object.assign(payload, REP_BOM_BREAKUP);
     }
   }
@@ -1682,7 +1801,7 @@ function validateForSave(){
   if(!customer){ showToast('Select a customer','error'); return false; }
   const orderType=document.getElementById('repOrderType').value;
   if(!orderType){ showToast('Select order type','error'); return false; }
-  if(orderType==='Modification' && !document.getElementById('repSerialNo').value.trim()){ showToast('Enter the Serial No','error'); return false; }
+  if(orderType==='Modification' && !MOD_SERIALS.length){ showToast('Scan at least one Serial No','error'); return false; }
   return true;
 }
 // Real Submit (docstatus:1) no longer belongs on this page — it's the LAST step of the
@@ -1717,6 +1836,8 @@ async function init(){
   const h=cdGetInstanceHeaders();
   if(!h){ window.location.replace('/caratdesk-login?logout=1'); return; }
   document.getElementById('repOrderDate').value=new Date().toISOString().slice(0,10);
+  cdMountRatePanel(); // right-edge "Metal Rate" tab + panel, same as PO/PR/PI
+  cdLoadBomRateSettings().catch(()=>{}); // warm up Make BOM rate mappings
   try{
     const custRes = await dev1Get(`/api/resource/Customer?fields=${encodeURIComponent(JSON.stringify(["name","customer_name","mobile_no"]))}&limit_page_length=0`);
     CUSTOMERS=(custRes.data||custRes.message||[]).map(c=>({name:c.name, display:c.customer_name||c.name, phone:c.mobile_no||''}));

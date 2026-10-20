@@ -1,6 +1,6 @@
 <!-- CaratDesk – Purchase Receipt List -->
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8"><script src="/caratdesk-sidebar.js"></script>
 </head>
 <style>    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap');
 
@@ -388,6 +388,7 @@
     </div>
     </div>
     
+    <script src="/caratdesk-currency.js"></script>
     <script>
 // ══ INSTANCE HELPERS ══
 const DEV1 = 'https://ppj-dev1.m.frappe.cloud';
@@ -504,6 +505,8 @@ function mapRows(rows, inst){
     modified: r.modified,
     warehouse: r.set_warehouse || '—',
     amount: r.grand_total || 0,
+    currency: r.currency || 'INR',
+    baseAmount: r.base_grand_total ?? r.grand_total ?? 0, // INR — totals across currencies
     status: r.status || 'Draft',
     billed: r.per_billed || 0
   }));
@@ -514,7 +517,7 @@ async function fetchInstance(instName){
   const sec = instName==='PC' ? localStorage.getItem('cd_pc_secret') : localStorage.getItem('cd_pp_secret');
   if(!key||!sec) return [];
   const baseUrl = instName==='PC' ? DEV2 : DEV1;
-  const fields = ['name','supplier','supplier_name','posting_date','creation','modified','grand_total','status','docstatus','per_billed','set_warehouse'];
+  const fields = ['name','supplier','supplier_name','posting_date','creation','modified','grand_total','base_grand_total','currency','status','docstatus','per_billed','set_warehouse'];
   const url = `${baseUrl}/api/resource/Purchase%20Receipt?fields=${encodeURIComponent(JSON.stringify(fields))}&limit=500&order_by=creation%20desc`;
   const res = await fetch(url, {headers:{'Authorization':`token ${key}:${sec}`,'Accept':'application/json'}});
   if(!res.ok) throw new Error(`HTTP ${res.status} (${instName})`);
@@ -559,7 +562,7 @@ function updateCounts(){
   const c = {all:0,draft:0,to_bill:0,completed:0,return_issued:0,cancelled:0};
   PR_DATA.forEach(d=>{ c.all++; const k=statusKey(d.status); if(c[k]!==undefined) c[k]++; });
   for(let k in c){ const el=document.getElementById('pc-'+k); if(el) el.textContent=c[k]; }
-  const total = PR_DATA.reduce((s,d)=>s+d.amount,0);
+  const total = PR_DATA.reduce((s,d)=>s+d.baseAmount,0);
   document.getElementById('prSub').textContent = PR_DATA.length+' receipts · '+fmt(total)+' total value';
 }
 
@@ -622,7 +625,7 @@ function renderTable(){
       <td><span style="font-size:12.5px;color:var(--text-secondary)">${d.po}</span></td>
       <td style="font-size:13px;color:var(--text-secondary)">${fmtDate(d.date)}</td>
       <td><span style="font-size:12.5px;color:var(--text-secondary)">${d.warehouse}</span></td>
-      <td style="text-align:right"><div style="font-variant-numeric:tabular-nums;font-weight:500">${fmt(d.amount)}</div></td>
+      <td style="text-align:right"><div style="font-variant-numeric:tabular-nums;font-weight:500">${cdFmtIn(d.amount,d.currency)}${d.currency&&d.currency!=='INR'?`<div class="doc-sub">${fmt(d.baseAmount)}</div>`:''}</div></td>
       <td>${pill(d.status)}</td>
       <td class="no-open"><div class="cd-row-actions">
         <div class="cd-act-btn view-btn" data-name="${safe}" data-inst="${d.instance||'PP'}"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div>

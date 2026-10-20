@@ -57,6 +57,8 @@ export function batchLineError(line) {
   return '';
 }
 
+// Tag Search's Estimated Sales Price (public/caratdesk-sales-price.js) mirrors this and the
+// serial pricing in api.js (enrichItemFromSerial / fetchBomBreakup) — change both together.
 export function calcLineBreakup(line, goldRate) {
   const netWt = parseFloat(line.net_wt || 0);
   // A batch line's metal rate comes only from its own Metal Price List lookup (or what the

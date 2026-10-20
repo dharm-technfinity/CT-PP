@@ -1,6 +1,6 @@
 <!-- CaratDesk – Repair Order Details (full page, matches Purchase Receipt/Order/Invoice UI) -->
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8"><script src="/caratdesk-sidebar.js"></script>
 </head>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap');
@@ -170,6 +170,9 @@
   .cd-bom-tbl input[type=number]{-moz-appearance:textfield;appearance:textfield}
   .cd-bom-tbl tr:last-child td{border-bottom:none}
   .cd-bom-tbl tbody tr:hover{background:var(--nav-hover)}
+  .cd-ser-tbl td{padding:0 8px;font-size:12px;white-space:nowrap}
+  .cd-ser-tbl tr.cd-ser-bom td{padding:6px 10px 10px;background:var(--bg);white-space:normal}
+  .cd-ser-link{background:none;border:none;color:var(--text-secondary);cursor:pointer;font-size:12px;text-decoration:underline;padding:0;font-family:inherit}
 </style>
 
 <div class="cd-app" id="cdApp">
@@ -267,6 +270,7 @@
 </div>
 
 <script src="/caratdesk-metal-rates.js"></script>
+<script src="/caratdesk-bom-rates.js"></script>
 <script>
 // ══ INSTANCE HELPERS ══
 const DEV1 = 'https://ppj-dev1.m.frappe.cloud';
@@ -471,10 +475,9 @@ function toggleBomMetalCells(tr){
     td.querySelectorAll('input,select').forEach(el => { el.disabled = isMetal; });
   });
 }
-// Unsaved-changes tracking for the whole Draft-stage form (Issue Type, Supplier, BOM Details)
-// — same pattern as receiveBomDirty for the Receive BOM table. Any change swaps the bottom
-// action bar's "Issue" button to "Save" and shows an Unsaved badge next to the doc name; no
-// separate Save Issue Assignment / Save BOM buttons needed anymore.
+// Unsaved-changes tracking for the whole Draft-stage form (Issue Type, Supplier, BOM Details).
+// Any change swaps the bottom action bar's "Issue" button to "Save" and shows an Unsaved badge
+// next to the doc name; no separate Save Issue Assignment / Save BOM buttons needed anymore.
 let draftFormDirty = false;
 function markDraftFormDirty(){
   if(draftFormDirty) return;
@@ -653,176 +656,10 @@ function saveDraftForm(){
   patchRepOrder(patch, 'Saved');
 }
 
-// ══════════════════════════════════════════
-//  RECEIVE BOM (#receiveBomTbody / receive_bom_item) — same row-builder pattern as
-//  repBomTbody/bom_item above, kept as its own separate table on purpose: bom_item is what
-//  was estimated/issued, receive_bom_item is what actually came back at Receive time. Editable
-//  only while status is Issued; locked read-only from Received onward. Feeds the Purchase
-//  Receipt auto-created on Submit for Repair-type orders (see autoCreateRepairPurchaseReceipt).
-// ══════════════════════════════════════════
-let receiveBomRowCount=0;
-function addReceiveBomRow(fgItemCode='', fgItemName='', templateType='', goldColour='', goldPurity='', diaType='', diaShape='', diaGrade='', diaSieveSize='', uom='', qty=1, rate=0, huid='', sourceRowId='', making=0, labourMode='Percentage', labourVal=0, wastage=0, handlingRate=0, bomAmt=0, minRate=0, maxRate=0, addInNetWt=0, sellingRate=0, itemGroup='', pcs=0, editable=true){
-  receiveBomRowCount++;
-  const id='recvbom'+receiveBomRowCount;
-  const tbody=document.getElementById('receiveBomTbody');
-  if(!tbody) return;
-  const tr=document.createElement('tr'); tr.id=id;
-  if(sourceRowId) tr.dataset.sourceRow = sourceRowId;
-  const normUom=mapUom(uom)||uom;
-  const uomOpts=BOM_UOMS.map(u=>`<option value="${u}" ${u===normUom?'selected':''}>${u}</option>`).join('');
-  const amt = bomAmt > 0 ? bomAmt : Math.round(qty*rate*100)/100;
-  tr.innerHTML=`
-    ${editable?'<td style="text-align:center;padding:4px"><input type="checkbox" class="cd-row-chk"/></td>':''}
-    <td style="text-align:center;font-weight:600;color:var(--text-secondary);font-size:12px">${receiveBomRowCount}</td>
-    <td style="padding:0 6px;font-size:11px;color:var(--text-secondary);max-width:110px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${esc(fgItemName||fgItemCode)}">${esc(fgItemCode||'Repair Item')}</td>
-    <td style="padding:0 4px"><input style="width:100%;height:26px;border:none;outline:none;padding:0 6px;font-size:11px;background:transparent;color:var(--text-primary)" value="${esc(huid)}" data-bf="huid" placeholder="HUID…"/></td>
-    <td style="padding:0 4px"><input style="width:100%;height:26px;border:none;outline:none;padding:0 6px;font-size:11px;background:transparent;color:var(--text-primary)" value="${esc(templateType)}" data-bf="template_type" placeholder="-" oninput="toggleBomMetalCells(this.closest('tr'))"/></td>
-    <td style="padding:0 4px"><input style="width:100%;height:26px;border:none;outline:none;padding:0 6px;font-size:11px;background:transparent;color:var(--text-primary)" value="${esc(goldColour)}" data-bf="gold_colour" placeholder="-"/></td>
-    <td style="padding:0 4px"><input style="width:100%;height:26px;border:none;outline:none;padding:0 6px;font-size:11px;background:transparent;color:var(--text-primary)" value="${esc(goldPurity)}" data-bf="gold_purity" placeholder="-"/></td>
-    <td style="padding:0 4px"><input style="width:100%;height:26px;border:none;outline:none;padding:0 6px;font-size:11px;background:transparent;color:var(--text-primary)" value="${esc(diaType)}" data-bf="dia_type" placeholder="-"/></td>
-    <td style="padding:0 4px"><input style="width:100%;height:26px;border:none;outline:none;padding:0 6px;font-size:11px;background:transparent;color:var(--text-primary)" value="${esc(diaShape)}" data-bf="dia_shape" placeholder="-"/></td>
-    <td style="padding:0 4px"><input style="width:100%;height:26px;border:none;outline:none;padding:0 6px;font-size:11px;background:transparent;color:var(--text-primary)" value="${esc(diaGrade)}" data-bf="dia_grade" placeholder="-"/></td>
-    <td style="padding:0 4px"><input style="width:100%;height:26px;border:none;outline:none;padding:0 6px;font-size:11px;background:transparent;color:var(--text-primary)" value="${esc(diaSieveSize)}" data-bf="dia_sieve_size" placeholder="-"/></td>
-    <td style="padding:0 4px"><select data-bf="uom" style="width:55px;height:26px;border:none;outline:none;padding:0 4px;font-size:11px;background:transparent;color:var(--text-primary)">${uomOpts}</select></td>
-    <td style="padding:0 4px"><input type="number" min="0" step="0.001" value="${qty}" data-bf="qty" style="width:60px;height:26px;border:none;outline:none;padding:0 6px;font-size:11px;background:transparent;color:var(--text-primary)" oninput="recalcReceiveBomRow('${id}')"/></td>
-    <td style="padding:0 4px" data-diamond-cell><input type="number" min="0" step="1" value="${pcs}" data-bf="pcs" placeholder="-" style="width:45px;height:26px;border:none;outline:none;padding:0 6px;font-size:11px;background:transparent;color:var(--text-primary)" oninput="this.value=this.value.replace(/[^0-9]/g,'')"/></td>
-    <td style="padding:0 4px"><input type="number" min="0" step="0.01" value="${rate}" data-bf="rate" style="width:100%;height:26px;border:none;outline:none;padding:0 6px;font-size:11px;background:transparent;color:var(--text-primary)" oninput="recalcReceiveBomRow('${id}')"/></td>
-    <td style="padding:0 4px" data-metal-cell>
-      <select data-bf="labour_mode" style="width:100%;height:26px;border:.5px solid var(--border-strong);border-radius:4px;font-size:10px;padding:0 4px;background:var(--bg);color:var(--text-primary)" onchange="recalcReceiveBomRow('${id}')">
-        <option value="Fixed Rate" ${labourMode==='Fixed Rate'?'selected':''}>Fixed Rate</option>
-        <option value="Percentage" ${labourMode==='Percentage'?'selected':''}>Percentage</option>
-      </select>
-    </td>
-    <td style="padding:0 4px" data-metal-cell>
-      <input type="number" min="0" step="0.01" value="${labourVal}" data-bf="labour_val" style="width:100%;height:26px;border:none;outline:none;padding:0 4px;font-size:11px;background:transparent;color:var(--text-primary);text-align:right" oninput="recalcReceiveBomRow('${id}')"/>
-    </td>
-    <td style="display:none"><input type="number" value="${wastage}" data-bf="wastage"/></td>
-    <td style="display:none"><input value="${esc(itemGroup)}" data-bf="item_group"/></td>
-    <input type="hidden" data-bf="add_in_net_wt" value="${addInNetWt?1:0}"/>
-    <td style="padding:0 4px" data-diamond-cell>
-      <input type="number" min="0" step="0.01" value="${handlingRate}" data-bf="handling_rate" style="width:100%;height:26px;border:none;outline:none;padding:0 4px;font-size:11px;background:transparent;color:var(--text-primary)" oninput="recalcReceiveBomRow('${id}')"/>
-    </td>
-    <td><input type="number" value="${amt}" data-bf="bom_amt" oninput="recalcReceiveBomFromAmt('${id}')" style="width:85px;height:26px;border:none;outline:none;padding:0 6px;font-size:11px;font-weight:600;background:var(--accent-light);color:var(--text-primary);cursor:text"/></td>
-    ${editable?`<td><button class="cd-del-btn" onclick="delReceiveBomRow('${id}')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></td>`:''}`;
-  if(!editable) tr.querySelectorAll('input,select').forEach(el => el.disabled = true);
-  tbody.appendChild(tr);
-  toggleBomMetalCells(tr);
-  recalcReceiveBom();
-}
-// Unsaved-changes tracking for the Receive BOM table — the bottom action bar's own button
-// stands in for a Save button the moment anything changes (add/remove/edit a row), swapping
-// back to Submit once saveReceiveBom() succeeds and the page reloads with clean data. No
-// separate Save button needed in the section itself.
-let receiveBomDirty = false;
-function markReceiveBomDirty(){
-  if(receiveBomDirty) return;
-  receiveBomDirty = true;
-  if(currentRepDoc) renderRepDetailActions(currentRepDoc, derivedStatus(currentRepDoc));
-}
-// Any field edit inside the table (qty, rate, gold colour, etc.) — innerHTML-based row
-// rendering never fires input/change on its own, so this only ever catches real typing.
-document.addEventListener('input', e => {
-  if(e.target.closest('#receiveBomTbody')) markReceiveBomDirty();
-});
-document.addEventListener('change', e => {
-  if(e.target.closest('#receiveBomTbody') && !e.target.classList?.contains('cd-row-chk')) markReceiveBomDirty();
-});
-function addReceiveBomRowManual(){
-  addReceiveBomRow('Repair Item', 'Repair Item');
-  markReceiveBomDirty();
-}
-function delReceiveBomRow(id){ document.getElementById(id)?.remove(); recalcReceiveBom(); markReceiveBomDirty(); }
-function receiveBomChkAllToggle(chk){ document.querySelectorAll('#receiveBomTbody .cd-row-chk').forEach(c=>c.checked=chk.checked); updateReceiveBomDeleteBtnVisibility(); }
-function updateReceiveBomDeleteBtnVisibility(){
-  const anyChecked = !!document.querySelector('#receiveBomTbody .cd-row-chk:checked');
-  const btn = document.getElementById('receiveBomDeleteBtn');
-  if(btn) btn.style.display = anyChecked ? '' : 'none';
-}
-document.addEventListener('change', e => {
-  if(e.target.classList?.contains('cd-row-chk') && e.target.closest('#receiveBomTbody')) updateReceiveBomDeleteBtnVisibility();
-});
-function deleteSelectedReceiveBomRows(){
-  const rows = [...document.querySelectorAll('#receiveBomTbody tr')].filter(tr => tr.querySelector('.cd-row-chk')?.checked);
-  if(!rows.length){ showToast('No rows selected', 'error'); return; }
-  rows.forEach(tr => tr.remove());
-  const chkAll = document.getElementById('receiveBomChkAll'); if(chkAll) chkAll.checked = false;
-  updateReceiveBomDeleteBtnVisibility();
-  recalcReceiveBom();
-  markReceiveBomDirty();
-}
-function recalcReceiveBomRow(rowId){
-  const tr=document.getElementById(rowId); if(!tr) return;
-  const qty          = parseFloat(tr.querySelector('[data-bf="qty"]')?.value)          || 0;
-  const rate         = parseFloat(tr.querySelector('[data-bf="rate"]')?.value)         || 0;
-  const handlingRate = parseFloat(tr.querySelector('[data-bf="handling_rate"]')?.value)|| 0;
-  const labourMode   = tr.querySelector('[data-bf="labour_mode"]')?.value              || 'Percentage';
-  const labourVal    = parseFloat(tr.querySelector('[data-bf="labour_val"]')?.value)   || 0;
-  const baseAmt = qty * rate + qty * handlingRate;
-  const labourAdd = labourMode === 'Percentage' ? baseAmt * labourVal / 100 : qty * labourVal;
-  const amt = Math.round((baseAmt + labourAdd) * 100) / 100;
-  const amtEl = tr.querySelector('[data-bf="bom_amt"]');
-  if(amtEl) amtEl.value = amt;
-  recalcReceiveBom();
-}
-function recalcReceiveBomFromAmt(rowId){
-  const tr=document.getElementById(rowId); if(!tr) return;
-  const qty = parseFloat(tr.querySelector('[data-bf="qty"]')?.value) || 0;
-  const amt = parseFloat(tr.querySelector('[data-bf="bom_amt"]')?.value)|| 0;
-  const rateEl = tr.querySelector('[data-bf="rate"]');
-  if(rateEl && qty > 0) rateEl.value = Math.round((amt / qty) * 100) / 100;
-  recalcReceiveBom();
-}
-function collectReceiveBomRows(){
-  return [...document.querySelectorAll('#receiveBomTbody tr')].map(tr => {
-    const g = (f) => tr.querySelector(`[data-bf="${f}"]`)?.value ?? '';
-    const item_code = g('template_type').trim();
-    const qty = parseFloat(g('qty')) || 0;
-    const goldPurity = g('gold_purity');
-    return {
-      doctype:'BOM Item', item_code, item_name:item_code,
-      qty, uom:g('uom')||'Gram', stock_uom:g('uom')||'Gram', conversion_factor:1,
-      rate:parseFloat(g('rate'))||0, amount:parseFloat(g('bom_amt'))||0,
-      custom_costing_rate:parseFloat(g('rate'))||0, custom_bom_amt:parseFloat(g('bom_amt'))||0,
-      custom_huid:g('huid'), custom_gold_colour:g('gold_colour'),
-      custom_gold_purity:goldPurity, custom_metal_touch:goldPurity,
-      custom_diamond_type:g('dia_type'), custom_diamond_shape:g('dia_shape'),
-      custom_diamond_grade:g('dia_grade'), custom_diamond_sieve_size:g('dia_sieve_size'),
-      custom_labour_mode:g('labour_mode')||'Percentage', custom_labour_val:parseFloat(g('labour_val'))||0,
-      custom_wastage:parseFloat(g('wastage'))||0, custom_handling_rate:parseFloat(g('handling_rate'))||0,
-      custom_add_in_net_wt:g('add_in_net_wt')==='1'?1:0, custom_item_group:g('item_group'),
-      custom_pcs:parseInt(g('pcs'))||0,
-    };
-  }).filter(r => r.item_code && r.qty > 0);
-}
-function recalcReceiveBom(){
-  let total=0;
-  document.querySelectorAll('#receiveBomTbody tr').forEach(tr=>{ total+=parseFloat(tr.querySelector('[data-bf="bom_amt"]')?.value||0); });
-  const el=document.getElementById('receive-bom-total'); if(el) el.textContent=''+Math.round(total).toLocaleString('en-IN');
-}
-// Rebuilds #receiveBomTbody from a Repair Order's saved receive_bom_item rows — called after
-// every renderRepDetailBody() since that innerHTML-replaces the section each refresh.
-function renderReceiveBomTable(rows, editable=true){
-  receiveBomRowCount = 0;
-  const tbody = document.getElementById('receiveBomTbody');
-  if(!tbody) return;
-  tbody.innerHTML = '';
-  (rows||[]).forEach(r => {
-    addReceiveBomRow(
-      'Repair Item', 'Repair Item', r.item_code||'',
-      r.custom_gold_colour||'', r.custom_gold_purity||'',
-      r.custom_diamond_type||'', r.custom_diamond_shape||'', r.custom_diamond_grade||'', r.custom_diamond_sieve_size||'',
-      r.uom||'Gram', r.qty||0, r.rate||r.custom_costing_rate||0,
-      r.custom_huid||'', '', 0,
-      r.custom_labour_mode||'Percentage', r.custom_labour_val||0, 0,
-      r.custom_handling_rate||0, r.amount||r.custom_bom_amt||0, 0, 0, 0, 0,
-      r.custom_item_group||'', r.custom_pcs||0, editable
-    );
-  });
-}
 
 // ══════════════════════════════════════════
 //  EXTRA MATERIAL (#extraMatTbody / extra_material) — same BOM-Item-shaped row builder as
-//  bom_item/receive_bom_item above, but conceptually separate: raw material sent ALONGSIDE the
+//  bom_item above, but conceptually separate: raw material sent ALONGSIDE the
 //  order, from doc.warehouse to the supplier's warehouse, on Issue (see issueExtraMaterial()).
 //  Editable only at Draft, for both order types. Feeds into the same draftFormDirty/Save
 //  tracking as Issue Type/Supplier/BOM Details — no separate save button of its own.
@@ -979,16 +816,15 @@ function renderExtraMatTable(rows, editable=true){
 let mkbomTabs = {};
 let mkbomActiveTab = null;
 // Which BOM table this dialog session is staging for — 'bom' (the original BOM Details /
-// repBomTbody, editable at Draft) or 'receive' (Receive BOM / receiveBomTbody, editable at
-// Received). Same dialog, same ~450 lines of picker/staging machinery either way; only the
-// source/target table differs, so this is threaded through instead of duplicating the dialog.
+// repBomTbody) or 'extra' (Extra Material / extraMatTbody), both editable at Draft. Same
+// dialog and picker/staging machinery either way; only the source/target table differs.
 let mkbomTarget = 'bom';
 
 function openMakeBomDialog(target){
-  mkbomTarget = (target === 'receive' || target === 'extra') ? target : 'bom';
-  const sourceTbodyId = mkbomTarget === 'receive' ? 'receiveBomTbody' : mkbomTarget === 'extra' ? 'extraMatTbody' : 'repBomTbody';
+  mkbomTarget = target === 'extra' ? 'extra' : 'bom';
+  const sourceTbodyId = mkbomTarget === 'extra' ? 'extraMatTbody' : 'repBomTbody';
   mkbomTabs = {}; mkbomActiveTab = null;
-  const rowId = mkbomTarget === 'receive' ? 'receivebom' : mkbomTarget === 'extra' ? 'extramat' : 'repairbom', fgCode = 'Repair Item', fgName = 'Repair Item';
+  const rowId = mkbomTarget === 'extra' ? 'extramat' : 'repairbom', fgCode = 'Repair Item', fgName = 'Repair Item';
 
   const existingStaging = [];
   document.querySelectorAll('#'+sourceTbodyId+' tr').forEach(bomTr => {
@@ -1064,7 +900,7 @@ function mkbomPanelHTML(rowId, fgCode, fgName){
           <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr auto;gap:8px;align-items:flex-end;margin-top:10px">
             <div style="display:flex;flex-direction:column;gap:3px">
               <label style="font-size:10px;font-weight:500;color:var(--pill-green-txt)">UOM</label>
-              <select id="mkbom-uom-${rowId}" style="font-family:'DM Sans',sans-serif;font-size:11.5px;background:var(--surface);border:.5px solid rgba(59,109,17,.3);border-radius:7px;padding:5px 8px;color:var(--text-primary);outline:none;height:30px">
+              <select id="mkbom-uom-${rowId}" onchange="cdMkbomUomChanged('${rowId}')" style="font-family:'DM Sans',sans-serif;font-size:11.5px;background:var(--surface);border:.5px solid rgba(59,109,17,.3);border-radius:7px;padding:5px 8px;color:var(--text-primary);outline:none;height:30px">
                 ${BOM_UOMS.map(u=>`<option value="${u}">${u}</option>`).join('')}
               </select>
             </div>
@@ -1211,6 +1047,8 @@ async function mkbomAutoSearch(rowId){
     else{ state.matchedItem = d.message; mkbomShowResult(rowId, d.message); }
   }catch(e){ mkbomShowError(rowId, 'Search failed: ' + e.message); }
 }
+// Supplier for supplier-specific Diamond/Gemstone rates — the Draft form's picker if present, else the order's.
+function mkbomSupplier(){ return document.getElementById('issAssignSupplier')?.value || currentRepDoc?.supplier || ''; }
 function mkbomShowResult(rowId, item){
   document.getElementById('mkbom-result-code-' + rowId).textContent = item.item_code;
   document.getElementById('mkbom-result-name-' + rowId).textContent = item.item_name;
@@ -1225,11 +1063,14 @@ function mkbomShowResult(rowId, item){
     if(!found){ const op = document.createElement('option'); op.value = uom; op.textContent = uom; op.selected = true; uomSel.appendChild(op); }
   }
   const autoUom = item.stock_uom || item.uom || '';
+  // uomReady resolves once the item's UOM is selected, so the per-UOM Gemstone rate lookup never
+  // runs against the previous item's UOM.
+  let uomReady = Promise.resolve();
   if(autoUom) applyMkbomUom(autoUom);
   else{
     try{
       const h = cdGetInstanceHeaders();
-      if(h){ fetch(`${cdGetInstanceUrl()}/api/resource/Item/${encodeURIComponent(item.item_code)}?fields=${encodeURIComponent(JSON.stringify(['stock_uom']))}`,{headers:h}).then(r=>r.json()).then(d=>applyMkbomUom((d?.data||d?.message)?.stock_uom||'')).catch(()=>{}); }
+      if(h){ uomReady = fetch(`${cdGetInstanceUrl()}/api/resource/Item/${encodeURIComponent(item.item_code)}?fields=${encodeURIComponent(JSON.stringify(['stock_uom']))}`,{headers:h}).then(r=>r.json()).then(d=>applyMkbomUom((d?.data||d?.message)?.stock_uom||'')).catch(()=>{}); }
     }catch(e){}
   }
   const qEl = document.getElementById('mkbom-qty-' + rowId);
@@ -1238,6 +1079,8 @@ function mkbomShowResult(rowId, item){
   if(qEl) qEl.value = '1';
   if(rEl) rEl.value = '0';
   if(aEl) aEl.value = '0';
+  // Metal / Diamond / Gemstone rate — shared /caratdesk-bom-rates.js
+  cdAutoFillMkbomRate(rowId, item, { attrVals: mkbomTabs[rowId]?.attrVals || {}, supplier: mkbomSupplier(), uomReady });
 }
 function mkbomHideResult(rowId){
   const el = document.getElementById('mkbom-result-' + rowId);
@@ -1405,8 +1248,8 @@ function mkbomUpdateSaveBtn(){
 async function mkbomSaveAll(){
   const tabs = Object.values(mkbomTabs).filter(s => s.staging.length > 0);
   if(!tabs.length){ showToast('No raw materials to save', 'error'); return; }
-  const sourceTbodyId = mkbomTarget === 'receive' ? 'receiveBomTbody' : mkbomTarget === 'extra' ? 'extraMatTbody' : 'repBomTbody';
-  const addRowFn = mkbomTarget === 'receive' ? addReceiveBomRow : mkbomTarget === 'extra' ? addExtraMatRow : addBomRow;
+  const sourceTbodyId = mkbomTarget === 'extra' ? 'extraMatTbody' : 'repBomTbody';
+  const addRowFn = mkbomTarget === 'extra' ? addExtraMatRow : addBomRow;
   for(const state of tabs){
     document.querySelectorAll('#'+sourceTbodyId+' tr').forEach(bomTr => { if(bomTr.dataset.sourceRow === state.rowId) bomTr.remove(); });
     state.staging.forEach(row => {
@@ -1420,26 +1263,40 @@ async function mkbomSaveAll(){
     const badge = document.getElementById('mkbom-tab-badge-' + state.rowId);
     if(badge){ badge.textContent = '✓'; badge.style.background = 'var(--pill-green-bg)'; badge.style.color = 'var(--pill-green-txt)'; }
   }
-  if(mkbomTarget === 'receive') markReceiveBomDirty(); else markDraftFormDirty();
+  markDraftFormDirty();
   closeMakeBomDialog();
   showToast('BOM staged — click "Save" below to write it', 'success');
 }
 
 // Status is derived, not stored — Draft/Submitted come from docstatus, Issued/Received come
-// from whether issue_date / receive_date have been set by the Issue/Receive actions.
-// Originally these were driven by issue_stock_entry / receive_stock_entry, but the Stock
-// Entry side of Issue/Receive is disabled for now (2026-08-14) — see repDoIssue/repDoReceive.
-// Submit now happens LAST (after Issue and Receive, both of which are pre-submit field
-// updates on a still-Draft doc) instead of first — so docstatus alone can no longer tell
-// Draft/Issued/Received apart; only docstatus===1 (the real, final submit) is unambiguous.
+// from whether issue_date / receive_date are set. Issue happens here; receive_date and the
+// final submit are written by the Repair Purchase Receipt's Submit
+// (caratdesk-new-purchase-receipt.html → finishRepairReceipt), so docstatus alone can't tell
+// Draft/Issued apart; only docstatus===1 (the real, final submit) is unambiguous.
+// Multi-serial Modification orders (repair_serial_no rows) derive it from the rows instead,
+// since pieces can be issued/received in parts.
 function derivedStatus(doc){
   if(doc.docstatus===2) return 'Cancelled';
   if(doc.docstatus===1) return 'Submitted';
+  const rows=serialRows(doc);
+  if(rows.length){
+    const st=rows.map(r=>r.row_status||'Pending');
+    const nPending=st.filter(s=>s==='Pending').length;
+    const nRecv=st.filter(s=>s==='Received').length;
+    if(nRecv===rows.length) return 'Received';
+    if(nPending===rows.length) return 'Draft';
+    if(nPending>0) return 'Partially Issued';
+    return nRecv>0 ? 'Partially Received' : 'Issued';
+  }
   if(doc.receive_date) return 'Received';
   if(doc.issue_date) return 'Issued';
   return 'Draft';
 }
-const STATUS_PILL = { 'Draft':'grey', 'Submitted':'blue', 'Issued':'amber', 'Received':'green', 'Cancelled':'red' };
+// Modification orders created with the multi-serial grid; older ones keep the single header
+// serial_no and run through the original single-piece flow.
+function serialRows(doc){ return (doc && doc.order_type==='Modification') ? (doc.repair_serial_no||[]) : []; }
+function isMultiSerial(doc){ return serialRows(doc).length>0; }
+const STATUS_PILL = { 'Draft':'grey', 'Submitted':'blue', 'Issued':'amber', 'Partially Issued':'amber', 'Partially Received':'green', 'Received':'green', 'Cancelled':'red' };
 function statusPill(status){
   const cls=STATUS_PILL[status]||'grey';
   return `<span class="cd-pill ${cls}">${esc(status)}</span>`;
@@ -1448,9 +1305,6 @@ function statusPill(status){
 // ══ STATE ══
 const COMPANY='P.P. Jewellers Retail Pvt. Ltd.';
 const REPAIR_ITEM_CODE='Repair Item';
-// Fixed receiving warehouse for the Purchase Receipt auto-created on Repair Order submit —
-// same warehouse regardless of branch, per business decision.
-const AUTO_PR_WAREHOUSE='Stores - PPJ';
 window.currentRepName=null;
 let currentRepDoc=null;
 let WAREHOUSE_RECORDS=[]; // [{name, custom_supplier}]
@@ -1501,7 +1355,6 @@ async function refreshRepDetail(){
     const doc=res.data||res.message||res;
     currentRepDoc=doc;
     const status=derivedStatus(doc);
-    receiveBomDirty=false; // fresh load — the table just got rebuilt from what's actually saved
     draftFormDirty=false;
     document.getElementById('breadcrumbName').innerHTML=esc(name)+' '+statusPill(status);
     renderRepDetailBody(doc, status);
@@ -1535,7 +1388,10 @@ function renderRepDetailBody(doc, status){
       <div class="cd-sec-toggle"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
     </div>
     <div class="cd-section-body">`;
-  if(doc.order_type==='Modification'){
+  const multi=isMultiSerial(doc);
+  if(multi){
+    html+=renderSerialGridHtml(doc, status);
+  } else if(doc.order_type==='Modification'){
     html+=`<div class="cd-field" style="margin-bottom:16px">
         <label class="cd-check-lbl"><input type="checkbox" disabled ${doc.sold_by_ppj?'checked':''}/>Sold by PPJ</label>
       </div>
@@ -1554,16 +1410,14 @@ function renderRepDetailBody(doc, status){
 
   const bomRows=doc.bom_item||[];
   if(bomRows.length && doc.order_type!=='Repair'){
-    // Always read-only now — corrections happen via the Receive BOM table below (editable
-    // while Issued) instead of editing this master-BOM snapshot in place. Receive still
-    // pushes those corrections onto the real master BOM (writeBackToMasterBom), just sourced
-    // from receive_bom_item now rather than an edited copy of this table.
+    // Always read-only — what came back is entered on the Repair Purchase Receipt, which
+    // creates a new BOM for the new serial; the old serial's master BOM is never changed.
     html+=`<div class="cd-section" id="bomItemSection">
     <div class="cd-section-header" onclick="toggleSec(this)">
-      <div class="cd-sec-title"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>BOM Item</div>
+      <div class="cd-sec-title"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>${multi?'Summary (all pieces)':'BOM Item'}</div>
       <div class="cd-sec-toggle"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
     </div>
-    <div class="cd-section-body" style="padding:0">
+    ${multi?'':`<div class="cd-section-body" style="padding:0">
       <table style="width:100%;border-collapse:collapse;font-size:12.5px">
         <thead><tr style="background:var(--bg)"><th style="text-align:left;padding:9px 12px;color:var(--text-muted);font-weight:600;font-size:10.5px;text-transform:uppercase">Item Code</th><th style="text-align:right;padding:9px 12px;color:var(--text-muted);font-weight:600;font-size:10.5px;text-transform:uppercase">Qty</th><th style="text-align:left;padding:9px 12px;color:var(--text-muted);font-weight:600;font-size:10.5px;text-transform:uppercase">UOM</th><th style="text-align:right;padding:9px 12px;color:var(--text-muted);font-weight:600;font-size:10.5px;text-transform:uppercase">Costing Rate</th><th style="text-align:right;padding:9px 12px;color:var(--text-muted);font-weight:600;font-size:10.5px;text-transform:uppercase">BOM Amount</th></tr></thead>
         <tbody id="bomItemTbody">${bomRows.map((r,i)=>`<tr>
@@ -1575,7 +1429,7 @@ function renderRepDetailBody(doc, status){
         </tr>`).join('')}</tbody>
         <tfoot><tr><td colspan="4" style="padding:9px 12px;text-align:right;font-weight:600;border-top:1px solid var(--border-strong)">Subtotal</td><td id="bomItemTotal" style="padding:9px 12px;text-align:right;font-weight:600;border-top:1px solid var(--border-strong)">${fmt(bomRows.reduce((s,r)=>s+(parseFloat(r.custom_bom_amt||0)),0))}</td></tr></tfoot>
       </table>
-    </div>
+    </div>`}
     <div class="cd-section-body">
       <div class="cd-sec-title" style="margin-bottom:12px">Weight</div>
       <div class="cd-grid">
@@ -1607,7 +1461,7 @@ function renderRepDetailBody(doc, status){
   // Repair Order's own bom_item table — no BOM master document is ever created.
   if(doc.order_type==='Repair'){
     // Locked once Issued — same "read only after Issue" rule as the rest of the form.
-    // Corrections at Receive time now go into receive_bom_item instead of editing this table.
+    // What actually came back is entered on the Repair Purchase Receipt instead.
     const bomEditable = (status==='Draft');
     html+=`<div class="cd-section" id="repBomSection">
     <div class="cd-section-header" onclick="toggleSec(this)">
@@ -1735,21 +1589,10 @@ function renderRepDetailBody(doc, status){
       <div class="cd-field"><label class="cd-label">Issue Date</label><input class="cd-input" readonly value="${esc(doc.issue_date||'')}"/></div>
       <div class="cd-field"><label class="cd-label">Receive Date</label><input class="cd-input" readonly value="${esc(doc.receive_date||'')}"/></div>
     </div>`;
-  // Modification moves real stock, so it needs a warehouse pick at the two points that
-  // matter: before Issue (only if this piece isn't already a tracked serial — a new one gets
-  // minted and needs somewhere to sit before going to the subcontractor), and before Receive
-  // (where the item physically lands back in the shop). In House skips real stock movement
-  // entirely (see repDoIssue/repDoReceive), so neither warehouse pick applies there.
-  const modMovesStock = doc.order_type==='Modification' && doc.issue_type!=='In House';
-  if(modMovesStock && status==='Draft' && !doc.sold_by_ppj){
-    html+=`<div class="cd-field" style="margin-top:16px"><label class="cd-label">Receiving Warehouse (for the new Repair Item, before it goes to the supplier)</label>
-      <select class="cd-select" id="issueSrcWarehouse"><option value="">Select…</option>${shopWarehouseOptions().map(w=>`<option>${esc(w)}</option>`).join('')}</select>
-    </div>`;
-  }
-  if(modMovesStock && status==='Issued'){
-    html+=`<div class="cd-field" style="margin-top:16px"><label class="cd-label">Receiving Warehouse (item comes back into)</label>
-      <select class="cd-select" id="receiveTgtWarehouse"><option value="">Select…</option>${shopWarehouseOptions().map(w=>`<option>${esc(w)}</option>`).join('')}</select>
-    </div>`;
+  // Nothing is received here any more — the karigar's pieces come back on a Purchase Receipt.
+  const piecesOut = multi ? serialRows(doc).some(r=>r.row_status==='Issued') : (status==='Issued');
+  if(piecesOut && doc.docstatus===0){
+    html+=`<div class="cd-hint" style="margin-top:16px">Receive through <a href="/caratdesk-new-purchase-receipt" style="color:inherit;text-decoration:underline">Purchase Receipt</a> → Type: Repair → select ${esc(doc.name)}. Submitting it receives the ${multi?'pieces':'piece'} here${doc.order_type==='Modification'?' with a new M- serial no':''}.</div>`;
   }
   html+='</div></div>';
 
@@ -1819,66 +1662,6 @@ function renderRepDetailBody(doc, status){
   </div>`;
   }
 
-  // Receive BOM — what actually came back, as opposed to bom_item's original estimate. Only
-  // editable once Received (Receive itself is a plain action with no BOM requirement) — filled
-  // at leisure, saved via its own Save BOM button, then required non-empty before Submit.
-  // Visible read-only once Submitted. Feeds the Purchase Receipt auto-created on Submit for
-  // Repair-type orders.
-  if(status==='Received' || status==='Submitted'){
-    const recvEditable = (status==='Received');
-    html+=`<div class="cd-section" id="receiveBomSection">
-    <div class="cd-section-header" onclick="toggleSec(this)">
-      <div class="cd-sec-title"><svg viewBox="0 0 24 24"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2v-4M9 21H5a2 2 0 01-2-2v-4m0 0h18"/></svg>Receive BOM</div>
-      <div class="cd-sec-toggle"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
-    </div>
-    <div class="cd-section-body">
-      ${recvEditable?`<div class="cd-hint" style="margin-bottom:14px">What actually came back — add a row per material, then hit Save below. ${doc.order_type==='Repair'?'This becomes the Purchase Receipt on Submit.':'Saving this also pushes it onto the master BOM.'}</div>`:''}
-      ${recvEditable?`<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap">
-        <button class="cd-btn cd-btn-primary" style="font-size:12px;padding:6px 14px" onclick="openMakeBomDialog('receive')">
-          <svg viewBox="0 0 24 24"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2v-4M9 21H5a2 2 0 01-2-2v-4m0 0h18"/></svg>
-          Make BOM
-        </button>
-      </div>`:''}
-      <div class="cd-bom-wrap">
-        <table class="cd-bom-tbl">
-          <thead><tr>
-            ${recvEditable?'<th style="width:28px"><input type="checkbox" id="receiveBomChkAll" onchange="receiveBomChkAllToggle(this)"/></th>':''}
-            <th style="width:34px">#</th>
-            <th style="width:120px">FG Item</th>
-            <th style="width:110px">HUID</th>
-            <th style="width:110px">Template Type</th>
-            <th style="width:90px">Gold Colour</th>
-            <th style="width:90px">Tunch</th>
-            <th style="width:90px">Diamond Type</th>
-            <th style="width:90px">Diamond Shape</th>
-            <th style="width:90px">Diamond Grade</th>
-            <th style="width:110px">Diamond Sieve Size</th>
-            <th style="width:65px">UOM</th>
-            <th style="width:70px">Qty</th>
-            <th style="width:55px">Pcs</th>
-            <th style="width:90px">Rate</th>
-            <th style="width:110px">Labour On</th>
-            <th style="width:90px">Labour Charges</th>
-            <th style="width:90px">Handling Rate</th>
-            <th style="width:90px">Amount</th>
-            ${recvEditable?'<th style="width:34px"></th>':''}
-          </tr></thead>
-          <tbody id="receiveBomTbody"></tbody>
-        </table>
-      </div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin:8px 4px;flex-wrap:wrap;gap:10px">
-        ${recvEditable?`<div style="display:flex;align-items:center;gap:8px">
-          <button class="cd-add-row" onclick="addReceiveBomRowManual()"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Row</button>
-          <button type="button" id="receiveBomDeleteBtn" class="cd-add-row" style="color:var(--pill-red-txt);display:none" onclick="deleteSelectedReceiveBomRows()">Delete</button>
-        </div>`:'<div></div>'}
-        <div style="font-size:12.5px;color:var(--text-secondary)">
-          Total <strong id="receive-bom-total" style="color:var(--text-primary)">0</strong>
-        </div>
-      </div>
-    </div>
-  </div>`;
-  }
-
   html+=`<div class="cd-section">
     <div class="cd-section-header" onclick="toggleSec(this)">
       <div class="cd-sec-title"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Remarks</div>
@@ -1890,7 +1673,6 @@ function renderRepDetailBody(doc, status){
   </div>`;
 
   document.getElementById('repDetailBody').innerHTML=html;
-  if(status==='Received' || status==='Submitted') renderReceiveBomTable(doc.receive_bom_item||[], status==='Received');
   if(doc.order_type==='Repair') renderRepBomTable(doc.bom_item||[], status==='Draft');
   renderExtraMatTable(doc.extra_material||[], status==='Draft');
 }
@@ -1900,20 +1682,22 @@ function renderRepDetailBody(doc, status){
 function renderRepDetailActions(doc, status){
   const el=document.getElementById('repDetailActions');
   let buttons='';
+  // Pieces come back through a Purchase Receipt (Type: Repair), whose Submit receives them here
+  // and submits this order once every piece is back — so after Issue there's nothing to press.
+  // Multi-serial: Issue acts on the ticked Pending pieces and can repeat while some are left.
+  if(isMultiSerial(doc) && doc.docstatus===0){
+    if(draftFormDirty) buttons+=`<button class="cd-btn cd-btn-primary" onclick="saveDraftForm()">Save</button>`;
+    else if(serialRows(doc).some(r=>(r.row_status||'Pending')==='Pending')) buttons+=`<button class="cd-btn cd-btn-primary" onclick="repDoIssueSerials()">Issue Selected (<span id="serCntPending">0</span>)</button>`;
+    el.innerHTML=buttons;
+    updateSerialSelCount();
+    return;
+  }
   if(status==='Draft'){
     // Stands in for Issue the moment anything on the Draft form changes (Issue Type, Supplier,
     // BOM Details) — no separate Save Issue Assignment / Save BOM buttons, see markDraftFormDirty().
     buttons += draftFormDirty
       ? `<button class="cd-btn cd-btn-primary" onclick="saveDraftForm()">Save</button>`
       : `<button class="cd-btn cd-btn-primary" onclick="repDoIssue()">Issue</button>`;
-  } else if(status==='Issued'){
-    buttons+=`<button class="cd-btn cd-btn-primary" onclick="repDoReceive()">Receive</button>`;
-  } else if(status==='Received'){
-    // Stands in for Submit the moment the Receive BOM table has unsaved changes — no separate
-    // Save button in that section itself, see markReceiveBomDirty().
-    buttons += receiveBomDirty
-      ? `<button class="cd-btn cd-btn-primary" onclick="saveReceiveBom()">Save</button>`
-      : `<button class="cd-btn cd-btn-primary" onclick="repSubmitOrder()">Submit</button>`;
   } else if(status==='Submitted'){
     buttons+=`<button class="cd-btn cd-btn-danger" onclick="repCancelOrder()">Cancel Order</button>`;
   }
@@ -1927,246 +1711,6 @@ async function patchRepOrder(patch, successMsg){
     await refreshRepDetail();
   }catch(e){
     showToast('Error: '+String(e.message).slice(0,150),'error');
-  }
-}
-// Submit is now the LAST step (after Issue and Receive) — blocked if receive_bom_item is
-// empty for either order type. Repair-type orders auto-create and submit a Purchase Receipt
-// straight after the real submit succeeds — same population logic selRepair() already uses
-// for the manual fetch in caratdesk-new-purchase-receipt.html, just sourced from
-// receive_bom_item and run in the background instead of a live form. Modification needs
-// nothing extra here — its real stock movement already happened at Issue/Receive.
-async function repSubmitOrder(){
-  const doc=currentRepDoc;
-  if(!doc.receive_bom_item?.length){ showToast('Add BOM details at Receive before submitting','error'); return; }
-  if(!confirm('Submit this Repair Order? This cannot be undone.')) return;
-  try{
-    await dev1Put('/api/resource/Repair%20Order/'+encodeURIComponent(window.currentRepName), {docstatus:1});
-    showToast('Repair Order submitted','success');
-  }catch(e){
-    showToast('Error: '+String(e.message).slice(0,150),'error');
-    return;
-  }
-  if(doc.order_type==='Repair'){
-    try{ await autoCreateRepairPurchaseReceipt(window.currentRepName, doc); }
-    catch(e){
-      console.error('autoCreateRepairPurchaseReceipt failed:', e.message);
-      showToast('Repair Order submitted, but Purchase Receipt creation failed: '+String(e.message).slice(0,150),'error',8000);
-    }
-  }
-  await refreshRepDetail();
-}
-
-// Difference BOM — bom_item (Draft-stage estimate) already accounts for some of what came
-// back, so the Purchase Receipt on Submit should only cover what's actually EXTRA beyond that
-// estimate. Matched by item_code: excess = received − estimated (summed per item_code on each
-// side, in case either side has more than one row for the same item_code). An item with no
-// excess is left out entirely; an item that never appeared in the estimate counts in full,
-// since its estimated side is implicitly 0. Descriptive fields (colour, purity, HUID, labour,
-// etc.) come from the last receive_bom_item row seen for that item_code — matching is by
-// item_code only, so per-row attribute variations aren't separately tracked in the diff.
-function computeReceiveDiffRows(bomItems, receiveRows){
-  const estimated = {};
-  (bomItems||[]).forEach(r=>{
-    const code=r.item_code; if(!code) return;
-    const e = estimated[code] || (estimated[code]={qty:0, amount:0, pcs:0});
-    e.qty += parseFloat(r.qty)||0;
-    e.amount += parseFloat(r.amount!=null?r.amount:r.custom_bom_amt)||0;
-    e.pcs += parseFloat(r.custom_pcs)||0;
-  });
-  const received = {};
-  const lastRow = {};
-  (receiveRows||[]).forEach(r=>{
-    const code=r.item_code; if(!code) return;
-    const t = received[code] || (received[code]={qty:0, amount:0, pcs:0});
-    t.qty += parseFloat(r.qty)||0;
-    t.amount += parseFloat(r.amount!=null?r.amount:r.custom_bom_amt)||0;
-    t.pcs += parseFloat(r.custom_pcs)||0;
-    lastRow[code] = r;
-  });
-  const diffRows=[];
-  Object.keys(received).forEach(code=>{
-    const rec = received[code];
-    const est = estimated[code] || {qty:0, amount:0, pcs:0};
-    const excessQty = rec.qty - est.qty;
-    const excessAmount = rec.amount - est.amount;
-    if(excessQty<=0 || excessAmount<=0) return; // estimate already covers it — skip
-    diffRows.push({
-      ...lastRow[code],
-      qty: excessQty,
-      amount: excessAmount,
-      custom_bom_amt: excessAmount,
-      rate: Math.round((excessAmount/excessQty)*100)/100,
-      custom_pcs: Math.max(0, rec.pcs - est.pcs),
-    });
-  });
-  return diffRows;
-}
-
-// ══════════════════════════════════════════
-//  AUTO-CREATE PURCHASE RECEIPT (Repair-type orders, on Submit)
-// ══════════════════════════════════════════
-async function autoCreateRepairPurchaseReceipt(repairName, doc){
-  const receiveRows = computeReceiveDiffRows(doc.bom_item, doc.receive_bom_item);
-  if(!receiveRows.length){
-    showToast('No excess over the estimated BOM — no Purchase Receipt needed', 'success', 6000);
-    return;
-  }
-
-  const itemCode = doc.item || REPAIR_ITEM_CODE;
-  const totalAmt = receiveRows.reduce((s,r)=>s+(parseFloat(r.custom_bom_amt||r.amount||0)),0);
-
-  // ── BOM, Draft — same payload shape the manual "Make BOM" flow posts in
-  //    caratdesk-new-purchase-receipt.html, built from the difference rows instead of a
-  //    live BOM-builder table. ──
-  const bomItems = receiveRows.map((r,i)=>({
-    doctype:'BOM Item', idx:i+1,
-    item_code:r.item_code, item_name:r.item_code,
-    qty:r.qty, stock_qty:r.qty, uom:r.uom||'Gram', stock_uom:r.uom||'Gram', conversion_factor:1,
-    rate:r.rate||r.custom_costing_rate||0, base_rate:r.rate||r.custom_costing_rate||0,
-    amount:r.amount||r.custom_bom_amt||0, base_amount:r.amount||r.custom_bom_amt||0,
-    include_item_in_manufacturing:1, sourced_by_supplier:0,
-    custom_fg_item_code:itemCode, custom_fg_item_name:itemCode,
-    custom_gold_colour:r.custom_gold_colour||'', custom_gold_purity:r.custom_gold_purity||'',
-    custom_metal_touch:r.custom_metal_touch||r.custom_gold_purity||'',
-    custom_diamond_type:r.custom_diamond_type||'', custom_diamond_shape:r.custom_diamond_shape||'',
-    custom_diamond_grade:r.custom_diamond_grade||'', custom_diamond_sieve_size:r.custom_diamond_sieve_size||'',
-    custom_huid:r.custom_huid||'', custom_labour_mode:r.custom_labour_mode||'Percentage',
-    custom_labour_val:r.custom_labour_val||0, custom_wastage:r.custom_wastage||0,
-    custom_handling_rate:r.custom_handling_rate||0, custom_bom_amt:r.amount||r.custom_bom_amt||0,
-    custom_manual_rate:r.rate||r.custom_costing_rate||0, custom_add_in_net_wt:r.custom_add_in_net_wt||0,
-    custom_item_group:r.custom_item_group||'', custom_costing_rate:r.rate||r.custom_costing_rate||0,
-    custom_pcs:r.custom_pcs||0,
-  }));
-  const bomRes = await dev1Post('/api/resource/BOM', {
-    doctype:'BOM', item:itemCode, item_name:itemCode, company:COMPANY,
-    quantity:1, uom:'Nos', is_active:1, is_default:1, with_operations:0,
-    rm_cost_as_per:'Valuation Rate', currency:'INR', conversion_rate:1,
-    items:bomItems,
-  });
-  const bomName = bomRes?.data?.name || bomRes?.name;
-  if(!bomName) throw new Error('BOM creation failed');
-
-  // ── Purchase Receipt, Draft — qty fixed at 1, amount = BOM total, same convention the
-  //    manual Repair Order fetch already uses ──
-  const prRes = await dev1Post('/api/resource/Purchase Receipt', {
-    doctype:'Purchase Receipt',
-    supplier: doc.supplier,
-    posting_date: new Date().toISOString().slice(0,10),
-    company: COMPANY,
-    set_warehouse: AUTO_PR_WAREHOUSE,
-    custom_type: 'Repair',
-    custom_repair_order: repairName,
-    branch: doc.branch || '',
-    items: [{
-      doctype:'Purchase Receipt Item', idx:1,
-      item_code:itemCode, item_name:itemCode, description:itemCode,
-      qty:1, received_qty:1, rate:totalAmt, amount:totalAmt, base_amount:totalAmt,
-      uom:'Nos', stock_uom:'Nos', conversion_factor:1,
-      warehouse: AUTO_PR_WAREHOUSE, use_serial_batch_fields:1,
-      custom_bom: bomName,
-    }],
-    taxes: [],
-  });
-  const prName = prRes?.data?.name || prRes?.name;
-  if(!prName) throw new Error('Purchase Receipt creation failed');
-
-  // ── Submit the Purchase Receipt, then the BOM — same order submitPR()/submitLinkedBoms()
-  //    use manually. ERPNext generates the real Serial No itself as part of the PR submit. ──
-  await dev1Put('/api/resource/Purchase Receipt/'+encodeURIComponent(prName), {docstatus:1});
-  try{ await dev1Put('/api/resource/BOM/'+encodeURIComponent(bomName), {docstatus:1}); }
-  catch(e){ console.error('Auto-created BOM submit failed:', e.message); }
-
-  // custom_bom / custom_metal_type are plain values we already have in hand (unlike
-  // Gross/Net/Pure Wt and Sell Rate, which need the live-form rollup submitPR() computes) —
-  // no reason to leave the resulting Serial No untraceable to its BOM when tagging them is
-  // this direct. Same fetch-fresh-doc-then-tag pattern submitPR() uses.
-  try{ await tagRepairSerialNos(prName, bomName, receiveRows); }
-  catch(e){ console.error('tagRepairSerialNos failed:', e.message); }
-
-  try{ await postRepairPurityLedgerEntry(prName, doc, receiveRows); }
-  catch(e){ console.error('postRepairPurityLedgerEntry failed:', e.message); }
-
-  showToast('Purchase Receipt '+prName+' created and submitted from this Repair Order','success', 6000);
-}
-
-async function tagRepairSerialNos(prName, bomName, receiveRows){
-  const metalRow = receiveRows.find(r => r.custom_add_in_net_wt===1 || r.custom_add_in_net_wt==='1');
-  const metalType = detectRepairMetalType(metalRow?.item_code || '');
-
-  const freshDoc = await dev1Get('/api/resource/Purchase Receipt/'+encodeURIComponent(prName));
-  const items = (freshDoc.data || freshDoc.message || {}).items || [];
-
-  let serialNos = [];
-  for(const item of items){
-    if(item.serial_no){
-      serialNos.push(...String(item.serial_no).split('\n').map(s=>s.trim()).filter(Boolean));
-    } else if(item.serial_and_batch_bundle){
-      try{
-        const bundleRes = await dev1Get('/api/resource/Serial and Batch Bundle/'+encodeURIComponent(item.serial_and_batch_bundle));
-        const bundle = bundleRes.data || bundleRes.message || {};
-        serialNos.push(...(bundle.entries||[]).map(e=>e.serial_no).filter(Boolean));
-      }catch(e){ console.error('Failed to fetch Serial and Batch Bundle', item.serial_and_batch_bundle, ':', e.message); }
-    }
-  }
-  if(!serialNos.length) return;
-
-  for(const sn of serialNos){
-    try{ await dev1Put('/api/resource/Serial No/'+encodeURIComponent(sn), {custom_bom:bomName, custom_metal_type:metalType}); }
-    catch(e){ console.error('Failed to tag Serial No', sn, ':', e.message); }
-  }
-}
-
-function detectRepairMetalType(itemCode){
-  const s=(itemCode||'').toLowerCase();
-  if(s.includes('silver')) return 'Silver';
-  if(s.includes('platinum')) return 'Platinum';
-  return 'Gold';
-}
-// General rate for a metal type — shared rule in /caratdesk-metal-rates.js (highest touch,
-// latest date within it).
-async function getTodayMetalRateRepair(metalType){
-  return cdGetMetalRate(metalType);
-}
-async function getLastPurityLedgerBalanceRepair(metalType){
-  try{
-    const fields=encodeURIComponent(JSON.stringify(['balance']));
-    const filters=encodeURIComponent(JSON.stringify([['metal_type','=',metalType]]));
-    const res=await dev1Get('/api/resource/Purity%20Ledger%20Entry?fields='+fields+'&filters='+filters+'&order_by=creation%20desc&limit_page_length=1');
-    const rows=res.data||res.message||[];
-    return parseFloat(rows[0]?.balance)||0;
-  }catch(e){ return 0; }
-}
-// Credits the supplier's Purity Ledger balance for the metal received — same convention
-// postPurityLedgerEntries() uses in caratdesk-new-purchase-receipt.html, driven straight off
-// receive_bom_item's rows instead of DOM (there's no live form here). Only rows flagged
-// "Add in Net Wt" count, same as the manual flow's getRowMetalType().
-async function postRepairPurityLedgerEntry(prName, doc, receiveRows){
-  const credits={};
-  receiveRows.forEach(r=>{
-    const addInNetWt = r.custom_add_in_net_wt===1 || r.custom_add_in_net_wt==='1';
-    if(!addInNetWt) return;
-    const metalType = detectRepairMetalType(r.item_code);
-    const wt = parseFloat(r.qty)||0;
-    if(wt<=0) return;
-    credits[metalType] = (credits[metalType]||0) + wt;
-  });
-  for(const metalType of Object.keys(credits)){
-    const wt = credits[metalType];
-    const lastBalance = await getLastPurityLedgerBalanceRepair(metalType);
-    const rate = await getTodayMetalRateRepair(metalType);
-    await dev1Post('/api/resource/Purity Ledger Entry', {
-      datetime: nowDateTime(),
-      posting_date: new Date().toISOString().slice(0,10),
-      company: COMPANY, branch: doc.branch||'',
-      metal_type: metalType,
-      pure_wt_cr: wt, net_wt_cr: wt,
-      pure_wt_dr: 0, net_wt_dr: 0,
-      amount_credit: wt*rate, amount_debit: 0,
-      voucher_type: 'Purchase Receipt', voucher_name: prName,
-      party_type: 'Supplier', party: doc.supplier,
-      balance: lastBalance + wt,
-      is_cancel: 0,
-    });
   }
 }
 function repCancelOrder(){
@@ -2205,6 +1749,7 @@ document.addEventListener('click',(e)=>{
 // ══════════════════════════════════════════
 async function repDoIssue(){
   const doc=currentRepDoc;
+  if(isMultiSerial(doc)) return repDoIssueSerials();
   if(!doc.issue_type || !doc.supplier){ showToast('Save Issue Type and Supplier first','error'); return; }
   let ok;
   // In House is data-entry only — no real stock movement, so it takes the same plain
@@ -2266,33 +1811,172 @@ async function repDoIssueModification(){
   const doc=currentRepDoc;
   const targetWh=supplierWarehouse(doc.supplier);
   if(!targetWh){ showToast('No Warehouse has "Custom Supplier" set to '+doc.supplier,'error'); return false; }
+  // Always the order's existing Serial No (required when a Modification is created) — no new
+  // Serial No is minted here, whatever Sold by PPJ says.
   try{
-    if(doc.sold_by_ppj){
-      if(!doc.serial_no){ showToast('Serial No is missing on this order','error'); return false; }
-      const serialRes=await dev1Get('/api/resource/Serial%20No/'+encodeURIComponent(doc.serial_no));
-      const serialDoc=serialRes.data||serialRes.message||serialRes;
-      const sourceWh=serialDoc.warehouse;
-      if(!sourceWh){ showToast('Serial No '+doc.serial_no+' has no current warehouse','error'); return false; }
-      if(sourceWh===targetWh){ showToast('This Serial No is already in '+targetWh+' — that\'s also the warehouse linked to '+doc.supplier+', so there\'s nothing to issue','error'); return false; }
-      const seName=await createStockEntry('Send to Subcontractor', [{ item_code:doc.item, serial_no:doc.serial_no, s_warehouse:sourceWh, t_warehouse:targetWh }]);
-      await patchRepOrder({ issue_stock_entry:seName, issue_date:new Date().toISOString().slice(0,10) }, 'Issued — '+seName);
-      return true;
-    } else {
-      const pickedWh=document.getElementById('issueSrcWarehouse')?.value||'';
-      if(!pickedWh){ showToast('Select the receiving warehouse first','error'); return false; }
-      const serRes=await dev1Post('/api/resource/Serial%20No', { doctype:'Serial No', item_code:REPAIR_ITEM_CODE });
-      const newSerial=serRes?.data?.name||serRes?.name;
-      if(!newSerial) throw new Error('Could not create a Serial No for '+REPAIR_ITEM_CODE);
-      await createStockEntry('Material Receipt', [{ item_code:REPAIR_ITEM_CODE, serial_no:newSerial, t_warehouse:pickedWh }]);
-      const seName=await createStockEntry('Send to Subcontractor', [{ item_code:REPAIR_ITEM_CODE, serial_no:newSerial, s_warehouse:pickedWh, t_warehouse:targetWh }]);
-      await patchRepOrder({ serial_no:newSerial, item:REPAIR_ITEM_CODE, issue_stock_entry:seName, issue_date:new Date().toISOString().slice(0,10) }, 'Issued — '+seName);
-      return true;
-    }
+    if(!doc.serial_no){ showToast('Serial No is missing on this order','error'); return false; }
+    const serialRes=await dev1Get('/api/resource/Serial%20No/'+encodeURIComponent(doc.serial_no));
+    const serialDoc=serialRes.data||serialRes.message||serialRes;
+    const sourceWh=serialDoc.warehouse;
+    if(!sourceWh){ showToast('Serial No '+doc.serial_no+' has no current warehouse','error'); return false; }
+    if(sourceWh===targetWh){ showToast('This Serial No is already in '+targetWh+' — that\'s also the warehouse linked to '+doc.supplier+', so there\'s nothing to issue','error'); return false; }
+    const seName=await createStockEntry('Send to Subcontractor', [{ item_code:doc.item||serialDoc.item_code, serial_no:doc.serial_no, s_warehouse:sourceWh, t_warehouse:targetWh }]);
+    await patchRepOrder({ issue_stock_entry:seName, issue_date:new Date().toISOString().slice(0,10) }, 'Issued — '+seName);
+    return true;
   }catch(e){
     showToast('Error: '+String(e.message).slice(0,150),'error');
     return false;
   }
 }
+// ══════════════════════════════════════════
+//  MULTI-SERIAL MODIFICATION — pieces grid (repair_serial_no) and bulk Issue of the ticked
+//  pieces as one Stock Entry. Pieces are received on a Repair Purchase Receipt, which fills in
+//  each row's New Serial No and Purchase Receipt.
+// ══════════════════════════════════════════
+const ROW_STATUS_PILL={ 'Pending':'grey', 'Issued':'amber', 'Received':'green' };
+
+function estimateRowsFor(doc, sn){ return (doc.bom_item||[]).filter(r=>r.custom_repair_serial_no===sn); }
+
+function renderSerialGridHtml(doc, status){
+  const rows=serialRows(doc);
+  const open=doc.docstatus===0;
+  const count=st=>rows.filter(r=>(r.row_status||'Pending')===st).length;
+  const anySelectable=open && rows.some(r=>(r.row_status||'Pending')==='Pending'); // only Pending pieces can be issued
+  const strong=v=>`<strong style="color:var(--text-primary)">${v}</strong>`;
+  let html=`<div style="display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:12px">
+    ${anySelectable?`<div class="cd-field" style="flex:0 1 320px;min-width:220px"><label class="cd-label">Scan to select</label>
+      <input class="cd-input" id="serScanSelect" placeholder="Scan serial no and press Enter..." autocomplete="off" onkeydown="if(event.key==='Enter'){event.preventDefault();scanSelectSerial(this);}"/></div>`:''}
+    <div style="font-size:12.5px;color:var(--text-secondary);display:flex;gap:14px;flex-wrap:wrap;padding-bottom:9px">
+      <span>Pcs ${strong(rows.length)}</span><span>Pending ${strong(count('Pending'))}</span>
+      <span>Issued ${strong(count('Issued'))}</span><span>Received ${strong(count('Received'))}</span>
+      ${anySelectable?'<span id="serSelInfo">0 selected</span>':''}
+    </div>
+  </div>
+  <div class="cd-bom-wrap"><table class="cd-bom-tbl cd-ser-tbl" style="min-width:1000px">
+    <thead><tr>
+      <th style="width:28px;text-align:center">${anySelectable?'<input type="checkbox" id="serChkAll" style="width:auto;height:auto;cursor:pointer" onchange="serialChkAll(this)"/>':''}</th>
+      <th style="width:34px">#</th><th>Serial No</th><th>Item Code</th><th>BOM</th><th>Source Warehouse</th>
+      <th>Status</th><th>Issued</th><th>Received</th><th>New Serial No</th>
+    </tr></thead><tbody id="serialGridTbody">`;
+  rows.forEach((r,i)=>{
+    const st=r.row_status||'Pending';
+    const selectable=open && st==='Pending';
+    const est=estimateRowsFor(doc, r.serial_no);
+    const when=(d,se)=>d?esc(d)+(se?` · <span style="color:var(--text-muted)">${esc(se)}</span>`:''):'—';
+    html+=`<tr>
+      <td style="text-align:center;padding:4px">${selectable?`<input type="checkbox" class="ser-chk" style="width:auto;height:auto;cursor:pointer" data-sn="${esc(r.serial_no)}" data-st="${st}"/>`:''}</td>
+      <td>${i+1}</td>
+      <td><strong>${esc(r.serial_no)}</strong></td>
+      <td>${esc(r.item_code||'')}</td>
+      <td>${r.bom?`<button type="button" class="cd-ser-link" onclick="toggleSerialBom(${i})">${esc(r.bom)}</button>`:'<span style="color:var(--text-muted)">—</span>'}</td>
+      <td>${esc(r.source_warehouse||'')}</td>
+      <td><span class="cd-pill ${ROW_STATUS_PILL[st]||'grey'}">${esc(st)}</span></td>
+      <td>${when(r.issue_date, r.issue_stock_entry)}</td>
+      <td>${when(r.receive_date, r.purchase_receipt||r.receive_stock_entry)}</td>
+      <td>${r.new_serial_no?`<strong>${esc(r.new_serial_no)}</strong>`:'<span style="color:var(--text-muted)">—</span>'}</td>
+    </tr>
+    <tr class="cd-ser-bom" id="serBom${i}" style="display:none"><td></td><td colspan="9">
+      <table style="width:100%;border-collapse:collapse;font-size:11.5px">
+        <thead><tr><th style="text-align:left">Item Code</th><th style="text-align:right">Qty</th><th style="text-align:left">UOM</th><th style="text-align:right">Costing Rate</th><th style="text-align:right">BOM Amount</th></tr></thead>
+        <tbody>${est.length?est.map(b=>`<tr><td style="border:none;padding:3px 6px">${esc(b.item_code||'')}</td><td style="border:none;padding:3px 6px;text-align:right">${b.qty||0}</td><td style="border:none;padding:3px 6px">${esc(b.uom||'')}</td><td style="border:none;padding:3px 6px;text-align:right">${(parseFloat(b.custom_costing_rate||0)).toLocaleString('en-IN')}</td><td style="border:none;padding:3px 6px;text-align:right">${(parseFloat(b.custom_bom_amt||b.amount||0)).toLocaleString('en-IN')}</td></tr>`).join(''):'<tr><td colspan="5" style="border:none;padding:3px 6px;color:var(--text-muted)">No estimated BOM rows for this piece</td></tr>'}</tbody>
+      </table>
+    </td></tr>`;
+  });
+  html+=`</tbody></table></div>`;
+  return html;
+}
+function toggleSerialBom(i){
+  const el=document.getElementById('serBom'+i);
+  if(el) el.style.display = el.style.display==='none' ? '' : 'none';
+}
+
+// ── Selection (checkboxes / scan) ──
+function checkedSerials(rowStatus){
+  return [...document.querySelectorAll('#serialGridTbody .ser-chk:checked')].filter(c=>c.dataset.st===rowStatus).map(c=>c.dataset.sn);
+}
+function updateSerialSelCount(){
+  const chks=[...document.querySelectorAll('#serialGridTbody .ser-chk')];
+  const sel=chks.filter(c=>c.checked);
+  const setText=(id,v)=>{ const el=document.getElementById(id); if(el) el.textContent=v; };
+  setText('serSelInfo', sel.length+' selected');
+  setText('serCntPending', sel.filter(c=>c.dataset.st==='Pending').length);
+  setText('serCntIssued', sel.filter(c=>c.dataset.st==='Issued').length);
+  const all=document.getElementById('serChkAll');
+  if(all) all.checked = chks.length>0 && sel.length===chks.length;
+}
+document.addEventListener('change', e => { if(e.target.classList?.contains('ser-chk')) updateSerialSelCount(); });
+function serialChkAll(chk){
+  document.querySelectorAll('#serialGridTbody .ser-chk').forEach(c=>c.checked=chk.checked);
+  updateSerialSelCount();
+}
+function scanSelectSerial(input){
+  const sn=input.value.trim();
+  input.value='';
+  if(!sn) return;
+  const chk=[...document.querySelectorAll('#serialGridTbody .ser-chk')].find(c=>c.dataset.sn===sn);
+  if(!chk){
+    const onOrder=serialRows(currentRepDoc).some(r=>r.serial_no===sn);
+    showToast(onOrder ? sn+' is already issued' : sn+' is not on this order','error');
+    return;
+  }
+  chk.checked=true;
+  chk.closest('tr').scrollIntoView({block:'nearest'});
+  updateSerialSelCount();
+  showToast(sn+' selected','success');
+}
+
+// ── Bulk Issue / Receive ──
+async function fetchSerialWarehouses(names){
+  const map={};
+  const fields=encodeURIComponent(JSON.stringify(['name','item_code','warehouse']));
+  for(let i=0;i<names.length;i+=100){
+    const chunk=names.slice(i,i+100);
+    const res=await dev1Get('/api/resource/Serial%20No?fields='+fields+'&filters='+encodeURIComponent(JSON.stringify([['name','in',chunk]]))+'&limit_page_length=0');
+    (res.data||res.message||[]).forEach(s=>{ map[s.name]=s; });
+  }
+  return map;
+}
+// One "Send to Subcontractor" Stock Entry for every ticked Pending piece, each from the
+// warehouse it's in right now. In House only stamps the rows (no stock moves), same as the
+// single-piece flow. Extra Material goes out with the first Issue only.
+async function repDoIssueSerials(){
+  const doc=currentRepDoc;
+  if(!doc.issue_type || !doc.supplier){ showToast('Save Issue Type and Supplier first','error'); return; }
+  const picked=checkedSerials('Pending');
+  if(!picked.length){ showToast('Tick the pieces to issue, or scan them','error'); return; }
+  const today=new Date().toISOString().slice(0,10);
+  const firstIssue=!serialRows(doc).some(r=>(r.row_status||'Pending')!=='Pending');
+  let issued=picked, seName='', current={}, skipped=[];
+  if(doc.issue_type!=='In House'){
+    const targetWh=supplierWarehouse(doc.supplier);
+    if(!targetWh){ showToast('No Warehouse has "Custom Supplier" set to '+doc.supplier,'error'); return; }
+    try{ current=await fetchSerialWarehouses(picked); }
+    catch(e){ showToast('Could not read Serial No warehouses: '+String(e.message).slice(0,120),'error'); return; }
+    issued=picked.filter(sn=>{
+      const s=current[sn];
+      if(!s || !s.warehouse || s.warehouse===targetWh){ skipped.push(sn); return false; }
+      return true;
+    });
+    if(!issued.length){ showToast('None of the selected pieces are in a shop warehouse: '+skipped.slice(0,5).join(', '),'error',8000); return; }
+    try{
+      seName=await createStockEntry('Send to Subcontractor', issued.map(sn=>({
+        item_code:current[sn].item_code, serial_no:sn, s_warehouse:current[sn].warehouse, t_warehouse:targetWh,
+      })));
+    }catch(e){ showToast('Error: '+String(e.message).slice(0,150),'error'); return; }
+  }
+  const done=new Set(issued);
+  const rows=serialRows(doc).map(r=>done.has(r.serial_no) ? {
+    ...r, row_status:'Issued', issue_date:today,
+    issue_stock_entry:seName||r.issue_stock_entry,
+    source_warehouse:current[r.serial_no]?.warehouse||r.source_warehouse,
+  } : r);
+  const patch={ repair_serial_no:rows };
+  if(!doc.issue_date) patch.issue_date=today;
+  await patchRepOrder(patch, 'Issued '+issued.length+' piece'+(issued.length===1?'':'s')+(seName?' — '+seName:''));
+  if(firstIssue) await issueExtraMaterial(doc);
+  if(skipped.length) showToast('Skipped '+skipped.length+' piece(s) not in a shop warehouse: '+skipped.slice(0,5).join(', ')+(skipped.length>5?'…':''),'error',8000);
+}
+
 function computeBreakup(rows, buckets, makingCharges){
   const t={ metal_wt:0, metal_amount:0, diamond_wt:0, diamond_amount:0, stone_wt:0, stone_amount:0, other_wt:0, other_amount:0 };
   rows.forEach((r,i)=>{
@@ -2306,59 +1990,6 @@ function computeBreakup(rows, buckets, makingCharges){
   const total=rowsTotal+(parseFloat(makingCharges||0)||0);
   return { ...t, gross_wt, net_wt, making_charges: parseFloat(makingCharges||0)||0, total };
 }
-// Both order types: a plain action recording receive_date — no BOM requirement here anymore.
-// Modification additionally creates the real "Receive From Subcontractor" Stock Entry. BOM
-// details (receive_bom_item) are filled in and saved afterward, once Received, via
-// saveReceiveBom() below — the Receive BOM section only unlocks at that point.
-async function repDoReceive(){
-  const doc=currentRepDoc;
-  const patch={ receive_date:new Date().toISOString().slice(0,10) };
-
-  // In House skips the real stock movement, same reasoning as repDoIssue().
-  if(doc.order_type==='Modification' && doc.issue_type!=='In House'){
-    const sourceWh=supplierWarehouse(doc.supplier);
-    if(!sourceWh){ showToast('No Warehouse has "Custom Supplier" set to '+doc.supplier,'error'); return; }
-    const targetWh=document.getElementById('receiveTgtWarehouse')?.value||'';
-    if(!targetWh){ showToast('Select the receiving warehouse first','error'); return; }
-    try{
-      const seName=await createStockEntry('Receive From Subcontractor', [{ item_code:doc.item, serial_no:doc.serial_no, s_warehouse:sourceWh, t_warehouse:targetWh }]);
-      patch.receive_stock_entry=seName;
-    }catch(e){
-      showToast('Error: '+String(e.message).slice(0,150),'error');
-      return;
-    }
-  }
-
-  await patchRepOrder(patch, 'Received');
-}
-// Saves the Receive BOM table onto the order — a separate step from Receive itself, since BOM
-// entry now happens after Receive rather than before it. Modification orders also push the
-// same rows onto the master BOM (writeBackToMasterBom), same as Receive used to do inline.
-async function saveReceiveBom(){
-  const doc=currentRepDoc;
-  const receiveRows=collectReceiveBomRows();
-  if(!receiveRows.length){ showToast('Add at least one BOM row first','error'); return; }
-  const patch={ receive_bom_item: receiveRows };
-  if(doc.order_type==='Modification' && doc.bom) await writeBackToMasterBom(doc.bom, receiveRows);
-  await patchRepOrder(patch, 'Receive BOM saved');
-}
-// Edits made while receiving always overwrite the master BOM's own item rows (matched by
-// item_code) — the BOM is shared, but the client explicitly wants corrections made during a
-// repair to flow back into it rather than only living on this Repair Order.
-async function writeBackToMasterBom(bomName, editedRows){
-  try{
-    const bomRes=await dev1Get('/api/resource/BOM/'+encodeURIComponent(bomName));
-    const bomDoc=bomRes.data||bomRes.message||bomRes;
-    const items=(bomDoc.items||[]).map(row=>{
-      const edited=editedRows.find(e=>e.item_code===row.item_code);
-      return edited ? { ...row, custom_costing_rate:edited.custom_costing_rate, custom_bom_amt:edited.custom_bom_amt } : row;
-    });
-    await dev1Put('/api/resource/BOM/'+encodeURIComponent(bomName), { items });
-  }catch(e){
-    console.warn('Writing back to master BOM failed:', e.message);
-    showToast('Received, but updating the master BOM failed: '+e.message,'error');
-  }
-}
 
 // ══ INIT ══
 async function init(){
@@ -2368,6 +1999,8 @@ async function init(){
   const name = params.get('repair');
   if(!name){ window.location.replace('/caratdesk-repair'); return; }
   window.currentRepName=name;
+  cdMountRatePanel(); // right-edge "Metal Rate" tab + panel, same as PO/PR/PI
+  cdLoadBomRateSettings().catch(()=>{}); // warm up Make BOM rate mappings
   loadWarehouses();
   loadStockEntryPurposes();
   await refreshRepDetail();

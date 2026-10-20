@@ -1,6 +1,6 @@
 <!-- CaratDesk – New Jewellery Scheme Assignment -->
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8"><script src="/caratdesk-sidebar.js"></script>
 </head>
 <style>
     @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap');
@@ -100,7 +100,17 @@
     .cd-items-tbl td input{width:100%;height:28px;border:none;outline:none;padding:0 8px;font-size:12.5px;background:var(--bg);color:var(--text-primary);font-family:'DM Sans',sans-serif;border-radius:6px;transition:background .14s,box-shadow .14s;text-align:center}
     .cd-items-tbl td input:focus{background:var(--surface);box-shadow:0 0 0 2px rgba(0,0,0,.08)}
     .cd-items-tbl td input[data-f="emi"]{width:100px;text-align:right}
+    /* Installment table fills the available width on any screen; cells stay on one line */
+    #instTbl :is(th,td){white-space:nowrap}
+    #instTbl td input[type="date"]{width:auto;padding:0 6px}
+    #instTbl:not(.show-gold) .inst-gold-col{display:none}
+    #instTbl td.inst-gold-col{font-size:12.5px;padding-left:12px;padding-right:12px;white-space:nowrap}
     .inst-idx{font-size:12px;color:var(--text-muted)}
+    .cd-row-actions{display:flex;align-items:center;justify-content:flex-end;gap:6px}
+    .cd-act-btn{width:28px;height:28px;border-radius:7px;border:.5px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-secondary);transition:background .12s,color .12s;padding:0}
+    .cd-act-btn:hover:not(:disabled){background:var(--nav-active-bg);color:var(--text-primary)}
+    .cd-act-btn:disabled{opacity:.4;cursor:not-allowed}
+    .cd-act-btn svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
     .inst-pay-ref{color:var(--text-secondary);font-size:12.5px;font-weight:500;text-decoration:none;white-space:nowrap}
     .inst-pay-ref:hover{color:var(--text-primary);text-decoration:underline}
     .cd-del-btn{width:24px;height:24px;border:none;background:none;cursor:pointer;color:var(--text-muted);display:flex;align-items:center;justify-content:center;border-radius:6px;transition:background .12s,color .12s;flex-shrink:0}
@@ -240,13 +250,13 @@
           </div>
           <div class="cd-grid" style="margin-bottom:16px">
             <div class="cd-field" id="assignMetalTouchField" style="display:none">
-              <label class="cd-label">Metal Touch</label>
+              <label class="cd-label">Metal Touch <span class="req">*</span></label>
               <select class="cd-select" id="assignMetalTouch">
                 <option value="">Select…</option>
               </select>
             </div>
             <div class="cd-field">
-              <label class="cd-label">Branch</label>
+              <label class="cd-label">Branch <span class="req">*</span></label>
               <select class="cd-select" id="assignBranch">
                 <option value="">- Select Branch -</option>
               </select>
@@ -271,21 +281,25 @@
             <!-- LEFT: installment schedule -->
             <div style="flex:7;min-width:0">
               <div class="cd-items-wrap">
-                <table class="cd-items-tbl">
-                  <thead><tr><th style="width:20px"><input type="checkbox" id="instSelectAll" class="inst-chk" onchange="toggleAllInstallRows(this.checked)"/></th><th style="width:36px">Idx</th><th>Due Date</th><th style="text-align:right">EMI Amount <span class="req">*</span></th><th>Status</th><th>Payment Date</th><th>Payment Ref</th><th>Extended Due Date <span class="req">*</span></th><th style="width:36px"></th></tr></thead>
+                <table class="cd-items-tbl" id="instTbl">
+                  <thead><tr><th style="width:20px"><input type="checkbox" id="instSelectAll" class="inst-chk" onchange="toggleAllInstallRows(this.checked)"/></th><th style="width:36px">Idx</th><th>Due Date</th><th style="text-align:right">EMI Amount <span class="req">*</span></th><th>Status</th><th>Payment Date</th><th>Payment Ref</th><th class="inst-gold-col" style="text-align:right">Gold Rate</th><th class="inst-gold-col" style="text-align:right">Gold Qty</th><th>Extended Due Date <span class="req">*</span></th><th style="width:1%"></th></tr></thead>
                   <tbody id="instTbody"></tbody>
                 </table>
               </div>
               <div class="cd-hint" style="margin-top:6px">Only saved, unpaid installment rows can be selected for payment — save the assignment first if you just added rows.</div>
               <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;flex-wrap:wrap;gap:10px">
                 <button class="cd-add-row" id="addPaymentBtn" onclick="addInstallRowWithNextDate()">+ Add Payment</button>
-                <div style="font-size:13.5px;color:var(--text-secondary)">Total: <strong id="instTotal" style="font-size:16px;font-weight:700;color:var(--text-primary)">₹0</strong></div>
+                <div style="font-size:13.5px;color:var(--text-secondary)"><span class="inst-gold-total" style="display:none;margin-right:16px">Gold Qty: <strong id="instGoldTotal" style="font-size:16px;font-weight:700;color:var(--text-primary)">0.000 g</strong></span>Total Principle Amount: <strong id="instTotal" style="font-size:16px;font-weight:700;color:var(--text-primary)">₹0</strong><span style="margin-left:16px">Total Paid Amount: <strong id="instPaidTotal" style="font-size:16px;font-weight:700;color:var(--text-primary)">₹0</strong></span></div>
               </div>
             </div>
 
             <!-- RIGHT: Payment panel -->
             <div id="paymentPanel" style="flex:3;min-width:0;position:sticky;top:74px;background:var(--bg);border:.5px solid var(--border);border-radius:12px;padding:16px;max-height:calc(100vh - 190px);display:flex;flex-direction:column">
               <div style="font-size:15px;font-weight:600;margin-bottom:10px;flex-shrink:0">Payment/Collection</div>
+              <div id="payGoldRateWrap" style="display:none;flex-shrink:0;margin-bottom:10px;align-items:center;justify-content:space-between;gap:12px;padding:0 14px">
+                <label for="payGoldRate" style="font-size:15px;white-space:nowrap">Gold Rate <span class="req">*</span></label>
+                <input class="cd-input" type="number" min="0" step="0.01" id="payGoldRate" placeholder="0" disabled oninput="applyPanelGoldRate()" style="text-align:right;width:140px;margin:0"/>
+              </div>
               <div class="cd-payment-totals" style="flex-shrink:0">
                 <div class="row"><span>Amount to Collect</span><span id="paySettleTotal">₹0</span></div>
               </div>
@@ -797,16 +811,26 @@ function addInstallRow(d={}){
   const fieldsLocked = isPaid || assignmentLocked;
   const selectable = !!d.name && !isPaid && canTransact();
   const originalDate = d.original_due_date || d.date || '';
+  const goldRate = parseFloat(d.gold_rate)||0, goldQty = parseFloat(d.gold_qty)||0;
+  tr.dataset.goldQty = goldQty;
+  tr.dataset.paid = isPaid ? '1' : '';
+  // Paid rows show the locked-in rate; unpaid rows show the Payment panel's Gold Rate once ticked
+  const goldRateCell = (isPaid && goldRate>0) ? fmt(goldRate) : `<span style="color:var(--text-muted)">—</span>`;
   tr.innerHTML=`
     <td style="text-align:center">${isPaid?'':`<input type="checkbox" class="inst-chk" ${selectable?'':'disabled'} onchange="onInstallCheckToggle(this)" title="${!canTransact()&&d.name?(currentAssignDocstatus!==1?'This assignment must be submitted before payments can be collected':'This assignment is closed — no further transactions are allowed'):(!d.name?'Save the assignment first to select this row':'Select for payment')}"/>`}</td>
     <td style="text-align:center" class="inst-idx"></td>
     <td><input type="date" data-f="original_due_date" value="${originalDate}" disabled/></td>
-    <td style="text-align:right"><input type="number" min="0" step="0.01" data-f="emi" value="${d.emi??''}" placeholder="0" oninput="updateInstallTotal()" ${fieldsLocked?'disabled':''}/></td>
+    <td style="text-align:right"><input type="number" min="0" step="0.01" data-f="emi" value="${d.emi??''}" placeholder="0" oninput="applyPanelGoldRate()" ${fieldsLocked?'disabled':''}/></td>
     <td>${installStatusPill(effectiveStatus)}</td>
-    <td><input type="date" data-f="payment_date" value="${d.payment_date||''}" disabled/></td>
+    <td>${d.payment_date ? `<input type="date" data-f="payment_date" value="${d.payment_date}" disabled/>` : `<span style="color:var(--text-muted)">—</span>`}</td>
     <td>${d.payment_entry ? `<a href="#" class="inst-pay-ref" onclick="event.preventDefault();openPaymentEntry('${esc(d.payment_entry)}')" title="Open ${esc(d.payment_entry)} in Frappe">${esc(d.payment_entry)}</a>` : `<span style="color:var(--text-muted)">—</span>`}</td>
+    <td class="inst-gold-col inst-gold-rate" style="text-align:right">${goldRateCell}</td>
+    <td class="inst-gold-col inst-gold-qty" style="text-align:right">${goldQty>0 ? goldQty.toFixed(3)+' g' : `<span style="color:var(--text-muted)">—</span>`}</td>
     <td><input type="date" data-f="date" value="${d.date||''}" ${fieldsLocked?'disabled':''}/></td>
-    <td>${(isPaid||assignmentLocked)?'':`<button class="cd-del-btn" onclick="delInstallRow('${id}')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>`}</td>
+    <td>${isPaid ? `<div class="cd-row-actions">
+        <button type="button" class="cd-act-btn" ${d.payment_entry?`onclick="printInstallmentVoucher('${esc(d.payment_entry)}',this)"`:'disabled'} title="${d.payment_entry?'Voucher Print':'No payment entry linked'}"><svg viewBox="0 0 24 24"><path d="M4 2v20l3-2 3 2 2-2 2 2 3-2 3 2V2l-3 2-3-2-2 2-2-2-3 2z"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="16" y2="13"/></svg></button>
+        <button type="button" class="cd-act-btn" onclick="printAssignmentPassbook(this)" title="Passbook Print"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg></button>
+      </div>` : assignmentLocked ? '' : `<button class="cd-del-btn" onclick="delInstallRow('${id}')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>`}</td>
   `;
   document.getElementById('instTbody').appendChild(tr);
   updateInstallTotal();
@@ -836,9 +860,44 @@ function updateAssignEndDate(){
 }
 function delInstallRow(id){ document.getElementById(id)?.remove(); updateInstallTotal(); updateInstallSelection(); updateAssignEndDate(); renumberInstallRows(); }
 function updateInstallTotal(){
-  let total=0;
-  document.querySelectorAll('#instTbody tr').forEach(tr=>{ total+=parseFloat(tr.querySelector('[data-f="emi"]')?.value||0)||0; });
+  let total=0, paidTotal=0;
+  document.querySelectorAll('#instTbody tr').forEach(tr=>{
+    const emi=parseFloat(tr.querySelector('[data-f="emi"]')?.value||0)||0;
+    total+=emi;
+    if(tr.dataset.paid) paidTotal+=emi;
+  });
   const el=document.getElementById('instTotal'); if(el) el.textContent=fmt(total);
+  const paidEl=document.getElementById('instPaidTotal'); if(paidEl) paidEl.textContent=fmt(paidTotal);
+  let goldTotal=0;
+  document.querySelectorAll('#instTbody tr').forEach(tr=>{ goldTotal+=parseFloat(tr.dataset.goldQty||0)||0; });
+  const goldEl=document.getElementById('instGoldTotal'); if(goldEl) goldEl.textContent=goldTotal.toFixed(3)+' g';
+}
+// The Payment panel's Gold Rate applies to ticked unpaid rows only — Gold Qty = EMI ÷ that rate
+function applyPanelGoldRate(){
+  const rate=parseFloat(document.getElementById('payGoldRate')?.value)||0;
+  const dash=`<span style="color:var(--text-muted)">—</span>`;
+  document.querySelectorAll('#instTbody tr').forEach(tr=>{
+    if(tr.dataset.paid) return;
+    const on = currentSchemeAccumulatesGold && rate>0 && !!tr.querySelector('.inst-chk')?.checked;
+    const emi=parseFloat(tr.querySelector('[data-f="emi"]')?.value||0)||0;
+    const qty = on ? Math.round((emi/rate)*1000)/1000 : 0;
+    tr.dataset.goldQty = qty;
+    tr.querySelector('.inst-gold-rate').innerHTML = on ? fmt(rate) : dash;
+    tr.querySelector('.inst-gold-qty').innerHTML = qty>0 ? qty.toFixed(3)+' g' : dash;
+  });
+  updateInstallTotal();
+}
+// First tick with an empty Gold Rate gets today's Metal Price List rate — still editable
+async function prefillPanelGoldRate(){
+  const inp=document.getElementById('payGoldRate');
+  if(!currentSchemeAccumulatesGold || parseFloat(inp.value)>0) return;
+  const touch=document.getElementById('assignMetalTouch').value;
+  if(!touch) return;
+  let rate=0;
+  try{ rate=await fetchGoldRateForTouch(touch); }catch(e){ console.warn('Gold rate prefill failed:', e.message); }
+  if(!(rate>0) || parseFloat(inp.value)>0 || !document.querySelector('#instTbody .inst-chk:checked')) return;
+  inp.value=rate;
+  applyPanelGoldRate();
 }
 function toggleAllInstallRows(checked){
   document.querySelectorAll('#instTbody .inst-chk:not(:disabled)').forEach(cb=>{ cb.checked=checked; });
@@ -873,6 +932,10 @@ function updateInstallSelection(){
     selectAll.checked = selectable.length>0 && checked.length===selectable.length;
     selectAll.indeterminate = checked.length>0 && checked.length<selectable.length;
   }
+  // No rows ticked → clear the rate so the next selection picks up a fresh price-list rate
+  if(!checked.length) document.getElementById('payGoldRate').value='';
+  applyPanelGoldRate();
+  if(checked.length) prefillPanelGoldRate();
   refreshPaymentPanel();
 }
 
@@ -885,6 +948,7 @@ let paySettlePending=null;
 let paySettleRows=[];
 let paymentReviewLocked=false;
 let paymentReviewSnapshot=null;
+let currentSchemeAccumulatesGold=false;
 const PAY_DENOMS=[500,200,100,50,20,10,5,2,1];
 function isCashMode(m){ return /cash/i.test(m||''); }
 function isBankDraftMode(m){ return /bank draft/i.test(m||''); }
@@ -1061,6 +1125,9 @@ function updatePaySettleButtonStates(){
   const readyToSave = !!paySettlePending && allocated>0 && pending<=0.01;
   saveBtn.disabled = paymentReviewLocked || !readyToSave;
   submitBtn.disabled = !paymentReviewLocked;
+  // Reviewed rate is what gets submitted — freeze it until submit or deselect
+  const rateInp=document.getElementById('payGoldRate');
+  if(rateInp) rateInp.disabled = paymentReviewLocked || !paySettlePending;
 }
 function savePaySettle(){
   if(!paySettlePending) return;
@@ -1072,7 +1139,14 @@ function savePaySettle(){
   if(missingRef){ showToast(`Reference / UTR / Cheque Number is required for ${missingRef.mode}`,'error'); return; }
   const cashTotal=rowsToSubmit.filter(r=>isCashMode(r.mode)).reduce((s,r)=>s+(parseFloat(r.amount)||0),0);
   if(cashTotal>CASH_LIMIT){ showToast(`Cash payment cannot exceed ${fmt(CASH_LIMIT)} per transaction`,'error'); return; }
-  paymentReviewSnapshot={ ...paySettlePending, rows: rowsToSubmit.map(r=>({...r})) };
+  const goldRates={};
+  if(currentSchemeAccumulatesGold){
+    if(!document.getElementById('assignMetalTouch').value){ showToast('This scheme accumulates gold — set Metal Touch on the assignment before collecting payment','error'); return; }
+    const rate=parseFloat(document.getElementById('payGoldRate').value)||0;
+    if(!(rate>0)){ showToast('Enter Gold Rate in the Payment panel','error'); document.getElementById('payGoldRate').focus(); return; }
+    paySettlePending.rowNames.forEach(n=>{ goldRates[n]=rate; });
+  }
+  paymentReviewSnapshot={ ...paySettlePending, goldRates, rows: rowsToSubmit.map(r=>({...r})) };
   paymentReviewLocked=true;
   renderPaySettleRows();
   updatePaySettleButtonStates();
@@ -1087,7 +1161,7 @@ async function submitPaySettle(){
   const btn=document.getElementById('paySettleSubmitBtn');
   btn.disabled=true; const originalLbl=btn.textContent; btn.textContent='Submitting…';
   try{
-    const { party, partyName, assignmentName, rowNames, rows } = paymentReviewSnapshot;
+    const { party, partyName, assignmentName, rowNames, rows, goldRates } = paymentReviewSnapshot;
     const postingDate = new Date().toLocaleDateString('en-CA');
     const schemeName = document.getElementById('assignScheme').value.trim();
     const paidRowEls = [...document.querySelectorAll('#instTbody tr')].filter(tr => rowNames.includes(tr.dataset.rowName));
@@ -1096,7 +1170,15 @@ async function submitPaySettle(){
       .filter(Boolean)
       .map(d => new Date(d + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', year: 'numeric' }));
     const monthText = [...new Set(monthLabels)].join(', ');
-    const remarks = `Parent: ${assignmentName}${schemeName ? ` | Scheme: ${schemeName}` : ''}${monthText ? ` | Month: ${monthText}` : ''}`;
+    const goldRateText = paidRowEls
+      .filter(tr => goldRates?.[tr.dataset.rowName] > 0)
+      .map(tr => {
+        const d = tr.querySelector('[data-f="original_due_date"]')?.value;
+        const label = d ? new Date(d + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : `#${tr.querySelector('.inst-idx')?.textContent||''}`;
+        return `${label} ${fmt(goldRates[tr.dataset.rowName])}`;
+      })
+      .join(', ');
+    const remarks = `Parent: ${assignmentName}${schemeName ? ` | Scheme: ${schemeName}` : ''}${monthText ? ` | Month: ${monthText}` : ''}${goldRateText ? ` | Gold Rate: ${goldRateText}` : ''}`;
     const createdNames=[];
     for(const row of rows){
       const amount=Math.round((parseFloat(row.amount)||0)*100)/100;
@@ -1127,7 +1209,7 @@ async function submitPaySettle(){
       createdNames.push(name);
     }
     if(rowNames.length && createdNames.length){
-      await markInstallmentsPaidInline(assignmentName, rowNames, createdNames[0], postingDate);
+      await markInstallmentsPaidInline(assignmentName, rowNames, createdNames[0], postingDate, goldRates||{});
     }
     showToast(createdNames.length>1?`${createdNames.length} payment entries created`:`Payment Entry ${createdNames[0]} created`,'success');
     paySettleRows=[]; paymentReviewLocked=false; paymentReviewSnapshot=null;
@@ -1143,27 +1225,20 @@ async function submitPaySettle(){
 async function fetchGoldRateForTouch(touch){
   return cdGetTouchRate('Gold', touch);
 }
-async function markInstallmentsPaidInline(assignmentName, rowNames, paymentEntryName, paymentDate){
+// goldRates: {rowName: rate} — the per-installment rates the user entered and reviewed
+async function markInstallmentsPaidInline(assignmentName, rowNames, paymentEntryName, paymentDate, goldRates={}){
   const res=await dev1Get('/api/resource/Jewellery%20Scheme%20Assignment/'+encodeURIComponent(assignmentName));
   const doc=res.data||res.message||res;
-  let goldRate=0;
   let accumulateGold=false;
   try{
     const schemeRes=await dev1Get('/api/resource/Jewellery%20Scheme/'+encodeURIComponent(doc.scheme)+'?fields='+encodeURIComponent(JSON.stringify(['accumulate_gold'])));
     const schemeDoc=schemeRes.data||schemeRes.message||{};
     accumulateGold=!!schemeDoc.accumulate_gold;
-    if(accumulateGold){
-      if(!doc.metal_touch){
-        showToast('This scheme accumulates gold, but the assignment has no Metal Touch set — payment was recorded, but gold weight was not locked in for this installment. Set Metal Touch and re-save.','error',7000);
-      } else {
-        goldRate=await fetchGoldRateForTouch(doc.metal_touch);
-        if(!goldRate) showToast(`No Metal Price List rate found for Gold at ${doc.metal_touch} — gold weight was not locked in for this installment.`,'error',7000);
-      }
-    }
   }catch(e){ console.warn('Scheme lookup for gold accumulation failed:', e.message); }
   const details=(doc.jewellery_scheme_assignment_details||[]).map(r=>{
     if(!rowNames.includes(r.name)) return r;
     const updated={...r, status:'Paid', payment_entry:paymentEntryName, paid_by: r.paid_by||'Customer', payment_date: r.payment_date||paymentDate};
+    const goldRate=accumulateGold ? (parseFloat(goldRates[r.name])||0) : 0;
     if(goldRate>0){
       updated.gold_rate=goldRate;
       updated.gold_qty=Math.round((parseFloat(r.emi||0)/goldRate)*1000)/1000;
@@ -1173,7 +1248,9 @@ async function markInstallmentsPaidInline(assignmentName, rowNames, paymentEntry
   const allPaid = details.length>0 && details.every(r=>String(r.status||'').toLowerCase()==='paid');
   let finalDetails = details;
   if(allPaid && accumulateGold){
-    const finalRate = goldRate>0 ? goldRate : (details.find(r=>r.gold_rate>0)?.gold_rate||0);
+    // Final rate = rate entered on the last installment row (by idx) paid in this payment
+    const lastPaidNow=details.filter(r=>rowNames.includes(r.name) && r.gold_rate>0).sort((a,b)=>(a.idx||0)-(b.idx||0)).pop();
+    const finalRate = lastPaidNow?.gold_rate || (details.find(r=>r.gold_rate>0)?.gold_rate||0);
     if(finalRate>0){
       finalDetails = details.map(r=>{
         if(!(parseFloat(r.gold_rate)>0)) return r;
@@ -1385,8 +1462,14 @@ function selAssignScheme(name,display){
 function updateMetalTouchVisibility(schemeObj){
   const field=document.getElementById('assignMetalTouchField');
   const show=!!schemeObj?.accumulate_gold;
+  currentSchemeAccumulatesGold = show;
   field.style.display = show?'':'none';
   if(!show) document.getElementById('assignMetalTouch').value='';
+  // Gold Rate / Gold Qty columns only matter for gold-accumulation schemes
+  document.getElementById('instTbl').classList.toggle('show-gold', show);
+  document.querySelector('.inst-gold-total').style.display = show?'':'none';
+  document.getElementById('payGoldRateWrap').style.display = show?'flex':'none';
+  applyPanelGoldRate();
 }
 
 // ── ASSIGNMENT: FORM LOAD / SAVE / DELETE ──
@@ -1594,24 +1677,57 @@ async function printAssignmentDoc(){
   const btn=document.getElementById('printDoBtn');
   btn.disabled=true;
   try{
-    const h=cdGetInstanceHeaders();
-    if(!h) throw new Error('No auth');
-    // download_pdf has no page-size option; download_multi_pdf does (same call Frappe's print dialog makes).
-    const params=new URLSearchParams({
-      doctype:ASSIGN_DOCTYPE,
-      name:JSON.stringify([window.currentAssignName]),
-      format,
-      no_letterhead: letterhead? '0':'1',
-      letterhead,
-      options: JSON.stringify({'page-size':pageSize})
-    });
-    const res=await fetch(cdGetInstanceUrl()+'/api/method/frappe.utils.print_format.download_multi_pdf?'+params.toString(),{headers:h});
-    if(!res.ok) throw new Error('HTTP '+res.status);
-    const blob=await res.blob();
-    window.open(URL.createObjectURL(new Blob([blob],{type:'application/pdf'})),'_blank');
+    await openDocPdf(ASSIGN_DOCTYPE, window.currentAssignName, format, letterhead, pageSize);
     closePrintDialog();
   }catch(e){ showToast('Print failed: '+String(e.message).slice(0,120),'error'); }
   finally{ btn.disabled=false; }
+}
+async function openDocPdf(doctype, name, format, letterhead, pageSize){
+  const h=cdGetInstanceHeaders();
+  if(!h) throw new Error('No auth');
+  // download_pdf has no page-size option; download_multi_pdf does (same call Frappe's print dialog makes).
+  const params=new URLSearchParams({
+    doctype,
+    name:JSON.stringify([name]),
+    format,
+    no_letterhead: letterhead? '0':'1',
+    letterhead,
+    options: JSON.stringify({'page-size':pageSize})
+  });
+  const res=await fetch(cdGetInstanceUrl()+'/api/method/frappe.utils.print_format.download_multi_pdf?'+params.toString(),{headers:h});
+  if(!res.ok) throw new Error('HTTP '+res.status);
+  const blob=await res.blob();
+  window.open(URL.createObjectURL(new Blob([blob],{type:'application/pdf'})),'_blank');
+}
+// Installment-row prints: pick the doctype's print format whose name contains `keyword`
+// (e.g. "Voucher", "Passbook"); fall back to the doctype's default format, then Standard.
+const rowPrintFormatCache = {};
+async function findPrintFormat(doctype, keyword){
+  const key=doctype+'|'+keyword;
+  if(rowPrintFormatCache[key]) return rowPrintFormatCache[key];
+  const enc=encodeURIComponent;
+  const [named, meta] = await Promise.all([
+    dev1Get('/api/resource/Print%20Format?fields='+enc('["name"]')+'&filters='+enc(JSON.stringify([["doc_type","=",doctype],["disabled","=",0],["name","like",`%${keyword}%`]]))+'&limit_page_length=1')
+      .then(r=>(r.data||[])[0]?.name||'').catch(()=>''),
+    dev1Get('/api/method/frappe.desk.form.load.getdoctype?doctype='+enc(doctype))
+      .then(r=>(r.docs||[]).find(d=>d.name===doctype)||{}).catch(()=>({}))
+  ]);
+  return rowPrintFormatCache[key] = named || meta.default_print_format || 'Standard';
+}
+async function printWithFormat(doctype, name, keyword, btn){
+  if(btn) btn.disabled=true;
+  try{
+    const [format, o] = await Promise.all([findPrintFormat(doctype, keyword), loadPrintOptions()]);
+    await openDocPdf(doctype, name, format, o.defaultLetterHead, o.pageSize);
+  }catch(e){ showToast(`${keyword} print failed: `+String(e.message).slice(0,120),'error'); }
+  finally{ if(btn) btn.disabled=false; }
+}
+function printInstallmentVoucher(paymentEntry, btn){
+  if(paymentEntry) printWithFormat('Payment Entry', paymentEntry, 'Voucher', btn);
+}
+function printAssignmentPassbook(btn){
+  if(!window.currentAssignName){ showToast('Please save the assignment first','error'); return; }
+  printWithFormat(ASSIGN_DOCTYPE, window.currentAssignName, 'Passbook', btn);
 }
 async function saveAssignment(){
   const cust=document.getElementById('assignCustomer').value.trim();
@@ -1632,6 +1748,8 @@ async function saveAssignment(){
       showToast(`EMI amount must be in multiples of ${fmt(schemeObj.emi_multiple_off)}`,'error'); document.getElementById('assignEmi').focus(); return;
     }
   }
+  if(currentSchemeAccumulatesGold && !document.getElementById('assignMetalTouch').value){ showToast('Metal Touch is required for a gold accumulation scheme','error'); document.getElementById('assignMetalTouch').focus(); return; }
+  if(!document.getElementById('assignBranch').value){ showToast('Please select a Branch','error'); document.getElementById('assignBranch').focus(); return; }
   if(!document.getElementById('assignDate').value){ showToast('Please select a Date','error'); document.getElementById('assignDate').focus(); return; }
   if(!window.currentAssignName && document.getElementById('assignDate').value < toISODate(new Date())){ showToast('Start Date cannot be a back date','error'); document.getElementById('assignDate').focus(); return; }
   const badRow=validateInstallRows();
@@ -1695,6 +1813,7 @@ function navigateBack(){
 async function init(){
   const h=cdGetInstanceHeaders();
   if(!h){ window.location.replace('/caratdesk-login?logout=1'); return; }
+  cdMountRatePanel(); // right-edge "Metal Rate" tab + panel, same as PO/PR/PI
   try{
     const custRes = await dev1Get(`/api/resource/Customer?fields=${encodeURIComponent(JSON.stringify(["name","customer_name","mobile_no"]))}&limit_page_length=0`);
     CUSTOMERS=(custRes.data||custRes.message||[]).map(c=>({name:c.name, display:c.customer_name||c.name, phone:c.mobile_no||''}));

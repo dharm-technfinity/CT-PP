@@ -43,7 +43,9 @@ async function parseResponse(res) {
       data?.message ||
       data?._server_messages ||
       `HTTP ${res.status}`;
-    throw new Error(String(msg).split('\n')[0].slice(0, 300));
+    const err = new Error(String(msg).split('\n')[0].slice(0, 300));
+    err.status = res.status;
+    throw err;
   }
   return data;
 }
@@ -588,67 +590,58 @@ function posValidationError(message) {
 
 // allowDelivered is for viewing an already-sold piece (a submitted invoice reopened read-only in
 // POS) — it still needs the same receipt/BOM breakup, but must never be used to bill it again.
+// Explicit fields keep scan-time lookups light — an unrestricted GET would also pull back every
+// custom field on the doc, including the (potentially several) image URLs stored in
+// custom_serial_no_images, on every single POS scan. The BOM / weight fields are written onto the
+// serial on Purchase Receipt submit, so a scan can price the piece without finding its receipt row.
+const POS_SERIAL_FIELDS = JSON.stringify([
+  'name',
+  'item_code',
+  'item_name',
+  'warehouse',
+  'status',
+  'batch_no',
+  'custom_sell_rate',
+  'custom_parent_serial_no',
+  'custom_bom',
+  'custom_gross_weight',
+  'custom_net_weight',
+  'custom_tounch',
+  'purchase_rate',
+  'reference_doctype',
+  'reference_name',
+]);
+
 export async function lookupByTag(tag, { allowDelivered = false } = {}) {
   const trimmed = (tag || '').trim();
   if (!trimmed) return null;
 
-  // Primary: Serial No (tag/barcode)
-  try {
-    // Explicit fields keep this scan-time lookup light — an unrestricted GET would also pull
-    // back every custom field on the doc, including the (potentially several) image URLs now
-    // stored in custom_serial_no_images, on every single POS scan. Mirrors the field list the
-    // fallback query below already uses.
-    const primarySerialFields = JSON.stringify([
-      'name',
-      'item_code',
-      'item_name',
-      'warehouse',
-      'status',
-      'batch_no',
-      'custom_sell_rate',
-      'custom_parent_serial_no',
-    ]);
-    const serialRes = await apiGet(
-      `/api/resource/Serial%20No/${encodeURIComponent(trimmed)}?fields=${encodeURIComponent(primarySerialFields)}`,
-    );
-    const serial = getData(serialRes);
-    if (serial?.name) return await enrichItemFromSerial(serial, { allowDelivered });
-  } catch (e) {
-    if (e.isPosValidation) throw e;
-    console.warn('Serial doc lookup:', e.message);
-  }
+  // Serial No (tag) and Batch ID (printed on a batch's barcode label — loose raw-material stock
+  // sold by qty) are looked up at once, so a batch scan doesn't wait out a Serial No miss first.
+  const [serial, batch] = await Promise.all([
+    fetchSerialForPos(trimmed),
+    fetchBatchDoc(trimmed).catch((e) => {
+      if (!isNotFoundError(e)) console.warn('Batch lookup:', e.message);
+      return null;
+    }),
+  ]);
 
-  try {
-    const serialFields = JSON.stringify([
-      'name',
-      'item_code',
-      'item_name',
-      'warehouse',
-      'status',
-      'batch_no',
-      'custom_sell_rate',
-      'custom_parent_serial_no',
-    ]);
-    const serialFilters = JSON.stringify([['Serial No', 'name', '=', trimmed]]);
-    const serialRes = await apiGet(
-      `/api/resource/Serial%20No?fields=${encodeURIComponent(serialFields)}&filters=${encodeURIComponent(serialFilters)}&limit_page_length=1`,
-    );
-    const serials = getData(serialRes) || [];
-    if (serials.length) {
-      return await enrichItemFromSerial(serials[0], { allowDelivered });
+  if (serial?.name) {
+    try {
+      return await enrichItemFromSerial(serial, { allowDelivered });
+    } catch (e) {
+      if (e.isPosValidation) throw e;
+      console.warn('Serial lookup:', e.message);
     }
-  } catch (e) {
-    if (e.isPosValidation) throw e;
-    console.warn('Serial lookup:', e.message);
   }
 
-  // Batch ID (printed on the batch's barcode label) — loose raw-material stock sold by qty.
-  try {
-    const batch = await fetchBatchDoc(trimmed);
-    if (batch?.name) return await batchToCartLine(batch, { allowDelivered });
-  } catch (e) {
-    if (e.isPosValidation) throw e;
-    console.warn('Batch lookup:', e.message);
+  if (batch?.name) {
+    try {
+      return await batchToCartLine(batch, { allowDelivered });
+    } catch (e) {
+      if (e.isPosValidation) throw e;
+      console.warn('Batch lookup:', e.message);
+    }
   }
 
   // Fallback: ERPNext Item Barcode child table.
@@ -679,6 +672,38 @@ export async function lookupByTag(tag, { allowDelivered = false } = {}) {
   return null;
 }
 
+function isNotFoundError(e) {
+  return e?.status === 404 || e?.cause?.status === 404 || /DoesNotExistError/.test(e?.message || '');
+}
+
+// The Serial No itself, or null when there's no such serial. Only a failure other than "not
+// found" (e.g. no read access to the doc) tries the list API as well, which may still return it.
+async function fetchSerialForPos(name) {
+  try {
+    const res = await apiGet(
+      `/api/resource/Serial%20No/${encodeURIComponent(name)}?fields=${encodeURIComponent(POS_SERIAL_FIELDS)}`,
+    );
+    return getData(res) || null;
+  } catch (e) {
+    if (isNotFoundError(e)) return null;
+    console.warn('Serial doc lookup:', e.message);
+  }
+  try {
+    const filters = JSON.stringify([['Serial No', 'name', '=', name]]);
+    const res = await apiGet(
+      `/api/resource/Serial%20No?fields=${encodeURIComponent(POS_SERIAL_FIELDS)}&filters=${encodeURIComponent(filters)}&limit_page_length=1`,
+    );
+    return (getData(res) || [])[0] || null;
+  } catch (e) {
+    console.warn('Serial lookup:', e.message);
+    return null;
+  }
+}
+
+// Set tag line -> the piece serials found while building it, so lookupLinesByTag needn't fetch
+// them a second time.
+const setPiecesByLine = new WeakMap();
+
 async function enrichItemFromSerial(serial, { allowDelivered = false } = {}) {
   const itemCode = serial.item_code;
   if (!itemCode) return null;
@@ -697,7 +722,11 @@ async function enrichItemFromSerial(serial, { allowDelivered = false } = {}) {
   // of one piece; a set received before pieces existed has none and sells as a normal line.
   if (Number(item.custom_is_set)) {
     const pieces = await fetchSetPieceSerials(serial.name);
-    if (pieces.length) return setTagLine(item, serial);
+    if (pieces.length) {
+      const line = setTagLine(item, serial);
+      setPiecesByLine.set(line, pieces);
+      return line;
+    }
     if (!allowDelivered && String(serial.status || '').trim().toLowerCase() !== 'active') {
       throw posValidationError(`Set ${serial.name} was already broken — scan its pieces individually.`);
     }
@@ -710,7 +739,21 @@ async function enrichItemFromSerial(serial, { allowDelivered = false } = {}) {
     warehouse: serial.warehouse || '',
     batch_no: serial.batch_no || '',
   };
-  const receiptItem = await fetchReceiptItemForSerial(serial.name, itemCode, serial);
+  // The serial's own BOM + weights price it at today's rates without its receipt row. The
+  // receipt row (found via the serial's reference_name first) is only needed when the serial has
+  // no BOM, or the BOM has no live rate and the purchase rate becomes the fallback.
+  let bomBreakup = serial.custom_bom ? await fetchBomBreakup(serial.custom_bom) : null;
+  let receiptItem = bomBreakup?.hasLiveRate ? receiptItemFromSerial(serial, item) : null;
+  if (!receiptItem) {
+    const fromReceipt = await fetchReceiptItemForSerial(serial.name, itemCode, serial);
+    if (fromReceipt) {
+      receiptItem = fromReceipt;
+      const receiptBom = fromReceipt.custom_bom || '';
+      if (receiptBom !== (bomBreakup?.bomName || '')) bomBreakup = receiptBom ? await fetchBomBreakup(receiptBom) : null;
+    } else if (bomBreakup) {
+      receiptItem = receiptItemFromSerial(serial, item);
+    }
+  }
   let line;
   if (!receiptItem) {
     line = {
@@ -718,14 +761,30 @@ async function enrichItemFromSerial(serial, { allowDelivered = false } = {}) {
       pricing_warning: `Receipt pricing not found for ${serial.name}; using Item master rate.`,
     };
   } else {
-    const bomBreakup = receiptItem.custom_bom
-      ? await fetchBomBreakup(receiptItem.custom_bom)
-      : null;
     line = applyReceiptItemToCartLine(cartLine, receiptItem, bomBreakup);
   }
   const parentSet = serial.custom_parent_serial_no || '';
   if (parentSet) line = { ...line, set_serial: parentSet, set_note: `Part of set ${parentSet}` };
-  return applySellRateMargin(line, serial.custom_sell_rate);
+  // Diamond Studded items carry the Diamond Margin instead of the Tounch Wise Margin.
+  return applySellRateMargin(line, bomBreakup?.isStudded ? 0 : serial.custom_sell_rate);
+}
+
+// A one-piece receipt row built from the Serial No's own fields (per-piece weights, so qty 1).
+function receiptItemFromSerial(serial, item) {
+  const rate = parseFloat(serial.purchase_rate || 0) || 0;
+  return {
+    item_code: serial.item_code,
+    item_name: serial.item_name || item.item_name,
+    description: item.description || serial.item_name || item.item_name,
+    qty: 1,
+    rate,
+    amount: rate,
+    uom: item.stock_uom,
+    custom_bom: serial.custom_bom,
+    custom_gross_weight: serial.custom_gross_weight,
+    custom_net_weight: serial.custom_net_weight,
+    custom_tounch: serial.custom_tounch,
+  };
 }
 
 const BATCH_FIELDS = ['name', 'item', 'item_name', 'disabled', 'expiry_date', 'batch_qty', 'stock_uom', 'custom_pcs'];
@@ -926,15 +985,12 @@ export async function lookupLinesByTag(tag, options = {}) {
   const line = await lookupByTag(tag, options);
   if (!line) return [];
   if (!line.is_set_tag) return [line];
-  const pieces = (await fetchSetPieceSerials(line.serial_no))
+  const pieces = (setPiecesByLine.get(line) || await fetchSetPieceSerials(line.serial_no))
     .filter((p) => String(p.status || '').trim().toLowerCase() === 'active');
   if (!pieces.length) throw posValidationError(`Set ${line.serial_no} has no pieces left in stock.`);
-  const pieceLines = [];
-  for (const piece of pieces) {
-    const pieceLine = await lookupByTag(piece.name, options);
-    if (pieceLine) pieceLines.push({ ...pieceLine, set_note: `Set ${line.serial_no}` });
-  }
-  return [line, ...pieceLines];
+  // All pieces at once; they keep the set's order.
+  const pieceLines = await Promise.all(pieces.map((piece) => lookupByTag(piece.name, options)));
+  return [line, ...pieceLines.filter(Boolean).map((pieceLine) => ({ ...pieceLine, set_note: `Set ${line.serial_no}` }))];
 }
 
 /**
@@ -1141,6 +1197,9 @@ function getSerialReceiptNames(serial) {
   ) {
     names.push(serial.purchase_document_no);
   }
+  if (serial.reference_doctype === 'Purchase Receipt' && serial.reference_name) {
+    names.push(serial.reference_name);
+  }
   if (serial.purchase_receipt) names.push(serial.purchase_receipt);
   if (serial.purchase_receipt_no) names.push(serial.purchase_receipt_no);
   if (serial.voucher_type === 'Purchase Receipt' && serial.voucher_no) {
@@ -1305,10 +1364,14 @@ async function loadPPSettings() {
       gemstoneAttrs: (doc.gemstone_price_list_mapping || []).map((r) => r.item_attribute).filter(Boolean),
       goldPurchaseItemGroups: (doc.gold_purchase_setting || []).map((r) => r.item_group).filter(Boolean),
       posRoleMap,
+      // "Item Catefory Wise Diamond Margin": diamond raw material's custom_item_category -> margin %
+      diamondCategoryMargin: Object.fromEntries((doc.item_catefory_wise_diamond_margin || [])
+        .filter((r) => r.item_category)
+        .map((r) => [String(r.item_category).trim().toLowerCase(), parseFloat(r.margin || 0) || 0])),
     };
   } catch (e) {
     console.warn('loadPPSettings failed:', e.message);
-    ppSettingsCache = { metalMap: {}, diamondAttrs: [], gemstoneAttrs: [], goldPurchaseItemGroups: [], posRoleMap: {} };
+    ppSettingsCache = { metalMap: {}, diamondAttrs: [], gemstoneAttrs: [], goldPurchaseItemGroups: [], posRoleMap: {}, diamondCategoryMargin: {} };
   }
   return ppSettingsCache;
 }
@@ -1386,6 +1449,23 @@ function getItemAttrValue(itemAttributes, label) {
   return (match?.attribute_value || '').trim();
 }
 
+// Price-list rates and raw-material attributes repeat across every BOM row and every scan, so
+// they're kept for a few minutes. The promise is cached, so lookups running side by side share one
+// request; a failed or zero result isn't kept, so a rate added meanwhile is picked up next scan.
+const RATE_CACHE_TTL_MS = 5 * 60 * 1000;
+const rateCache = new Map();
+function cachedFor(key, fn) {
+  const hit = rateCache.get(key);
+  if (hit && hit.expires > Date.now()) return hit.promise;
+  const promise = fn();
+  rateCache.set(key, { promise, expires: Date.now() + RATE_CACHE_TTL_MS });
+  promise.then(
+    (value) => { if (!value) rateCache.delete(key); },
+    () => rateCache.delete(key),
+  );
+  return promise;
+}
+
 // Generic attribute-mapped Price List lookup (Diamond/Gemstone) — builds an exact-match
 // filter from whichever attributes PP Settings configures, matched against the raw
 // material's own attribute values. Prefers a generic (blank supplier) entry, same as the
@@ -1396,6 +1476,10 @@ async function fetchAttrMappedRate(getAttrValue, priceAttrs, doctype, uom) {
   const values = priceAttrs.map((attr) => ({ field: ppAttrToFieldName(attr), value: getAttrValue(attr) }));
   if (values.every((v) => !v.value)) return 0;
   if (uom !== undefined && !uom) return 0;
+  return cachedFor(`${doctype}|${uom || ''}|${JSON.stringify(values)}`, () => fetchAttrMappedRateUncached(values, doctype, uom));
+}
+
+async function fetchAttrMappedRateUncached(values, doctype, uom) {
   try {
     const fields = JSON.stringify([...values.map((v) => v.field), 'supplier', 'outright_rate']);
     const filters = JSON.stringify([
@@ -1421,6 +1505,10 @@ async function fetchAttrMappedRate(getAttrValue, priceAttrs, doctype, uom) {
 // current row comes back instead of scanning a capped page of every touch for that metal.
 async function fetchMetalPriceListRate(metalType, purityLabel) {
   if (!metalType || !purityLabel) return 0;
+  return cachedFor(`Metal|${metalType}|${purityLabel.trim()}`, () => fetchMetalPriceListRateUncached(metalType, purityLabel));
+}
+
+async function fetchMetalPriceListRateUncached(metalType, purityLabel) {
   try {
     const fields = JSON.stringify(['metal_type', 'metal_touch', 'rate', 'date']);
     const filters = JSON.stringify([
@@ -1447,6 +1535,28 @@ async function fetchMetalPriceListRate(metalType, purityLabel) {
 // recalculated later by ERPNext itself (the BOM's rm_cost_as_per is Valuation Rate) — so a row
 // is never silently zeroed out (or quietly re-priced) just because PP Settings / a price list
 // is mid-setup on a given site.
+// A BOM raw material's attributes (Diamond/Gemstone Price List match) and category (Diamond
+// Margin), cached for a few minutes like the rates.
+function fetchRawMaterialItem(itemCode) {
+  return cachedFor(`RawItem|${itemCode}`, () => fetchItemDoc(itemCode, ['attributes', 'custom_item_category']));
+}
+
+// Diamond Studded item (its BOM has a Diamond row): the highest "Item Catefory Wise Diamond
+// Margin" among its diamond rows' item categories, 0 when none is configured.
+async function fetchStuddedDiamondMargin(diamondRows, ppSettings) {
+  const margins = await Promise.all(diamondRows.map(async (row) => {
+    if (!row.item_code) return 0;
+    try {
+      const item = await fetchRawMaterialItem(row.item_code);
+      return ppSettings.diamondCategoryMargin[String(item.custom_item_category || '').trim().toLowerCase()] || 0;
+    } catch (e) {
+      console.warn('Diamond category lookup failed:', row.item_code, e.message);
+      return 0;
+    }
+  }));
+  return Math.max(0, ...margins);
+}
+
 async function fetchLiveRawMaterialRate(row, ppSettings) {
   const fallback = parseFloat(row.custom_costing_rate || row.rate || row.base_rate || 0) || 0;
   const { kind, metalType } = classifyBomItemGroup(row.custom_item_group);
@@ -1473,7 +1583,7 @@ async function fetchLiveRawMaterialRate(row, ppSettings) {
 
   let item;
   try {
-    item = await fetchItemDoc(row.item_code, ['attributes']);
+    item = await fetchRawMaterialItem(row.item_code);
   } catch {
     return { kind, rate: fallback, isLive: false };
   }
@@ -1491,9 +1601,16 @@ async function fetchLiveRawMaterialRate(row, ppSettings) {
 // UOM's own `symbol` field (e.g. "Ct" for "Carat") — shown instead of the full UOM name.
 // Cached per session since the same handful of UOMs (Carat, Gram, ...) repeat across every BOM.
 const uomSymbolCache = {};
+const uomSymbolPending = {};
 async function fetchUomSymbol(uomName) {
   if (!uomName) return '';
   if (uomSymbolCache[uomName] !== undefined) return uomSymbolCache[uomName];
+  // Lines looked up side by side share one request per UOM.
+  uomSymbolPending[uomName] ||= fetchUomSymbolUncached(uomName).finally(() => { delete uomSymbolPending[uomName]; });
+  return uomSymbolPending[uomName];
+}
+
+async function fetchUomSymbolUncached(uomName) {
   try {
     const res = await apiGet(`/api/resource/UOM/${encodeURIComponent(uomName)}?fields=${encodeURIComponent(JSON.stringify(['symbol']))}`);
     const doc = getData(res) || {};
@@ -1511,24 +1628,37 @@ async function fetchBomBreakup(bomName) {
     const bom = getData(res) || {};
     const rows = bom.items || [];
     const ppSettings = await loadPPSettings();
-    const liveRates = await Promise.all(rows.map((row) => fetchLiveRawMaterialRate(row, ppSettings)));
+    // Diamond Studded (any Diamond row): Diamond / Stone / Other / Making at the BOM's cost rates,
+    // no Wastage or Handling, all x the Diamond Margin % — metal stays at today's touch rate and
+    // isn't marked up. Without a Diamond row the BOM is priced the regular way below.
+    const diamondRows = rows.filter((row) => classifyBomItemGroup(row.custom_item_group).kind === 'diamond');
+    const isStudded = diamondRows.length > 0;
+    const [liveRates, diamondMarginPercent] = await Promise.all([
+      Promise.all(rows.map((row) => {
+        const kind = classifyBomItemGroup(row.custom_item_group).kind;
+        if (!isStudded || kind === 'metal') return fetchLiveRawMaterialRate(row, ppSettings);
+        return { kind, rate: parseFloat(row.custom_costing_rate || row.rate || row.base_rate || 0) || 0, isLive: false };
+      })),
+      isStudded ? fetchStuddedDiamondMargin(diamondRows, ppSettings) : 0,
+    ]);
 
     const breakup = rows.reduce(
       (acc, row, idx) => {
         const qty = parseFloat(row.qty || row.stock_qty || 0) || 0;
         const { kind, rate, isLive, purityLabel } = liveRates[idx];
         const making = parseFloat(row.custom_making || 0) || 0;
-        const handling = parseFloat(row.custom_handling_rate || 0) || 0;
-        const wastage = parseFloat(row.custom_wastage || 0) || 0;
+        const handling = isStudded ? 0 : parseFloat(row.custom_handling_rate || 0) || 0;
+        const wastage = isStudded ? 0 : parseFloat(row.custom_wastage || 0) || 0;
         const labourVal = parseFloat(row.custom_labour_val || 0) || 0;
         const labourMode = row.custom_labour_mode || 'Percentage';
         const uom = String(row.uom || row.stock_uom || '').toLowerCase();
         const purity = getPurityFraction(row.custom_gold_purity);
         const base = qty * rate + qty * making + qty * handling;
         // Same rule as Purchase Receipt's recalcBomRow: Percentage is % of the row value; Fixed
-        // Rate / Range (legacy 'g') are ₹ per unit of qty.
+        // Rate / Range (legacy 'g') are ₹ per unit of qty. Labour is charged on metal rows only —
+        // older BOMs carry the FG item's labour on every row, so it's ignored on non-metal rows here.
         const isPercentLabour = labourMode === 'Percentage' || labourMode === '%';
-        const labour = isPercentLabour ? (base * labourVal) / 100 : qty * labourVal;
+        const labour = kind !== 'metal' ? 0 : isPercentLabour ? (base * labourVal) / 100 : qty * labourVal;
         const wastageAmount = (base * wastage) / 100;
         if (kind === 'diamond') { acc.diamondValue += qty * rate; acc.diamondWeight += qty; acc.diamondUom = row.uom || acc.diamondUom; }
         else if (kind === 'stone') { acc.stoneValue += qty * rate; acc.stoneWeight += qty; acc.stoneUom = row.uom || acc.stoneUom; }
@@ -1574,6 +1704,18 @@ async function fetchBomBreakup(bomName) {
         hasLiveRate: false,
       },
     );
+    if (isStudded) {
+      // 0 / no configured margin -> billed at cost (x 100%).
+      const factor = diamondMarginPercent > 0 ? diamondMarginPercent / 100 : 1;
+      breakup.makingCharges *= factor;
+      breakup.diamondValue *= factor;
+      breakup.stoneValue *= factor;
+      breakup.otherCharges *= factor;
+      breakup.isStudded = true;
+      breakup.diamondMarginPercent = diamondMarginPercent;
+      // The studded breakup is the price — never swapped for the purchase rate.
+      breakup.hasLiveRate = true;
+    }
     const [diamondSymbol, stoneSymbol] = await Promise.all([
       fetchUomSymbol(breakup.diamondUom),
       fetchUomSymbol(breakup.stoneUom),
@@ -2884,6 +3026,43 @@ export async function fetchCustomerInvoices(customerName) {
 // Jewellery Scheme (the scheme *type*, e.g. "Swaran Mani Scheme") — lets the cashier scope the
 // POS "Jewellery Scheme" dialog's matured-assignments checklist to one scheme type, since a
 // single bill can only redeem assignments from one scheme type at a time.
+// name -> posting_date for documents of one doctype (e.g. the Gold Purchases / Sales Returns on
+// a reopened bill, whose Settlement References keep only the number).
+export async function fetchPostingDates(doctype, names) {
+  const dates = new Map();
+  const unique = [...new Set(names.filter(Boolean))];
+  if (!unique.length) return dates;
+  try {
+    const fields = JSON.stringify(['name', 'posting_date']);
+    const filters = JSON.stringify([['name', 'in', unique]]);
+    const res = await apiGet(
+      `/api/resource/${encodeURIComponent(doctype)}?fields=${encodeURIComponent(fields)}&filters=${encodeURIComponent(filters)}&limit_page_length=0`,
+    );
+    (getData(res) || []).forEach((r) => dates.set(r.name, r.posting_date));
+  } catch (e) {
+    console.warn(`fetchPostingDates failed for ${doctype}:`, e.message);
+  }
+  return dates;
+}
+
+// Jewellery Scheme code -> its scheme_name (a saved invoice's Settlement References keep only the code).
+export async function fetchJewellerySchemeNames(codes) {
+  const names = new Map();
+  const unique = [...new Set(codes.filter(Boolean))];
+  if (!unique.length) return names;
+  try {
+    const fields = JSON.stringify(['name', 'scheme_name']);
+    const filters = JSON.stringify([['name', 'in', unique]]);
+    const res = await apiGet(
+      `/api/resource/Jewellery%20Scheme?fields=${encodeURIComponent(fields)}&filters=${encodeURIComponent(filters)}&limit_page_length=0`,
+    );
+    (getData(res) || []).forEach((s) => names.set(s.name, s.scheme_name || s.name));
+  } catch (e) {
+    console.warn('fetchJewellerySchemeNames failed:', e.message);
+  }
+  return names;
+}
+
 export async function searchJewellerySchemes(query) {
   const q = (query || '').trim();
   const fields = JSON.stringify(['name', 'scheme_name', 'is_disable']);
@@ -3125,12 +3304,20 @@ export function getPrintUrl(invoiceName) {
 // hidden iframe and raise the browser's print dialog. If the browser won't print the frame,
 // fall back to showing the PDF in a new tab.
 export async function printSalesInvoice(invoiceName) {
+  return printPdf(getPrintUrl(invoiceName));
+}
+
+async function fetchPdfBlobUrl(endpoint) {
   const headers = getAuthHeaders(null);
   if (!headers) throw new Error('Not authenticated');
-  const res = await fetch(getPrintUrl(invoiceName), { headers });
+  const res = await fetch(endpoint, { headers });
   if (res.status === 401) handle401();
   if (!res.ok) throw new Error(`Could not load invoice PDF (HTTP ${res.status})`);
-  const url = URL.createObjectURL(new Blob([await res.blob()], { type: 'application/pdf' }));
+  return URL.createObjectURL(new Blob([await res.blob()], { type: 'application/pdf' }));
+}
+
+async function printPdf(endpoint) {
+  const url = await fetchPdfBlobUrl(endpoint);
   const frame = document.createElement('iframe');
   frame.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0';
   frame.src = url;
@@ -3145,6 +3332,89 @@ export async function printSalesInvoice(invoiceName) {
   document.body.appendChild(frame);
   // The print dialog keeps reading the frame while open, so clean up only well after.
   setTimeout(() => { frame.remove(); URL.revokeObjectURL(url); }, 120000);
+}
+
+// Same endpoint and options ERPNext's list-view Print dialog uses, so Letter Head / Print
+// Format / Page Size behave exactly as they do in the desk.
+export function getPrintWithOptionsUrl(invoiceName, { format, letterhead, pageSize, pageHeight, pageWidth } = {}) {
+  const options = {};
+  if (pageSize === 'Custom') {
+    if (pageHeight) options['page-height'] = Number(pageHeight);
+    if (pageWidth) options['page-width'] = Number(pageWidth);
+  } else if (pageSize) {
+    options['page-size'] = pageSize;
+  }
+  const params = new URLSearchParams({
+    doctype: 'Sales Invoice',
+    name: JSON.stringify([invoiceName]),
+    format: format || 'Standard',
+    no_letterhead: letterhead ? '0' : '1',
+    letterhead: letterhead || 'No Letterhead',
+    options: JSON.stringify(options),
+  });
+  return `/api/method/frappe.utils.print_format.download_multi_pdf?${params.toString()}`;
+}
+
+// POS Print: straight to the browser's print window with the Sales Invoice's default Print
+// Format and default Letter Head. No page size is sent, so ERPNext's Print Settings decide it.
+export async function printSalesInvoiceDefault(invoiceName) {
+  const [{ defaultFormat }, heads] = await Promise.all([fetchPrintFormats('Sales Invoice'), fetchLetterHeads()]);
+  const letterhead = heads.find((h) => Number(h.is_default))?.name || '';
+  return printPdf(getPrintWithOptionsUrl(invoiceName, { format: defaultFormat || 'Standard', letterhead }));
+}
+
+// Enabled Print Formats for a doctype, plus which one is its default (set via Customize Form,
+// which stores it as a Property Setter). The default lookup is best-effort — non-admin users
+// may not be allowed to read Property Setters.
+export async function fetchPrintFormats(doctype) {
+  const fields = JSON.stringify(['name']);
+  const filters = JSON.stringify([['doc_type', '=', doctype], ['disabled', '=', 0]]);
+  const [formatsRes, defaultRes] = await Promise.allSettled([
+    apiGet(`/api/resource/Print%20Format?fields=${encodeURIComponent(fields)}&filters=${encodeURIComponent(filters)}&order_by=name asc&limit_page_length=0`),
+    apiGet(`/api/resource/Property%20Setter?fields=${encodeURIComponent(JSON.stringify(['value']))}&filters=${encodeURIComponent(JSON.stringify([['doc_type', '=', doctype], ['property', '=', 'default_print_format']]))}&limit_page_length=1`),
+  ]);
+  const names = formatsRes.status === 'fulfilled' ? (getData(formatsRes.value) || []).map((r) => r.name) : [];
+  const defaultFormat = defaultRes.status === 'fulfilled' ? (getData(defaultRes.value) || [])[0]?.value || null : null;
+  return { formats: ['Standard', ...names.filter((n) => n !== 'Standard')], defaultFormat };
+}
+
+export async function fetchLetterHeads() {
+  try {
+    const fields = JSON.stringify(['name', 'is_default']);
+    const filters = JSON.stringify([['disabled', '=', 0]]);
+    const res = await apiGet(
+      `/api/resource/Letter%20Head?fields=${encodeURIComponent(fields)}&filters=${encodeURIComponent(filters)}&order_by=name asc&limit_page_length=0`,
+    );
+    return getData(res) || [];
+  } catch (e) {
+    console.warn('fetchLetterHeads failed:', e.message);
+    return [];
+  }
+}
+
+// POS Recall / Print picker: one customer's Sales Invoices, filtered server side.
+//   forRecall — only what POS can open (no returns, nothing cancelled).
+//   status    — a Sales Invoice status, or '' for every non-cancelled one.
+export const INVOICE_PAGE_SIZE = 50;
+export async function searchCustomerSalesInvoices(customerName, {
+  forRecall = false, search = '', fromDate = '', toDate = '', status = '', minAmount = '', maxAmount = '', start = 0,
+} = {}) {
+  if (!customerName) return [];
+  const filters = [['customer', '=', customerName]];
+  if (status) filters.push(['status', '=', status]);
+  else filters.push(['docstatus', '!=', 2]);
+  if (forRecall) filters.push(['is_return', '=', 0], ['docstatus', '!=', 2]);
+  if (search.trim()) filters.push(['name', 'like', `%${search.trim()}%`]);
+  if (fromDate) filters.push(['posting_date', '>=', fromDate]);
+  if (toDate) filters.push(['posting_date', '<=', toDate]);
+  if (minAmount !== '' && !Number.isNaN(Number(minAmount))) filters.push(['grand_total', '>=', Number(minAmount)]);
+  if (maxAmount !== '' && !Number.isNaN(Number(maxAmount))) filters.push(['grand_total', '<=', Number(maxAmount)]);
+  const fields = JSON.stringify(['name', 'posting_date', 'posting_time', 'grand_total', 'status', 'docstatus', 'is_return']);
+  const res = await apiGet(
+    `/api/resource/Sales%20Invoice?fields=${encodeURIComponent(fields)}&filters=${encodeURIComponent(JSON.stringify(filters))}` +
+    `&order_by=${encodeURIComponent('posting_date desc, posting_time desc, name desc')}&limit_start=${start}&limit_page_length=${INVOICE_PAGE_SIZE}`,
+  );
+  return getData(res) || [];
 }
 
 /** Stub for future supplier-margin auto-fetch */

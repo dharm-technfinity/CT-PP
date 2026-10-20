@@ -1,6 +1,6 @@
 <!-- CaratDesk – Buying / Procurement -->
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8"><script src="/caratdesk-sidebar.js"></script>
 </head>
 <style>    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap');
 
@@ -616,7 +616,8 @@ document.getElementById('cdLogoutBtn').addEventListener('click',async()=>{
       }
       // ─── DIRECT API CALLS (no proxy) ─────────────────────────────────────────
       async function fetchPurchaseOrders() {
-        const fields = ['name','supplier_name','transaction_date','grand_total','status','docstatus'];
+        // base_grand_total = INR, so a USD supplier's documents add up correctly with INR ones
+        const fields = ['name','supplier_name','transaction_date','grand_total','base_grand_total','status','docstatus'];
         const url = `/api/resource/Purchase Order?fields=${JSON.stringify(fields)}&limit=200&order_by=transaction_date desc`;
         const res = await fetch(url, { credentials:'same-origin' });
         if(!res.ok) throw new Error('Failed to fetch POs');
@@ -624,7 +625,7 @@ document.getElementById('cdLogoutBtn').addEventListener('click',async()=>{
         return data.data || [];
       }
       async function fetchPurchaseReceipts() {
-        const fields = ['name','supplier_name','posting_date','grand_total','status','docstatus'];
+        const fields = ['name','supplier_name','posting_date','grand_total','base_grand_total','status','docstatus'];
         const url = `/api/resource/Purchase Receipt?fields=${JSON.stringify(fields)}&limit=200&order_by=posting_date desc`;
         const res = await fetch(url, { credentials:'same-origin' });
         if(!res.ok) throw new Error('Failed to fetch PRs');
@@ -645,7 +646,7 @@ document.getElementById('cdLogoutBtn').addEventListener('click',async()=>{
         } catch(e){ console.warn('PR fetch failed', e); }
         // Metric 1: Purchases Today (submitted PRs posted today)
         const todayPRs = PRs.filter(p => p.posting_date === today && p.docstatus === 1);
-        const todayAmt = todayPRs.reduce((s,p)=>s+(p.grand_total||0),0);
+        const todayAmt = todayPRs.reduce((s,p)=>s+(p.base_grand_total??p.grand_total??0),0);
         document.getElementById('m-today').textContent = fmt(todayAmt);
         document.getElementById('m-today-sub').textContent = todayPRs.length+' receipt'+(todayPRs.length!==1?'s':'')+' today';
         // Metric 2: Open POs
@@ -659,7 +660,7 @@ document.getElementById('cdLogoutBtn').addEventListener('click',async()=>{
         document.getElementById('m-to-receive-sub').textContent = 'POs awaiting goods';
         // Metric 4: Receipts This Month
         const monthPRs = PRs.filter(p => p.posting_date >= monthStart && p.docstatus === 1);
-        const monthAmt = monthPRs.reduce((s,p)=>s+(p.grand_total||0),0);
+        const monthAmt = monthPRs.reduce((s,p)=>s+(p.base_grand_total??p.grand_total??0),0);
         document.getElementById('m-receipts').textContent = fmt(monthAmt);
         document.getElementById('m-receipts-sub').textContent = monthPRs.length+' receipt'+(monthPRs.length!==1?'s':'')+' this month';
         // Recent POs Table
@@ -670,7 +671,7 @@ document.getElementById('cdLogoutBtn').addEventListener('click',async()=>{
             <tr>
               <td><div style="font-weight:500">${po.supplier_name||po.supplier||'—'}</div><div class="cd-tx-id">${po.name||'—'}</div></td>
               <td><span style="color:var(--text-muted);font-size:12px">${po.transaction_date||'—'}</span></td>
-              <td>${fmt(po.grand_total||0)}</td>
+              <td>${fmt(po.base_grand_total??po.grand_total??0)}</td>
               <td>${statusPill(po.status)}</td>
             </tr>
           `).join('');
@@ -685,7 +686,7 @@ document.getElementById('cdLogoutBtn').addEventListener('click',async()=>{
           const d = new Date(p.posting_date);
           if(d < weekStart) return;
           const idx = (d.getDay()+6)%7;
-          dayAmts[idx] += (p.grand_total||0);
+          dayAmts[idx] += (p.base_grand_total??p.grand_total??0);
         });
         const maxAmt = Math.max(...dayAmts, 1);
         const todayIdx = (new Date().getDay()+6)%7;

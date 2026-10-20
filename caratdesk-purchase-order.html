@@ -1,6 +1,6 @@
 <!-- CaratDesk – Purchase Order List -->
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8"><script src="/caratdesk-sidebar.js"></script>
 </head>
 <style>    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap');
 
@@ -400,6 +400,7 @@
       </div>
     </div>
     
+    <script src="/caratdesk-currency.js"></script>
     <script>
 
 // Override pubGet to use direct API for known proxies
@@ -460,7 +461,7 @@ async function pubGet(script, params = {}) {
       const sec = instName==='PC' ? localStorage.getItem('cd_pc_secret') : localStorage.getItem('cd_pp_secret');
       if(!key||!sec) return [];
       const baseUrl = instName==='PC' ? 'https://ppj-dev2.m.frappe.cloud' : 'https://ppj-dev1.m.frappe.cloud';
-      const poFields = ['name','supplier','supplier_name','transaction_date','creation','modified','schedule_date','grand_total','status','docstatus','per_received','per_billed','currency'];
+      const poFields = ['name','supplier','supplier_name','transaction_date','creation','modified','schedule_date','grand_total','base_grand_total','status','docstatus','per_received','per_billed','currency'];
       const res = await fetch(`${baseUrl}/api/resource/Purchase%20Order?fields=${encodeURIComponent(JSON.stringify(poFields))}&limit=500&order_by=creation%20desc`, {headers:{'Authorization':`token ${key}:${sec}`,'Accept':'application/json'}});
       if(!res.ok) throw new Error(`HTTP ${res.status} (${instName})`);
       const json = await res.json();
@@ -470,6 +471,7 @@ async function pubGet(script, params = {}) {
         date:r.transaction_date, creation:r.creation, modified:r.modified, required:r.schedule_date,
         amount:r.grand_total||0, status:r.status||'Draft',
         received:r.per_received||0, billed:r.per_billed||0, currency:r.currency||'INR', items:[],
+        baseAmount:r.base_grand_total??r.grand_total??0, // INR — totals across currencies
       }));
     }
 
@@ -522,11 +524,11 @@ async function pubGet(script, params = {}) {
         c.all++;
         const k = statusKey(d.status);
         if(c[k]!==undefined) c[k]++;
-        if(a[k]!==undefined) a[k]+=d.amount;
+        if(a[k]!==undefined) a[k]+=d.baseAmount;
       });
       Object.keys(c).forEach(k=>{ const el=document.getElementById('pc-'+k); if(el) el.textContent=c[k]; });
       Object.keys(a).forEach(k=>{ const el=document.getElementById('pa-'+k); if(el) el.textContent=a[k]?fmt(a[k]):''; });
-      const total = PO_DATA.reduce((s,d)=>s+d.amount,0);
+      const total = PO_DATA.reduce((s,d)=>s+d.baseAmount,0);
       document.getElementById('poSub').textContent = PO_DATA.length+' purchase orders · '+fmt(total)+' total value';
     }
     
@@ -704,7 +706,7 @@ async function pubGet(script, params = {}) {
           <td style="font-size:13px;color:var(--text-secondary)">${fmtDate(d.date)}</td>
           <td style="font-size:13px">${reqTxt}</td>
           <td style="text-align:right">
-            <div style="font-variant-numeric:tabular-nums;font-weight:500;font-size:13.5px">${fmt(d.amount)}</div>
+            <div style="font-variant-numeric:tabular-nums;font-weight:500;font-size:13.5px">${cdFmtIn(d.amount,d.currency)}${d.currency&&d.currency!=='INR'?`<div class="doc-sub">${fmt(d.baseAmount)}</div>`:''}</div>
           </td>
           <td>${pill(d.status)}</td>
           <td class="no-open">
@@ -805,6 +807,8 @@ async function pubGet(script, params = {}) {
     
     // ── DRAWER — opens a PO record & fetches full details from Frappe ──
     async function openDrawer(name){
+      // Amounts in the document's own currency (USD supplier → $)
+      const fmtDoc=n=>cdFmtIn(n, openPO.currency);
       // Find in list data
       openPO = PO_DATA.find(d=>d.name===name);
       if(!openPO) return;
@@ -817,7 +821,7 @@ async function pubGet(script, params = {}) {
           <div><div class="cd-dmeta-lbl">Supplier</div><div class="cd-dmeta-val">${openPO.supplier}</div></div>
           <div><div class="cd-dmeta-lbl">PO Date</div><div class="cd-dmeta-val">${fmtDate(openPO.date)}</div></div>
           <div><div class="cd-dmeta-lbl">Required By</div><div class="cd-dmeta-val">${fmtDate(openPO.required)}</div></div>
-          <div><div class="cd-dmeta-lbl">Grand Total</div><div class="cd-dmeta-val">${fmt(openPO.amount)}</div></div>
+          <div><div class="cd-dmeta-lbl">Grand Total</div><div class="cd-dmeta-val">${fmtDoc(openPO.amount)}</div></div>
         </div>
         <div style="text-align:center;padding:24px;color:var(--text-muted);font-size:13px">Loading full details…</div>`;
       document.getElementById('drawer').classList.add('open');
@@ -869,7 +873,7 @@ async function pubGet(script, params = {}) {
             <div><div class="cd-dmeta-lbl">Supplier</div><div class="cd-dmeta-val">${doc.supplier_name||doc.supplier}</div></div>
             <div><div class="cd-dmeta-lbl">PO Date</div><div class="cd-dmeta-val">${fmtDate(doc.transaction_date)}</div></div>
             <div><div class="cd-dmeta-lbl">Required By</div><div class="cd-dmeta-val">${fmtDate(doc.schedule_date)}</div></div>
-            <div><div class="cd-dmeta-lbl">Grand Total</div><div class="cd-dmeta-val">${fmt(grandTotal)}</div></div>
+            <div><div class="cd-dmeta-lbl">Grand Total</div><div class="cd-dmeta-val">${fmtDoc(grandTotal)}</div></div>
             <div><div class="cd-dmeta-lbl">Currency</div><div class="cd-dmeta-val">${doc.currency||'INR'}</div></div>
             <div><div class="cd-dmeta-lbl">Company</div><div class="cd-dmeta-val">${doc.company||'—'}</div></div>
             ${doc.taxes_and_charges?`<div><div class="cd-dmeta-lbl">Tax Template</div><div class="cd-dmeta-val">${doc.taxes_and_charges}</div></div>`:''}
@@ -887,14 +891,14 @@ async function pubGet(script, params = {}) {
                 ${it.received>0?`<div style="font-size:11px;color:var(--pill-green-txt);margin-top:2px">Received: ${it.received} / ${it.qty}</div>`:''}
               </div>
               <div class="cd-drow-right">
-                <div class="cd-drow-amt">${fmt(it.amt)}</div>
-                <div class="cd-drow-qty">Qty ${it.qty} × ${fmt(it.rate)}</div>
+                <div class="cd-drow-amt">${fmtDoc(it.amt)}</div>
+                <div class="cd-drow-qty">Qty ${it.qty} × ${fmtDoc(it.rate)}</div>
               </div>
             </div>`).join('')}
           <div style="background:var(--bg);border-radius:10px;padding:12px 14px;margin-top:10px;font-size:13px">
-            <div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="color:var(--text-secondary)">Net Total</span><span style="font-variant-numeric:tabular-nums">${fmt(netTotal)}</span></div>
-            ${taxAmt?`<div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="color:var(--text-secondary)">Tax</span><span style="font-variant-numeric:tabular-nums">${fmt(taxAmt)}</span></div>`:''}
-            <div style="display:flex;justify-content:space-between;font-size:15px;font-weight:600;border-top:.5px solid var(--border);padding-top:8px;margin-top:4px"><span>Grand Total</span><span style="font-variant-numeric:tabular-nums">${fmt(grandTotal)}</span></div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="color:var(--text-secondary)">Net Total</span><span style="font-variant-numeric:tabular-nums">${fmtDoc(netTotal)}</span></div>
+            ${taxAmt?`<div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="color:var(--text-secondary)">Tax</span><span style="font-variant-numeric:tabular-nums">${fmtDoc(taxAmt)}</span></div>`:''}
+            <div style="display:flex;justify-content:space-between;font-size:15px;font-weight:600;border-top:.5px solid var(--border);padding-top:8px;margin-top:4px"><span>Grand Total</span><span style="font-variant-numeric:tabular-nums">${fmtDoc(grandTotal)}</span></div>
           </div>`:'<div style="padding:14px;font-size:13px;color:var(--text-muted)">No items found.</div>'}
     
           <div class="cd-dsec">Progress</div>

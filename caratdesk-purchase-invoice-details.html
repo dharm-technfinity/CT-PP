@@ -1,6 +1,6 @@
 <!-- CaratDesk – Purchase Invoice Details -->
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8"><script src="/caratdesk-sidebar.js"></script>
 </head>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap');
@@ -344,7 +344,8 @@
   document.querySelectorAll('.cd-nav-item').forEach(l=>l.addEventListener('click',()=>{if(window.innerWidth<=768)sidebar.classList.remove('mobile-open');}));
 
   // ── Helpers ──
-  function fmt(v){ return new Intl.NumberFormat('en-IN',{style:'currency',currency:'INR',maximumFractionDigits:2}).format(v||0); }
+  let DOC_CUR = 'INR'; // set from the loaded document — a USD supplier's amounts show in $
+  function fmt(v){ return new Intl.NumberFormat(DOC_CUR==='INR'?'en-IN':'en-US',{style:'currency',currency:DOC_CUR,maximumFractionDigits:2}).format(v||0); }
   function fmtDate(v){ if(!v) return '—'; return new Date(v).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}); }
   function setVal(id,val){ const el=document.getElementById(id); if(!el) return; if(el.tagName==='TEXTAREA'||el.tagName==='INPUT') el.value=val||''; else el.textContent=val||''; }
   function toggleSec(id){ const sec=document.getElementById(id); const body=sec.querySelector('.cd-form-section-body'); const col=sec.classList.toggle('collapsed'); body.classList.toggle('hidden',col); }
@@ -375,6 +376,7 @@
     try{
       const json = await devGet(`/api/method/caratdesk_get_purchase_invoice?name=${encodeURIComponent(piName)}`);
       const doc  = json.data || json.message || {};
+      DOC_CUR = doc.currency || 'INR';
       const items = doc.items  || [];
       const taxes = doc.taxes  || [];
 

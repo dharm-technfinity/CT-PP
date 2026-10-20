@@ -1,6 +1,6 @@
 <!-- CaratDesk – Tag Search (BOM lookup by Serial No) -->
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8"><script src="/caratdesk-sidebar.js"></script>
   </head>
 <style>
 
@@ -487,6 +487,8 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+    <script src="/caratdesk-metal-rates.js"></script>
+    <script src="/caratdesk-sales-price.js"></script>
     <script>
 
       // ══ INSTANCE HELPERS ══
@@ -866,9 +868,10 @@ document.getElementById('cdLogoutBtn').addEventListener('click',async()=>{
         const res=await dev1Get('/api/resource/Serial No/'+encodeURIComponent(name));
         const doc=res.data||res.message||res;
         let itemName=doc.item_code||'—';
+        let item={};
         try{
           const ires=await dev1Get('/api/resource/Item/'+encodeURIComponent(doc.item_code));
-          const item=ires.data||ires.message||ires;
+          item=ires.data||ires.message||ires;
           itemName=item.item_name||doc.item_code;
         }catch(e){ /* fall back to item_code */ }
 
@@ -888,14 +891,42 @@ document.getElementById('cdLogoutBtn').addEventListener('click',async()=>{
           purchase: { pr:'', pi:'', supplier:'', supplierName:'', permErrors:[] },
           parentSerial: doc.custom_parent_serial_no||'',
           children: [], childErrors: [],
+          bomDoc: null, estimate: null,
         };
         await Promise.all([
           entry.hasBom ? loadBomIntoEntry(entry) : null,
           loadPurchaseIntoEntry(entry, entry.parentSerial),
           nested ? null : loadSetChildrenIntoEntry(entry),
         ]);
-        if(entry.children.length) sumSetTotals(entry);
+        if(entry.children.length){
+          sumSetTotals(entry);
+          sumSetEstimate(entry);
+        } else {
+          await loadEstimateIntoEntry(entry, doc, item);
+        }
         return entry;
+      }
+
+      // Estimated Sales Price — the price POS would bill this serial at today, before GST/discounts
+      // (see /caratdesk-sales-price.js). Only Active serials can be billed, so only they get one.
+      async function loadEstimateIntoEntry(entry, doc, item){
+        if(entry.status!=='Active') return;
+        try{ entry.estimate=await cdEstimateSalesPrice(doc, item, entry.bomDoc); }
+        catch(e){
+          console.warn('Sales price estimate failed:', e.message);
+          entry.estimate={ price:0, warning:'Could not work out the estimated sales price: '+e.message };
+        }
+      }
+      // A set's own tag sells at ₹0, so its estimate is the sum of its Active pieces.
+      function sumSetEstimate(entry){
+        const pieces=entry.children.filter(c=>c.status==='Active' && c.estimate);
+        if(!pieces.length) return;
+        const keys=['price','metal','making','margin','diamond','stone','other','netWt','diamondMarginAmount'];
+        const est={ setOf: pieces.length, warning: '', isStudded: pieces.some(c=>c.estimate.isStudded) };
+        keys.forEach(k=>{ est[k]=pieces.reduce((s,c)=>s+(parseFloat(c.estimate[k])||0),0); });
+        const missing=pieces.filter(c=>!(c.estimate.price>0)).map(c=>c.serial);
+        if(missing.length) est.warning='No estimate for '+missing.join(', ')+' — the set total leaves them out.';
+        entry.estimate=est;
       }
 
       // Set items: the set's Serial No is a ₹0 grouping tag and each piece's Serial No points back
@@ -989,6 +1020,7 @@ document.getElementById('cdLogoutBtn').addEventListener('click',async()=>{
         try{
           const res=await dev1Get('/api/resource/BOM/'+encodeURIComponent(entry.bomName));
           const bomDoc=res.data||res.message||res;
+          entry.bomDoc=bomDoc;
           const rows=bomDoc.items||[];
           if(!rows.length) return;
 
@@ -1078,7 +1110,43 @@ document.getElementById('cdLogoutBtn').addEventListener('click',async()=>{
               <div class="cd-metrics-section-label">Value Breakdown</div>
               <div class="cd-metrics-grid" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr))">
                 <div class="cd-metric-card"><div class="cd-metric-label">Making Charges</div><div class="cd-metric-value">${fmtCurrency(t.making_charges)}</div><div class="cd-metric-unit">included in total</div></div>
-                <div class="cd-metric-card"><div class="cd-metric-label">Total Value</div><div class="cd-metric-value">${fmtCurrency(t.total)}</div><div class="cd-metric-unit">&nbsp;</div></div>
+                <div class="cd-metric-card"><div class="cd-metric-label">Cost Value</div><div class="cd-metric-value">${fmtCurrency(t.total)}</div><div class="cd-metric-unit">at BOM rates</div></div>
+              </div>
+            </div>`;
+      }
+
+      // Same breakup as POS's Pricing Breakup popup: Metal / Making (incl. Margin) / Diamond / Stone / Other.
+      function renderEstimate(r){
+        const e=r.estimate;
+        if(!e) return '';
+        if(!(e.price>0)) return renderAlert('amber', [esc(e.warning||'No estimated sales price for this serial.')]);
+        const card=(label, value, unit, strong)=>`<div class="cd-metric-card"${strong?' style="border-color:var(--pill-green-txt)"':''}><div class="cd-metric-label">${label}</div><div class="cd-metric-value"${strong?' style="color:var(--pill-green-txt)"':''}>${fmtCurrency(value)}</div><div class="cd-metric-unit">${unit||'&nbsp;'}</div></div>`;
+        const metalUnit=e.setOf ? '' : e.metalRate ? `${fmtWt(e.netWt)} g @ ${fmtCurrency(e.metalRate)}${e.touchLabel?' ('+esc(e.touchLabel)+')':''}` : '';
+        const marginUnit=e.setOf ? 'included in making' : `${e.sellRatePercent||0}% of metal · in making`;
+        // Diamond Studded: Making / Diamond / Stone / Other are cost x the Diamond Margin %, metal
+        // isn't marked up, and there's no Tounch Wise Margin or wastage.
+        const pct=e.diamondMarginPercent||0;
+        const studdedUnit=e.setOf ? 'cost × diamond margin' : pct>0 ? `cost × ${pct}%` : 'at cost · no diamond margin';
+        const marginCard=e.isStudded
+          ? card('Diamond Margin', e.diamondMarginAmount||0, e.setOf ? 'included above' : pct>0 ? `${pct}% · on making, diamond, stone, other` : 'not set for this diamond category')
+          : card('Margin', e.margin, marginUnit);
+        const cost=r.totals?.total||0;
+        const profit=e.price-cost;
+        const notes=[];
+        if(e.usedPurchaseRate) notes.push('No live price-list rate for this BOM — estimate uses the purchase rate plus margin, as POS does.');
+        if(e.warning) notes.push(esc(e.warning));
+        return `<div class="cd-metrics-section">
+              <div class="cd-metrics-section-label">Estimated Sales Price${e.setOf?` · ${e.setOf} active piece${e.setOf===1?'':'s'}`:''} <span style="text-transform:none;letter-spacing:0;font-weight:400">— today's rates, before GST &amp; discounts</span></div>
+              ${notes.length?renderAlert('amber', notes):''}
+              <div class="cd-metrics-grid" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr))">
+                ${card('Metal', e.metal, metalUnit)}
+                ${card('Making', e.making, e.isStudded ? 'labour · '+studdedUnit : 'incl. margin')}
+                ${marginCard}
+                ${card('Diamond', e.diamond, e.isStudded ? studdedUnit : '')}
+                ${card('Stone', e.stone, e.isStudded ? studdedUnit : '')}
+                ${card('Other', e.other, e.isStudded ? studdedUnit : 'incl. wastage')}
+                ${cost>0?card('Est. Profit', profit, `${(profit/cost*100).toFixed(1)}% over cost`):''}
+                ${card('Est. Sales Price', e.price, 'before GST', true)}
               </div>
             </div>`;
       }
@@ -1106,15 +1174,17 @@ document.getElementById('cdLogoutBtn').addEventListener('click',async()=>{
           <td style="text-align:right">${fmtWt(c.totals.gross_wt)}</td>
           <td style="text-align:right">${fmtWt(c.totals.net_wt)}</td>
           <td style="text-align:right;font-weight:500">${fmtCurrency(c.totals.total)}</td>
+          <td style="text-align:right;font-weight:500">${c.estimate?.price>0?fmtCurrency(c.estimate.price):'—'}</td>
         </tr>`).join('');
 
         return `${notes.join('')}
           ${renderTotalsMetrics(r.totals)}
+          ${renderEstimate(r)}
           <div class="cd-metrics-section-label">Pieces (${r.children.length})</div>
           <div style="overflow-x:auto;margin-bottom:14px">
             <table class="cd-tx-table">
               <thead><tr><th>#</th><th>Piece</th><th>Status</th><th>Warehouse</th>
-                <th style="text-align:right">Gross Wt</th><th style="text-align:right">Net Wt</th><th style="text-align:right">Value</th></tr></thead>
+                <th style="text-align:right">Gross Wt</th><th style="text-align:right">Net Wt</th><th style="text-align:right">Cost Value</th><th style="text-align:right">Est. Sales Price</th></tr></thead>
               <tbody>${summaryRows}</tbody>
             </table>
           </div>
@@ -1181,6 +1251,7 @@ document.getElementById('cdLogoutBtn').addEventListener('click',async()=>{
                 <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
                 <div class="cd-alert-text">This serial no has no BOM linked to it, so no material breakdown is available.</div>
               </div>
+              ${renderEstimate(r)}
             </div>
           </div>`;
         }
@@ -1212,6 +1283,7 @@ document.getElementById('cdLogoutBtn').addEventListener('click',async()=>{
           <div class="cd-serial-section-body">
             ${imagesStrip}
             ${renderTotalsMetrics(t)}
+            ${renderEstimate(r)}
             <div style="overflow-x:auto">
               <table class="cd-tx-table">
                 <thead>

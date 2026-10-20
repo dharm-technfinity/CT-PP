@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { getGoldRate } from '../../lib/metalRates.js';
 import { calcCartTotals, newCartLine } from './posCalculations.js';
 
@@ -7,6 +7,9 @@ export function usePosCart(goldRateProp, gstSplit = [], schemeBonusAmount = 0, s
   const [draftInvoiceName, setDraftInvoiceName] = useState(null);
   const [billDiscount, setBillDiscount] = useState({ mode: 'amount', value: '' });
   const [billComponentDiscounts, setBillComponentDiscounts] = useState({});
+  // Bumped whenever the bill is cleared or replaced, so a scan still being looked up from the
+  // previous bill knows not to land in this one.
+  const billEpochRef = useRef(0);
 
   const goldRate =
     typeof goldRateProp === 'number' && goldRateProp > 0
@@ -47,6 +50,7 @@ export function usePosCart(goldRateProp, gstSplit = [], schemeBonusAmount = 0, s
   }, []);
 
   const clearCart = useCallback(() => {
+    billEpochRef.current++;
     setLines([]);
     setDraftInvoiceName(null);
     setBillDiscount({ mode: 'amount', value: '' });
@@ -54,6 +58,7 @@ export function usePosCart(goldRateProp, gstSplit = [], schemeBonusAmount = 0, s
   }, []);
 
   const loadCart = useCallback((snapshot) => {
+    billEpochRef.current++;
     setLines(snapshot.lines || []);
     setDraftInvoiceName(snapshot.draftInvoiceName || null);
     setBillDiscount(snapshot.billDiscount || { mode: 'amount', value: '' });
@@ -67,6 +72,7 @@ export function usePosCart(goldRateProp, gstSplit = [], schemeBonusAmount = 0, s
 
   return {
     lines,
+    billEpochRef,
     totals,
     goldRate,
     billDiscount,

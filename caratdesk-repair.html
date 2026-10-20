@@ -1,6 +1,6 @@
 <!-- CaratDesk – Repair Orders (List) -->
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8"><script src="/caratdesk-sidebar.js"></script>
 </head>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap');
@@ -306,9 +306,9 @@
         <table class="cd-table">
           <thead><tr>
             <th style="width:40px;padding-left:16px"><input type="checkbox" class="cd-cb" id="selAll" onchange="toggleAll(this)"/></th>
-            <th>Repair No</th><th>Customer</th><th>Order Type</th><th>Issue Type</th><th>Supplier</th><th>Status</th><th style="width:80px"></th>
+            <th>Repair No</th><th>Customer</th><th>Order Type</th><th style="text-align:right">Pcs</th><th>Issue Type</th><th>Supplier</th><th>Status</th><th style="width:80px"></th>
           </tr></thead>
-          <tbody id="repTbody"><tr><td colspan="8"><div class="cd-empty"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><div class="cd-empty-title">Loading repair orders...</div></div></td></tr></tbody>
+          <tbody id="repTbody"><tr><td colspan="9"><div class="cd-empty"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><div class="cd-empty-title">Loading repair orders...</div></div></td></tr></tbody>
         </table>
         <div class="cd-pagination" id="repPag" style="display:none"><span class="cd-page-info" id="repPagInfo"></span><div class="cd-page-btns" id="repPagBtns"></div></div>
       </div>
@@ -406,18 +406,27 @@ function fmtDate(d){ if(!d) return '—'; try{ return new Date(d).toLocaleDateSt
 function emptyRow(colspan,title,sub){
   return `<tr><td colspan="${colspan}"><div class="cd-empty"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><div class="cd-empty-title">${title}</div><div class="cd-empty-sub">${sub||''}</div></div></td></tr>`;
 }
-const STATUS_PILL = { 'Draft':'grey', 'Submitted':'blue', 'Issued':'amber', 'Received':'green', 'Cancelled':'red' };
+const STATUS_PILL = { 'Draft':'grey', 'Submitted':'blue', 'Issued':'amber', 'Partially Issued':'amber', 'Partially Received':'green', 'Received':'green', 'Cancelled':'red' };
 const ALL_STATUSES = Object.keys(STATUS_PILL);
-// Status is derived, not stored — see caratdesk-repair-details.html's derivedStatus() for the
-// same logic (kept in sync manually since this is a separate vanilla page). Driven by
-// issue_date/receive_date rather than issue_stock_entry/receive_stock_entry while the Stock
-// Entry side of Issue/Receive is disabled (2026-08-14) — see caratdesk-repair-details.html.
+// Status is derived, not stored — same logic as caratdesk-repair-details.html's derivedStatus()
+// (kept in sync manually since this is a separate vanilla page). Issue/Receive happen before
+// Submit, so Draft/Issued/Received come from issue_date/receive_date on a docstatus-0 doc;
+// multi-serial Modification orders derive it from their pieces' row_status (o.rowStatuses).
 function derivedStatus(doc){
   if(doc.docstatus===2) return 'Cancelled';
-  if(doc.docstatus===0) return 'Draft';
+  if(doc.docstatus===1) return 'Submitted';
+  const st=doc.rowStatuses||[];
+  if(st.length){
+    const nPending=st.filter(s=>s==='Pending').length;
+    const nRecv=st.filter(s=>s==='Received').length;
+    if(nRecv===st.length) return 'Received';
+    if(nPending===st.length) return 'Draft';
+    if(nPending>0) return 'Partially Issued';
+    return nRecv>0 ? 'Partially Received' : 'Issued';
+  }
   if(doc.receive_date) return 'Received';
   if(doc.issue_date) return 'Issued';
-  return 'Submitted';
+  return 'Draft';
 }
 function statusPill(status){
   const cls=STATUS_PILL[status]||'grey';
@@ -433,18 +442,30 @@ const PAGE_SIZE=20;
 
 // ══ LIST ══
 async function loadRepairOrders(){
-  document.getElementById('repTbody').innerHTML=emptyRow(8,'Loading repair orders...','');
+  document.getElementById('repTbody').innerHTML=emptyRow(9,'Loading repair orders...','');
   try{
     const fields=["name","customer","customer_name","order_type","issue_type","supplier","docstatus","issue_date","receive_date","creation","modified"];
     const res=await dev1Get(`/api/resource/Repair%20Order?fields=${encodeURIComponent(JSON.stringify(fields))}&limit_page_length=0&order_by=creation desc`);
-    ORDERS=(res.data||res.message||[]).map(o=>({...o, status:derivedStatus(o)}));
+    // Pieces of multi-serial Modification orders — drives Pcs and the Partially Issued /
+    // Partially Received statuses. Optional: the list still loads without it.
+    const rowsByOrder={};
+    try{
+      const rf=encodeURIComponent(JSON.stringify(['parent','row_status']));
+      const rr=await dev1Get(`/api/resource/Repair%20Serial%20No?fields=${rf}&parent=Repair%20Order&limit_page_length=0`);
+      (rr.data||rr.message||[]).forEach(r=>{ (rowsByOrder[r.parent]=rowsByOrder[r.parent]||[]).push(r.row_status||'Pending'); });
+    }catch(e){ console.warn('Repair Serial No load failed:', e.message); }
+    ORDERS=(res.data||res.message||[]).map(o=>{
+      const rowStatuses=o.order_type==='Modification' ? (rowsByOrder[o.name]||[]) : [];
+      return {...o, rowStatuses, status:derivedStatus({...o, rowStatuses})};
+    });
     updateCounts();
     applyRepairFilters();
   }catch(e){
-    document.getElementById('repTbody').innerHTML=emptyRow(8,'Error loading repair orders',e.message);
+    document.getElementById('repTbody').innerHTML=emptyRow(9,'Error loading repair orders',e.message);
   }
 }
-function statusKey(status){ return String(status||'draft').toLowerCase(); }
+// Partial statuses count under the Issued / Received filter pills.
+function statusKey(status){ return String(status||'draft').toLowerCase().replace(/^partially /,''); }
 function updateCounts(){
   const c={all:0,draft:0,submitted:0,issued:0,received:0,cancelled:0};
   ORDERS.forEach(o=>{ c.all++; const k=statusKey(o.status); if(c[k]!==undefined) c[k]++; });
@@ -497,7 +518,7 @@ function renderRepairTable(){
   const start=(currentPage-1)*PAGE_SIZE;
   const page=filteredOrders.slice(start, start+PAGE_SIZE);
   document.getElementById('repCount').textContent=filteredOrders.length+' result'+(filteredOrders.length===1?'':'s');
-  if(!page.length){ tbody.innerHTML=emptyRow(8,'No repair orders found','Create a new Repair Order to get started'); return; }
+  if(!page.length){ tbody.innerHTML=emptyRow(9,'No repair orders found','Create a new Repair Order to get started'); return; }
   tbody.innerHTML=page.map(o=>{
     const isSel=selected.has(o.name);
     const safe=encodeURIComponent(o.name);
@@ -506,6 +527,7 @@ function renderRepairTable(){
       <td><div class="doc-num">${esc(o.name)}</div><div class="doc-sub">${fmtDate(o.creation)}</div></td>
       <td>${esc(o.customer_name||o.customer||'—')}</td>
       <td>${esc(o.order_type||'—')}</td>
+      <td style="text-align:right">${o.rowStatuses.length||1}</td>
       <td>${esc(o.issue_type||'—')}</td>
       <td>${esc(o.supplier||'—')}</td>
       <td>${statusPill(o.status)}</td>

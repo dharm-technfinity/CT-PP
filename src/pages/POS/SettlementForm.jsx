@@ -179,7 +179,7 @@ export default function SettlementForm({ type, customer, settlements = [], draft
         setRows((list) => list.map((r) => (r.name === rec.name ? { ...r, availableAmount: credit } : r)).filter((r) => r.availableAmount > 0));
         throw new Error(`Only ${fmtINR(credit)} is left on ${rec.name} now`);
       }
-      onSettle(creditSettlementEntry(type, rec.name, customer, rows, amount, credit));
+      onSettle(creditSettlementEntry(type, rec.name, customer, rows, amount, credit, rec.posting_date));
     } catch (e) {
       showToast(parseApiError(e), 'error');
     } finally {

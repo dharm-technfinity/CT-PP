@@ -1,6 +1,6 @@
 <!-- CaratDesk – New Purchase Order -->
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8"><script src="/caratdesk-sidebar.js"></script>
 </head>
 <style>
     @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap');
@@ -440,6 +440,16 @@
                   <input class="cd-input" type="date" id="txDate" style="padding-bottom:7px"/>
                   <label class="cd-label">Required By Date <span class="req">*</span></label>
                   <input class="cd-input" type="date" id="reqDate" style="padding-bottom:7px"/>
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                    <div>
+                      <label class="cd-label">Currency</label>
+                      <input class="cd-input cd-readonly" id="docCurrency" value="INR" readonly data-always-readonly title="From the Supplier's default currency"/>
+                    </div>
+                    <div>
+                      <label class="cd-label">Exchange Rate <span id="convRateLbl" style="font-weight:400;color:var(--text-muted)"></span></label>
+                      <input class="cd-input" type="number" id="convRate" value="1" min="0" step="0.0001"/>
+                    </div>
+                  </div>
                   <label class="cd-label">Supplier Address</label>
                   <input class="cd-input" id="suppAddr" placeholder="Supplier billing address"/>
                 </div>
@@ -554,9 +564,9 @@
                     <th style="width:80px">Qty <span style="color:var(--pill-red-txt)">*</span></th>
                     <th style="width:90px">Gross Wt (g)</th>
                     <th style="width:90px">Net Wt (g)</th>
-                    <th style="width:120px">Rate (₹) <span style="color:var(--pill-red-txt)">*</span></th>
+                    <th style="width:120px">Rate (<span class="cd-cur-sym">₹</span>) <span style="color:var(--pill-red-txt)">*</span></th>
                     <th style="width:80px">Disc %</th>
-                    <th style="width:110px">Amount (₹)</th>
+                    <th style="width:110px">Amount (<span class="cd-cur-sym">₹</span>)</th>
                     <th style="width:120px">Exp. Delivery</th>
                     <th style="width:80px">HSN</th>
                     <th style="width:80px">Tunch</th>
@@ -620,7 +630,7 @@
                   <tbody id="taxTbody"></tbody>
                 </table>
               </div>
-              <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;margin-top:14px;border-top:.5px solid var(--border)">
+              <div id="totalsGrid" data-cols="4" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;margin-top:14px;border-top:.5px solid var(--border)">
                 <div style="padding:10px 14px;border-right:.5px solid var(--border)">
                   <div style="font-size:10px;font-weight:500;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Net Total</div>
                   <div style="font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--text-primary)" id="tot-net">₹0</div>
@@ -636,6 +646,10 @@
                 <div style="padding:10px 14px;background:var(--accent-light)">
                   <div style="font-size:10px;font-weight:500;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Grand Total</div>
                   <div style="font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--text-primary)" id="tot-grand">₹0</div>
+                </div>
+                <div id="tot-grand-inr-cell" style="display:none;padding:10px 14px;border-left:.5px solid var(--border);background:var(--accent-light)">
+                  <div style="font-size:10px;font-weight:500;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Grand Total (INR)</div>
+                  <div style="font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--text-primary)" id="tot-grand-inr">₹0</div>
                 </div>
               </div>
               <div class="cd-words" style="margin:0;border-radius:0;border-top:.5px solid var(--border)" id="tot-words">Zero Rupees Only</div>
@@ -676,7 +690,7 @@
               <!-- Payment schedule table -->
               <div style="font-size:11px;font-weight:500;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Payment Schedule</div>
               <div class="cd-pay-sched">
-                <div class="cd-pay-sched-header"><span>Description</span><span>Due Date</span><span>Amount (₹)</span><span>Invoice Portion %</span></div>
+                <div class="cd-pay-sched-header"><span>Description</span><span>Due Date</span><span>Amount (<span class="cd-cur-sym">₹</span>)</span><span>Invoice Portion %</span></div>
                 <div id="paySchedBody"></div>
               </div>
             </div>
@@ -912,6 +926,7 @@
     </div>
 
     <script src="/caratdesk-metal-rates.js"></script>
+    <script src="/caratdesk-currency.js"></script>
     <script>
 
     const sections = document.querySelectorAll('.cd-section:not(.cd-section-nocollapse)');
@@ -1038,9 +1053,12 @@
     let SUPPLIERSTATE  = '';
 
     let rowCount = 0, submitted = false;
+    let _loadingPO = false; // saved PO's currency/rate win over the supplier default while loading
     
     function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-    function fmt(n){ return '₹'+Math.round(n||0).toLocaleString('en-IN'); }
+    // Money in the PO's currency (/caratdesk-currency.js) — ₹ whole rupees, or e.g. $ with cents for a USD supplier
+    function fmt(n){ return cdCurSym()+cdFmtMoney(n); }
+    let LAST_GRAND = 0;
     
     // ══════════════════════════════════════════
     //  LOAD MASTER DATA — via proxy scripts on ppj-ui1
@@ -1140,6 +1158,7 @@
       document.getElementById('reqDate').value = req.toISOString().slice(0,10);
       await Promise.all([loadMasterData(), loadBranches()]);
       try{ COMPANY_STATE = await getPrimaryAddressState('Company', COMPANY); }catch(e){ COMPANY_STATE=''; }
+      try{ await cdInitCurrency({ dateInputId:'txDate', onChange:()=>recalc(), hasRates:()=>[...document.querySelectorAll('#itemsTbody [data-f="rate"]')].some(el=>(parseFloat(el.value)||0)!==0) }); }catch(e){ console.warn('Currency load failed:', e.message); }
       try{ await loadMetalRates(); }catch(e){ console.warn('Metal rates load failed:', e.message); }
       try{ await loadPPSettings(); }catch(e){ console.warn('PP settings load failed:', e.message); }
       const params = new URLSearchParams(window.location.search);
@@ -1173,8 +1192,6 @@
         if(whEl) whEl.value                                = doc.set_warehouse||'';
         const plEl = document.getElementById('priceList');
         if(plEl) plEl.value                                = doc.buying_price_list||'Standard Buying';
-        const curEl = document.getElementById('currency');
-        if(curEl) curEl.value                              = doc.currency||'INR';
         const srEl = document.getElementById('suppRef');
         if(srEl) srEl.value                                = doc.supplier_reference||'';
         const saEl = document.getElementById('shipAddr');
@@ -1193,7 +1210,9 @@
         if(ctEl) ctEl.value                                = doc.custom_type||'';
 
         // Trigger supplier card
-        if(doc.supplier) await selSupplier(doc.supplier_name||doc.supplier);
+        _loadingPO = true;
+        try{ if(doc.supplier) await selSupplier(doc.supplier_name||doc.supplier); }finally{ _loadingPO = false; }
+        cdSetDocCurrency(doc.currency || COMPANY_CURRENCY, doc.conversion_rate || 1, { manual:true });
 
         // ── Items ──
         document.getElementById('itemsTbody').innerHTML=''; rowCount=0;
@@ -1289,7 +1308,7 @@
     function setPODocReadOnly(readonly){
       const form = document.querySelector('.cd-form-content');
       if(!form) return;
-      form.querySelectorAll('input:not([type="hidden"]), select, textarea').forEach(el=>{
+      form.querySelectorAll('input:not([type="hidden"]):not([data-always-readonly]), select, textarea').forEach(el=>{
         el.readOnly = readonly;
         el.disabled = readonly;
         if(readonly) el.style.cursor='not-allowed';
@@ -1408,6 +1427,8 @@
         SUPPLIERSTATE = state;
         autoSetTaxTemplateFromAddresses().catch(e=>console.warn('Auto tax failed:',e.message));
       }).catch(()=>{ SUPPLIERSTATE=''; });
+      // Supplier's default currency (USD supplier → USD at today's buying rate)
+      if(!_loadingPO) cdApplySupplierCurrency(name).catch(e=>console.warn('Supplier currency apply failed:',e.message));
     
     
       // Stats — use proxy to fetch past POs for this supplier
@@ -1421,7 +1442,7 @@
         const ordEl = document.getElementById('stat-orders');
         const totEl = document.getElementById('stat-total');
         if(ordEl) ordEl.textContent = past.length || '—';
-        if(totEl) totEl.textContent = past.length ? fmt(total) : '—';
+        if(totEl) totEl.textContent = past.length ? '₹'+Math.round(total).toLocaleString('en-IN') : '—';
       } catch(e){}
     }
     
@@ -1602,7 +1623,7 @@
       if(!code) return;
       const it = ITEMS.find(i => i.code.toLowerCase() === code.toLowerCase());
       if(it){
-        fillRow(rowId, it.code, it.name, it.hsn||'', it.uom||'Nos', it.rate||0);
+        fillRow(rowId, it.code, it.name, it.hsn||'', it.uom||'Nos', cdToDoc(it.rate||0));
         document.getElementById('codeac-'+rowId)?.classList.remove('open');
         return;
       }
@@ -1620,7 +1641,7 @@
           if(!doc || doc.disabled) throw new Error('not found');
           const found = { code: doc.item_code||doc.name, name: doc.item_name||doc.item_code||doc.name, hsn: doc.gst_hsn_code||'', uom: doc.stock_uom||'Nos', rate: parseFloat(doc.standard_rate)||0, group: doc.item_group||'' };
           ITEMS.push({ ...found, _search: [found.code, found.name].join(' ').toLowerCase() });
-          fillRow(rowId, found.code, found.name, found.hsn||'', found.uom||'Nos', found.rate||0);
+          fillRow(rowId, found.code, found.name, found.hsn||'', found.uom||'Nos', cdToDoc(found.rate||0));
           document.getElementById('codeac-'+rowId)?.classList.remove('open');
         }catch(e){
           showToast(`Item "${code}" not found`, 'error');
@@ -1636,7 +1657,7 @@
         const rowId  = acItem.dataset.rowid;
         const code   = acItem.dataset.code;
         const it     = ITEMS.find(x=>x.code===code);
-        if(it && rowId) fillRow(rowId, it.code, it.name, it.hsn, it.uom, it.rate);
+        if(it && rowId) fillRow(rowId, it.code, it.name, it.hsn, it.uom, cdToDoc(it.rate));
         // Also update the code input field text
         const codeInp = document.querySelector(`#${rowId} [data-f="code"]`);
         if(codeInp) codeInp.value = it?.code || code;
@@ -2216,7 +2237,7 @@
             uom = (r.data||r.message)?.stock_uom || 'Nos';
           }catch(e){ uom='Nos'; }
         }
-        fillRow(_dialogRowId, _matchedItem.item_code, _matchedItem.item_name, cached?.hsn||_matchedItem.gst_hsn_code||'', uom, ITEM_PRICES[_matchedItem.item_code]||cached?.rate||0);
+        fillRow(_dialogRowId, _matchedItem.item_code, _matchedItem.item_name, cached?.hsn||_matchedItem.gst_hsn_code||'', uom, cdToDoc(ITEM_PRICES[_matchedItem.item_code]||cached?.rate||0));
         closeItemDialog();
         showToast(_matchedItem.item_code+' added','success');
       }
@@ -2267,7 +2288,14 @@
       document.getElementById('tot-tax').textContent=fmt(tax);
       document.getElementById('tot-disc').textContent='-'+fmt(disc);
       document.getElementById('tot-grand').textContent=fmt(grand);
-      const w=document.getElementById('tot-words'); if(w) w.textContent=numWords(Math.round(grand))+' Only';
+      LAST_GRAND = grand;
+      // Foreign-currency PO: show the INR value too (grand × exchange rate)
+      const grandInr=Math.round(cdToInr(grand));
+      const inrEl=document.getElementById('tot-grand-inr'); if(inrEl) inrEl.textContent='₹'+grandInr.toLocaleString('en-IN');
+      const w=document.getElementById('tot-words');
+      if(w) w.textContent = cdIsForeign()
+        ? `${cdDocCurrency()} ${cdFmtMoney(grand)} × ${cdConvRate()||0} = ${numWords(grandInr)} Only`
+        : numWords(Math.round(grand))+' Only';
       updatePaySched(grand);
     }
     
@@ -2283,7 +2311,7 @@
     //  PAYMENT SCHEDULE
     // ══════════════════════════════════════════
     function applyPayTerms(){
-      const grand = parseInt((document.getElementById('tot-grand')?.textContent||'₹0').replace(/[₹,]/g,''))||0;
+      const grand = LAST_GRAND;
       renderPaySched([{desc:'As per payment terms template',days:0,pct:100}], grand);
     }
     function renderPaySched(sched, grand){
@@ -2293,7 +2321,7 @@
         return `<div class="cd-pay-sched-row">
           <span>${esc(row.desc)}</span>
           <span><input class="cd-input" type="date" value="${row.days<0?'':dd.toISOString().slice(0,10)}" style="padding:6px 9px;font-size:12px;border-radius:7px"/></span>
-          <span style="font-weight:500">${fmt(Math.round((grand||0)*row.pct/100))}</span>
+          <span style="font-weight:500">${fmt(Math.round((grand||0)*row.pct)/100)}</span>
           <span style="color:var(--text-muted);font-size:12px">${row.pct}%</span>
         </div>`;
       }).join('');
@@ -2386,7 +2414,8 @@
         transaction_date              : document.getElementById('txDate').value,
         schedule_date                 : document.getElementById('reqDate').value,
         company                       : company,   // ← uses verified local variable
-        currency                      : document.getElementById('currency')?.value || 'INR',
+        currency                      : cdDocCurrency(),
+        conversion_rate               : cdConvRate(),
         buying_price_list             : document.getElementById('priceList')?.value || 'Standard Buying',
         set_warehouse                 : warehouse,
         branch                         : document.getElementById('branchDisplay')?.value || '',
@@ -2924,9 +2953,9 @@
           }
         }
 
-        const rate = purityNumeric > 0
+        const rate = cdToDoc(purityNumeric > 0   // Metal Price List is in INR
           ? Math.round((baseRate / 999) * purityNumeric * 100) / 100
-          : baseRate;
+          : baseRate);
 
         rateEl.value = rate;
 
@@ -2938,7 +2967,7 @@
         }
 
         recalcRow(rowId);
-        showToast(metalType + ' rate: ₹' + rate.toLocaleString('en-IN'), 'success');
+        showToast(metalType + ' rate: ' + cdCurSym() + rate.toLocaleString(cdIsForeign()?'en-US':'en-IN'), 'success');
       }catch(e){ console.warn('autoFillMetalRate error:', e.message); }
     }
 
@@ -3234,7 +3263,7 @@ function importPORows(rows, mapping){
     const nameIdx=Object.keys(mapping).find(i=>mapping[i]==='item_name');
     const itemName=nameIdx?(cells[nameIdx]||'').trim():'';
     const cached=ITEMS.find(i=>i.code.toLowerCase()===itemCode.toLowerCase());
-    fillRow(tr.id, cached?.code||itemCode, cached?.name||itemName||itemCode, cached?.hsn||'', cached?.uom||'Nos', cached?.rate||0);
+    fillRow(tr.id, cached?.code||itemCode, cached?.name||itemName||itemCode, cached?.hsn||'', cached?.uom||'Nos', cdToDoc(cached?.rate||0));
     Object.entries(mapping).forEach(([csvIdx,field])=>{
       if(field==='code'||field==='item_name') return;
       const val=(cells[csvIdx]||'').trim(); if(!val) return;

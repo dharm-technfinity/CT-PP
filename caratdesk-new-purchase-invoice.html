@@ -1,6 +1,6 @@
 <!-- CaratDesk – New Purchase Invoice (UI Identical to Receipt) -->
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8"><script src="/caratdesk-sidebar.js"></script>
   </head>
 <style>    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap');
 
@@ -297,8 +297,18 @@
                             <input class="cd-input" type="date" id="postingDate" style="padding-bottom:7px" onchange="syncDueDate()"/>
                             <label class="cd-label">Due Date <span class="req">*</span></label>
                             <input class="cd-input" type="date" id="dueDate" style="padding-bottom:7px"/>
+                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                                <div>
+                                    <label class="cd-label">Currency</label>
+                                    <input class="cd-input cd-readonly" id="docCurrency" value="INR" readonly data-always-readonly title="From the Supplier's default currency"/>
+                                </div>
+                                <div>
+                                    <label class="cd-label">Exchange Rate <span id="convRateLbl" style="font-weight:400;color:var(--text-muted)"></span></label>
+                                    <input class="cd-input" type="number" id="convRate" value="1" min="0" step="0.0001"/>
+                                </div>
+                            </div>
                             <label class="cd-label">Supplier Address</label>
-                            <textarea class="cd-textarea cd-readonly" id="suppAddr" rows="5" placeholder="Fetched automatically on supplier select" readonly style="resize:none;line-height:1.6"></textarea>
+                            <textarea class="cd-textarea cd-readonly" id="suppAddr" rows="3" placeholder="Fetched automatically on supplier select" readonly style="resize:none;line-height:1.6"></textarea>
                         </div>
                         <!-- Column 3: Bill No, Bill Date, Against PR, Checkboxes -->
                         <div class="cd-field">
@@ -372,9 +382,9 @@
                                     <th style="width:150px">Item Name</th>
                                     <th style="width:70px">UOM</th>
                                     <th style="width:85px">Qty <span class="req">*</span></th>
-                                    <th style="width:130px">Rate (₹) <span class="req">*</span></th>
+                                    <th style="width:130px">Rate (<span class="cd-cur-sym">₹</span>) <span class="req">*</span></th>
                                     <th style="width:80px">Disc %</th>
-                                    <th style="width:120px">Amount (₹)</th>
+                                    <th style="width:120px">Amount (<span class="cd-cur-sym">₹</span>)</th>
                                     <th style="width:90px">HSN</th>
                                     <th style="width:60px">Image</th>
                                     <th style="width:160px">Description</th>
@@ -498,7 +508,7 @@
                       </table>
                     </div>
 
-                    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;margin-top:14px;border-top:.5px solid var(--border)">
+                    <div id="totalsGrid" data-cols="4" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;margin-top:14px;border-top:.5px solid var(--border)">
                         <div style="padding:10px 14px;border-right:.5px solid var(--border)">
                             <div style="font-size:10px;font-weight:500;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Net Total</div>
                             <div style="font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--text-primary)" id="tot-net">₹0</div>
@@ -514,6 +524,10 @@
                         <div style="padding:10px 14px;background:var(--accent-light)">
                             <div style="font-size:10px;font-weight:500;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Grand Total</div>
                             <div style="font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--text-primary)" id="tot-grand">₹0</div>
+                        </div>
+                        <div id="tot-grand-inr-cell" style="display:none;padding:10px 14px;border-left:.5px solid var(--border);background:var(--accent-light)">
+                            <div style="font-size:10px;font-weight:500;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Grand Total (INR)</div>
+                            <div style="font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--text-primary)" id="tot-grand-inr">₹0</div>
                         </div>
                     </div>
                     <div class="cd-words" style="margin:0;border-radius:0;border-top:.5px solid var(--border)" id="tot-words">Zero Rupees Only</div>
@@ -845,6 +859,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 <script src="/caratdesk-metal-rates.js"></script>
+<script src="/caratdesk-currency.js"></script>
 
 <script>
 // ══════════════════════════════════════════
@@ -864,7 +879,9 @@ let TAX_DETAILS = []; // Loaded from template
 let _dialogRowId=null, _dlgSelected={type:null,material:null}, _dlgAttrVals={}, _dlgAttrs=[], _matchedItem=null;
 
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function fmt(n){ return '₹'+Math.round(n||0).toLocaleString('en-IN'); }
+// Money in the invoice's currency (/caratdesk-currency.js) — ₹ whole rupees, or e.g. $ with cents for a USD supplier
+function fmt(n){ return cdCurSym()+cdFmtMoney(n); }
+let _loadingPI = false; // saved/source document's currency + rate win over the supplier default
 function getCsrf(){ if(typeof frappe!=='undefined'&&frappe.csrf_token)return frappe.csrf_token; const m=document.cookie.match(/csrf_token=([^;]+)/);return m?m[1]:''; }
 
 // ══════════════════════════════════════════
@@ -1089,6 +1106,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('billDate').value = new Date().toISOString().slice(0, 10);
 
     await Promise.all([loadMasterData(), loadBranches()]);
+    try{ await cdInitCurrency({ dateInputId:'postingDate', onChange:()=>recalc(), hasRates:()=>[...document.querySelectorAll('#itemsTbody [data-f="rate"]')].some(el=>(parseFloat(el.value)||0)!==0) }); }catch(e){ console.warn('Currency load failed:', e.message); }
     loadMetalRates();
     // loadBhavMetalItems(); // Bhav Cut hidden — uncomment to re-enable
 
@@ -1246,6 +1264,10 @@ async function selSupplier(name){
         console.error('Error fetching supplier address', e);
         showToast('Error fetching supplier address', 'error');
     }
+    // Supplier's default currency (USD supplier → USD at today's buying rate)
+    if(!_loadingPI){
+        try{ await cdApplySupplierCurrency(name); }catch(e){ console.warn('Supplier currency apply failed:', e.message); }
+    }
 }
 
 function getPrimaryAddressState(addrs) {
@@ -1305,7 +1327,7 @@ function acPR(q, force=false){
     list.innerHTML = hint + (res.length ? res.map(r => `
         <div class="cd-ac-item" onclick="selPR('${esc(r.name)}')">
             <div class="main">${esc(r.name)}</div>
-            <div class="sub">${esc(r.supplier)} · ${fmt(r.grand_total)}</div>
+            <div class="sub">${esc(r.supplier)} · ${Math.round(r.grand_total||0).toLocaleString('en-IN')}</div>
         </div>
     `).join('') : '<div class="cd-ac-empty">No receipts found</div>');
     setAcOpen('ac-pr', true);
@@ -1318,7 +1340,12 @@ async function selPR(name){
         const res = await dev1Get(`/api/resource/Purchase%20Receipt/${encodeURIComponent(name)}`);
         const doc = res.data || res.message;
         if(doc) {
-            if(!document.getElementById('supplier').dataset.id) selSupplier(doc.supplier);
+            if(!document.getElementById('supplier').dataset.id){
+                _loadingPI = true;
+                try{ await selSupplier(doc.supplier); }finally{ _loadingPI = false; }
+            }
+            // Bill in the receipt's currency; its exchange rate is the default and stays editable
+            cdSetDocCurrency(doc.currency || COMPANY_CURRENCY, doc.conversion_rate || 1, { manual:true });
             document.getElementById('piLinkedPO').value = doc.purchase_order || '';
             if(doc.custom_shipping_branch){
               const sbSel = document.getElementById('shippingBranch');
@@ -1388,7 +1415,7 @@ function addRow(){
         <td><input type="number" data-f="qty" value="1" oninput="recalcRow('${rid}')"/></td>
         <td>
             <div class="cd-input-prefix">
-                <span class="cd-prefix-sym">₹</span>
+                <span class="cd-prefix-sym cd-cur-sym">${cdCurSym().trim()}</span>
                 <input class="cd-prefix-inp" type="number" data-f="rate" oninput="recalcRow('${rid}')"/>
             </div>
         </td>
@@ -1675,7 +1702,12 @@ function recalc(){
     document.getElementById('tot-disc').textContent  = '-' + fmt(addDiscAmt);
     document.getElementById('tot-grand').textContent = fmt(grand);
     const wordsEl = document.getElementById('tot-words');
-    if(wordsEl) wordsEl.textContent = numberToWords(Math.round(grand)) + ' Rupees Only';
+    // Foreign-currency invoice: show the INR value too (grand × exchange rate)
+    const grandInr = Math.round(cdToInr(grand));
+    const inrEl = document.getElementById('tot-grand-inr'); if(inrEl) inrEl.textContent = '₹' + grandInr.toLocaleString('en-IN');
+    if(wordsEl) wordsEl.textContent = cdIsForeign()
+        ? `${cdDocCurrency()} ${cdFmtMoney(grand)} × ${cdConvRate()||0} = ${numberToWords(grandInr)} Rupees Only`
+        : numberToWords(Math.round(grand)) + ' Rupees Only';
 
     if(document.getElementById('isPaid')?.checked){
         document.getElementById('paidAmount').value = grand.toFixed(2);
@@ -1717,7 +1749,9 @@ async function loadExistingInvoice(name){
         setChk('isPaid',            doc.is_paid);
 
         // Trigger supplier card / address fetch
-        if(doc.supplier) await selSupplier(doc.supplier_name||doc.supplier);
+        _loadingPI = true;
+        try{ if(doc.supplier) await selSupplier(doc.supplier_name||doc.supplier); }finally{ _loadingPI = false; }
+        cdSetDocCurrency(doc.currency || COMPANY_CURRENCY, doc.conversion_rate || 1, { manual:true });
 
         // ── Items ──
         document.getElementById('itemsTbody').innerHTML=''; rowCount=0;
@@ -1800,7 +1834,7 @@ async function loadExistingInvoice(name){
 function setInvoiceDocReadOnly(readonly){
     const form = document.querySelector('.cd-form-content');
     if(!form) return;
-    form.querySelectorAll('input:not([type="hidden"]), select, textarea').forEach(el=>{
+    form.querySelectorAll('input:not([type="hidden"]):not([data-always-readonly]), select, textarea').forEach(el=>{
         el.readOnly = readonly;
         el.disabled = readonly;
         if(readonly) el.style.cursor='not-allowed';
@@ -1885,6 +1919,9 @@ async function makeReturnPI(){
             supplier_name : doc.supplier_name || doc.supplier,
             posting_date  : today,
             company       : doc.company,
+            // Same currency and rate as the original invoice, so the return reverses the same INR value
+            currency      : doc.currency || COMPANY_CURRENCY,
+            conversion_rate: doc.conversion_rate || 1,
             update_stock  : doc.update_stock || 0,
             items         : returnItems,
             taxes         : returnTaxes,
@@ -1981,6 +2018,8 @@ function buildInvoicePayload(docstatus){
         supplier,
         supplier_name    : supplierName,
         posting_date     : document.getElementById('postingDate').value  || '',
+        currency         : cdDocCurrency(),
+        conversion_rate  : cdConvRate(),
         due_date         : document.getElementById('dueDate').value      || '',
         bill_no          : document.getElementById('billNo').value       || '',
         bill_date        : document.getElementById('billDate').value     || '',
@@ -2305,7 +2344,7 @@ async function addItemToRow(){
         uom=(r.data||r.message)?.stock_uom||'Nos';
       }catch(e){ uom='Nos'; }
     }
-    fillRow(_dialogRowId,_matchedItem.item_code,_matchedItem.item_name,cached?.hsn||_matchedItem.gst_hsn_code||'',uom,ITEM_PRICES[_matchedItem.item_code]||cached?.rate||0);
+    fillRow(_dialogRowId,_matchedItem.item_code,_matchedItem.item_name,cached?.hsn||_matchedItem.gst_hsn_code||'',uom,cdToDoc(ITEM_PRICES[_matchedItem.item_code]||cached?.rate||0));
     closeItemDialog();
     showToast(_matchedItem.item_code+' added','success');
 }
@@ -2510,7 +2549,7 @@ function importPIRows(rows,mapping){
     const nameIdx=Object.keys(mapping).find(i=>mapping[i]==='item_name');
     const itemName=nameIdx?(cells[nameIdx]||'').trim():'';
     const cached=ITEMS.find(i=>i.code.toLowerCase()===itemCode.toLowerCase());
-    fillRow(tr.id,cached?.code||itemCode,cached?.name||itemName||itemCode,cached?.hsn||'',cached?.uom||'Nos',cached?.rate||0);
+    fillRow(tr.id,cached?.code||itemCode,cached?.name||itemName||itemCode,cached?.hsn||'',cached?.uom||'Nos',cdToDoc(cached?.rate||0));
     Object.entries(mapping).forEach(([csvIdx,field])=>{
       if(field==='code-vis'||field==='item_name') return;
       const val=(cells[csvIdx]||'').trim(); if(!val) return;
