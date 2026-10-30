@@ -6,6 +6,7 @@ import {
   getCustomerDetails,
   createCustomerWithLinks,
   getCustomerByMobile,
+  getCustomersByName,
 } from '../../lib/api.js';
 import { parseApiError } from '../../lib/format.js';
 import NewCustomerModal from './NewCustomerModal.jsx';
@@ -99,6 +100,26 @@ export default function CustomerPanel({ customer, onSelect, onClear }) {
         return;
       }
 
+      const sameName = await getCustomersByName(customerName);
+      if (sameName.length) {
+        const list = sameName.map((c) => `• ID: ${c.name} · ${c.mobile_no || 'No mobile number'}`).join('\n');
+        const useExisting = window.confirm(
+          `A customer named "${customerName}" already exists:\n${list}\n\nUse the existing customer instead?`,
+        );
+        if (useExisting) {
+          if (sameName.length === 1) {
+            await selectCustomer(sameName[0]);
+          } else {
+            setQuery(customerName);
+            setShowList(true);
+            showToast('Several customers have this name — pick the right one by ID or mobile', 'info');
+          }
+          setShowModal(false);
+          return;
+        }
+        if (!window.confirm(`Create another customer named "${customerName}" anyway?`)) return;
+      }
+
       const created = await createCustomerWithLinks({
         customer_name: customerName,
         salutation: (form.salutation || '').trim(),
@@ -177,7 +198,7 @@ export default function CustomerPanel({ customer, onSelect, onClear }) {
                   <div className="cd-ac-text">
                     <div className="main">{c.customer_name || c.name}</div>
                     <div className="sub">
-                      <span className="cd-ac-mobile">{c.mobile_no || 'No mobile number'}</span>
+                      ID: {c.name} · <span className="cd-ac-mobile">{c.mobile_no || 'No mobile number'}</span>
                       {c.email_id ? ` · ${c.email_id}` : ''}
                     </div>
                   </div>
@@ -202,6 +223,8 @@ export default function CustomerPanel({ customer, onSelect, onClear }) {
               {details?.customer_name || customer.customer_name}
             </div>
             <div className="cd-customer-card-sub">
+              ID: {customer.name}
+              <br />
               {details?.mobile_no || customer.mobile_no || '—'}
               {(details?.email_id || customer.email_id) && (
                 <>

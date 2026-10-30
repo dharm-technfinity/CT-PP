@@ -1,3 +1,10 @@
+/** Customer name with its ID appended when they differ, so same-name customers can be told apart */
+export function customerLabel(c) {
+  if (!c) return '';
+  const display = c.customer_name || c.name || '';
+  return c.name && c.name !== display ? `${display} (${c.name})` : display;
+}
+
 /** INR formatting: Rs symbol + Indian digit grouping */
 export function fmtINR(n) {
   const val = parseFloat(n || 0);

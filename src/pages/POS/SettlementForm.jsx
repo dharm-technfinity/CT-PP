@@ -12,15 +12,15 @@ import {
 } from '../../lib/api.js';
 import { creditSettlementEntry } from './posInvoice.js';
 
-// e.g. "+ ₹9,900 off Making" — schemes without a bonus month (Bandhan, Nidhi) instead earn a
-// flat rupee amount (their mc_percentage_discount % of total EMI paid) earmarked against
-// Making Charges — see enrichSchemeAssignmentWithRedeemableValue in api.js.
+// e.g. " + ₹9,900 off Making + 25% off Diamond" — the discounts the scheme's duration table
+// grants for the months paid — see enrichSchemeAssignmentWithRedeemableValue in api.js.
 function componentDiscountLabel(cd) {
-  const making = cd?.making;
-  const value = parseFloat(making?.value || 0) || 0;
-  if (!value) return '';
-  const text = making.mode === 'percent' ? `${value}% off Making` : `${fmtINR(value)} off Making`;
-  return ` + ${text}`;
+  return [['making', 'Making'], ['diamond', 'Diamond']].map(([key, label]) => {
+    const d = cd?.[key];
+    const value = parseFloat(d?.value || 0) || 0;
+    if (!value) return '';
+    return ` + ${d.mode === 'percent' ? `${value}%` : fmtINR(value)} off ${label}`;
+  }).join('');
 }
 // Gold Purchase's own Common Party Supplier nets its payable against the customer's Debtors
 // with a Journal Entry when the Purchase Invoice is submitted, and a Sales Return's Credit Note
@@ -136,6 +136,8 @@ export default function SettlementForm({ type, customer, settlements = [], draft
     // amount = the real advance only (what actually reduces the payable balance in the
     // Settlement list) — bonusAmount is kept separate since it's applied as a genuine discount
     // on the invoice's taxable value instead, not subtracted from payable a second time.
+    // creditRows/creditTotal: the whole advance available — POS caps amount to what the bill
+    // still needs (capSchemeSettlements in posInvoice.js), the rest stays for a later bill.
     const entries = schemeScopedSchemes
       .filter((a) => selectedSchemes[a.name])
       .map((a) => ({
@@ -145,6 +147,8 @@ export default function SettlementForm({ type, customer, settlements = [], draft
         scheme: a.scheme,
         scheme_name: a.scheme_name,
         amount: a.advanceTotal || 0,
+        creditTotal: a.advanceTotal || 0,
+        creditRows: a.advanceAllocations || [],
         bonusAmount: a.bonusAmount || 0,
         advanceAllocations: a.advanceAllocations || [],
         componentDiscounts: a.componentDiscounts || {},
@@ -246,9 +250,9 @@ export default function SettlementForm({ type, customer, settlements = [], draft
                   <label key={a.name} className="cd-scheme-row">
                     <input type="checkbox" checked={!!selectedSchemes[a.name]} onChange={() => toggleScheme(a.name)} />
                     <div className="cd-scheme-text">
-                      <div className="main">{a.name} · {a.scheme_name || a.scheme}</div>
+                      <div className="main">{a.name} · {a.scheme_name || a.scheme}{a.preClosed ? ` · Pre-closed after ${a.monthsPaid} month${a.monthsPaid === 1 ? '' : 's'}` : ''}</div>
                       <div className="sub">
-                        Advance {fmtINR(a.advanceTotal || 0)}
+                        {a.redeemedOn?.length ? `Balance after ${a.redeemedOn.join(', ')} ` : 'Advance '}{fmtINR(a.advanceTotal || 0)}
                         {a.bonusAmount > 0 ? ` + Bonus Discount ${fmtINR(a.bonusAmount)}` : ''}
                         {componentDiscountLabel(a.componentDiscounts)}
                       </div>

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { fmtDate, fmtINR, parseApiError } from '../../lib/format.js';
+import { fmtDate, fmtINR, parseApiError, customerLabel } from '../../lib/format.js';
 import { useDebounce } from '../../hooks/useDebounce.js';
 import { useToast } from '../../hooks/useToast.jsx';
 import { INVOICE_PAGE_SIZE, searchCustomers, searchCustomerSalesInvoices } from '../../lib/api.js';
@@ -171,7 +171,7 @@ export default function InvoicePickerModal({ customer, onClose, onRecall }) {
               ref={customerInputRef}
               className="cd-input"
               placeholder="Search by name or mobile…"
-              value={showCustomerList ? customerQuery : (opCustomer?.customer_name || opCustomer?.name || '')}
+              value={showCustomerList ? customerQuery : customerLabel(opCustomer)}
               onChange={(e) => { setCustomerQuery(e.target.value); setShowCustomerList(true); }}
               onFocus={() => { setCustomerQuery(''); setShowCustomerList(true); }}
               onBlur={() => setTimeout(() => setShowCustomerList(false), 150)}
@@ -188,7 +188,7 @@ export default function InvoicePickerModal({ customer, onClose, onRecall }) {
                 {customerResults.map((c) => (
                   <div key={c.name} className="cd-ac-item" onMouseDown={() => selectCustomer(c)} role="button" tabIndex={0}>
                     <div className="main">{c.customer_name || c.name}</div>
-                    <div className="sub">{c.mobile_no || '—'}</div>
+                    <div className="sub">ID: {c.name} · {c.mobile_no || '—'}</div>
                   </div>
                 ))}
               </div>

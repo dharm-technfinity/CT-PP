@@ -263,8 +263,8 @@
             </div>
           </div>
           <div class="cd-grid-3">
-            <div class="cd-field"><label class="cd-label">EMI Amount <span class="req">*</span></label><input class="cd-input" type="number" min="0" step="0.01" id="assignEmi" placeholder="0" style="text-align:right"/></div>
-            <div class="cd-field"><label class="cd-label">Start Date <span class="req">*</span></label><input class="cd-input" type="date" id="assignDate"/></div>
+            <div class="cd-field"><label class="cd-label">EMI Amount <span class="req">*</span></label><input class="cd-input" type="number" min="0" step="0.01" id="assignEmi" placeholder="0" style="text-align:right" onchange="onAssignEmiChange()"/></div>
+            <div class="cd-field"><label class="cd-label">Start Date <span class="req">*</span></label><input class="cd-input" type="date" id="assignDate" readonly/></div>
             <div class="cd-field"><label class="cd-label">End Date</label><input class="cd-input" type="date" id="assignEndDate" disabled/></div>
           </div>
           <input type="hidden" id="assignSchemeName"/>
@@ -309,7 +309,7 @@
               <div class="cd-payment-status-grid" style="flex-shrink:0">
                 <div><span>Amount Tendered</span><strong id="paySettleReceived">₹0</strong></div>
                 <div><span>Balance Amount</span><strong id="paySettleDue">₹0</strong></div>
-                <div><span>Change Amount</span><strong id="paySettleChange">₹0</strong></div>
+                <div><span>Extra (added to last EMI)</span><strong id="paySettleChange">₹0</strong></div>
               </div>
               <div style="display:flex;gap:8px;margin-top:14px;flex-shrink:0">
                 <button class="cd-btn cd-btn-primary" id="paySettleSaveBtn" style="flex:1;justify-content:center" disabled onclick="savePaySettle()">Save Payment</button>
@@ -334,7 +334,8 @@
       </button>
       <button class="cd-btn cd-btn-primary" id="saveAssignBtn" style="min-width:110px;justify-content:center" onclick="saveAssignment()">Save Assignment</button>
       <button class="cd-btn cd-btn-green" id="submitAssignBtn" style="display:none" onclick="submitAssignment()">Submit</button>
-      <button class="cd-btn cd-btn-danger" id="forceCloseBtn" style="display:none" onclick="forceCloseAssignment()">Force Close</button>
+      <button class="cd-btn cd-btn-danger" id="reversePaymentBtn" style="display:none" onclick="reverseLastPayment()">Reverse Last Payment</button>
+      <button class="cd-btn cd-btn-danger" id="preCloseBtn" style="display:none" onclick="preCloseAssignment()">Pre-Close</button>
       <button class="cd-btn cd-btn-danger" id="assignDeleteBtn" style="display:none" onclick="deleteAssignment(window.currentAssignName)">Delete</button>
       <button class="cd-btn cd-btn-secondary" id="assignCancelBtn" style="min-width:110px;justify-content:center" onclick="navigateBack()">Cancel</button>
     </div>
@@ -799,7 +800,56 @@ function addInstallRowWithNextDate(){
   const rowIndex=document.querySelectorAll('#instTbody tr').length;
   const originalDate=startDate ? addMonths(startDate, rowIndex) : '';
   const date=originalDate ? lastDayOfMonth(originalDate) : '';
-  addInstallRow({date, original_due_date:originalDate});
+  addInstallRow({date, original_due_date:originalDate, emi: getAssignEmi()||undefined});
+}
+// The scheme's No. of EMI fixes the schedule length — a shorter schedule would mature early
+// and still earn the full bonus, so rows are generated from it and can't be added or removed.
+function getAssignSchemeObj(){
+  const val=document.getElementById('assignScheme').value.trim();
+  return SCHEMES.find(s=>s.display===val||s.name===val)||null;
+}
+function getSchemeEmiCount(schemeObj){ return parseInt(schemeObj?.no_of_emi,10)||0; }
+function generateInstallRows(){
+  if(assignmentLocked) return;
+  const n=getSchemeEmiCount(getAssignSchemeObj());
+  if(!n || !document.getElementById('assignDate').value) return;
+  document.getElementById('instTbody').innerHTML=''; instRowCount=0;
+  for(let i=0;i<n;i++) addInstallRowWithNextDate();
+  applyInstallCountLock();
+}
+function applyInstallCountLock(){
+  const fixed = assignmentLocked || getSchemeEmiCount(getAssignSchemeObj())>0;
+  document.getElementById('addPaymentBtn').style.display = fixed? 'none':'';
+  document.querySelectorAll('#instTbody .cd-del-btn').forEach(b=>{ b.style.display = fixed? 'none':''; });
+}
+// '' when the schedule is valid, otherwise the error to show
+function validateInstallCount(){
+  const rows=document.querySelectorAll('#instTbody tr').length;
+  if(!rows) return 'Add the installment schedule before saving';
+  const n=getSchemeEmiCount(getAssignSchemeObj());
+  if(n && rows!==n) return `This scheme has ${n} EMIs but the schedule has ${rows} — select the scheme again to rebuild it`;
+  return '';
+}
+// Installment EMI can never go below the assignment's EMI Amount (higher is allowed)
+function getAssignEmi(){ return parseFloat(document.getElementById('assignEmi').value||0)||0; }
+function checkInstallEmiMin(input){
+  const min=getAssignEmi();
+  const emi=parseFloat(input.value||0)||0;
+  const low = min>0 && input.value!=='' && emi<min;
+  input.style.borderColor = low ? 'var(--pill-red-txt)' : '';
+  if(low) showToast(`EMI cannot be less than the EMI Amount ${fmt(min)}`,'error');
+  return !low;
+}
+// Raising the EMI Amount lifts unpaid rows that fall below it
+function onAssignEmiChange(){
+  const min=getAssignEmi();
+  if(min<=0) return;
+  document.querySelectorAll('#instTbody tr').forEach(tr=>{
+    const input=tr.querySelector('[data-f="emi"]');
+    if(!input || tr.dataset.paid || input.disabled) return;
+    if((parseFloat(input.value||0)||0) < min){ input.value=min; input.style.borderColor=''; }
+  });
+  applyPanelGoldRate();
 }
 function addInstallRow(d={}){
   instRowCount++;
@@ -814,13 +864,14 @@ function addInstallRow(d={}){
   const goldRate = parseFloat(d.gold_rate)||0, goldQty = parseFloat(d.gold_qty)||0;
   tr.dataset.goldQty = goldQty;
   tr.dataset.paid = isPaid ? '1' : '';
+  tr.dataset.origEmi = d.emi??'';
   // Paid rows show the locked-in rate; unpaid rows show the Payment panel's Gold Rate once ticked
   const goldRateCell = (isPaid && goldRate>0) ? fmt(goldRate) : `<span style="color:var(--text-muted)">—</span>`;
   tr.innerHTML=`
     <td style="text-align:center">${isPaid?'':`<input type="checkbox" class="inst-chk" ${selectable?'':'disabled'} onchange="onInstallCheckToggle(this)" title="${!canTransact()&&d.name?(currentAssignDocstatus!==1?'This assignment must be submitted before payments can be collected':'This assignment is closed — no further transactions are allowed'):(!d.name?'Save the assignment first to select this row':'Select for payment')}"/>`}</td>
     <td style="text-align:center" class="inst-idx"></td>
     <td><input type="date" data-f="original_due_date" value="${originalDate}" disabled/></td>
-    <td style="text-align:right"><input type="number" min="0" step="0.01" data-f="emi" value="${d.emi??''}" placeholder="0" oninput="applyPanelGoldRate()" ${fieldsLocked?'disabled':''}/></td>
+    <td style="text-align:right"><input type="number" min="0" step="0.01" data-f="emi" value="${d.emi??''}" placeholder="0" oninput="applyPanelGoldRate();refreshPaymentPanel()" onchange="checkInstallEmiMin(this)" ${fieldsLocked?'disabled':''}/></td>
     <td>${installStatusPill(effectiveStatus)}</td>
     <td>${d.payment_date ? `<input type="date" data-f="payment_date" value="${d.payment_date}" disabled/>` : `<span style="color:var(--text-muted)">—</span>`}</td>
     <td>${d.payment_entry ? `<a href="#" class="inst-pay-ref" onclick="event.preventDefault();openPaymentEntry('${esc(d.payment_entry)}')" title="Open ${esc(d.payment_entry)} in Frappe">${esc(d.payment_entry)}</a>` : `<span style="color:var(--text-muted)">—</span>`}</td>
@@ -922,7 +973,19 @@ function onInstallCheckToggle(cb){
   }
   updateInstallSelection();
 }
+// Changing the selection after Save Payment voids the review and takes back the extra
+// that was added to the last row
+function clearPaymentReview(){
+  paymentReviewLocked=false; paymentReviewSnapshot=null;
+  document.querySelectorAll('#instTbody tr').forEach(tr=>{
+    if(tr.dataset.preExtraEmi===undefined) return;
+    const input=tr.querySelector('[data-f="emi"]');
+    if(input) input.value=tr.dataset.preExtraEmi;
+    delete tr.dataset.preExtraEmi;
+  });
+}
 function updateInstallSelection(){
+  if(paymentReviewLocked) clearPaymentReview();
   const boxes=[...document.querySelectorAll('#instTbody .inst-chk')];
   const selectable=boxes.filter(cb=>!cb.disabled);
   const checked=selectable.filter(cb=>cb.checked);
@@ -934,6 +997,7 @@ function updateInstallSelection(){
   }
   // No rows ticked → clear the rate so the next selection picks up a fresh price-list rate
   if(!checked.length) document.getElementById('payGoldRate').value='';
+  syncInstallEmiEditing();
   applyPanelGoldRate();
   if(checked.length) prefillPanelGoldRate();
   refreshPaymentPanel();
@@ -986,7 +1050,7 @@ function refreshPaymentPanel(){
   });
   total=Math.round(total*100)/100;
   const custInput=document.getElementById('assignCustomer').value.trim();
-  const custObj=CUSTOMERS.find(c=>c.display===custInput||c.name===custInput);
+  const custObj=findAssignCustomer();
   const party=custObj?.name||custInput;
   const partyName=custObj?.display||custInput;
   paySettlePending={ party, partyName, assignmentName:window.currentAssignName, rowNames, total };
@@ -1115,6 +1179,26 @@ function updatePaySettleTotals(){
   document.getElementById('paySettleChange').textContent=fmt(change);
   updatePaySettleButtonStates();
 }
+// On a submitted assignment, a ticked unpaid row's EMI opens for editing (defaulting to the
+// EMI Amount) so the collected amount can differ; unticking restores the saved value.
+// Frozen once the payment is reviewed so the submitted amount matches what was reviewed.
+function syncInstallEmiEditing(){
+  if(!assignmentLocked) return;
+  document.querySelectorAll('#instTbody tr').forEach(tr=>{
+    const input=tr.querySelector('[data-f="emi"]');
+    if(!input || tr.dataset.paid) return;
+    const ticked=!!tr.querySelector('.inst-chk')?.checked;
+    if(ticked && !tr.dataset.emiEditing){
+      tr.dataset.emiEditing='1';
+      input.value = getAssignEmi()||input.value;
+    } else if(!ticked && tr.dataset.emiEditing){
+      delete tr.dataset.emiEditing;
+      input.value = tr.dataset.origEmi;
+      input.style.borderColor='';
+    }
+    input.disabled = !ticked || paymentReviewLocked;
+  });
+}
 function updatePaySettleButtonStates(){
   const saveBtn=document.getElementById('paySettleSaveBtn');
   const submitBtn=document.getElementById('paySettleSubmitBtn');
@@ -1128,6 +1212,7 @@ function updatePaySettleButtonStates(){
   // Reviewed rate is what gets submitted — freeze it until submit or deselect
   const rateInp=document.getElementById('payGoldRate');
   if(rateInp) rateInp.disabled = paymentReviewLocked || !paySettlePending;
+  syncInstallEmiEditing();
 }
 function savePaySettle(){
   if(!paySettlePending) return;
@@ -1139,6 +1224,13 @@ function savePaySettle(){
   if(missingRef){ showToast(`Reference / UTR / Cheque Number is required for ${missingRef.mode}`,'error'); return; }
   const cashTotal=rowsToSubmit.filter(r=>isCashMode(r.mode)).reduce((s,r)=>s+(parseFloat(r.amount)||0),0);
   if(cashTotal>CASH_LIMIT){ showToast(`Cash payment cannot exceed ${fmt(CASH_LIMIT)} per transaction`,'error'); return; }
+  const minEmi=getAssignEmi(), emis={};
+  for(const tr of document.querySelectorAll('#instTbody tr')){
+    if(!paySettlePending.rowNames.includes(tr.dataset.rowName)) continue;
+    const emi=parseFloat(tr.querySelector('[data-f="emi"]')?.value||0)||0;
+    if(emi<minEmi){ showToast(`Installment row ${tr.querySelector('.inst-idx')?.textContent}: EMI cannot be less than the EMI Amount ${fmt(minEmi)}`,'error'); return; }
+    emis[tr.dataset.rowName]=emi;
+  }
   const goldRates={};
   if(currentSchemeAccumulatesGold){
     if(!document.getElementById('assignMetalTouch').value){ showToast('This scheme accumulates gold — set Metal Touch on the assignment before collecting payment','error'); return; }
@@ -1146,7 +1238,23 @@ function savePaySettle(){
     if(!(rate>0)){ showToast('Enter Gold Rate in the Payment panel','error'); document.getElementById('payGoldRate').focus(); return; }
     paySettlePending.rowNames.forEach(n=>{ goldRates[n]=rate; });
   }
-  paymentReviewSnapshot={ ...paySettlePending, goldRates, rows: rowsToSubmit.map(r=>({...r})) };
+  // No change is handed back — anything paid above the selected EMIs is added to the last
+  // selected row, so the rows always add up to exactly what the Payment Entry books
+  const extra=Math.round((allocated-paySettlePending.total)*100)/100;
+  if(extra>0){
+    const lastName=paySettlePending.rowNames[paySettlePending.rowNames.length-1];
+    const lastTr=[...document.querySelectorAll('#instTbody tr')].find(tr=>tr.dataset.rowName===lastName);
+    const input=lastTr?.querySelector('[data-f="emi"]');
+    if(input){
+      lastTr.dataset.preExtraEmi=input.value;
+      emis[lastName]=Math.round((emis[lastName]+extra)*100)/100;
+      input.value=emis[lastName];
+      paySettlePending.total=Math.round(allocated*100)/100;
+      document.getElementById('paySettleTotal').textContent=fmt(paySettlePending.total);
+      applyPanelGoldRate();
+    }
+  }
+  paymentReviewSnapshot={ ...paySettlePending, goldRates, emis, rows: rowsToSubmit.map(r=>({...r})) };
   paymentReviewLocked=true;
   renderPaySettleRows();
   updatePaySettleButtonStates();
@@ -1156,13 +1264,10 @@ function savePaySettle(){
 }
 async function submitPaySettle(){
   if(!paymentReviewLocked || !paymentReviewSnapshot) return;
-  const partyAccount=PE_COMPANY_DOC.default_receivable_account;
-  if(!partyAccount){ showToast('Company has no default receivable account configured','error'); return; }
   const btn=document.getElementById('paySettleSubmitBtn');
   btn.disabled=true; const originalLbl=btn.textContent; btn.textContent='Submitting…';
   try{
-    const { party, partyName, assignmentName, rowNames, rows, goldRates } = paymentReviewSnapshot;
-    const postingDate = new Date().toLocaleDateString('en-CA');
+    const { assignmentName, rowNames, rows, goldRates, emis } = paymentReviewSnapshot;
     const schemeName = document.getElementById('assignScheme').value.trim();
     const paidRowEls = [...document.querySelectorAll('#instTbody tr')].filter(tr => rowNames.includes(tr.dataset.rowName));
     const monthLabels = paidRowEls
@@ -1179,43 +1284,32 @@ async function submitPaySettle(){
       })
       .join(', ');
     const remarks = `Parent: ${assignmentName}${schemeName ? ` | Scheme: ${schemeName}` : ''}${monthText ? ` | Month: ${monthText}` : ''}${goldRateText ? ` | Gold Rate: ${goldRateText}` : ''}`;
-    const createdNames=[];
+    const payments=[];
     for(const row of rows){
-      const amount=Math.round((parseFloat(row.amount)||0)*100)/100;
-      const account=await resolvePaymentAccount(row.mode);
-      if(!account) throw new Error(`No Cash/Bank account found for mode "${row.mode}"`);
-      const payload={
-        doctype:'Payment Entry',
-        payment_type:'Receive',
-        party_type:'Customer',
-        party, party_name: partyName,
-        company: COMPANY,
-        posting_date: postingDate,
-        remarks,
-        paid_from: partyAccount,
-        paid_to: account,
-        paid_amount: amount,
-        received_amount: amount,
-        source_exchange_rate: 1,
-        target_exchange_rate: 1,
-        mode_of_payment: row.mode||undefined,
-        reference_no: (row.reference||'').trim() || undefined,
-        reference_date: row.referenceDate || (isCashMode(row.mode) ? undefined : postingDate),
-      };
-      const res=await dev1Post('/api/resource/Payment%20Entry', payload);
-      const name=res?.data?.name||res?.name;
-      if(!name) throw new Error('Payment Entry creation failed');
-      await dev1Put('/api/resource/Payment%20Entry/'+encodeURIComponent(name), {docstatus:1});
-      createdNames.push(name);
+      payments.push({
+        mode: row.mode,
+        amount: Math.round((parseFloat(row.amount)||0)*100)/100,
+        // Server prefers the Mode of Payment's own default account; this is the fallback
+        account: await resolvePaymentAccount(row.mode),
+        reference_no: (row.reference||'').trim(),
+        reference_date: row.referenceDate || '',
+      });
     }
-    if(rowNames.length && createdNames.length){
-      await markInstallmentsPaidInline(assignmentName, rowNames, createdNames[0], postingDate, goldRates||{});
-    }
+    // One server request (caratdesk_collect_scheme_payment): creates + submits the Payment
+    // Entries, marks the rows Paid and matures the scheme — all or nothing
+    const res=await dev1Post('/api/method/caratdesk_collect_scheme_payment', {
+      data:{ assignment: assignmentName, company: COMPANY, rows: rowNames, emis: emis||{}, gold_rates: goldRates||{}, payments, remarks },
+    });
+    const { payment_entries: createdNames=[], matured } = res?.message || {};
     showToast(createdNames.length>1?`${createdNames.length} payment entries created`:`Payment Entry ${createdNames[0]} created`,'success');
+    if(matured) showToast('Scheme matured — credit is now available to redeem in POS Billing','success');
     paySettleRows=[]; paymentReviewLocked=false; paymentReviewSnapshot=null;
     await loadAssignmentForm(assignmentName);
   }catch(e){
-    showToast('Error: '+String(e.message).slice(0,120),'error');
+    showToast('Error: '+frappeErrorText(e).slice(0,160),'error');
+    // Rows may have been paid from another counter meanwhile — show the server's current state
+    paySettleRows=[]; paymentReviewLocked=false; paymentReviewSnapshot=null;
+    await loadAssignmentForm(window.currentAssignName);
   }finally{
     btn.textContent=originalLbl;
     updatePaySettleButtonStates();
@@ -1225,58 +1319,37 @@ async function submitPaySettle(){
 async function fetchGoldRateForTouch(touch){
   return cdGetTouchRate('Gold', touch);
 }
-// goldRates: {rowName: rate} — the per-installment rates the user entered and reviewed
-async function markInstallmentsPaidInline(assignmentName, rowNames, paymentEntryName, paymentDate, goldRates={}){
-  const res=await dev1Get('/api/resource/Jewellery%20Scheme%20Assignment/'+encodeURIComponent(assignmentName));
-  const doc=res.data||res.message||res;
-  let accumulateGold=false;
+// Frappe error responses carry the frappe.throw() text inside _server_messages / exception
+function frappeErrorText(e){
+  const raw=String(e?.message||e||'');
   try{
-    const schemeRes=await dev1Get('/api/resource/Jewellery%20Scheme/'+encodeURIComponent(doc.scheme)+'?fields='+encodeURIComponent(JSON.stringify(['accumulate_gold'])));
-    const schemeDoc=schemeRes.data||schemeRes.message||{};
-    accumulateGold=!!schemeDoc.accumulate_gold;
-  }catch(e){ console.warn('Scheme lookup for gold accumulation failed:', e.message); }
-  const details=(doc.jewellery_scheme_assignment_details||[]).map(r=>{
-    if(!rowNames.includes(r.name)) return r;
-    const updated={...r, status:'Paid', payment_entry:paymentEntryName, paid_by: r.paid_by||'Customer', payment_date: r.payment_date||paymentDate};
-    const goldRate=accumulateGold ? (parseFloat(goldRates[r.name])||0) : 0;
-    if(goldRate>0){
-      updated.gold_rate=goldRate;
-      updated.gold_qty=Math.round((parseFloat(r.emi||0)/goldRate)*1000)/1000;
+    const body=JSON.parse(raw);
+    if(body._server_messages){
+      const msgs=JSON.parse(body._server_messages).map(m=>{ try{ return JSON.parse(m).message; }catch(_){ return m; } });
+      return msgs.join(' ').replace(/<[^>]+>/g,'');
     }
-    return updated;
-  });
-  const allPaid = details.length>0 && details.every(r=>String(r.status||'').toLowerCase()==='paid');
-  let finalDetails = details;
-  if(allPaid && accumulateGold){
-    // Final rate = rate entered on the last installment row (by idx) paid in this payment
-    const lastPaidNow=details.filter(r=>rowNames.includes(r.name) && r.gold_rate>0).sort((a,b)=>(a.idx||0)-(b.idx||0)).pop();
-    const finalRate = lastPaidNow?.gold_rate || (details.find(r=>r.gold_rate>0)?.gold_rate||0);
-    if(finalRate>0){
-      finalDetails = details.map(r=>{
-        if(!(parseFloat(r.gold_rate)>0)) return r;
-        const diffRate=Math.round((finalRate-r.gold_rate)*100)/100;
-        const amount=Math.round((diffRate*(parseFloat(r.gold_qty)||0))*100)/100;
-        return {...r, diffrence_rate:diffRate, amount};
-      });
-    }
-  }
-  const updatePayload = { jewellery_scheme_assignment_details: finalDetails };
-  if(allPaid) updatePayload.status = 'Matured';
-  await dev1Put('/api/resource/Jewellery%20Scheme%20Assignment/'+encodeURIComponent(assignmentName), updatePayload);
-  if(allPaid) showToast('Scheme matured — credit is now available to redeem in POS Billing','success');
+    if(body.exception) return String(body.exception).replace(/^[\w.]+:\s*/,'');
+  }catch(_){}
+  return raw;
 }
 
 // ── ASSIGNMENT: CUSTOMER / SCHEME AUTOCOMPLETE ──
+// Name with the ID appended when they differ — two customers can share a name, never an ID
+function custLabel(c){ return c.name && c.name!==c.display ? `${c.display} (${c.name})` : c.display; }
+function findAssignCustomer(){
+  const v=document.getElementById('assignCustomer').value.trim();
+  return CUSTOMERS.find(c=>custLabel(c)===v) || CUSTOMERS.find(c=>c.name===v) || CUSTOMERS.find(c=>c.display===v);
+}
 function acAssignCustomer(val){
   if(assignmentLocked) return;
   const list=document.getElementById('ac-assign-customer');
   const q=(val||'').toLowerCase();
   const results=CUSTOMERS.filter(c=>c.display.toLowerCase().includes(q)||c.name.toLowerCase().includes(q)||(c.phone||'').includes(q)).slice(0,20);
-  list.innerHTML = results.length? results.map(c=>`<div class="cd-ac-item" onclick="selAssignCustomer('${esc(c.name)}','${esc(c.display)}')"><div class="main">${esc(c.display)}</div>${c.phone?`<div class="sub">${esc(c.phone)}</div>`:''}</div>`).join('') : `<div class="cd-ac-empty">No customer found</div>`;
+  list.innerHTML = results.length? results.map(c=>`<div class="cd-ac-item" onclick="selAssignCustomer('${esc(c.name)}','${esc(c.display)}')"><div class="main">${esc(c.display)}</div><div class="sub">ID: ${esc(c.name)}${c.phone?' · '+esc(c.phone):''}</div></div>`).join('') : `<div class="cd-ac-empty">No customer found</div>`;
   list.classList.add('open');
 }
 function selAssignCustomer(name,display){
-  document.getElementById('assignCustomer').value=display;
+  document.getElementById('assignCustomer').value=custLabel({name,display});
   document.getElementById('ac-assign-customer').classList.remove('open');
 }
 document.addEventListener('click', e=>{
@@ -1375,6 +1448,18 @@ async function saveNewCustomer(){
         return;
       }
     }catch(dupErr){ console.warn('Duplicate mobile check failed:', dupErr.message); }
+    const sameName=CUSTOMERS.filter(c=>c.display.trim().toLowerCase()===customerName.toLowerCase());
+    if(sameName.length){
+      const list=sameName.map(c=>`• ID: ${c.name} · ${c.phone||'No mobile number'}`).join('\n');
+      if(confirm(`A customer named "${customerName}" already exists:\n${list}\n\nUse the existing customer instead?`)){
+        if(sameName.length===1) selAssignCustomer(sameName[0].name, sameName[0].display);
+        else { const inp=document.getElementById('assignCustomer'); inp.value=customerName; acAssignCustomer(customerName); showToast('Several customers have this name — pick the right one by ID or mobile','info'); }
+        closeNewCustomerDialog();
+        btn.disabled=false; btn.textContent='Save Customer';
+        return;
+      }
+      if(!confirm(`Create another customer named "${customerName}" anyway?`)){ btn.disabled=false; btn.textContent='Save Customer'; return; }
+    }
 
     const defaults=await getCustomerDefaultsInline();
     const pan=document.getElementById('newCustPan').value.trim();
@@ -1456,8 +1541,9 @@ function selAssignScheme(name,display){
   document.getElementById('ac-assign-scheme').classList.remove('open');
   const schemeObj=SCHEMES.find(s=>s.name===name);
   const emiInput=document.getElementById('assignEmi');
-  if(schemeObj && !emiInput.value) emiInput.value = schemeObj.minimun_emi||'';
+  if(schemeObj && !emiInput.value){ emiInput.value = schemeObj.minimun_emi||''; onAssignEmiChange(); }
   updateMetalTouchVisibility(schemeObj);
+  generateInstallRows();
 }
 function updateMetalTouchVisibility(schemeObj){
   const field=document.getElementById('assignMetalTouchField');
@@ -1476,7 +1562,8 @@ function updateMetalTouchVisibility(schemeObj){
 function setAssignmentLocked(locked, name){
   assignmentLocked = locked;
   document.getElementById('pageTitleCur').textContent = locked ? ('Assignment '+name) : (name? 'Edit Assignment':'New Assignment');
-  ['assignCustomer','assignScheme','assignEmi','assignDate'].forEach(id=>{
+  // Start Date is always today's date for a new assignment and never editable (End Date follows the schedule)
+  ['assignCustomer','assignScheme','assignEmi'].forEach(id=>{
     document.getElementById(id).readOnly = locked;
   });
   document.getElementById('assignMetalTouch').disabled = locked;
@@ -1496,9 +1583,8 @@ function setAssignmentLocked(locked, name){
     const dateInp=tr.querySelector('[data-f="date"]'), emiInp=tr.querySelector('[data-f="emi"]');
     if(dateInp) dateInp.disabled = true;
     if(emiInp) emiInp.disabled = true;
-    const delBtn=tr.querySelector('.cd-del-btn');
-    if(delBtn) delBtn.style.display = locked? 'none':'';
   });
+  applyInstallCountLock();
 }
 async function loadAssignmentForm(name){
   window.currentAssignName = name||null;
@@ -1509,7 +1595,8 @@ async function loadAssignmentForm(name){
   document.getElementById('assignDeleteBtn').style.display = name? '' : 'none';
   document.getElementById('printAssignBtn').style.display = 'none';
   document.getElementById('openErpnextBtn').style.display = name? '' : 'none';
-  document.getElementById('forceCloseBtn').style.display = 'none';
+  document.getElementById('preCloseBtn').style.display = 'none';
+  document.getElementById('reversePaymentBtn').style.display = 'none';
   document.getElementById('submitAssignBtn').style.display = 'none';
   document.getElementById('assignCustomer').value='';
   document.getElementById('assignScheme').value='';
@@ -1532,11 +1619,15 @@ async function loadAssignmentForm(name){
       currentAssignStatus = doc.status||'';
       currentAssignDocstatus = doc.docstatus??0;
       document.getElementById('assignDrawerStatus').innerHTML = assignStatusPill(assignDisplayStatus(currentAssignStatus, currentAssignDocstatus));
-      document.getElementById('forceCloseBtn').style.display = canTransact() ? '' : 'none';
+      document.getElementById('preCloseBtn').style.display = canTransact() ? '' : 'none';
+      // Same conditions caratdesk_reverse_scheme_payment checks: submitted, Active/Matured, not redeemed in POS
+      const hasPaid=(doc.jewellery_scheme_assignment_details||[]).some(r=>String(r.status||'').toLowerCase()==='paid');
+      const reversible=currentAssignDocstatus===1 && !doc.used && ['active','matured'].includes(String(currentAssignStatus).toLowerCase());
+      document.getElementById('reversePaymentBtn').style.display = hasPaid && reversible ? '' : 'none';
       document.getElementById('submitAssignBtn').style.display = currentAssignDocstatus===0 ? '' : 'none';
       document.getElementById('printAssignBtn').style.display = currentAssignDocstatus===1 ? '' : 'none';
       const cust=CUSTOMERS.find(c=>c.name===doc.customer);
-      document.getElementById('assignCustomer').value= cust?cust.display:(doc.customer||'');
+      document.getElementById('assignCustomer').value= cust?custLabel(cust):(doc.customer||'');
       const sch=SCHEMES.find(s=>s.name===doc.scheme);
       document.getElementById('assignScheme').value = sch?sch.display:(doc.scheme_name||doc.scheme||'');
       document.getElementById('assignSchemeName').value = doc.scheme_name||'';
@@ -1570,7 +1661,7 @@ async function syncOverdueInstallments(assignmentName, rowNames){
 }
 function buildAssignPayload(){
   const custInput=document.getElementById('assignCustomer').value.trim();
-  const custObj=CUSTOMERS.find(c=>c.display===custInput||c.name===custInput);
+  const custObj=findAssignCustomer();
   const customer=custObj?.name||custInput;
   const schemeInput=document.getElementById('assignScheme').value.trim();
   const schemeObj=SCHEMES.find(s=>s.display===schemeInput||s.name===schemeInput);
@@ -1752,8 +1843,12 @@ async function saveAssignment(){
   if(!document.getElementById('assignBranch').value){ showToast('Please select a Branch','error'); document.getElementById('assignBranch').focus(); return; }
   if(!document.getElementById('assignDate').value){ showToast('Please select a Date','error'); document.getElementById('assignDate').focus(); return; }
   if(!window.currentAssignName && document.getElementById('assignDate').value < toISODate(new Date())){ showToast('Start Date cannot be a back date','error'); document.getElementById('assignDate').focus(); return; }
+  const countErr=validateInstallCount();
+  if(countErr){ showToast(countErr,'error'); return; }
   const badRow=validateInstallRows();
   if(badRow){ showToast(`Installment row ${badRow}: Extended Due Date and Installment Amount are both required`,'error'); return; }
+  const lowRow=[...document.querySelectorAll('#instTbody tr')].findIndex(tr=>!tr.dataset.paid && (parseFloat(tr.querySelector('[data-f="emi"]')?.value||0)||0) < emiAmount);
+  if(lowRow>=0){ showToast(`Installment row ${lowRow+1}: EMI cannot be less than the EMI Amount ${fmt(emiAmount)}`,'error'); return; }
   try{
     showToast('Saving assignment...','info');
     const payload=buildAssignPayload();
@@ -1778,19 +1873,44 @@ async function saveAssignment(){
 async function submitAssignment(){
   const name=window.currentAssignName;
   if(!name || currentAssignDocstatus!==0) return;
+  const countErr=validateInstallCount();
+  if(countErr){ showToast(countErr,'error'); return; }
   try{
     await dev1Put('/api/resource/Jewellery%20Scheme%20Assignment/'+encodeURIComponent(name), {docstatus:1});
     showToast('Assignment '+name+' submitted','success');
     await loadAssignmentForm(name);
   }catch(e){ showToast('Error submitting: '+String(e.message).slice(0,120),'error'); }
 }
-async function forceCloseAssignment(){
+// Undoes the most recent payment (all its Payment Entries) via caratdesk_reverse_scheme_payment
+async function reverseLastPayment(){
+  const name=window.currentAssignName;
+  if(!name) return;
+  if(!confirm('Reverse the last payment on '+name+'? Its Payment Entries will be cancelled and those installments set back to Unpaid.')) return;
+  const btn=document.getElementById('reversePaymentBtn');
+  btn.disabled=true;
+  try{
+    const res=await dev1Post('/api/method/caratdesk_reverse_scheme_payment', {data:{assignment:name}});
+    const { cancelled=[], rows=[] } = res?.message || {};
+    showToast(`Reversed installment ${rows.join(', ')} — cancelled ${cancelled.join(', ')}`,'success');
+    paySettleRows=[]; paymentReviewLocked=false; paymentReviewSnapshot=null;
+    await loadAssignmentForm(name);
+  }catch(e){ showToast('Error: '+frappeErrorText(e).slice(0,160),'error'); }
+  finally{ btn.disabled=false; }
+}
+// Customer stops paying: Closed assignments are redeemable in POS for the EMIs paid, with the
+// duration table's discounts for that many months and no bonus month (see api.js)
+async function preCloseAssignment(){
   const name=window.currentAssignName;
   if(!name || !canTransact()) return;
-  if(!confirm('Force close assignment '+name+'? Once closed, no further payments or transactions can be made against it.')) return;
+  const rows=[...document.querySelectorAll('#instTbody tr')];
+  const paid=rows.filter(tr=>tr.dataset.paid).length;
+  const msg = paid
+    ? `Pre-close ${name}? Customer has paid ${paid} of ${rows.length} EMIs.\n\nThe bonus month is lost; the discounts for ${paid} month${paid===1?'':'s'} apply when redeemed in POS Billing. No further payments can be collected.`
+    : `Close ${name}? No EMI has been paid, so there is nothing to redeem. No further payments can be collected.`;
+  if(!confirm(msg)) return;
   try{
     await dev1Put('/api/resource/Jewellery%20Scheme%20Assignment/'+encodeURIComponent(name), {status:'Closed'});
-    showToast('Assignment '+name+' closed','success');
+    showToast(paid ? `${name} pre-closed — redeem it in POS Billing` : `${name} closed`,'success');
     await loadAssignmentForm(name);
   }catch(e){ showToast('Error: '+String(e.message).slice(0,120),'error'); }
 }

@@ -245,6 +245,25 @@ export function allocateCredit(rows, amount) {
   return allocations;
 }
 
+// A redeemed scheme uses only as much of its advance as the bill still needs — worked out from
+// the live grand total (already net of the schemes' own bonus/discounts), after the Gold
+// Purchases / Sales Returns on the bill and any earlier scheme. Whatever's left stays on the
+// scheme's Payment Entries for a later bill. Scheme entries added in this session carry
+// creditRows/creditTotal (see SettlementForm); ones rebuilt from a saved invoice keep their
+// saved amount as is.
+export function capSchemeSettlements(settlements, grandTotal) {
+  const otherCredit = settlements
+    .filter((s) => s.type !== 'kitty' || !s.creditRows)
+    .reduce((t, s) => t + (Number(s.amount) || 0), 0);
+  let left = round2(Math.max(0, grandTotal - otherCredit));
+  return settlements.map((s) => {
+    if (s.type !== 'kitty' || !s.creditRows) return s;
+    const amount = round2(Math.min(s.creditTotal, left));
+    left = round2(left - amount);
+    return { ...s, amount, advanceAllocations: allocateCredit(s.creditRows, amount) };
+  });
+}
+
 // A Gold Purchase / Sales Return on the bill: `amount` is what this bill uses, `creditTotal` what
 // was available when it was added (shown as "of ₹…" when only part of it is used). Without credit
 // rows (a Gold Purchase with no Common Party Journal Entry) it just lowers what's collected.

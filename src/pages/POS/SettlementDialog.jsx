@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { fmtINR, round2 } from '../../lib/format.js';
+import { fmtINR, round2, customerLabel } from '../../lib/format.js';
 import SettlementLabel from './SettlementLabel.jsx';
 import SettlementForm from './SettlementForm.jsx';
 
@@ -59,7 +59,7 @@ export default function SettlementDialog({
     <div className="cd-idialog-overlay" onClick={onClose} role="presentation" />
     <div className="cd-idialog settlement-dialog" role="dialog" aria-modal="true">
       <div className="cd-idialog-header">
-        <span className="cd-idialog-title">Settlement · {customer?.customer_name || customer?.name}</span>
+        <span className="cd-idialog-title">Settlement · {customerLabel(customer)}</span>
         <button type="button" className="cd-idialog-close" onClick={onClose}>×</button>
       </div>
       <div className="cd-idialog-body">

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import PosHeader from './PosHeader.jsx';
 import CustomerPanel from './CustomerPanel.jsx';
 import CartGrid, { DiscountRow } from './CartGrid.jsx';
@@ -41,7 +41,8 @@ import {
   fetchOpenPosShift,
   fetchPosShiftSalesSummary,
   closePosShift,
-  markSchemeAssignmentUsed,
+  markSchemeAssignmentUsedIfSpent,
+  reconcileSchemeAdvances,
   deactivateBom,
   fetchPosButtonPermissions,
   canShowPosButton,
@@ -54,14 +55,14 @@ import {
   fetchSettlementAvailableCredit,
   salesInvoiceHasSettlementReferences,
 } from '../../lib/api.js';
-import { parseApiError, fmtINR, fmtWeight, fmtTime, fmtDateTime, round2 } from '../../lib/format.js';
+import { parseApiError, fmtINR, fmtWeight, fmtTime, fmtDateTime, round2, customerLabel } from '../../lib/format.js';
 import {
   COMPANY,
   POS_HOLD_KEY,
   POS_LAST_INVOICE_KEY,
   POS_SHIFT_KEY,
 } from '../../lib/constants.js';
-import { buildSalesInvoicePayload, creditSettlementEntry, getInvoiceName, invoiceToCartState, settlementsFromInvoice } from './posInvoice.js';
+import { buildSalesInvoicePayload, capSchemeSettlements, creditSettlementEntry, getInvoiceName, invoiceToCartState, settlementsFromInvoice } from './posInvoice.js';
 
 function readHolds() {
   try {
@@ -227,7 +228,8 @@ export default function PosPage() {
   const [settlementOpen, setSettlementOpen] = useState(false);
   // Gold Purchase / Sales Return buttons — 'gold' | 'return' while their create-only dialog is open.
   const [createRecordType, setCreateRecordType] = useState(null);
-  const [settlements, setSettlements] = useState([]);
+  // As added; `settlements` below is this with each scheme capped to what the bill still needs
+  const [settlementState, setSettlements] = useState([]);
   // Gold Purchase chip clicked — { name, readOnly } of the Purchase Invoice being shown.
   const [goldDetails, setGoldDetails] = useState(null);
   const [batchWarehousePick, setBatchWarehousePick] = useState(null);
@@ -243,17 +245,21 @@ export default function PosPage() {
   // A redeemed scheme's bonus/free-month is a genuine discount (see posCalculations.js) — its
   // real advance portion doesn't touch this at all, that's applied via Sales Invoice `advances`
   // allocation in posInvoice.js instead.
-  const schemeBonusAmount = settlements
+  const schemeBonusAmount = settlementState
     .filter((s) => s.type === 'kitty')
     .reduce((sum, s) => sum + (parseFloat(s.bonusAmount) || 0), 0);
   // Each redeemed scheme's own Making/Diamond % is kept as a separate entry here (not merged
   // into cart.billComponentDiscounts) so two schemes discounting the same component both apply
   // — see applyComponentDiscounts in posCalculations.js — instead of the later one silently
   // overwriting the earlier one.
-  const schemeComponentDiscounts = settlements
+  const schemeComponentDiscounts = settlementState
     .filter((s) => s.type === 'kitty')
     .map((s) => s.componentDiscounts || {});
   const cart = usePosCart(goldRate, gstSplit, schemeBonusAmount, schemeComponentDiscounts);
+  const settlements = useMemo(
+    () => capSchemeSettlements(settlementState, cart.totals.grandTotal),
+    [settlementState, cart.totals.grandTotal],
+  );
   const { billEpochRef } = cart;
   // Latest lines / settlements for queued scans, which finish after later renders.
   const linesRef = useRef(cart.lines);
@@ -1015,6 +1021,18 @@ export default function PosPage() {
 
       await submitSalesInvoice(name);
 
+      // ERPNext leaves a POS bill's scheme advances unreconciled (bill Partly Paid, scheme money
+      // still unallocated) — reconcile them now. The bill is already submitted, so a failure is
+      // reported rather than blocking checkout; it can be re-run for this invoice later.
+      if (settlements.some((s) => s.type === 'kitty' && s.amount > 0)) {
+        try {
+          const { outstanding } = await reconcileSchemeAdvances(name);
+          if (outstanding > 0.5) showToast(`${name}: ${fmtINR(outstanding)} still outstanding after applying the scheme — check the bill`, 'error');
+        } catch (e) {
+          showToast(`${name} submitted, but the scheme amount could not be applied — ${parseApiError(e)}`, 'error');
+        }
+      }
+
       // Best-effort — never blocks checkout on a ledger failure, since the invoice is already
       // submitted by this point (same pattern as the deactivateBom/markSchemeAssignmentUsed
       // calls just below).
@@ -1043,10 +1061,10 @@ export default function PosPage() {
       }
 
       // Belt-and-suspenders on top of ERPNext's own unallocated_amount tracking — once a
-      // redeemed scheme's credit is actually locked into a submitted invoice, mark it used so
-      // it can never be offered for redemption again.
+      // redeemed scheme's advance is all used up by submitted invoices, mark it used so it's
+      // never offered again. A scheme only partly used here stays redeemable for its balance.
       const redeemedSchemeNames = [...new Set(settlements.filter((s) => s.type === 'kitty').map((s) => s.number))];
-      await Promise.all(redeemedSchemeNames.map((n) => markSchemeAssignmentUsed(n)));
+      await Promise.all(redeemedSchemeNames.map((n) => markSchemeAssignmentUsedIfSpent(n)));
 
       localStorage.setItem(POS_LAST_INVOICE_KEY, name);
       setLastInvoice(name);
@@ -1074,7 +1092,7 @@ export default function PosPage() {
         {shift?.startedAt && <span><ContextIcon name="shift" />Started <strong>{fmtDateTime(shift.startedAt)}</strong></span>}
         <span><ContextIcon name="counter" />Counter <strong>{shift?.counter || "Unallocated"}</strong></span>
         <span><ContextIcon name="user" />Cashier <strong>{shift?.cashier || user?.fullName || "—"}</strong></span>
-        <span><ContextIcon name="user" />Customer <button type="button" className="cd-pos-context-btn" onClick={openCustomerPicker}>{customer?.customer_name || "Select customer"}</button></span>
+        <span><ContextIcon name="user" />Customer <button type="button" className="cd-pos-context-btn" onClick={openCustomerPicker}>{customer ? customerLabel(customer) : "Select customer"}</button></span>
         <span><ContextIcon name="user" />Sales Team <button type="button" className="cd-pos-context-btn" disabled={Boolean(viewingInvoice)} onClick={() => setSalesTeamOpen(true)}>{salesTeam.length ? `${salesTeam[0].salesPerson}${salesTeam.length > 1 ? ` +${salesTeam.length - 1} more` : ''}` : "Select sales team"}</button></span>
       </div>
 

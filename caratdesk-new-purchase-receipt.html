@@ -2703,11 +2703,12 @@ async function selRepair(name){
       const blankRow = i===0 ? [...document.querySelectorAll('#itemsTbody tr')].find(tr => !tr.querySelector('[data-f="code"]')?.value?.trim()) : null;
       if(!blankRow) addRow();
       const rowId = blankRow ? blankRow.id : document.getElementById('itemsTbody').lastElementChild.id;
-      fillRow(rowId, p.itemCode, p.itemCode, '', 'Nos', 0); // Rate follows the BOM (syncBomWeightToItem)
+      // Marked before fillRow so its rate auto-fills (metal/diamond/stone) leave this row alone
       const tr = document.getElementById(rowId);
       tr.dataset.repairPiece = p.key;
+      if(p.oldSerial) tr.dataset.oldSerial = p.oldSerial;
+      fillRow(rowId, p.itemCode, p.itemCode, '', 'Nos', 0); // Rate follows the BOM (syncBomWeightToItem)
       if(p.oldSerial){
-        tr.dataset.oldSerial = p.oldSerial;
         const snEl = tr.querySelector('[data-f="serial_no"]');
         if(snEl){ snEl.value = newNames[p.oldSerial]; autoResize(snEl); updateSerialImgBtnVisual(rowId); }
       }
@@ -3095,7 +3096,12 @@ function setFgWeightFieldsEnabled(rowId, enabled){
   });
 }
 
-function delRow(id){ removeSetSubRows(id); document.getElementById(id)?.remove(); recalc(); }
+// A removed item row takes its BOM rows with it — otherwise they linger in the BOM table and
+// count towards its totals.
+function removeBomRowsOf(rowId){
+  document.querySelectorAll('#bomTbody tr').forEach(b => { if(b.dataset.sourceRow === rowId) b.remove(); });
+}
+function delRow(id){ removeSetSubRows(id); removeBomRowsOf(id); document.getElementById(id)?.remove(); recalcBom(); recalc(); }
 
 // ── Per-item Description dialog (backed by hidden data-f="custom_remarks") ──
 var _descDlgRowId = null;
@@ -3357,9 +3363,10 @@ document.getElementById('itemsTbody')?.addEventListener('change', e => {
 function deleteSelectedItemRows(){
   const rows = [...document.querySelectorAll('#itemsTbody tr')].filter(tr => tr.querySelector('.cd-row-chk')?.checked);
   if(!rows.length){ showToast('No rows selected', 'error'); return; }
-  rows.forEach(tr => tr.remove());
+  rows.forEach(tr => { removeBomRowsOf(tr.id); tr.remove(); });
   const chkAll = document.getElementById('itemsChkAll'); if(chkAll) chkAll.checked = false;
   updateItemsDeleteBtnVisibility();
+  recalcBom();
   recalc();
 }
 
@@ -3612,6 +3619,7 @@ function fillRow(rowId,itemCode,itemName,hsn,uom,rate){
 async function autoFillMetalRate(itemCode, rowId){
   const tr = document.getElementById(rowId);
   if(!tr) return;
+  if(tr.dataset.repairPiece) return; // a Repair piece's rate comes from its BOM (syncBomWeightToItem)
   const rateEl = tr.querySelector('[data-f="rate"]');
   if(!rateEl || (parseFloat(rateEl.value)||0) !== 0) return;
 
@@ -3720,6 +3728,7 @@ async function fetchAttrMappedRate(getAttrValue, priceAttrs, doctypeUrlPart, uom
 async function autoFillDiamondRate(itemCode, rowId){
   const tr = document.getElementById(rowId);
   if(!tr) return;
+  if(tr.dataset.repairPiece) return; // a Repair piece's rate comes from its BOM (syncBomWeightToItem)
   const rateEl = tr.querySelector('[data-f="rate"]');
   if(!rateEl || (parseFloat(rateEl.value)||0) !== 0) return;
 
@@ -3757,6 +3766,7 @@ async function autoFillDiamondRate(itemCode, rowId){
 async function autoFillStoneRate(itemCode, rowId, force){
   const tr = document.getElementById(rowId);
   if(!tr || !itemCode) return;
+  if(tr.dataset.repairPiece) return; // a Repair piece's rate comes from its BOM (syncBomWeightToItem)
   const rateEl = tr.querySelector('[data-f="rate"]');
   if(!rateEl || (!force && (parseFloat(rateEl.value)||0) !== 0)) return;
 
@@ -5142,6 +5152,9 @@ async function createBhavCutSalesOrder(){
   }catch(e){ showToast('Error: ' + String(e.message).slice(0, 100), 'error'); }
 }
 
+// Repair piece rows send price_list_rate = their own rate: with a 0 rate ERPNext would otherwise
+// replace it with the supplier's price-list rate on save (an unchanged Modification piece must
+// stay at 0 — only the extra over its old BOM is billed).
 function buildPayload(docstatus){
   const warehouse=document.getElementById('warehouse').value||'';
   const taxTemplate=document.getElementById('taxTemplate').value||'';
@@ -5177,7 +5190,7 @@ function buildPayload(docstatus){
     const remarks     = tr.querySelector('[data-f="custom_remarks"]')?.value?.trim() || '';
     const pcs         = parseInt(tr.querySelector('[data-f="pcs"]')?.value||0) || 0;
     if(!itemCode||qty===0||(isReturnPR?qty>0:qty<0)) return;
-    items.push({ doctype:'Purchase Receipt Item', idx:idx+1, item_code:itemCode, item_name:itemCode, description:itemCode, qty, received_qty:qty, rate, discount_percentage:disc, amount, base_amount:cdToInr(amount), uom, stock_uom:uom, conversion_factor:1, gst_hsn_code:hsn, warehouse:rowWh, rejected_warehouse:rejectedWarehouse, use_serial_batch_fields:1, custom_bom:bomId, custom_gross_weight:grossWt||undefined, custom_net_weight:netWt||undefined, custom_tounch:tounch||undefined, custom_wastage:wastage||undefined, custom_pure_wt:pureWt||undefined, batch_no:batchNo||undefined, custom_packet_no:packetNo||undefined, serial_no:serialNo||undefined, custom_image:imgUrl||undefined, custom_remarks:remarks||undefined, custom_pcs:pcs, custom_old_serial_no:tr.dataset.oldSerial||undefined, ...((isSetRow||(tr.dataset.oldSerial&&!rate))?{allow_zero_valuation_rate:1}:{}), ...(poName?{purchase_order:poName}:{}), ...(poItemRef?{purchase_order_item:poItemRef}:{}) });
+    items.push({ doctype:'Purchase Receipt Item', idx:idx+1, item_code:itemCode, item_name:itemCode, description:itemCode, qty, received_qty:qty, rate, discount_percentage:disc, amount, base_amount:cdToInr(amount), uom, stock_uom:uom, conversion_factor:1, gst_hsn_code:hsn, warehouse:rowWh, rejected_warehouse:rejectedWarehouse, use_serial_batch_fields:1, custom_bom:bomId, custom_gross_weight:grossWt||undefined, custom_net_weight:netWt||undefined, custom_tounch:tounch||undefined, custom_wastage:wastage||undefined, custom_pure_wt:pureWt||undefined, batch_no:batchNo||undefined, custom_packet_no:packetNo||undefined, serial_no:serialNo||undefined, custom_image:imgUrl||undefined, custom_remarks:remarks||undefined, custom_pcs:pcs, custom_old_serial_no:tr.dataset.oldSerial||undefined, ...((isSetRow||(tr.dataset.oldSerial&&!rate))?{allow_zero_valuation_rate:1}:{}), ...(tr.dataset.repairPiece?{price_list_rate:rate}:{}), ...(poName?{purchase_order:poName}:{}), ...(poItemRef?{purchase_order_item:poItemRef}:{}) });
   });
   const taxes=[];
   document.querySelectorAll('#taxTbody tr').forEach((tr,idx)=>{

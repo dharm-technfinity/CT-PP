@@ -156,6 +156,22 @@ export async function searchCustomers(query) {
   }
 }
 
+// Customers whose name matches exactly (case-insensitive) — warns before creating a same-name duplicate.
+export async function getCustomersByName(customerName) {
+  const n = (customerName || '').trim();
+  if (!n) return [];
+  try {
+    const filters = JSON.stringify([['customer_name', 'like', n.replace(/[%_]/g, '\\$&')]]);
+    const fields = JSON.stringify(CUSTOMER_FIELDS);
+    const res = await apiGet(
+      `/api/resource/Customer?fields=${encodeURIComponent(fields)}&filters=${encodeURIComponent(filters)}&limit_page_length=10`,
+    );
+    return getData(res) || [];
+  } catch {
+    return [];
+  }
+}
+
 export async function getCustomerByMobile(mobile) {
   const normalized = normalizeMobile(mobile);
   if (!normalized) return null;
@@ -3089,43 +3105,72 @@ export async function fetchCustomerSchemeAssignments(customerName) {
     const filters = JSON.stringify([
       ['customer', '=', customerName],
       ['docstatus', '=', 1],
-      ['status', '=', 'Matured'],
+      // Closed = pre-closed: redeemable for what was paid (see enrichSchemeAssignmentWithRedeemableValue)
+      ['status', 'in', ['Matured', 'Closed']],
       ['used', '=', 0],
     ]);
     const res = await apiGet(
       `/api/resource/Jewellery%20Scheme%20Assignment?fields=${encodeURIComponent(fields)}&filters=${encodeURIComponent(filters)}&order_by=modified desc&limit_page_length=50`,
     );
     const rows = getData(res) || [];
-    return await Promise.all(rows.map((a) => enrichSchemeAssignmentWithRedeemableValue(a)));
+    const enriched = await Promise.all(rows.map((a) => enrichSchemeAssignmentWithRedeemableValue(a)));
+    // A scheme closed before any EMI was paid, or already used up on earlier bills, has nothing to redeem
+    return enriched.filter((a) => (!a.preClosed || a.monthsPaid > 0) && !(a.redeemedOn?.length && a.advanceTotal <= 0));
   } catch (e) {
     console.warn('fetchCustomerSchemeAssignments failed:', e.message);
     return [];
   }
 }
 
+// Submitted Sales Invoices that already redeemed this assignment (from their Settlement
+// References). A partly-used scheme comes back for its balance, but its bonus and discounts were
+// given on the first of these bills. A cancelled bill drops out, so its benefits return with it.
+async function fetchSchemeRedeemedOnInvoices(assignmentName) {
+  const refRes = await apiGet(
+    `/api/method/frappe.client.get_list?doctype=${encodeURIComponent('Sales Invoice Settlement Reference')}&parent=${encodeURIComponent('Sales Invoice')}`
+      + `&fields=${encodeURIComponent(JSON.stringify(['parent']))}`
+      + `&filters=${encodeURIComponent(JSON.stringify([['reference_doctype', '=', 'Jewellery Scheme Assignment'], ['reference_name', '=', assignmentName]]))}&limit_page_length=0`,
+  );
+  const parents = [...new Set((getData(refRes) || []).map((r) => r.parent).filter(Boolean))];
+  if (!parents.length) return [];
+  const invRes = await apiGet(
+    `/api/resource/Sales%20Invoice?fields=${encodeURIComponent(JSON.stringify(['name']))}&filters=${encodeURIComponent(JSON.stringify([['name', 'in', parents], ['docstatus', '=', 1]]))}&order_by=posting_date asc&limit_page_length=0`,
+  );
+  return (getData(invRes) || []).map((r) => r.name);
+}
+
 async function enrichSchemeAssignmentWithRedeemableValue(assignment) {
-  const empty = { ...assignment, advanceAllocations: [], advanceTotal: 0, bonusAmount: 0, componentDiscounts: {}, totalRedeemable: 0 };
+  const empty = { ...assignment, advanceAllocations: [], advanceTotal: 0, bonusAmount: 0, componentDiscounts: {}, totalRedeemable: 0, failed: true };
   try {
-    const [detailRes, schemeRes] = await Promise.all([
+    const [detailRes, schemeRes, redeemedOn] = await Promise.all([
       apiGet(`/api/resource/Jewellery%20Scheme%20Assignment/${encodeURIComponent(assignment.name)}`),
       apiGet(`/api/resource/Jewellery%20Scheme/${encodeURIComponent(assignment.scheme)}`),
+      fetchSchemeRedeemedOnInvoices(assignment.name),
     ]);
     const doc = getData(detailRes) || {};
     const schemeDoc = getData(schemeRes) || {};
     const details = doc.jewellery_scheme_assignment_details || [];
 
     // Several installments can share one Payment Entry (e.g. multiple EMIs paid together in
-    // one go) — dedupe to the distinct set actually funding this assignment.
-    const paymentEntryNames = [...new Set(details.map((r) => r.payment_entry).filter(Boolean))];
+    // one go) — dedupe to the distinct set actually funding this assignment. A split payment
+    // (Cash + UPI) makes one Payment Entry per mode but the rows link only the first, so the
+    // rest are found by their custom_scheme_assignment link.
+    const linkedRes = await apiGet(
+      `/api/resource/Payment%20Entry?fields=${encodeURIComponent(JSON.stringify(['name']))}&filters=${encodeURIComponent(JSON.stringify([['custom_scheme_assignment', '=', assignment.name], ['docstatus', '=', 1]]))}&limit_page_length=0`,
+    ).catch(() => null);
+    const paymentEntryNames = [...new Set([
+      ...details.map((r) => r.payment_entry),
+      ...(getData(linkedRes) || []).map((pe) => pe.name),
+    ].filter(Boolean))];
     const peDocs = await Promise.all(
       paymentEntryNames.map((pe) =>
-        apiGet(`/api/resource/Payment%20Entry/${encodeURIComponent(pe)}?fields=${encodeURIComponent(JSON.stringify(['name', 'unallocated_amount']))}`)
+        apiGet(`/api/resource/Payment%20Entry/${encodeURIComponent(pe)}?fields=${encodeURIComponent(JSON.stringify(['name', 'docstatus', 'unallocated_amount']))}`)
           .then((r) => getData(r))
           .catch(() => null),
       ),
     );
     const advanceAllocations = peDocs
-      .filter((pe) => pe && parseFloat(pe.unallocated_amount) > 0)
+      .filter((pe) => pe && pe.docstatus === 1 && parseFloat(pe.unallocated_amount) > 0)
       .map((pe) => ({ paymentEntry: pe.name, amount: parseFloat(pe.unallocated_amount) || 0 }));
     const advanceTotal = round2(advanceAllocations.reduce((s, a) => s + a.amount, 0));
     // The basis for every percentage below is what the customer actually paid in EMIs, not the
@@ -3136,25 +3181,40 @@ async function enrichSchemeAssignmentWithRedeemableValue(assignment) {
       details.filter((r) => String(r.status || '').toLowerCase() === 'paid').reduce((s, r) => s + (parseFloat(r.emi) || 0), 0),
     );
 
-    // has_bonus_month decides which benefit a scheme gives — never both:
-    //  - has_bonus_month: the company adds bonus_installments worth of free EMI money (Swaran
-    //    Mani) — a flat bonus, no Making Charges discount on top of it.
-    //  - otherwise: bonus_installments doesn't apply, and instead the scheme's own
-    //    mc_percentage_discount is a percentage of the TOTAL EMI PAID (not of the new item's
-    //    Making Charge) — that resulting rupee amount becomes a flat discount earmarked
-    //    specifically against Making Charges (Swaran Bandhan, Swaran Nidhi).
+    // A Closed assignment was pre-closed: the customer stopped paying, so it redeems what was
+    // actually paid with the discounts earned for that many months, but never the bonus month.
+    const preClosed = String(assignment.status || '').toLowerCase() === 'closed';
+    const monthsPaid = details.filter((r) => String(r.status || '').toLowerCase() === 'paid').length;
+
+    // Bonus month (Swaran Mani): the company adds bonus_installments worth of free EMI money —
+    // only when the scheme runs to maturity.
     let bonusAmount = 0;
-    const componentDiscounts = {};
-    if (schemeDoc.has_bonus_month) {
+    if (schemeDoc.has_bonus_month && !preClosed) {
       const bonusCount = parseInt(schemeDoc.bonus_installments, 10) || 1;
       bonusAmount = round2(bonusCount * (parseFloat(assignment.emi_amount) || 0));
-    } else {
-      const lastRow = (schemeDoc.scheme_duration_table || [])[schemeDoc.scheme_duration_table?.length - 1];
-      const mcPct = parseFloat(lastRow?.mc_percentage_discount || 0) || 0;
-      if (mcPct > 0 && totalEmiPaid > 0) {
-        componentDiscounts.making = { mode: 'amount', value: round2(totalEmiPaid * (mcPct / 100)) };
-      }
     }
+
+    // Discounts come from the scheme_duration_table row for the months paid (the last row once
+    // matured), for every scheme:
+    //  - mc_percentage_discount: % of the TOTAL EMI PAID (not of the item's Making Charge),
+    //    turned into a flat rupee discount against Making Charges
+    //  - mc_discount_amount: despite its name a % off the bill's Making Charges (used only when
+    //    the row has no mc_percentage_discount)
+    //  - discount_on_diamond_jewellery: % off the bill's Diamond value
+    const durationRow = (schemeDoc.scheme_duration_table || [])
+      .filter((r) => (parseInt(r.month, 10) || 0) <= monthsPaid)
+      .sort((a, b) => (parseInt(a.month, 10) || 0) - (parseInt(b.month, 10) || 0))
+      .pop();
+    const componentDiscounts = {};
+    const mcPct = parseFloat(durationRow?.mc_percentage_discount || 0) || 0;
+    const mcBillPct = parseFloat(durationRow?.mc_discount_amount || 0) || 0;
+    const diamondPct = parseFloat(durationRow?.discount_on_diamond_jewellery || 0) || 0;
+    if (mcPct > 0 && totalEmiPaid > 0) {
+      componentDiscounts.making = { mode: 'amount', value: round2(totalEmiPaid * (mcPct / 100)) };
+    } else if (mcBillPct > 0) {
+      componentDiscounts.making = { mode: 'percent', value: mcBillPct };
+    }
+    if (diamondPct > 0) componentDiscounts.diamond = { mode: 'percent', value: diamondPct };
 
     // "Freeze the Gold" schemes (accumulate_gold) lock in a gold weight per installment at the
     // rate on its payment date (captured in gold_rate/gold_qty when marked Paid — see
@@ -3171,7 +3231,13 @@ async function enrichSchemeAssignmentWithRedeemableValue(assignment) {
       }
     }
 
-    return { ...assignment, advanceAllocations, advanceTotal, bonusAmount, componentDiscounts, totalRedeemable: round2(advanceTotal + bonusAmount) };
+    // Bonus and discounts are given once, on the first bill — after that only the balance is left
+    if (redeemedOn.length) {
+      bonusAmount = 0;
+      Object.keys(componentDiscounts).forEach((k) => { delete componentDiscounts[k]; });
+    }
+
+    return { ...assignment, advanceAllocations, advanceTotal, bonusAmount, componentDiscounts, preClosed, monthsPaid, redeemedOn, totalRedeemable: round2(advanceTotal + bonusAmount) };
   } catch (e) {
     console.warn(`enrichSchemeAssignmentWithRedeemableValue failed for ${assignment.name}:`, e.message);
     return empty;
@@ -3187,6 +3253,31 @@ export async function markSchemeAssignmentUsed(assignmentName) {
     await apiPut(`/api/resource/Jewellery%20Scheme%20Assignment/${encodeURIComponent(assignmentName)}`, { used: 1 });
   } catch (e) {
     console.warn(`markSchemeAssignmentUsed failed for ${assignmentName}:`, e.message);
+  }
+}
+
+// ERPNext doesn't reconcile a POS invoice's Advances table, so a submitted bill that redeems a
+// scheme stays Partly Paid for the scheme amount and the scheme's Payment Entries stay
+// unallocated. caratdesk_reconcile_scheme_advances (Server Script) runs ERPNext's own Payment
+// Reconciliation for it. Returns { reconciled, skipped, outstanding }; throws on failure.
+export async function reconcileSchemeAdvances(invoiceName) {
+  const res = await apiPost('/api/method/caratdesk_reconcile_scheme_advances', { data: { invoice: invoiceName } });
+  return res?.message || {};
+}
+
+// After a bill redeems a scheme: marks it used only once no advance is left on its Payment
+// Entries — a partly-used scheme stays redeemable for its balance. Returns whether it was marked.
+export async function markSchemeAssignmentUsedIfSpent(assignmentName) {
+  if (!assignmentName) return false;
+  try {
+    const doc = getData(await apiGet(`/api/resource/Jewellery%20Scheme%20Assignment/${encodeURIComponent(assignmentName)}`)) || {};
+    const { advanceTotal, failed } = await enrichSchemeAssignmentWithRedeemableValue(doc);
+    if (failed || advanceTotal > 0.009) return false;
+    await markSchemeAssignmentUsed(assignmentName);
+    return true;
+  } catch (e) {
+    console.warn(`markSchemeAssignmentUsedIfSpent failed for ${assignmentName}:`, e.message);
+    return false;
   }
 }
 

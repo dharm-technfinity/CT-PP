@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { fmtINR, parseApiError } from '../../lib/format.js';
+import { fmtINR, parseApiError, customerLabel } from '../../lib/format.js';
 import { useDebounce } from '../../hooks/useDebounce.js';
 import { useToast } from '../../hooks/useToast.jsx';
 import {
@@ -169,7 +169,7 @@ export default function CreateSettlementRecordModal({ type, customer, onClose, o
           <h3>{recordLabel} created</h3>
           <p className="cd-created-record">{created.name}</p>
           <p>
-            {type === 'gold' ? 'Gold Purchase' : `Sales Return against ${created.against}`} for {opCustomer?.customer_name || opCustomer?.name}.
+            {type === 'gold' ? 'Gold Purchase' : `Sales Return against ${created.against}`} for {customerLabel(opCustomer)}.
             {' '}Add it to a bill from <strong>Settlement → {type === 'gold' ? 'Gold Purchase' : 'Sales Return'}</strong>.
           </p>
         </div>
@@ -180,7 +180,7 @@ export default function CreateSettlementRecordModal({ type, customer, onClose, o
             <input
               className="cd-input"
               placeholder="Search by name or mobile…"
-              value={showCustomerList ? customerQuery : (opCustomer?.customer_name || opCustomer?.name || customerQuery)}
+              value={showCustomerList ? customerQuery : (customerLabel(opCustomer) || customerQuery)}
               onChange={(e) => { setCustomerQuery(e.target.value); setShowCustomerList(true); }}
               onFocus={() => { setCustomerQuery(''); setShowCustomerList(true); }}
               onBlur={() => setTimeout(() => setShowCustomerList(false), 150)}
@@ -197,7 +197,7 @@ export default function CreateSettlementRecordModal({ type, customer, onClose, o
                 {customerResults.map((c) => (
                   <div key={c.name} className="cd-ac-item" onMouseDown={() => selectCustomer(c)} role="button" tabIndex={0}>
                     <div className="main">{c.customer_name || c.name}</div>
-                    <div className="sub">{c.mobile_no || '—'}</div>
+                    <div className="sub">ID: {c.name} · {c.mobile_no || '—'}</div>
                   </div>
                 ))}
               </div>
