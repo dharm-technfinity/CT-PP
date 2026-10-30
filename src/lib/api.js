@@ -245,6 +245,7 @@ export async function createCustomerWithLinks(payload) {
     mobile_no: mobileNo,
     email_id: emailId,
     pan: payload.pan || '',
+    gstin: payload.gstin || '',
     custom_aadhar_card: payload.aadhaar_no || '',
     custom_date_of_birth: payload.date_of_birth || undefined,
     custom_date_of_anniversary: payload.anniversary || undefined,
